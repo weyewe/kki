@@ -15,7 +15,7 @@
 development:
   adapter: postgresql
   encoding: unicode
-  database: debita46_development
+  database: kki_development
   pool: 5
   username: weyewe
 
@@ -40,13 +40,13 @@ development:
 test:
   adapter: postgresql
   encoding: unicode
-  database: debita46_test
+  database: kki_test
   pool: 5
   username: weyewe
 
 production:
   adapter: postgresql
   encoding: unicode
-  database: debita46_production
+  database: kki_production
   pool: 5
   username: weyewe
