@@ -1,0 +1,34 @@
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container-fluid">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="#">Debita46</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="active"><a href="#">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+
+
+        <ul class="nav pull-right">
+          <li class="dropdown" id="fat-menu">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">kumakinsey<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Setting</a></li>
+              <li><a href="#">Profile</a></li>
+              <li class="divider"></li>
+              <li><%= link_to "Logout", destroy_user_session_url %></li>
+            </ul>
+          </li>
+        </ul>
+
+
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+</div>

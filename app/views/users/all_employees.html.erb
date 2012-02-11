@@ -1,0 +1,58 @@
+
+<div class="span9 content">
+  <%= render :partial => "layouts/guide/all_employees" %>
+
+  <%= render :partial => "users/breadcrumb" %>
+
+  
+  <div class="row-fluid">
+    <!-- <div class="span12"> -->
+      
+      <table cellpadding="0" cellspacing="0" border="0" 
+            class="table table-striped table-bordered" id="example">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <% @roles.each do |role| %>
+              <th>
+                <%= role.name %>
+              </th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% @employees.each do |employee| %>
+           <tr>
+              <td><%= link_to "#{employee.username}", edit_employee_url(employee.username)  %></td>
+              <td><%= employee.email %></td>
+              
+              <% @roles.each do |role| %>
+                <td>
+                  <% if employee.has_role?(role.name.underscore.to_sym) %>
+                    YES
+                  <% else %>
+                    NO
+                  <% end %>
+                </td>
+              <% end %>
+              
+              
+            </tr>
+          <% end %>
+         
+        </tbody>
+      </table>
+
+      
+      
+      
+    <!-- </div> -->   <!--/span12-->
+  </div><!--/row-->
+
+</div><!--/span-->
+
+<% content_for :additional_js  do %>
+  <%= javascript_include_tag "DT.js" %> 
+  <%= javascript_include_tag "DT_bootstrap.js" %> 
+<% end %>

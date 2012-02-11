@@ -1,0 +1,12 @@
+<ul class="breadcrumb">
+  <li class='<%= get_user_nav_active_state( USER_NAV[:list_employees]   , params ) %>'>
+    <%= link_to "Employee List", all_employees_url %>
+     <span class="divider">/</span>
+  </li>
+  
+  <% if params[:action] == "edit_employee" %>
+  <li class='<%= get_user_nav_active_state( USER_NAV[:edit_employee]   , params ) %>'>
+    <%= link_to "#{@employee.username}", edit_employee_url( @employee.username )%>
+  </li>
+  <% end %>
+</ul>

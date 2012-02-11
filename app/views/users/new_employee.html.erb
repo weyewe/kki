@@ -1,0 +1,86 @@
+
+<div class="span9 content">
+  <%= render :partial => "layouts/guide/create_employee" %>
+
+  
+  <div class="row-fluid">
+    <div class="span8">
+      <h2>Create New User</h2>
+      
+      <%= form_for User.new , :url => create_new_employee_url ,
+            :html => {:class => "form-horizontal"} do |f| %>
+      
+        <div class="control-group">
+          <%= f.label :email, "Email" %>
+          <div class="controls">
+            <%= f.email_field :email, :class=>"input-xlarge"  %>
+            <p class="help-block">Enter the employee email</p>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <%= f.label :username, "Employee ID" %>
+          <div class="controls">
+            <%= f.text_field :username, :class=>"input-xlarge" %>
+            <p class="help-block">Enter the employee ID</p>
+          </div>
+        </div>
+        
+        <!-- <div class="control-group">
+                   <%= f.label :password, "Password" %>
+                   <div class="controls">
+                     <%= f.password_field :password, :class=>"input-xlarge" %>
+                     <p class="help-block">Enter your employee password</p>
+                   </div>
+                 </div>
+                 
+                 <div class="control-group">
+                   <%= f.label :password_confirmation, "Password Confirmation" %>
+                   <div class="controls">
+                     <%= f.password_field :password_confirmation, :class=>"input-xlarge"  %>
+                     <p class="help-block">Enter your employee password_confirmation</p>
+                   </div>
+                 </div> -->
+        
+        <div class="control-group">
+          <label for="optionsCheckboxList" class="control-label">Role</label>
+          <div class="controls">
+            
+            <% Role.all.each do |r| %>
+              <% if r.name == SUPERUSER %>
+                <% next %>
+              <% end %>
+              <label class="checkbox">
+                <%= check_box_tag 'role',r.id,checked=false, 
+                    {:name => "role[role_id][]", :id => "role_id_#{r.id}"}%>
+                <%= r.name %>
+              </label>
+            
+            <% end %>
+
+            <p class="help-block"><strong>Note: </strong>A user can have more than 1 role.</p>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Create User</button>
+        </div>
+        
+        
+      <% end %>
+      <!--               <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details »</a></p> -->
+    </div><!--/span-->
+
+    <div class="span4">
+      <h2>Statistics</h2>
+      <p>1 Admin</p>
+      <p>3 Cashier</p>
+      <p>1 Loan Creator</p>
+      <p>20 Debt Collector</p>
+      <p><a class="btn" href="#">View details »</a></p>
+    </div><!--/span-->
+    
+  </div><!--/row-->
+
+</div><!--/span-->
