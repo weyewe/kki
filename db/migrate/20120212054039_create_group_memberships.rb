@@ -19,6 +19,10 @@ class CreateGroupMemberships < ActiveRecord::Migration
       t.integer :initial_saving_creator_id
       t.integer :admin_fee_creator_id
       
+      
+      # if the member has no sufficient $$ to pay for weekly payment
+      # and, doesn't intend to use the saving || the saving is not enough to cover for the remnant
+      t.boolean :backlog_payment , :default => false 
 
       t.timestamps
     end

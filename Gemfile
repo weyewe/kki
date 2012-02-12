@@ -18,6 +18,7 @@ gem 'acts_as_commentable_with_threading',
   :git => 'https://github.com/elight/acts_as_commentable_with_threading.git'
 
 gem "squeel" 
+gem 'acts_as_decimal'
 
 # gonna use this https://github.com/codegram/acts_as_decimal
 
