@@ -19,6 +19,8 @@ gem 'acts_as_commentable_with_threading',
 
 gem "squeel" 
 
+# gonna use this https://github.com/codegram/acts_as_decimal
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do

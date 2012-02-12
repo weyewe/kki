@@ -5,18 +5,24 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable, :token_authenticatable
 
   # Setup accessible (or protected) attributes for your model
-  attr_accessible :login, :username, :email, :password, :password_confirmation, :remember_me
+  attr_accessible :login, :username, :email, :password, :password_confirmation, :remember_me,
+                :office_id 
+                
   attr_accessor :login
   
   # Models
   has_many :assignments
   has_many :roles, :through => :assignments
   
+  belongs_to :office
+  
   
   # validation
   validates_presence_of :username
   validates_uniqueness_of :username
   validates_confirmation_of :password , :message => "Password doesn't match password confirmation"
+  
+  
     
   
   def User.create_and_assign_roles( new_user, role_id_array)

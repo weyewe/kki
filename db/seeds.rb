@@ -76,6 +76,9 @@ cilincing_villages.each do |village|
   Village.create :name => village[:name], :postal_code => village[:postal_code]
 end
 
+first_village = Village.first
+first_village.communes.create :number => 1
+
 
 =begin
 Role creation
@@ -168,22 +171,27 @@ cashier.save
 
 first_village = Village.first
 commune       = first_village.communes.first
-first_group = loan_officer.groups.create :village_id => first_village, :commune_id => commune.id
+first_group = Group.create :village_id => first_village, :commune_id => commune.id, 
+              :creator_user_id => loan_officer.id
+              
   # auto create group name 
-first_member = loan_officer.members.create :name => "Tuti Astuti", 
+first_member = Member.create :name => "Tuti Astuti", 
               :id_card_no => "1233435253",  :village_id => first_village,
               :commune_id => commune.id, :neighborhood_no => 33,
-              :address => "Jalan Tikus Gang 33252 no 55"
+              :address => "Jalan Tikus Gang 33252 no 55",
+              :member_creator_id => loan_officer.id
 
-second_member = loan_officer.members.create :name => "Jimmy Nastar", 
+second_member = Member.create :name => "Jimmy Nastar", 
               :id_card_no => "77484",  :village_id => first_village,
               :commune_id => commune.id, :neighborhood_no => 23,
-              :address => "Jalan Tikus Gang 33252 no 55"
+              :address => "Jalan Tikus Gang 33252 no 55",
+              :member_creator_id => loan_officer.id
               
-third_member = loan_officer.members.create :name => "Astari Widayanti", 
+third_member = Member.create :name => "Astari Widayanti", 
               :id_card_no => "66343",  :village_id => first_village,
               :commune_id => commune.id, :neighborhood_no => 11,
-              :address => "Jalan Tikus Gang 33252 no 55"
+              :address => "Jalan Tikus Gang 33252 no 55",
+              :member_creator_id => loan_officer.id
               
 # => assume that they are residing in the same RW
 first_group.members << first_member
@@ -251,6 +259,8 @@ cashier.approve_admin_fee( first_group )
 # after cashier has approved the deposit, the branch manager will be notified
 # branch manager has to approve the shit as well 
 branch_manager.approve_loan_disbursement( first_group )
+# loan_is_started .. auto generate 25 weekly attendance for each group membership
+# auto generate 25 weekly payments for each group membership
 
 
 # after branch manager approval, cashier will distribute the money (in the office)
@@ -377,6 +387,11 @@ cashier.approve_weekly_payment( first_group, field_worker, description )
     group deposit and group savings 
     
 =end
+
+branch_manager.calculate_default_loan_resolution( first_group )
+# only shows the calculation, about how much money will be taken from the deposit
+# and the money will be taken from the savings account
+
 
 branch_manager.execute_default_loan_resolution( first_group )
 
