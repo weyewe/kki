@@ -13,15 +13,54 @@ class User < ActiveRecord::Base
   # Models
   has_many :assignments
   has_many :roles, :through => :assignments
-  
-  belongs_to :office
-  
-  
-  # validation
-  validates_presence_of :username
-  validates_uniqueness_of :username
+
   validates_confirmation_of :password , :message => "Password doesn't match password confirmation"
   
+=begin
+For all employee
+=end
+  belongs_to :office
+  
+=begin
+  FOR BRANCH_MANAGER 
+  For any group_loan creation, it has to be tracked as history 
+    Newsfeed style ? Good enough 
+=end  
+    has_many :group_loans
+    
+    
+=begin
+  FOR LOAN OFFICER 
+
+=end  
+   def assign_group_loan_product( group,  group_loan_product  )
+     group.loan_assignment_creator_id = self.id 
+     group.group_loan_id = group_loan_product.id
+     group.save
+   end
+   
+   
+   
+       
+=begin
+    FOR CASHIER 
+    approval, only on the group scale. Prevent redundancy.
+    The risk of the details payment is on the field_worker
+    Cashier only needs to know about the group performance 
+=end 
+
+  
+
+  def approve_deposit( group )
+  end
+  
+  def approve_initial_savings( group )
+  end
+  
+  def approve_admin_fee( group )
+  end
+    
+    
   
     
   
@@ -69,6 +108,9 @@ class User < ActiveRecord::Base
   
   
     
+  
+  
+
   
   
   

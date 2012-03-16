@@ -36,4 +36,18 @@ WEEKLY_PAYMENT_STATUS = {
 
 
 
+PAYMENT_TYPE = {
+  # weekly payment for group loan 
+  :weekly_principal => 1 , 
+  :weekly_interest => 2 , 
+  :weekly_saving => 3 ,
+  :late_payment_fine => 4 , 
+  
+  # group loan creation
+  :group_loan_admin_fee => 5,
+  :group_loan_deposit => 6,
+  :group_loan_initial_saving => 7 
+  
+}
+
 
