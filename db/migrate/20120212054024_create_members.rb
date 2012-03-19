@@ -9,8 +9,9 @@ class CreateMembers < ActiveRecord::Migration
       t.integer :neighborhood_no
       t.text :address
       
-      t.integer :member_creator_id 
-      
+      t.integer :creator_id  # the user with loan_officer role 
+      t.integer :office_id 
+        
       
 
       t.timestamps

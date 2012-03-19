@@ -1,9 +1,13 @@
 class Member < ActiveRecord::Base
-  has_many :groups, :through => :group_memberships
-  has_many :group_memberships
+  has_many :group_loans, :through => :group_loan_memberships
+  has_many :group_loan_memberships
   
-  has_one :saving
-  
+  # saving_book will list all the record of the member's saving 
+  has_one :saving_book
+  # transaction_book will list all the record of member's transaction 
+  has_one :transaction_book
 
+
+  belongs_to :office 
   
 end

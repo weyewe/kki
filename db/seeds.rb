@@ -138,71 +138,187 @@ field_worker_role   = Role.create :name => "FieldWorker"
 cashier_role         = Role.create :name => "Cashier"
 
 =begin
-All these roles are enough to manage branch office
+  Create the blank slate user 
+=end
+puts "Gonna create user "
+branch_manager = User.create :email => "branch_manager@gmail.com", :password => "willy1234",
+                  :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+
+loan_officer = User.create :email => "loan_officer@gmail.com", :password => "willy1234",
+                  :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+                  
+cashier = User.create :email => "cashier@gmail.com", :password => "willy1234",
+                  :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+
+field_worker = User.create :email => "field_worker@gmail.com", :password => "willy1234",
+                  :password_confirmation => "willy1234"# , :office_id => cilincing_office.id
+      
+puts "Done creating user. Gonna create job_attachment"            
+=begin
+  assign job_attachment to each of this user 
 =end
 
+# cilincing_office.users << branch_manager 
+branch_manager_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+              :user_id => branch_manager.id, :is_active => true )
+# cilincing_office.users << loan_officer 
+loan_officer_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+              :user_id => loan_officer.id, :is_active => true )
+# cilincing_office.users << cashier 
+cashier_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+              :user_id => cashier.id, :is_active => true )
+# cilincing_office.users << field_worker 
+field_worker_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+              :user_id => field_worker.id, :is_active => true )
 
 
-branch_manager = User.create :email => "branch_manager@gmail.com", :password => "willy1234",
-                  :password_confirmation => "willy1234", :office_id => cilincing_office.id
-branch_manager.roles << branch_manager_role
-branch_manager.save
-                  
-loan_officer = User.create :email => "loan_officer@gmail.com", :password => "willy1234",
-                  :password_confirmation => "willy1234", :office_id => cilincing_office.id
-loan_officer.roles << loan_officer_role
-loan_officer.save      
-            
-                  
-field_worker = User.create :email => "field_worker@gmail.com", :password => "willy1234",
-                  :password_confirmation => "willy1234", :office_id => cilincing_office.id
-field_worker.roles << field_worker_role
-field_worker.save                
+# branch_manager = User.create :email => "branch_manager@gmail.com", :password => "willy1234",
+#                   :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+# branch_manager.roles << branch_manager_role
+# branch_manager.save
+#                   
+# loan_officer = User.create :email => "loan_officer@gmail.com", :password => "willy1234",
+#                   :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+# loan_officer.roles << loan_officer_role
+# loan_officer.save      
+#             
+#                   
+# field_worker = User.create :email => "field_worker@gmail.com", :password => "willy1234",
+#                   :password_confirmation => "willy1234"# , :office_id => cilincing_office.id
+# field_worker.roles << field_worker_role
+# field_worker.save                
+# 
+# cashier = User.create :email => "cashier@gmail.com", :password => "willy1234",
+#                   :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+# cashier.roles << cashier_role
+# cashier.save
 
-cashier = User.create :email => "cashier@gmail.com", :password => "willy1234",
-                  :password_confirmation => "willy1234", :office_id => cilincing_office.id
-cashier.roles << cashier_role
-cashier.save
+
+puts "Done creating the blank slate user  user and the job attachment "
 
 
-puts "Done creating the core user and the role assignment "
 =begin
-  BASIC setup is done. Now, someone has to create a group
+  Gonna add roles to the job attachment 
+=end
+
+branch_manager_job_attachment.roles << branch_manager_role
+branch_manager_job_attachment.save
+
+loan_officer_job_attachment.roles << loan_officer_role
+loan_officer_job_attachment.save
+
+cashier_job_attachment.roles << cashier_role
+cashier_job_attachment.save
+
+field_worker_job_attachment.roles << field_worker_role
+field_worker_job_attachment.save
+
+puts "Done adding roles to the JobAttachment"
+
+
+=begin  
+  The whole business process is started by the branch manager creating 
+    group loan product 
+=end
+puts "the first"
+group_loan_product_a = GroupLoanProduct.create :principal => 20000, 
+                                  :interest => 4000, 
+                                  :min_savings => 8000, :total_weeks => 25 ,
+                                  :admin_fee => 25000, :initial_savings => 15000,
+                                  :creator_id => branch_manager.id ,
+                                  :office_id => cilincing_office.id
+puts "the second"
+group_loan_product_b = GroupLoanProduct.create :principal => 25000, 
+                                  :interest => 3000, 
+                                  :min_savings => 8000, :total_weeks => 25 ,
+                                  :admin_fee => 25000, :initial_savings => 20000,
+                                  :creator_id => branch_manager.id,
+                                  :office_id => cilincing_office.id 
+                                  
+puts "The third"
+group_loan_product_c = GroupLoanProduct.create :principal => 40000, 
+                                   :interest => 1000, 
+                                   :min_savings => 8000, :total_weeks => 25 ,
+                                   :admin_fee => 25000, :initial_savings => 50000,
+                                   :creator_id => branch_manager.id ,
+                                   :office_id => cilincing_office.id
+                                  
+                                
+puts "done creating loan product" 
+
+# 
+# branch_manager.group_loans.create :principal => 20000, 
+#                                   :interest => 4000, 
+#                                   :min_savings => 8000, :total_weeks => 25 ,
+#                                   :admin_fee => 25000, :initial_savings => 15000
+# 
+# loan_product_b = branch_manager.group_loans.create 
+#                                   :principal => 25000, 
+#                                   :interest => 3000, 
+#                                   :min_savings => 8000, :total_weeks => 25 ,
+#                                   :admin_fee => 25000, :initial_savings => 20000
+#                                   
+# loan_product_c = branch_manager.group_loans.create :principal => 40000, 
+#                                                     :interest => 1000, 
+#                                                     :min_savings => 8000, :total_weeks => 25 ,
+#                                                     :admin_fee => 25000, :initial_savings => 50000
+                                  
+                                  
+
+=begin
+  Then, after the loan product has been created, the next role is to get member. (registering member) 
+  In this scheme, the members registered by loan officer are the qualified member, 
+  has been processsed offline, interviewed as well. 
+  Now, someone has to create a group
   Commune == RW 
   Only people from the same commune that can borrow (group loan membership)
 =end
 
 first_village = Village.first
 commune       = first_village.communes.first
-first_group = Group.create  :commune_id => commune.id, 
-              :creator_user_id => loan_officer.id
+if loan_officer.nil?
+  puts "The loan officer is nil"
+else
+  puts "This is awesome"
+end
+first_group_loan = GroupLoan.create  :commune_id => commune.id, 
+              :creator_id => loan_officer.id
               
   # auto create group name 
 first_member = Member.create :name => "Tuti Astuti", 
               :id_card_no => "1233435253",  :village_id => first_village.id,
               :commune_id => commune.id, :neighborhood_no => 33,
               :address => "Jalan Tikus Gang 33252 no 55",
-              :member_creator_id => loan_officer.id
+              :creator_id => loan_officer.id,
+              :office_id => cilincing_office.id
 
 second_member = Member.create :name => "Jimmy Nastar", 
               :id_card_no => "77484",  :village_id => first_village.id,
               :commune_id => commune.id, :neighborhood_no => 23,
               :address => "Jalan Tikus Gang 33252 no 55",
-              :member_creator_id => loan_officer.id
+              :creator_id => loan_officer.id,
+              :office_id => cilincing_office.id
               
 third_member = Member.create :name => "Astari Widayanti", 
               :id_card_no => "66343",  :village_id => first_village.id,
               :commune_id => commune.id, :neighborhood_no => 11,
               :address => "Jalan Tikus Gang 33252 no 55",
-              :member_creator_id => loan_officer.id
+              :creator_id => loan_officer.id,
+              :office_id => cilincing_office.id
               
 puts "DONe creating the member"
+
+=begin
+  After the members are created, we need to assign them into the group,
+  in which they share the same Commune ID, 
+  in which they will be applying for loans together 
+=end
               
 # => assume that they are residing in the same RW
-first_group.members << first_member
-first_group.members << second_member
-first_group.members << third_member
-first_group.save
+first_group_loan.members << first_member
+first_group_loan.members << second_member
+first_group_loan.members << third_member
+first_group_loan.save
 
 puts "Done assigning member to the group"
 
@@ -216,66 +332,65 @@ puts "Done assigning member to the group"
   
   THIS IS THE FUCKING GROUP LOAN
 =end
-
-loan_product_a = branch_manager.group_loans.create :principal => 20000, 
-                                  :interest => 4000, 
-                                  :min_savings => 8000, :total_weeks => 25 ,
-                                  :admin_fee => 25000, :initial_savings => 15000
-
-loan_product_b = branch_manager.group_loans.create :principal => 25000, 
-                                  :interest => 3000, 
-                                  :min_savings => 8000, :total_weeks => 25 ,
-                                  :admin_fee => 25000, :initial_savings => 20000
-                                  
-loan_product_c = branch_manager.group_loans.create :principal => 40000, 
-                                  :interest => 1000, 
-                                  :min_savings => 8000, :total_weeks => 25 ,
-                                  :admin_fee => 25000, :initial_savings => 50000
-                                  
-puts "Done creating loan product"
+# 
+# loan_product_a = branch_manager.group_loans.create :principal => 20000, 
+#                                   :interest => 4000, 
+#                                   :min_savings => 8000, :total_weeks => 25 ,
+#                                   :admin_fee => 25000, :initial_savings => 15000
+# 
+# loan_product_b = branch_manager.group_loans.create :principal => 25000, 
+#                                   :interest => 3000, 
+#                                   :min_savings => 8000, :total_weeks => 25 ,
+#                                   :admin_fee => 25000, :initial_savings => 20000
+#                                   
+# loan_product_c = branch_manager.group_loans.create :principal => 40000, 
+#                                   :interest => 1000, 
+#                                   :min_savings => 8000, :total_weeks => 25 ,
+#                                   :admin_fee => 25000, :initial_savings => 50000
+#                                   
+# puts "Done creating loan product"
 # next, each group membership has to be assigned loan_product
-first_membership = first_group.get_membership_for_member( first_member )
-second_membership = first_group.get_membership_for_member( second_member )
-third_membership = first_group.get_membership_for_member( third_member )
 
-loan_officer.assign_group_loan_product( first_group,  loan_product_a )
-# loan_officer.assign_product( second_membership,  loan_product_b )
-# loan_officer.assign_product( third_membership,  loan_product_c )
+=begin
+  After assigning member to the group, 
+  we should assign the loan product to each member in the group
+=end
+
+puts "Gonna assign loan product to the group_loan_membership"
+puts "8234 ---- stuck over here"# 
+# first_group_loan_membership = first_group_loan.get_membership_for_member( first_member )
+# second_group_loan_membership = first_group_loan.get_membership_for_member( second_member )
+# third_group_loan_membership = first_group_loan.get_membership_for_member( third_member )
+# 
+# loan_officer.assign_group_loan_product( first_membership,  group_loan_product_a )
+# # loan_officer.assign_product( second_membership,  loan_product_b )
+# # loan_officer.assign_product( third_membership,  loan_product_c )
 
 puts "Done assigning loan product to the membership "
 
-puts "First membership :#{first_membership}"
-puts "First membership :#{second_membership}"
-puts "First membership :#{third_membership}"
+puts "_____________FUCKING DONE WITH THE BASIC_____"
 
+puts "The steps of group loan start?"
 
-# before the group loan will be disbursed, 
-# the group has to deposit $$$
+puts "How do we model payment"
+=begin
+  One TransactionActivity has many Payments 
+  example, the member gives 50,000 rupiah to field worker
+    it can be for 4 payments:
+    1. 20,000 cash is the principal payment
+    2. 5000 cash is the fine (late payment )
+    3. 20,000 cash is for the savings payment 
+    4. 5,0000 cash is for the interest payment
+    
+  But, it can only happen that one TransactionActivity contains less than 4 payments:
+  example: not enough money (just 4000).  so, the member asked the worker to do: 
+  Basic payment: 25k (20k == principal, 5k == interest)
+  Transaction:
+  1. Take 21k cash from savings account (saving credit)
+  2. Pay 20k for principal
+  3. Pay 5k for interest
+=end
 
-# field_worker.add_deposit( first_membership,  50000)
-# field_worker.add_deposit( second_membership,  10000)
-# field_worker.add_deposit( third_membership,  40000)
-
-first_membership.add_deposit( field_worker, 50000)
-second_membership.add_deposit( field_worker, 10000)
-third_membership.add_deposit( field_worker, 40000)
-
-puts "Done adding deposit by field worker, on behalf of the membership"
-
-
-
-first_membership.add_initial_saving( field_worker,  20000)
-second_membership.add_initial_saving( field_worker,  20000)
-third_membership.add_initial_saving( field_worker,  20000)
-
-puts "Done adding initial saving by field worker, on behalf of the membership"
-
-
-first_membership.add_admin_fee( field_worker,  25000)
-second_membership.add_admin_fee( field_worker,  25000)
-third_membership.add_admin_fee( field_worker,  25000)
-
-puts "Done adding membesrhip fee by field worker, on behalf of the membership"
 
 # These shites are not done 
 

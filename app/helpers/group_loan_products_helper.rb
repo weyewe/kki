@@ -1,0 +1,2 @@
+module GroupLoanProductsHelper
+end

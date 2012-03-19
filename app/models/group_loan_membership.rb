@@ -1,10 +1,13 @@
-class GroupMembership < ActiveRecord::Base
+class GroupLoanMembership < ActiveRecord::Base
   belongs_to :member
-  belongs_to :group
+  belongs_to :group_loan
   
   
   has_many :weekly_attendances
   has_many :weekly_payments 
+  
+  has_one :loan_subcription
+  has_one :group_loan, :through => :loan_subcription
   
   
   def add_deposit(field_worker, amount ) 
@@ -45,6 +48,4 @@ class GroupMembership < ActiveRecord::Base
       self.save 
     end
   end
-  
-  
 end

@@ -9,8 +9,12 @@ module ApplicationHelper
   PREV_BUTTON_TEXT = " &larr; Prev "
   
 =begin
-  Our version of transloadit 
+  For printing numbers (money)
 =end
+
+  def print_money(value)
+    number_with_delimiter( value , :delimiter => ",")
+  end
   
   
 =begin
@@ -271,11 +275,15 @@ module ApplicationHelper
     :processes => [
       {
         :title => "Create Loan Product",
-        :destination_link => 'root_url',
+        :destination_link => 'new_group_loan_product_url',
         :conditions => [
           {
-            :controller => 'enrollments',
-            :action => 'kungfu'
+            :controller => 'group_loan_products',
+            :action => 'new'
+          },
+          {
+            :controller => 'group_loan_products',
+            :action => 'create'
           }
         ]
       },

@@ -12,6 +12,13 @@ Debita46::Application.routes.draw do
   match 'dashboard'           => 'home#dashboard'  , :as => :dashboard
   root :to => 'home#dashboard'
   
+=begin
+  Branch Manager routes 
+=end
+  # match ''
+  
+  resources :group_loan_products
+  
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

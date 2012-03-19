@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class SavingTest < ActiveSupport::TestCase
+class JobAttachmentTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

@@ -5,33 +5,44 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable, :token_authenticatable
 
   # Setup accessible (or protected) attributes for your model
-  attr_accessible :login, :username, :email, :password, :password_confirmation, :remember_me,
-                :office_id 
+  attr_accessible :login, :username, :email, :password, :password_confirmation, :remember_me# ,
+  #                 :office_id 
+                # we don't need office id over here. wrong assignment 
                 
   attr_accessor :login
   
-  # Models
-  has_many :assignments
-  has_many :roles, :through => :assignments
+  # The employee can be a manager in one office, and a cashier in another office. 
+  # it is all depends on the situation. Fuck. wrong  allocation 
+  # has_many :assignments
+  #   has_many :roles, :through => :assignments
 
   validates_confirmation_of :password , :message => "Password doesn't match password confirmation"
   
-=begin
-For all employee
-=end
-  belongs_to :office
+# An employee can belong to many offices
+  has_many :offices, :through => :job_attachments 
+  has_many :job_attachments 
+  
   
 =begin
   FOR BRANCH_MANAGER 
   For any group_loan creation, it has to be tracked as history 
     Newsfeed style ? Good enough 
 =end  
-    has_many :group_loans
+    # has_many :group_loans
+    
+    
+    
+    
+=begin
+  FOR Branch Manager
+=end
+  def get_managed_office
+    self.schools.first 
+  end
     
     
 =begin
   FOR LOAN OFFICER 
-
 =end  
    def assign_group_loan_product( group,  group_loan_product  )
      group.loan_assignment_creator_id = self.id 
@@ -48,8 +59,6 @@ For all employee
     The risk of the details payment is on the field_worker
     Cashier only needs to know about the group performance 
 =end 
-
-  
 
   def approve_deposit( group )
   end
@@ -100,10 +109,20 @@ For all employee
   end
    
    
+   
+  def active_job_attachment
+    active_job_attachment = self.job_attachments.where(:is_active => true).first
+  end
   
   
-  def has_role?(role_sym)
-    roles.any? { |r| r.name.underscore.to_sym == role_sym }
+  def has_role?(role_sym,  active_job_attachment )
+    # job_attachment = JobAttachment.find(:first, :conditions => {
+    #      :office_id => office.id , 
+    #      :user_id => self.id 
+    #    })
+    
+    active_job_attachment.has_role?(role_sym)
+    # roles.any? { |r| r.name.underscore.to_sym == role_sym }
   end
   
   
