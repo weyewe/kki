@@ -73,7 +73,8 @@ cilincing_villages = [
 
 
 cilincing_villages.each do |village|
-  Village.create :name => village[:name], :postal_code => village[:postal_code]
+  Village.create :name => village[:name], :postal_code => village[:postal_code], 
+      :subdistrict_id => cilincing_subdistrict.id
 end
 
 first_village = Village.first

@@ -1,0 +1,131 @@
+
+<div class="span9 content">
+  <%= create_guide("Add New Member", 
+        "Create the group loan for: " + "<br />" + 
+        "Office: #{@office.name}" + "<br />"    +  
+        "Total Office Members: #{@office_members.count} " + "(<a href='#data_list'>see all</a>)"          ).html_safe %>
+  
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <% if flash[:notice] %>
+    <div class="alert alert-success">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Well done!</strong> <%= flash[:notice].html_safe %>
+    </div>
+  <% end %>
+  
+  <% if flash[:error] %>
+    <div class="alert alert-error">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Create Failure!</strong> Please fill in all fields.
+    </div>
+  <% end %>
+  
+  
+  <div class="row-fluid">
+    <div class="span12">
+      
+      <h2>New Member details</h2><br />
+
+      <%= simple_form_for(@new_member, :html => {:class => 'form-horizontal' }) do |f| %>
+       <!-- t.string   "name"
+           t.string   "id_card_no"
+           t.integer  "village_id"
+           t.integer  "commune_id" RW
+           t.integer  "neighborhood_no" RT
+           t.text     "address" 
+           t.integer  "creator_id"
+           t.integer  "office_id" -->
+        
+        
+        <%= f.input :name , :input_html => {:class => "input-xlarge span5", :id =>"weekly_principal"}, 
+         :label => "Nama" %>
+
+        <%= f.input :id_card_no, :input_html => {:class => "input-xlarge span5",:id =>"weekly_interest"  },
+        :label => "No KTP", :hint => "tidak usah pakai titik. langsung saja 234329439843928"%>
+
+        <%#= f.input :commune_id, :input_html => { :class => "input-xlarge span5" },
+        :hint => "Pilih Desa-Kelurahan ---- RW", :label => "RW" %>
+        
+        <%= f.input :commune_id, :hint => "Pilih Kecamatan, Desa-Kelurahan ---- RW", :label => "RW" do %>
+          <%= f.select :commune_id, 
+              @all_communes %>
+        <% end %>
+        
+        
+        
+        <%= f.input :neighborhood_no, :input_html => { :class => "input-xlarge span5" },
+        :hint => "Nomor RT", :label => "RT" %>
+
+      
+        <%= f.input :address, :input_html => {:rows => 5, :class => "input-xlarge span5" },
+              :label => "Alamat Lengkap"%>
+
+        <div class="form-actions">
+          <%= f.button :submit , :class => "btn btn-primary", :text=> "Create Member Product" %>
+        </div>
+      <% end %>
+      
+      
+     
+      
+    </div> 
+      
+      
+      
+    
+  </div><!--/row-->
+   <hr />
+  <div class="row-fluid">
+    <div id="data_list">
+      <h2>Total Members in office <%= @office.name %>: <%= @office_members.count %> </h2>
+      
+      
+      <table cellpadding="0" cellspacing="0" border="0" 
+            class="table table-striped table-bordered" id="example">
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>No KTP</th>
+            <th>Kecamatan</th>
+            <th>Desa/Kelurahan</th>
+            <th>RW</th>
+            <th>RT</th>
+            
+          </tr>
+        </thead>
+        <tbody>
+          <% @office_members.each do |office_member| %>
+            <% commune = Commune.find_by_id office_member.commune_id %>
+            <% village = commune.village %>
+            <% subdistrict = village.subdistrict %>
+            <tr>
+              <td><%= office_member.name %></td>
+              <td><%= office_member.id_card_no %></td>
+              <td><%= subdistrict.name %></td>
+              <td><%= village.name %></td>
+              <td><%= commune.number %></td>
+              <td><%= office_member.neighborhood_no  %></td>
+            </tr>
+          <% end %>
+
+        </tbody>
+      </table>
+    </div><!-- end of #data_list -->
+  </div>
+
+</div><!--/span-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

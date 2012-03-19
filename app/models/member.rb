@@ -10,4 +10,18 @@ class Member < ActiveRecord::Base
 
   belongs_to :office 
   
+  validates_presence_of :name, :id_card_no , :commune_id 
+  
+  validates :id_card_no, :uniqueness => { 
+    :case_sensitive => false,
+    :message => "Harus unik. Sudah ada member dengan no KTP ini." }
+    
+  # def commune_data
+  #     @commune = Commune.find_by_id( self.commune_id )
+  #     @village = Village.find_by_id( @commune. )
+  #     "#{subdistrict.name}, #{village.name} -- RW #{self.commune.number }"
+  #   end
+  
+  
+  
 end

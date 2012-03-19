@@ -1,9 +1,10 @@
-
 <div class="span9 content">
-  <%= create_guide("New Group Loan Product", 
+  <%= create_guide("Add New Group Loan Product", 
         "Create the group loan for: " + "<br />" + 
         "Office: #{@office.name}" + "<br />"    +  
-        "Total Group Loans: #{@group_loan_products.count} " + "(<a href='#data_list'>see all</a>)"          ).html_safe %>
+        "Total Office Members: #{@group_loan_products.count} " + "(<a href='#data_list'>see all</a>)"          ).html_safe %>
+        
+
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   <% if flash[:notice] %>
@@ -16,7 +17,7 @@
   <% if flash[:error] %>
     <div class="alert alert-error">
       <a data-dismiss="alert" class="close">×</a>
-      <strong>Create Failure!</strong> Please fill in all fields.
+      <strong>Create Failure!</strong> Please fill in all required (*) fields.
     </div>
   <% end %>
   
@@ -48,6 +49,7 @@
           <%= f.button :submit , :class => "btn btn-primary", :text=> "Create Group Loan Product" %>
         </div>
       <% end %>
+      
       
      
       

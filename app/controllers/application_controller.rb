@@ -21,7 +21,7 @@ class ApplicationController < ActionController::Base
     end
     
     if current_user.has_role?(:loan_officer, active_job_attachment)
-      return select_subject_for_project_url
+      return new_member_url
     end
     
     if current_user.has_role?(:cashier, active_job_attachment)

@@ -18,6 +18,8 @@ Debita46::Application.routes.draw do
   # match ''
   
   resources :group_loan_products
+  resources :group_loans 
+  resources :members 
   
 
   # The priority is based upon order of creation:

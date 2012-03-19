@@ -20,4 +20,20 @@ class Office < ActiveRecord::Base
   # Normally, 1 Office represents 1 Subdistrict  
   has_many :subdistricts, :through => :geo_scopes
   has_many :geo_scopes
+  
+  def all_communes_under_management
+    subdistricts = self.subdistricts.includes(:villages => [:communes] ) 
+    puts "good with subdistricts"
+    result = []
+    subdistricts.each do |subdistrict|
+      subdistrict.villages.each do |village| 
+        village.communes.each do |commune|
+          result << [ "#{subdistrict.name}, #{village.name} -- RW #{commune.number }" , 
+                          commune.id ]
+        end
+      end
+    end
+    return result 
+  end
+  
 end

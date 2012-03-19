@@ -305,26 +305,30 @@ module ApplicationHelper
     :processes => [
       {
         :title => "Add Member",
-        :destination_link => 'root_url',
+        :destination_link => 'new_member_url',
         :conditions => [
           {
-            :controller => 'enrollments',
-            :action => 'kungfu'
+            :controller => 'members',
+            :action => 'new'
+          },
+          {
+            :controller => "members",
+            :action => "create"
           }
         ]
       },
       {
-        :title => "Create Group Loan",
-        :destination_link => 'root_url',
+        :title => "Create GroupLoan",
+        :destination_link => 'new_group_loan',
         :conditions => [
           {
-            :controller => 'loan_product',
-            :action => 'banzai'
+            :controller => 'group_loans',
+            :action => 'new'
           }
         ]
       },
       {
-        :title => "Assign Member to Group",
+        :title => "Assign Member to GroupLoan",
         :destination_link => 'root_url',
         :conditions => [
           {
