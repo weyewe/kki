@@ -10,7 +10,7 @@ class Office < ActiveRecord::Base
   has_one :cashflow_book
   
   # Groups is collection of members, each member is having one group loan 
-  has_many :groups
+  has_many :group_loans
   # members are registered to the office. Will only change when they move house
   has_many :members 
   
@@ -34,6 +34,10 @@ class Office < ActiveRecord::Base
       end
     end
     return result 
+  end
+  
+  def active_group_loans
+    self.group_loans.where(:is_closed => false )
   end
   
 end

@@ -51,3 +51,8 @@ PAYMENT_TYPE = {
 }
 
 
+
+TRUE_CHECK = 1
+FALSE_CHECK = 0
+
+

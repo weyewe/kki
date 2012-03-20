@@ -1,0 +1,110 @@
+
+<div class="span9 content">
+  <%= create_guide("Add New Group Loan", 
+        "Create a new group loan for: " + "<br />" + 
+        "Office: #{@office.name}" + "<br />"    +  
+        "Total Active Group Loan: #{@active_group_loans.count} " + "(<a href='#data_list'>see all</a>)"          ).html_safe %>
+  
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <% if flash[:notice] %>
+    <div class="alert alert-success">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Well done!</strong> <%= flash[:notice].html_safe %>
+    </div>
+  <% end %>
+  
+  <% if flash[:error] %>
+    <div class="alert alert-error">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Create Failure!</strong> Please fill in all fields.
+    </div>
+  <% end %>
+  
+  
+  <div class="row-fluid">
+    <div class="span12">
+      
+      <h2>New Group Loan details</h2><br />
+
+      <%= simple_form_for(@new_group_loan, :html => {:class => 'form-horizontal' }) do |f| %>
+      <!-- t.string   "name"
+          t.integer  "creator_id",                            :null => false
+          t.integer  "office_id"
+          t.boolean  "is_closed",          :default => false
+          t.integer  "group_closer_id"
+          t.boolean  "is_started",         :default => false
+          t.integer  "group_starter_id"
+          t.integer  "total_default"
+          t.boolean  "any_default",        :default => false
+          t.integer  "default_creator_id"
+          t.integer  "commune_id" -->
+        
+        
+        <%= f.input :name , :input_html => {:class => "input-xlarge span5"}, 
+         :label => "Name", :hint => "Just another label to differentiate the group loans" %>
+
+       <%= f.input :commune_id, :hint => "Persyaratan group loan: anggota harus tinggal di satu RW. <br />Pilih Kecamatan, Desa-Kelurahan ---- RW".html_safe, :label => "RW" do %>
+         <%= f.select :commune_id, 
+             @all_communes %>
+       <% end %>
+       
+        <%#= f.input :commune_id, :input_html => {:class => "input-xlarge span5" },
+        :label => "Area RW", :hint => "Persyaratan group loan: anggota harus tinggal di satu RW" %>
+
+     
+        <div class="form-actions">
+          <%= f.button :submit , :class => "btn btn-primary", :text=> "Create Group Loan" %>
+        </div>
+      <% end %>
+      
+      
+     
+      
+    </div> 
+      
+  </div><!--/row-->
+   <hr />
+  <div class="row-fluid">
+    <div id="data_list">
+      <h2>Total Active Group Loans in office <%= @office.name %>: <%= @active_group_loans.count %> </h2>
+      
+      
+      <table cellpadding="0" cellspacing="0" border="0" 
+            class="table table-striped table-bordered" id="example">
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>RW</th>
+            <th>Jumlah Anggota</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @active_group_loans.each do |group_loan| %>
+            <tr>
+              <td><%= group_loan.name %></td>
+              <td><%= group_loan.get_commune %></td>
+              <td><%= group_loan.members.count %></td>
+            </tr>
+          <% end %>
+
+        </tbody>
+      </table>
+    </div><!-- end of #data_list -->
+  </div>
+
+</div><!--/span-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

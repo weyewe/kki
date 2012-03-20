@@ -3,6 +3,7 @@ class GroupLoanProduct < ActiveRecord::Base
   
   has_many :loan_subscriptions
   has_many :group_loan_memberships, :through => :loan_subscriptions
+  
   validates_presence_of :principal, :interest, :min_savings, :admin_fee, :initial_savings, :total_weeks
   validates_numericality_of :principal, :interest, :min_savings, :admin_fee, :initial_savings, :total_weeks
   

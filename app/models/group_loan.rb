@@ -8,9 +8,20 @@ class GroupLoan < ActiveRecord::Base
   
   # belongs_to :group_loan 
   belongs_to :office
+  validates_presence_of :name
+  
+  def get_commune
+    commune = Commune.find_by_id self.commune_id
+    village = commune.village
+    subdistrict = village.subdistrict
+    "#{subdistrict.name}, #{village.name} -- RW #{commune.number }"
+  end
+  
+  def commune
+    Commune.find_by_id self.commune_id
+  end
   
   def get_membership_for_member( member )
- 
     GroupMembership.find(:first, :conditions => {
       :group_id => self.id,
       :member_id => member.id 

@@ -37,48 +37,61 @@ cilincing_office.save
   Sukapura, Cilincing dengan kode pos 14140
   Rorotan, Cilincing dengan kode pos 14140
   Marunda, Cilincing dengan kode pos 14150
+  
+  http://www.jakarta.go.id/jakv1/encyclopedia/detail/202
 =end
 
 cilincing_villages = [
   {
     :postal_code => 14110,
-    :name => "Kali Baru"
+    :name => "Kali Baru", 
+    :total_communes => 14 
   },
   {
     :postal_code => 14120,
-    :name => "Cilincing"
+    :name => "Cilincing", 
+    :total_communes => 10
   },
   {
     :postal_code => 14130,
-    :name => "Semper Barat"
+    :name => "Semper Barat", 
+    :total_communes => 17
   },
   {
     :postal_code => 14130,
-    :name => "Semper Timur"
+    :name => "Semper Timur", 
+    :total_communes => 10
   },
   {
     :postal_code => 14140,
-    :name => "Sukapura"
+    :name => "Sukapura", 
+    :total_communes => 10
   },
   {
     :postal_code => 14140,
-    :name => "Rorotan"
+    :name => "Rorotan", 
+    :total_communes => 11
   },
   {
     :postal_code => 14150,
-    :name => "Marunda"
+    :name => "Marunda", 
+    :total_communes => 9
   }
 ]
 
 
 
 cilincing_villages.each do |village|
-  Village.create :name => village[:name], :postal_code => village[:postal_code], 
+  new_village = Village.create :name => village[:name], :postal_code => village[:postal_code], 
       :subdistrict_id => cilincing_subdistrict.id
+
+  (1..village[:total_communes]).each do |x|
+    Commune.create :village_id => new_village.id , :number => x 
+  end
 end
 
 first_village = Village.first
-first_village.communes.create :number => 1
+# first_village.communes.create :number => 1
 
 
 puts "Done creating regional master data"

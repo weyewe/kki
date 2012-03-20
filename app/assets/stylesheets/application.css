@@ -6,5 +6,6 @@
  *= require bootstrap.min
  *= require style
  *= require datatables
+ *= require showLoading
  *= require_self
 */

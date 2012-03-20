@@ -319,7 +319,7 @@ module ApplicationHelper
       },
       {
         :title => "Create GroupLoan",
-        :destination_link => 'new_group_loan',
+        :destination_link => 'new_group_loan_url',
         :conditions => [
           {
             :controller => 'group_loans',
@@ -329,11 +329,15 @@ module ApplicationHelper
       },
       {
         :title => "Assign Member to GroupLoan",
-        :destination_link => 'root_url',
+        :destination_link => 'select_group_loan_to_assign_member_url',
         :conditions => [
           {
-            :controller => 'loan_product',
-            :action => 'banzai'
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_assign_member'
+          },
+          {
+            :controller => "group_loan_memberships",
+            :action => "new"
           }
         ]
       },

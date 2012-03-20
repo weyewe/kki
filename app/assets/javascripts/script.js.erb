@@ -1,0 +1,105 @@
+$(document).ready(function() {
+  $('.menu-dropdown').dropdown();
+
+  /*
+    To simulate the group loan product
+      In the form:
+        #weekly_principal
+        #weekly_interest
+        #duration
+    
+      In the calculator 
+        #total_principal
+        #percentage_interest
+        #calculator_duration
+  */
+
+  $("#simulate_group_loan_product").click(function(){/*
+      console.log("I am fucking clicked");
+      console.log("Total principal is " + parseFloat( $("#total_principal input").val()  ) );
+      console.log("Total percentage is " + parseFloat( $("#percentage_interest input").val()  ) );
+      console.log("Total duration is " + parseInt(  $("#calculator_duration input").val()  ));*/
+    
+    var total_principal = parseFloat( $("#total_principal input").val()  );
+    var percentage_interest = parseFloat( $("#percentage_interest input").val()  );
+    var loan_duration =  parseInt(  $("#calculator_duration input").val() );
+    
+    var weekly_principal = total_principal/loan_duration; 
+    var weekly_interest = weekly_principal * percentage_interest/100;
+    /*
+        console.log("the calculated weekly principal is " + weekly_principal);
+        console.log("The calculated weekly interest is "+ weekly_interest);*/
+    $("#weekly_principal").val(weekly_principal);
+    $("#weekly_interest").val( weekly_interest );
+    $("#duration").val( loan_duration );
+  });
+  
+  // assignment related methods 
+   $(".checkbox_tracker").change( function(){
+     var $checkbox = $(this);
+     var after_clicked_value;
+
+     /*
+       Extracting the value of the checkbox, based on the user action
+     */
+     if(   $checkbox.is(":checked")  ) {
+       $checkbox.attr('value', <%= TRUE_CHECK %>);
+       after_clicked_value = <%= TRUE_CHECK %>;
+     }else{
+       $checkbox.attr( 'value', <%= FALSE_CHECK %> );
+        after_clicked_value = <%= FALSE_CHECK %>;
+     }
+
+
+     var checkbox_id = $checkbox.attr("id");
+     var provider_id = checkbox_id.split("-")[0].split("_")[1];
+     var consumer_id = checkbox_id.split("-")[1].split("_")[1];
+
+     var $form = $("#checkbox_form_wrapper form");
+
+     var provider_field = $("#membership_provider");
+     provider_field.attr('value', provider_id);
+     var consumer_field = $("#membership_consumer");
+     consumer_field.attr('value', consumer_id);
+
+     var decision_field = $("#membership_decision");
+     decision_field.attr("value", after_clicked_value )
+
+     if($checkbox.hasClass("single-submit")){
+       $form.trigger('submit');
+     }else {
+
+
+       $checkbox.showLoading();
+
+       $.ajax({
+         url: $form.attr("action"),
+         type: "POST",
+         data: $form.serialize(),
+         dataType: 'script',
+         success: function(response){
+
+           $form.clearForm();
+           $checkbox.hideLoading();
+         }
+       });
+     }
+   });
+});
+
+
+
+$.fn.clearForm = function() {
+  return this.each(function() {
+    var type = this.type, tag = this.tagName.toLowerCase();
+    if (tag == 'form')
+      return $(':input',this).clearForm();
+    if (type == 'text' || type == 'password' || tag == 'textarea')
+      this.value = '';
+    else if (type == 'checkbox' || type == 'radio')
+      this.checked = false;
+    else if (tag == 'select')
+      this.selectedIndex = -1;
+  });
+};
+

@@ -18,8 +18,17 @@ Debita46::Application.routes.draw do
   # match ''
   
   resources :group_loan_products
-  resources :group_loans 
+  resources :group_loans  do
+    resources :group_loan_memberships
+  end
+  resources :group_loan_memberships
   resources :members 
+
+=begin
+  Loan Officer Routes
+=end
+
+  match 'select_group_loan_to_assign_member' => "group_loans#select_group_loan_to_assign_member", :as => :select_group_loan_to_assign_member
   
 
   # The priority is based upon order of creation:

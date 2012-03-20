@@ -22,6 +22,47 @@ class Member < ActiveRecord::Base
   #     "#{subdistrict.name}, #{village.name} -- RW #{self.commune.number }"
   #   end
   
+  def past_group_loans
+
+    member_id = self.id
+    GroupLoanMembership.joins(:group_loan).where(
+             { :member_id => member_id   } & 
+             {:group_loan => {:is_started => true }} & 
+             {:group_loan => {:is_closed => true }}
+             ).count
+  end
+    # 
+    # t.boolean  "is_closed",          :default => false
+    # t.integer  "group_closer_id"
+    # t.boolean  "is_started",         :default => false
+    # 
+  
+    
+    def current_assigned_group_loans
+      member_id = self.id
+      GroupLoanMembership.joins(:group_loan).where(
+               { :member_id => member_id   } &  
+               {:group_loan => {:is_closed => false }}
+               ).count
+    end
+    
+    def current_active_group_loans
+      member_id = self.id
+      GroupLoanMembership.joins(:group_loan).where(
+               { :member_id => member_id   } &  
+               {:group_loan => {:is_closed => false }} & 
+               {:group_loan => {:is_started => true }} 
+               ).count
+    end
+  
+  
+  def is_group_loan_member?(group_loan) 
+    not GroupLoanMembership.find(:first, :conditions => {
+      :member_id => self.id,
+      :group_loan_id => group_loan.id 
+    }).nil?
+  end
+  
   
   
 end

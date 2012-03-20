@@ -7,7 +7,7 @@ class GroupLoanMembership < ActiveRecord::Base
   has_many :weekly_payments 
   
   has_one :loan_subcription
-  has_one :group_loan, :through => :loan_subcription
+  has_one :group_loan_product, :through => :loan_subcription
   
   
   def add_deposit(field_worker, amount ) 
