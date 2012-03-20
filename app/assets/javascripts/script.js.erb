@@ -85,6 +85,24 @@ $(document).ready(function() {
        });
      }
    });
+   
+   /*
+   See details of group_loan_product
+   */
+   $("a.group_loan_product_details").live('click', function(){
+     var modal_id = $(this).attr("id").split("-")[1];
+     
+     var $modal_wrapper = $("#myModal-" + modal_id );
+     $modal_wrapper.modal('show');
+     var $modal_closer = $(".modal-footer .modal-closer ", $modal_wrapper);
+     $modal_closer.click(function(){
+       $modal_wrapper.modal('hide');
+     });
+     
+     /*
+     For modal size, use https://github.com/twitter/bootstrap/issues/675
+     */
+   });
 });
 
 

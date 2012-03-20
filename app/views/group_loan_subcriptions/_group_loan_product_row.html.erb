@@ -1,0 +1,26 @@
+<% group_loan_product = member.get_group_loan_product_for(group_loan) %>
+
+<tr id="member_loan_subcription-<%= member.id %>">
+  <td class="user-nim"><%= member.name %></td>
+  
+  <% if not group_loan_product.nil? %>
+    <td> <%= print_money(group_loan_product.loan_amount) %> </td>
+    <td><%= group_loan_product.interest_rate_in_percent.to_s + "%"%></td>
+    <td>
+        <a href="#" 
+            class="btn group_loan_product_details"
+            id="member_<%= member.id %>_detail_viewer-<%=  group_loan_product.id %>">
+          Payment Details
+        </a>
+    </td>
+    <td><%= group_loan_product.total_weeks.to_s + "weeks" %></td>
+    <td>Update Loan Product</td>
+  <% else %>
+    <td> - </td>
+    <td> - </td>
+    <td> - </td>
+    <td> - </td>
+    <td>Assign Loan Product</td>
+  <% end %>
+  
+</tr>

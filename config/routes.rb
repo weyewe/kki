@@ -17,11 +17,13 @@ Debita46::Application.routes.draw do
 =end
   # match ''
   
-  resources :group_loan_products
+  resources :group_loan_products 
   resources :group_loans  do
     resources :group_loan_memberships
+    resources :group_loan_subcriptions
   end
   resources :group_loan_memberships
+  resources :group_loan_subcriptions
   resources :members 
 
 =begin
@@ -29,7 +31,7 @@ Debita46::Application.routes.draw do
 =end
 
   match 'select_group_loan_to_assign_member' => "group_loans#select_group_loan_to_assign_member", :as => :select_group_loan_to_assign_member
-  
+  match 'select_group_loan_to_group_loan_product' => "group_loans#select_group_loan_to_group_loan_product", :as => :select_group_loan_to_group_loan_product
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

@@ -6,9 +6,11 @@ class GroupLoanMembership < ActiveRecord::Base
   has_many :weekly_attendances
   has_many :weekly_payments 
   
-  has_one :loan_subcription
-  has_one :group_loan_product, :through => :loan_subcription
-  before_destroy :destroy_loan_subcription
+  has_one :group_loan_subcription
+  has_one :group_loan_product, :through => :group_loan_subcription
+  
+  
+  before_destroy :destroy_group_loan_subcription
   
   
   
@@ -70,7 +72,6 @@ class GroupLoanMembership < ActiveRecord::Base
     
     
     if not group_loan_membership.nil?
-      puts "Not gonna create the new shit\n"*10
       return group_loan_membership
     end
     
@@ -81,7 +82,6 @@ class GroupLoanMembership < ActiveRecord::Base
       return group_loan_membership
     end
     
-    puts "weee, we are gonna create another grouploanmebership!\n"*10
     group_loan_membership = GroupLoanMembership.create(
       :member_id => member.id,
       :group_loan_id => group_loan.id
@@ -112,7 +112,7 @@ class GroupLoanMembership < ActiveRecord::Base
   
   
   protected
-  def destroy_loan_subcription
+  def destroy_group_loan_subcription
     GroupLoanSubcription.find(:all, :conditions => {
       :group_loan_membership_id => self.id
     }).each {|x| x.destroy }

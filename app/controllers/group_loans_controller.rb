@@ -25,8 +25,11 @@ class GroupLoansController < ApplicationController
 =end
   
   def select_group_loan_to_assign_member
-    @office = current_user.active_job_attachment.office
-    @active_group_loans = @office.active_group_loans
+    setup_select_group_loan
+  end
+  
+  def select_group_loan_to_group_loan_product
+    setup_select_group_loan
   end
   
   protected
@@ -34,5 +37,10 @@ class GroupLoansController < ApplicationController
     @office = current_user.active_job_attachment.office
     @active_group_loans = @office.active_group_loans
     @all_communes = @office.all_communes_under_management
+  end
+  
+  def setup_select_group_loan
+    @office = current_user.active_job_attachment.office
+    @active_group_loans = @office.active_group_loans
   end
 end

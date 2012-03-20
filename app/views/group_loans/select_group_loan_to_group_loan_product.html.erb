@@ -1,0 +1,54 @@
+
+<div class="span9 content">
+  <%= create_guide("Assign Loan Product", 
+        "Select Group Loan" + "<br />" + 
+        "Manage group loan for office: <b>#{@office.name}</b>" + "<br />" + 
+        "Total Active Group Loan: <b>#{@active_group_loans.count}</b> ").html_safe %>
+  
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  
+  
+   
+  <div class="row-fluid">
+    <div id="data_list">
+      <table cellpadding="0" cellspacing="0" border="0" 
+            class="table table-striped table-bordered" id="example">
+        <thead>
+          <tr>
+            <th>Nama Group</th>
+            <th>Lokasi RW</th>
+            <th>Group Member</th>
+            <th>Total Member di RW</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @active_group_loans.each do |group_loan| %>
+            <tr>
+              <td><%= link_to group_loan.name, new_group_loan_group_loan_subcription_url(group_loan) %></td>
+              <td><%= group_loan.get_commune %></td>
+              <td><%= group_loan.members.count %></td>
+              <td><%= group_loan.commune.total_members %></td>
+            </tr>
+          <% end %>
+
+        </tbody>
+      </table>
+    </div><!-- end of #data_list -->
+  </div>
+
+</div><!--/span-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -17,21 +17,27 @@ class ApplicationController < ActionController::Base
   def after_sign_in_path_for(resource)
     active_job_attachment  = current_user.active_job_attachment 
     if current_user.has_role?( :branch_manager, active_job_attachment)
+      puts "user has role branch_manager!\n"*10
       return new_group_loan_product_url
     end
     
     if current_user.has_role?(:loan_officer, active_job_attachment)
+      puts "user has role loan_officer!\n"*10
       return new_member_url
     end
     
-    if current_user.has_role?(:cashier, active_job_attachment)
-      return project_submissions_url
-    end
     
-    if current_user.has_role?(:field_worker, active_job_attachment)
-      return project_submissions_url
-    end
+    puts "God.. no role at all.. something messed up with the seeds\n"*10
     
+    
+    # if current_user.has_role?(:cashier, active_job_attachment)
+    #    return project_submissions_url
+    #  end
+    #  
+    #  if current_user.has_role?(:field_worker, active_job_attachment)
+    #    return project_submissions_url
+    #  end
+    #  
   end
 
 

@@ -1,12 +1,34 @@
 class GroupLoanProduct < ActiveRecord::Base
   belongs_to :office 
   
-  has_many :loan_subscriptions
-  has_many :group_loan_memberships, :through => :loan_subscriptions
+  
+  # has_many :group_loan_subscriptions
+  #  has_many :group_loan_memberships, :through => :group_loan_subscriptions
   
   validates_presence_of :principal, :interest, :min_savings, :admin_fee, :initial_savings, :total_weeks
   validates_numericality_of :principal, :interest, :min_savings, :admin_fee, :initial_savings, :total_weeks
   
+  
+=begin
+  Association methods 
+=end
+  
+  def group_loan_subcriptions
+    GroupLoanSubcription.find(:all, :conditions => {
+      :group_loan_product_id => self.id 
+    })
+  end
+  
+  def group_loan_memberships
+        # 
+        # Client.joins(:orders).where(:orders => {:created_at => time_range})
+        # 
+        # 
+    GroupLoanMembership.joins(:group_loan_subcription).where(
+      :group_loan_subcription => { :group_loan_product_id => self.id }
+    )
+  end
+
   def total_weekly_payment
     principal + interest + min_savings
   end
@@ -16,6 +38,14 @@ class GroupLoanProduct < ActiveRecord::Base
   end
   
   def interest_rate
-    interest/principal
+    interest/principal 
   end
+  
+  def interest_rate_in_percent
+    interest_rate * 100 
+  end
+ 
+ 
+  
+  
 end

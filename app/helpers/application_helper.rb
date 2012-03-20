@@ -343,11 +343,15 @@ module ApplicationHelper
       },
       {
         :title => "Assign Loan To Member",
-        :destination_link => 'root_url',
+        :destination_link => 'select_group_loan_to_group_loan_product_url',
         :conditions => [
           {
-            :controller => 'loan_product',
-            :action => 'banzai'
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_group_loan_product'
+          },
+          {
+            :controller => "group_loan_subcriptions",
+            :action => "new"
           }
         ]
       }

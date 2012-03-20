@@ -25,15 +25,37 @@ class GroupLoan < ActiveRecord::Base
     ###### IMPORTANT ########## 
     # a member can only be in 1 group loan at a given time. 
     # so, when the loan is started, destroy all other group loan membership 
+    # and group loan can't be started if there is a member with no group_loan_subcription 
+    
+    ## after the deposit  + initial savings has been received, loan $$$ can be disbursed 
   end
   
   def commune
     Commune.find_by_id self.commune_id
   end
   
+  def all_group_loan_products_used
+    group_loan_product_id_array = GroupLoanSubcription.
+                select(:group_loan_product_id).
+                where(:group_loan_membership_id => 
+                      self.group_loan_membership_ids).map do |group_loan_subcription|
+                        group_loan_subcription.group_loan_product_id
+                      end
+    
+    group_loan_product_id_array.uniq.map do |group_loan_product_id|
+      GroupLoanProduct.find_by_id group_loan_product_id
+    end
+  end
+  
+  def group_loan_membership_ids
+    GroupLoanMembership.select(:id).find(:all, :conditions => {
+      :group_loan_id => self.id
+    }).map {|x| x.id }
+  end
+  
   def get_membership_for_member( member )
-    GroupMembership.find(:first, :conditions => {
-      :group_id => self.id,
+    GroupLoanMembership.find(:first, :conditions => {
+      :group_loan_id => self.id,
       :member_id => member.id 
     })
   end

@@ -370,7 +370,35 @@ puts "Done assigning member to the group"
   we should assign the loan product to each member in the group
 =end
 
+
+
 puts "Gonna assign loan product to the group_loan_membership"
+group_loan_product_1 = GroupLoanProduct.find 1
+group_loan_product_2 = GroupLoanProduct.find 2
+
+first_member = Member.find 1
+second_member = Member.find 2
+third_member = Member.find 3 
+
+puts "Gonna create the first group_loan"
+group_loan = GroupLoan.create :commune_id => first_member.commune_id , :name => "Group1", 
+      :creator_id => branch_manager.id ,
+      :office_id => cilincing_office.id
+
+puts "Gonna create the GroupLoanMembership"
+first_membership = GroupLoanMembership.create_membership( loan_officer, first_member, group_loan)
+second_membership = GroupLoanMembership.create_membership( loan_officer, second_member, group_loan)
+third_membership = GroupLoanMembership.create_membership( loan_officer, third_member, group_loan)
+
+
+puts " Gonna create the group_loan_subcription "
+first_subcription = GroupLoanSubcription.create_subcription( loan_officer, first_membership, group_loan_product_1)
+second_subcription = GroupLoanSubcription.create_subcription( loan_officer, second_membership, group_loan_product_1)
+third_subcription = GroupLoanSubcription.create_subcription( loan_officer, third_membership, group_loan_product_2)
+
+
+
+
 puts "8234 ---- stuck over here"# 
 # first_group_loan_membership = first_group_loan.get_membership_for_member( first_member )
 # second_group_loan_membership = first_group_loan.get_membership_for_member( second_member )
