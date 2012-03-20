@@ -8,6 +8,8 @@ class GroupLoanMembership < ActiveRecord::Base
   
   has_one :loan_subcription
   has_one :group_loan_product, :through => :loan_subcription
+  before_destroy :destroy_loan_subcription
+  
   
   
   def add_deposit(field_worker, amount ) 
@@ -48,4 +50,73 @@ class GroupLoanMembership < ActiveRecord::Base
       self.save 
     end
   end
+  
+  
+=begin
+  Related with the group_loan_membership creation
+=end
+  def self.create_membership( creator, member, group_loan)
+    
+    group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+      :member_id => member.id,
+      :group_loan_id => group_loan.id
+    })
+    
+     # business logic , no new membership can be generated if the group loan is running 
+    if group_loan.is_started == true
+      return group_loan_membership  
+    end
+    
+    
+    
+    if not group_loan_membership.nil?
+      puts "Not gonna create the new shit\n"*10
+      return group_loan_membership
+    end
+    
+    
+    # special for group_membership_creation
+    # a new group membership can't be created if the member has ongoing active group_loan
+    if member.current_active_group_loans != 0 
+      return group_loan_membership
+    end
+    
+    puts "weee, we are gonna create another grouploanmebership!\n"*10
+    group_loan_membership = GroupLoanMembership.create(
+      :member_id => member.id,
+      :group_loan_id => group_loan.id
+    )
+    # put the user activity list on who the creator is 
+    
+  end
+  
+  def self.destroy_membership( destroyer, member, group_loan)
+    group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+      :member_id => member.id,
+      :group_loan_id => group_loan.id
+    })
+    
+    # business logic , no new membership can be generated if the group loan is running 
+    if group_loan.is_started == true 
+      return group_loan_membership
+    end
+    
+    if  group_loan_membership.nil?
+      return group_loan_membership
+    end
+    
+    group_loan_membership.destroy 
+    # put the user activity list on who the destroyer is 
+  end
+  
+  
+  
+  protected
+  def destroy_loan_subcription
+    GroupLoanSubcription.find(:all, :conditions => {
+      :group_loan_membership_id => self.id
+    }).each {|x| x.destroy }
+  end
+  
+  
 end

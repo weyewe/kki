@@ -17,6 +17,16 @@ class GroupLoan < ActiveRecord::Base
     "#{subdistrict.name}, #{village.name} -- RW #{commune.number }"
   end
   
+  def propose_to_start_group_loan
+    
+  end
+  
+  def start_loan
+    ###### IMPORTANT ########## 
+    # a member can only be in 1 group loan at a given time. 
+    # so, when the loan is started, destroy all other group loan membership 
+  end
+  
   def commune
     Commune.find_by_id self.commune_id
   end
