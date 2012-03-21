@@ -342,7 +342,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Assign Loan To Member",
+        :title => "Assign GroupLoan to Group Member",
         :destination_link => 'select_group_loan_to_group_loan_product_url',
         :conditions => [
           {

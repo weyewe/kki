@@ -7,20 +7,39 @@
     <td> <%= print_money(group_loan_product.loan_amount) %> </td>
     <td><%= group_loan_product.interest_rate_in_percent.to_s + "%"%></td>
     <td>
-        <a href="#" 
+        <a 
             class="btn group_loan_product_details"
             id="member_<%= member.id %>_detail_viewer-<%=  group_loan_product.id %>">
           Payment Details
         </a>
     </td>
-    <td><%= group_loan_product.total_weeks.to_s + "weeks" %></td>
-    <td>Update Loan Product</td>
+    <td><%= group_loan_product.total_weeks.to_s + " weeks" %></td>
+        <% if group_loan.is_started == false %>
+          <td>
+            <a 
+                class="btn change_group_loan_product"
+                id="member-<%= member.id %>_detailviewer-<%=  group_loan_product.id %>">
+              Change Loan Product
+            </a>
+          </td>
+        <% else %>
+          <td>Loan Started</td>
+        <% end %>
   <% else %>
     <td> - </td>
     <td> - </td>
     <td> - </td>
     <td> - </td>
-    <td>Assign Loan Product</td>
+    <td>
+      <% if group_loan.is_started == false %>
+        <a class="btn change_group_loan_product no_loan_assigned"
+            id="no_loan_subcription_member-<%= member.id %>">
+        Assign Loan Product
+        </a>
+      <% else %>
+        Loan Started
+      <% end %>
+    </td>
   <% end %>
   
 </tr>

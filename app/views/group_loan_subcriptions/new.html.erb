@@ -41,7 +41,7 @@
       
       
       <div class=" hidden" id="checkbox_form_wrapper">
-        <%= form_for GroupLoanMembership.new, :url =>group_loan_memberships_url   do |f| %>
+        <%= form_for GroupLoanSubcription.new, :url =>group_loan_subcriptions_url   do |f| %>
           <%= hidden_field_tag 'membership_provider' , ''  %>
           <%= hidden_field_tag 'membership_consumer', '' %>
           <%= hidden_field_tag 'membership_decision', '' %>
@@ -63,10 +63,13 @@
            </div> -->
      
 
-      <% @group_loan_products_used.each do |group_loan_product| %>
+      <% @group_loan_products.each do |group_loan_product| %>
         <%= render :partial => "group_loan_subcriptions/custom_modal",
               :locals => {:group_loan_product => group_loan_product } %>
      <% end %>
+     
+     <%= render :partial => "group_loan_subcriptions/group_loan_product_selector" , 
+              :locals => {:group_loan_products => @group_loan_products}   %>
         
       
     <!-- </div> -->   <!--/span12-->

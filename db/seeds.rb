@@ -320,6 +320,13 @@ third_member = Member.create :name => "Astari Widayanti",
               :creator_id => loan_officer.id,
               :office_id => cilincing_office.id
               
+fourth_member = Member.create :name => "Jimmy Wales", 
+              :id_card_no => "6634343",  :village_id => first_village.id,
+              :commune_id => commune.id, :neighborhood_no => 17,
+              :address => "Jalan Tikus Gang 33252 no 59",
+              :creator_id => loan_officer.id,
+              :office_id => cilincing_office.id
+              
 puts "DONe creating the member"
 
 =begin
@@ -379,6 +386,7 @@ group_loan_product_2 = GroupLoanProduct.find 2
 first_member = Member.find 1
 second_member = Member.find 2
 third_member = Member.find 3 
+fourth_member = Member.find 4
 
 puts "Gonna create the first group_loan"
 group_loan = GroupLoan.create :commune_id => first_member.commune_id , :name => "Group1", 
@@ -389,12 +397,14 @@ puts "Gonna create the GroupLoanMembership"
 first_membership = GroupLoanMembership.create_membership( loan_officer, first_member, group_loan)
 second_membership = GroupLoanMembership.create_membership( loan_officer, second_member, group_loan)
 third_membership = GroupLoanMembership.create_membership( loan_officer, third_member, group_loan)
+fourth_membership = GroupLoanMembership.create_membership( loan_officer, fourth_member, group_loan)
 
 
 puts " Gonna create the group_loan_subcription "
 first_subcription = GroupLoanSubcription.create_subcription( loan_officer, first_membership, group_loan_product_1)
 second_subcription = GroupLoanSubcription.create_subcription( loan_officer, second_membership, group_loan_product_1)
 third_subcription = GroupLoanSubcription.create_subcription( loan_officer, third_membership, group_loan_product_2)
+ # we leave the fourth membership's group loan as empty 
 
 
 

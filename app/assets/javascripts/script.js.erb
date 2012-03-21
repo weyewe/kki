@@ -94,14 +94,97 @@ $(document).ready(function() {
      
      var $modal_wrapper = $("#myModal-" + modal_id );
      $modal_wrapper.modal('show');
-     var $modal_closer = $(".modal-footer .modal-closer ", $modal_wrapper);
+     var $modal_closer = $(".modal-footer .modal-closer", $modal_wrapper);
      $modal_closer.click(function(){
        $modal_wrapper.modal('hide');
      });
      
+     return false; 
+     
      /*
      For modal size, use https://github.com/twitter/bootstrap/issues/675
      */
+   });
+   
+   
+   /*
+    To assign group loan, change group loan 
+   */
+   $(".change_group_loan_product").live("click", function(){
+     var $this = $(this);
+     
+     var member_id;
+     var member_group_loan_product_id; 
+     
+     var $assign_loan_modal = $("#myModal-loan_product_selector");
+     var $modal_closer = $(".modal-footer .modal-closer", $assign_loan_modal );
+     var $summary_page = $(".summary_product_selector", $assign_loan_modal);
+     var $back_to_summary_button = $(".back_to_summary_button", $assign_loan_modal);
+     
+     // Show the summary page
+     $summary_page.removeClass("modal-hidden");
+     
+     // hide all detail pages
+     $(".detail_product_page", $assign_loan_modal).each(function(){
+       $(this).addClass("modal-hidden");
+     });
+     // hide the back to summary button
+     $back_to_summary_button.hide();
+     
+     
+     
+     if( $this.hasClass("no_loan_assigned") ){
+       member_id = $(this).attr("id").split("-")[1];
+       member_group_loan_product_id = 0 ;
+     }else{
+       member_id = $(this).attr("id").split("_")[0].split("-")[1];
+       member_group_loan_product_id = $(this).attr("id").split("_")[1].split("-")[1];
+     }
+     
+     console.log("member_id = " + member_id );
+     console.log("the group_loan_product_id = " + member_group_loan_product_id);
+     
+     // bind the detail button 
+     $(".group_loan_product_details_selector", $assign_loan_modal).click(function(){
+       var product_detail_id = $(this).attr("id").split("-")[1];
+       $summary_page.addClass("modal-hidden");
+       var $detail_product_page = $("#detail_product_page-" + product_detail_id);
+       $detail_product_page.removeClass("modal-hidden");
+       
+       $back_to_summary_button.show();
+       // bind the back button
+       $back_to_summary_button.click(function(){
+         $(this).hide();
+         $detail_product_page.addClass("modal-hidden");
+         $summary_page.removeClass("modal-hidden");
+       });
+       
+     });
+     
+     
+     // bind the select button 
+     $(".group_loan_product_select", $assign_loan_modal).each(function(){
+       var group_loan_product_id = $(this).attr("id").split("-")[1];
+        
+       if( group_loan_product_id == member_group_loan_product_id){
+       
+         $(this).addClass("btn-success"); 
+         $(this).text("Selected");
+        
+       }else{
+         $(this).removeClass("btn-success");
+         $(this).text("Select");
+         // $(this).click(function(){
+         //           alert("Will create an ajax post to the server");
+         //         });
+         
+       }
+     });
+     
+     $modal_closer.click(function(){
+       $assign_loan_modal.modal('hide');
+     });
+     $assign_loan_modal.modal("show");
    });
 });
 

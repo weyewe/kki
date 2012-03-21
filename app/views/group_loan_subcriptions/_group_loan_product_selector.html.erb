@@ -1,0 +1,14 @@
+<div class="modal" id="myModal-loan_product_selector" style="display:none;">
+  <%= render :partial => "group_loan_subcriptions/summary_product_page" ,
+            :locals => {:group_loan_products => group_loan_products}%>
+  
+  <% group_loan_products.each do |group_loan_product| %>
+    <%= render :partial => "group_loan_subcriptions/detail_product_page", 
+          :locals => {:group_loan_product => group_loan_product} %>
+  <% end %>
+  <div class="modal-footer">
+    
+    <a href="#" class="btn modal-closer">Close</a>
+    <button href="#" class="btn btn-info back_to_summary_button" style="display:none;">Back</button>
+  </div>
+</div>
