@@ -18,7 +18,7 @@
           <td>
             <a 
                 class="btn change_group_loan_product"
-                id="member-<%= member.id %>_detailviewer-<%=  group_loan_product.id %>">
+                id="membership-<%= group_loan.get_membership_for_member(member).id %>_detailviewer-<%=  group_loan_product.id %>">
               Change Loan Product
             </a>
           </td>
@@ -33,7 +33,7 @@
     <td>
       <% if group_loan.is_started == false %>
         <a class="btn change_group_loan_product no_loan_assigned"
-            id="no_loan_subcription_member-<%= member.id %>">
+            id="no_loan_subcription_member-<%= group_loan.get_membership_for_member(member).id %>">
         Assign Loan Product
         </a>
       <% else %>

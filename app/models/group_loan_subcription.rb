@@ -25,4 +25,39 @@ class GroupLoanSubcription < ActiveRecord::Base
     )
     # put the user activity list on who the creator is 
   end
+  
+  
+  def self.create_or_change( group_loan_product_id , group_loan_membership_id  )
+    
+    group_loan_membership = GroupLoanMembership.find_by_id group_loan_membership_id
+    
+    if group_loan_membership.nil?
+      # bad data 
+      return nil
+    end
+    
+    group_loan = group_loan_membership.group_loan
+    group_loan_subcription = group_loan_membership.group_loan_subcription 
+    new_group_loan_subcription = ''
+    # business logic.. if the group loan has started, nobody can change the group_loan_product 
+    if group_loan.is_started == true 
+      # is there any case where a member hasn't been assigned loan, but the group loan is_started == true?
+      # ans => can't happen. To activate is_started == true, all member has a group loan product 
+      return group_loan_subcription
+    end
+    
+    if not group_loan_subcription.nil?
+      # update case 
+      group_loan_subcription.group_loan_product_id = group_loan_product_id
+      group_loan_subcription.save 
+    else
+      # create case 
+      group_loan_subcription = GroupLoanSubcription.create(
+        :group_loan_membership_id => group_loan_membership_id, 
+        :group_loan_product_id => group_loan_product_id
+      )
+    end
+    
+    return group_loan_subcription
+  end
 end

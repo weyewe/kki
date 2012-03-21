@@ -1,0 +1,65 @@
+$(document).ready(function(){
+  console.log("This is from the server");
+  
+  // to refresh.. is there any better way? than duplicating the code? calling functions, for example?
+  
+  // refersh the modal display (in the page summary ) 
+  // then refresh the row 
+  
+  var $assign_loan_modal = $("#myModal-loan_product_selector");
+  <% if @group_loan_subcription.nil? %>
+    var member_group_loan_product_id  = '0';
+  <% else %>
+    var member_group_loan_product_id  = '<%= @group_loan_subcription.group_loan_product_id %>';
+  <% end %>
+  
+  var group_membership_id = '<%= @group_loan_subcription.group_loan_membership.id %>';
+  // change the modal 
+  $(".group_loan_product_select", $assign_loan_modal).each(function(){
+     
+     var group_loan_product_id = $(this).attr("id").split("-")[1];
+     if( group_loan_product_id == member_group_loan_product_id){
+       $(this).addClass("btn-success"); 
+       $(this).text("Selected");
+     }else{
+       $(this).removeClass("btn-success");
+       $(this).text("Select");
+       $(this).click(function(){
+          $assign_loan_modal.showLoading();
+          
+          var $form = $("#checkbox_form_wrapper form" );
+          var $membership_provider = $("#membership_provider");
+          $membership_provider.attr('value', group_loan_product_id );
+          var $membership_consumer = $("#membership_consumer");
+          $membership_consumer.attr('value', group_membership_id );
+          
+          // $assign_loan_modal.hideLoading();
+          
+          $.ajax({
+            url: $form.attr("action"),
+            type: "POST",
+            data: $form.serialize(),
+            dataType: 'script',
+            success: function(response){
+              $form.clearForm();
+              $assign_loan_modal.hideLoading();
+            }
+          });
+        });
+     }
+   });
+   
+    // change the row
+    <% new_row = escape_javascript(  render :partial => "group_loan_subcriptions/group_loan_product_row", 
+            :locals => { 
+              :group_loan => @group_loan ,
+              :member => @member
+            }) %>
+
+  console.log( 'member_loan_subcription-<%= @member.id %>');
+   var row_id = 'member_loan_subcription-<%= @member.id %>';
+    
+      $("#" + row_id ).replaceWith('<%= new_row %>');
+  
+   
+});

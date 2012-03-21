@@ -8,4 +8,17 @@ class GroupLoanSubcriptionsController < ApplicationController
   end
   
   
+  def create
+    @membership_provider = params[:membership_provider].to_i
+    @membership_consumer = params[:membership_consumer].to_i
+    
+    
+    @group_loan_subcription = GroupLoanSubcription.create_or_change(@membership_provider,@membership_consumer  )
+    @group_loan_membership = @group_loan_subcription.group_loan_membership
+    @group_loan = @group_loan_membership.group_loan
+    @member = @group_loan_membership.member
+    
+  end
+  
+  
 end

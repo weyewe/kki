@@ -97,6 +97,7 @@ $(document).ready(function() {
      var $modal_closer = $(".modal-footer .modal-closer", $modal_wrapper);
      $modal_closer.click(function(){
        $modal_wrapper.modal('hide');
+       return false;
      });
      
      return false; 
@@ -113,7 +114,7 @@ $(document).ready(function() {
    $(".change_group_loan_product").live("click", function(){
      var $this = $(this);
      
-     var member_id;
+     var group_membership_id;
      var member_group_loan_product_id; 
      
      var $assign_loan_modal = $("#myModal-loan_product_selector");
@@ -131,18 +132,26 @@ $(document).ready(function() {
      // hide the back to summary button
      $back_to_summary_button.hide();
      
+     // unbind the select button
+     $(".group_loan_product_select", $assign_loan_modal).each(function(){
+       $(this).unbind();
+     });
+     
+     // unbind the details button
+     $(".group_loan_product_details_selector", $assign_loan_modal).each(function(){
+       $(this).unbind();
+     });
+     
      
      
      if( $this.hasClass("no_loan_assigned") ){
-       member_id = $(this).attr("id").split("-")[1];
+       group_membership_id = $(this).attr("id").split("-")[1];
        member_group_loan_product_id = 0 ;
      }else{
-       member_id = $(this).attr("id").split("_")[0].split("-")[1];
+       group_membership_id = $(this).attr("id").split("_")[0].split("-")[1];
        member_group_loan_product_id = $(this).attr("id").split("_")[1].split("-")[1];
      }
-     
-     console.log("member_id = " + member_id );
-     console.log("the group_loan_product_id = " + member_group_loan_product_id);
+    
      
      // bind the detail button 
      $(".group_loan_product_details_selector", $assign_loan_modal).click(function(){
@@ -158,33 +167,51 @@ $(document).ready(function() {
          $detail_product_page.addClass("modal-hidden");
          $summary_page.removeClass("modal-hidden");
        });
-       
      });
      
      
      // bind the select button 
      $(".group_loan_product_select", $assign_loan_modal).each(function(){
-       var group_loan_product_id = $(this).attr("id").split("-")[1];
-        
-       if( group_loan_product_id == member_group_loan_product_id){
        
+       var group_loan_product_id = $(this).attr("id").split("-")[1];
+       if( group_loan_product_id == member_group_loan_product_id){
          $(this).addClass("btn-success"); 
          $(this).text("Selected");
-        
        }else{
          $(this).removeClass("btn-success");
          $(this).text("Select");
-         // $(this).click(function(){
-         //           alert("Will create an ajax post to the server");
-         //         });
-         
+         $(this).click(function(){
+            $assign_loan_modal.showLoading();
+            
+            var $form = $("#checkbox_form_wrapper form" );
+            var $membership_provider = $("#membership_provider");
+            $membership_provider.attr('value', group_loan_product_id );
+            var $membership_consumer = $("#membership_consumer");
+            $membership_consumer.attr('value', group_membership_id );
+            
+            // $assign_loan_modal.hideLoading();
+            
+            $.ajax({
+              url: $form.attr("action"),
+              type: "POST",
+              data: $form.serialize(),
+              dataType: 'script',
+              success: function(response){
+                $form.clearForm();
+                $assign_loan_modal.hideLoading();
+              }
+            });
+          });
        }
      });
      
      $modal_closer.click(function(){
        $assign_loan_modal.modal('hide');
+       return false;
      });
      $assign_loan_modal.modal("show");
+     
+     return false;
    });
 });
 
