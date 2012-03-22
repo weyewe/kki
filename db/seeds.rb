@@ -401,9 +401,9 @@ fourth_membership = GroupLoanMembership.create_membership( loan_officer, fourth_
 
 
 puts " Gonna create the group_loan_subcription "
-first_subcription = GroupLoanSubcription.create_subcription( loan_officer, first_membership, group_loan_product_1)
-second_subcription = GroupLoanSubcription.create_subcription( loan_officer, second_membership, group_loan_product_1)
-third_subcription = GroupLoanSubcription.create_subcription( loan_officer, third_membership, group_loan_product_2)
+first_subcription = GroupLoanSubcription.create_or_change( group_loan_product_1.id,  first_membership.id )
+second_subcription = GroupLoanSubcription.create_or_change( group_loan_product_1.id, second_membership.id )
+third_subcription = GroupLoanSubcription.create_or_change( group_loan_product_2.id, third_membership.id )
  # we leave the fourth membership's group loan as empty 
 
 

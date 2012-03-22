@@ -37,6 +37,10 @@ class GroupLoanProduct < ActiveRecord::Base
     principal*total_weeks
   end
   
+  def interest_amount
+    interest*total_weeks
+  end
+  
   def interest_rate
     interest/principal 
   end

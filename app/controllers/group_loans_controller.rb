@@ -22,6 +22,7 @@ class GroupLoansController < ApplicationController
   
 =begin
   To select group_loan in which member is gonna be assigned 
+  role = LOAN_OFFICER
 =end
   
   def select_group_loan_to_assign_member
@@ -30,6 +31,22 @@ class GroupLoansController < ApplicationController
   
   def select_group_loan_to_group_loan_product
     setup_select_group_loan
+  end
+  
+  
+  def select_group_loan_for_finalization
+    setup_select_group_loan
+  end
+  
+  def execute_propose_finalization
+    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+    @group_loan.execute_propose_finalization( current_user )
+    @action_executor = params[:action_executor]
+    
+    respond_to do |format|
+      format.html {  redirect_to root_url }
+      format.js { render :file => "group_loans/respond_to_finalization_proposal.js.erb" }
+    end
   end
   
   protected

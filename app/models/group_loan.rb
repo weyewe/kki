@@ -10,6 +10,34 @@ class GroupLoan < ActiveRecord::Base
   belongs_to :office
   validates_presence_of :name
   
+  attr_protected :is_proposed, :group_loan_proposer_id,
+                  :is_started, :group_loan_starter_id ,
+                  :is_closed, :group_loan_closer_id, 
+                  :is_setup_fee_collection_approved, :setup_fee_collection_approver_id,
+                  :aggregated_principal_amount, :aggregated_interest_amount,
+                  :total_default, :default_creator_id 
+                  
+  
+  # :is_started, :is_closed, :is_proposed, 
+  #                   :aggregated_principal_amount, 
+  #                   :aggregated_interest_amount,
+  #                   :total_default
+  # 
+  # t.string   "name"
+  # t.integer  "creator_id",                            :null => false
+  # t.integer  "office_id"
+  # t.boolean  "is_closed",          :default => false
+  # t.integer  "group_closer_id"
+  # t.boolean  "is_started",         :default => false
+  # t.integer  "group_starter_id"
+  # t.integer  "total_default"
+  # t.boolean  "any_default",        :default => false
+  # t.integer  "default_creator_id"
+  # t.integer  "commune_id"
+  # t.datetime "created_at"
+  # t.datetime "updated_at"
+  
+  
   def get_commune
     commune = Commune.find_by_id self.commune_id
     village = commune.village
@@ -60,13 +88,58 @@ class GroupLoan < ActiveRecord::Base
     })
   end
   
-  def total_initial_admin_fee
+  def unassigned_members
+    # get the group_loan_membership where group_loan_subcription is nil
+    # Client.joins(:orders).where(:orders => {:created_at => time_range})
+    GroupLoanMembership.joins(:group_loan_subcription).where(
+      :group_loan_subcription => {:group_loan_product_id => nil}
+    )
+    
   end
   
-  def total_initial_deposit
+  def change_group_loan_subcription( new_group_loan_product_id , old_group_loan_product_id)
+    new_group_loan_product = GroupLoanProduct.find_by_id  new_group_loan_product_id
+    old_group_loan_product = GroupLoanProduct.find_by_id old_group_loan_product_id
+    
+    delta_principal = new_group_loan_product.loan_amount  - old_group_loan_product.loan_amount
+    delta_interest = new_group_loan_product.interest_amount  - old_group_loan_product.interest_amount
+  
+    update_aggregated_interest_amount( delta_interest )
+    update_aggregated_principal_amount( delta_principal )
   end
   
-  def total_initial_saving
+  def add_group_loan_subcription( group_loan_product_id )
+    group_loan_product = GroupLoanProduct.find_by_id  group_loan_product_id
+    
+    update_aggregated_interest_amount( group_loan_product.interest_amount )
+    update_aggregated_principal_amount( group_loan_product.loan_amount )
   end
   
+  def update_aggregated_interest_amount( delta_interest) 
+    self.aggregated_interest_amount += delta_interest
+    self.save
+  end
+  
+  def update_aggregated_principal_amount( delta_principal) 
+    self.aggregated_principal_amount += delta_principal
+    self.save
+  end
+  
+  def aggregated_interest_rate
+    self.aggregated_interest_amount/self.aggregated_principal_amount
+  end
+  
+  def aggregated_interest_rate_percentage
+    (self.aggregated_interest_amount/self.aggregated_principal_amount).to_f * 100
+  end
+  
+=begin
+  Finalization Approval 
+=end
+
+  def execute_propose_finalization( current_user )
+    self.is_proposed = true 
+    self.group_loan_proposer_id = current_user.id 
+    self.save 
+  end
 end

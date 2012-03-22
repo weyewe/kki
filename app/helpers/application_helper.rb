@@ -354,6 +354,16 @@ module ApplicationHelper
             :action => "new"
           }
         ]
+      },
+      {
+        :title => "Finalize Group Loan",
+        :destination_link => "select_group_loan_for_finalization_url",
+        :conditions => [
+          {
+            :controller => "group_loans",
+            :action => "select_group_loan_for_finalization"
+          }
+        ]
       }
     ]
   }

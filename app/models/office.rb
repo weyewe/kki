@@ -36,8 +36,21 @@ class Office < ActiveRecord::Base
     return result 
   end
   
+  
+  # active means still pending for action
   def active_group_loans
     self.group_loans.where(:is_closed => false )
   end
+  
+  # it is runnning.. can't be changed anymore 
+  def started_group_loans
+    self.group_loans.where(:is_started => true )
+  end
+  
+  # done.. loan duration has finished, either end up in the default or not 
+  def closed_group_loans
+    self.group_loans.where(:is_started => true , :is_closed => true )
+  end
+  
   
 end

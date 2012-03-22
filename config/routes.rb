@@ -32,6 +32,7 @@ Debita46::Application.routes.draw do
 
   match 'select_group_loan_to_assign_member' => "group_loans#select_group_loan_to_assign_member", :as => :select_group_loan_to_assign_member
   match 'select_group_loan_to_group_loan_product' => "group_loans#select_group_loan_to_group_loan_product", :as => :select_group_loan_to_group_loan_product
+  match 'select_group_loan_for_finalization' => "group_loans#select_group_loan_for_finalization", :as => :select_group_loan_for_finalization
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
