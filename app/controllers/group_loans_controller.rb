@@ -38,16 +38,66 @@ class GroupLoansController < ApplicationController
     setup_select_group_loan
   end
   
+  
   def execute_propose_finalization
-    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
-    @group_loan.execute_propose_finalization( current_user )
-    @action_executor = params[:action_executor]
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
+    @action_role = params[:action_role].to_i
+    @action = params[:action].to_i  
+
+    if @action_role == PROPOSER_ROLE 
+      @group_loan.execute_propose_finalization( current_user )
+    end
     
     respond_to do |format|
       format.html {  redirect_to root_url }
-      format.js { render :file => "group_loans/respond_to_finalization_proposal.js.erb" }
+      format.js 
     end
   end
+  
+=begin
+  Role == Branch Manager
+=end
+  def select_group_loan_to_start
+    setup_select_group_loan
+    @pending_approval_group_loans = @office.pending_approval_group_loans
+  end
+  
+  def select_started_group_loan_to_be_managed
+    setup_select_group_loan
+    @started_group_loans = @office.started_group_loans
+  end
+  
+  
+  def execute_start_group_loan
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
+    @action_role = params[:action_role].to_i
+    @action_value = params[:action_value].to_i
+    
+    if @action_role == APPROVER_ROLE
+      if @action_value == TRUE_CHECK
+        @group_loan.start_group_loan( current_user )
+      elsif @action_value == FALSE_CHECK
+        @group_loan.reject_group_loan_proposal( current_user )
+      end
+    end
+    
+    respond_to do |format|
+      format.html {  redirect_to root_url }
+      format.js 
+    end
+  end
+  
+=begin
+  Role == Field Worker 
+  Select group loan for setup payment 
+=end
+  
+  def select_group_loan_for_setup_payment
+    @office = current_user.active_job_attachment.office
+    @started_group_loans = @office.started_group_loans
+  end
+  
+  
   
   protected
   def setup_group_loan

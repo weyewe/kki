@@ -42,9 +42,13 @@ class Office < ActiveRecord::Base
     self.group_loans.where(:is_closed => false )
   end
   
+  def pending_approval_group_loans
+    self.group_loans.where(:is_closed => false , :is_proposed => true , :is_started => false )
+  end
+  
   # it is runnning.. can't be changed anymore 
   def started_group_loans
-    self.group_loans.where(:is_started => true )
+    self.group_loans.where(:is_started => true , :is_closed => false )
   end
   
   # done.. loan duration has finished, either end up in the default or not 

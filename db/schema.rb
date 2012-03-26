@@ -53,11 +53,7 @@ ActiveRecord::Schema.define(:version => 20120319042038) do
   create_table "group_loan_memberships", :force => true do |t|
     t.integer  "group_loan_id"
     t.integer  "member_id"
-    t.boolean  "paid_initial_deposit"
-    t.boolean  "paid_initial_saving"
-    t.boolean  "paid_admin_fee"
-    t.integer  "initial_deposit"
-    t.integer  "inital_saving"
+    t.decimal  "deposit",       :precision => 9, :scale => 2, :default => 0.0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -90,6 +86,8 @@ ActiveRecord::Schema.define(:version => 20120319042038) do
     t.integer  "group_loan_closer_id"
     t.boolean  "is_started",                                                      :default => false
     t.integer  "group_loan_starter_id"
+    t.boolean  "is_loan_disbursement_done",                                       :default => false
+    t.integer  "loan_disburser_id"
     t.boolean  "is_setup_fee_collection_approved",                                :default => false
     t.integer  "setup_fee_collection_approver_id"
     t.boolean  "is_proposed",                                                     :default => false
@@ -276,6 +274,9 @@ ActiveRecord::Schema.define(:version => 20120319042038) do
   end
 
   create_table "weekly_tasks", :force => true do |t|
+    t.integer  "group_loan_id"
+    t.integer  "total_attendance"
+    t.decimal  "total_payment_amount"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

@@ -157,6 +157,8 @@ cashier_role         = Role.create :name => "Cashier"
 puts "Gonna create user "
 branch_manager = User.create :email => "branch_manager@gmail.com", :password => "willy1234",
                   :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+                  
+puts "Branch manager id is #{branch_manager.id}"
 
 loan_officer = User.create :email => "loan_officer@gmail.com", :password => "willy1234",
                   :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
@@ -389,6 +391,13 @@ third_member = Member.find 3
 fourth_member = Member.find 4
 
 puts "Gonna create the first group_loan"
+
+if branch_manager.nil?
+  puts "Fuck, the branchmanager is nil"
+else
+  puts "nothing is wrong, the id of branch_manager is #{branch_manager.id}"
+  puts "#{branch_manager.inspect}"
+end
 group_loan = GroupLoan.create :commune_id => first_member.commune_id , :name => "Group1", 
       :creator_id => branch_manager.id ,
       :office_id => cilincing_office.id

@@ -56,7 +56,7 @@ $(document).ready(function(){
               :member => @member
             }) %>
 
-  console.log( 'member_loan_subcription-<%= @member.id %>');
+  // console.log( 'member_loan_subcription-<%= @member.id %>');
    var row_id = 'member_loan_subcription-<%= @member.id %>';
     
       $("#" + row_id ).replaceWith('<%= new_row %>');

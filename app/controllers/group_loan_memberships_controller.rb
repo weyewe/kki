@@ -33,4 +33,14 @@ class GroupLoanMembershipsController < ApplicationController
     end
   end
   
+=begin
+  For Field Worker to take setup fee 
+=end
+
+  def group_loan_memberships_for_setup_fee
+    @office = current_user.active_job_attachment.office
+    @group_loan = GroupLoan.find_by_id( params[:group_loan_id] )
+    @group_loan_memberships = @group_loan.group_loan_memberships
+  end
+  
 end

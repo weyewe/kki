@@ -288,12 +288,22 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Approval Pending",
-        :destination_link => 'root_url',
+        :title => "Pending Approval",
+        :destination_link => 'select_group_loan_to_start_url',
         :conditions => [
           {
-            :controller => 'loan_product',
-            :action => 'banzai'
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_start'
+          }
+        ]
+      },
+      {
+        :title => "Monitor Progress",
+        :destination_link => 'select_started_group_loan_to_be_managed_url',
+        :conditions => [
+          {
+            :controller => "group_loans",
+            :action => "select_started_group_loan_to_be_managed"
           }
         ]
       }
@@ -342,7 +352,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Assign GroupLoan to Group Member",
+        :title => "Assign GroupLoanProduct",
         :destination_link => 'select_group_loan_to_group_loan_product_url',
         :conditions => [
           {
@@ -419,12 +429,16 @@ module ApplicationHelper
     :header_title => "FIELD WORKER",
     :processes => [
       {
-        :title => "Setup Payment",
-        :destination_link => 'root_url',
+        :title => "Setup Payment Task",
+        :destination_link => 'select_group_loan_for_setup_payment_url',
         :conditions => [
           {
-            :controller => 'enrollments',
-            :action => 'kungfu'
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_setup_payment'
+          },
+          {
+            :controller => "group_loan_memberships",
+            :action => "group_loan_memberships_for_setup_fee"
           }
         ]
       },

@@ -1,0 +1,28 @@
+<tr id="finalize_group_loan-<%= group_loan.id %>">
+  <td><%= link_to group_loan.name, new_group_loan_group_loan_subcription_url(group_loan) %></td>
+  <td><%= group_loan.get_commune %></td>
+  <td><%= group_loan.members.count %></td>
+  <td><%= group_loan.unassigned_members.count %></td>
+  <td style="text-align:center;">
+    <% if group_loan.is_proposed == false %>
+      <a href="#" class="btn propose action"
+          id="finalize-<%= group_loan.id %>">Finalize</a>
+    <% else %>
+      <span class="label label-info">Finalized</span>
+    <% end %>
+  </td>
+  
+  
+  
+  
+  <td style="text-align:center;">
+    <% if group_loan.is_started == false %>
+      <span class="label">Pending</span>
+    <% else %>
+      <span class="label label-success">Approved</span>
+    <% end %>
+  </td>
+  <!-- <td><%#=  print_money( group_loan.aggregated_principal_amount ) %></td>
+          <td><%#=  print_money( group_loan.aggregated_interest_amount ) %></td>
+          <td><%#=  group_loan.aggregated_interest_rate_percentage.to_s + " %" %></td> -->
+</tr>

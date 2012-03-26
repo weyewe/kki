@@ -8,12 +8,8 @@ class CreateGroupLoanMemberships < ActiveRecord::Migration
       # t.integer :loan_subcription_
       #     t.integer :loan_product_creator_id 
       
-      t.boolean :paid_initial_deposit
-      t.boolean :paid_initial_saving
-      t.boolean :paid_admin_fee
-      
-      t.integer :initial_deposit
-      t.integer :inital_saving
+     
+      t.decimal :deposit, :default => 0,  :precision => 9, :scale => 2 # 10^7 == at most 10 mi rupiah 
       
       # t.integer :initial_deposit_creator_id   store in the activity table 
       #     t.integer :initial_saving_creator_id

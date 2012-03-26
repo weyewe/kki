@@ -216,8 +216,52 @@ $(document).ready(function() {
    
    
    /*
-     Approval Button
+     Propose Button
    */
+   $(".action").live('click', function(){
+     var $this  = $(this);
+     var entity_id = $this.attr("id").split("-")[1];
+     var action_role ;
+     var action_value = -1 ; // if we are in the action role proposer, we won't even look at the action 
+     
+     if( $this.hasClass("propose")){
+       action_role = <%= PROPOSER_ROLE %>;
+     }else if( $this.hasClass("approve") ){
+       action_role = <%= APPROVER_ROLE %>;
+       //  approver can approve or reject.. if it is FALSE_CHECK -> reject action. vice versa
+       if($this.hasClass("true_check")){
+         action_value = <%= TRUE_CHECK %>;
+       }else{
+         action_value = <%= FALSE_CHECK %>;
+       }
+     }
+     
+     var $form = $("#approve_propose_form_wrapper form");
+     var $entity_id_field = $("#entity_id") ;
+     var $action_role_field = $("#action_role") ;
+     var $action_field = $("#action_value");
+     
+     $entity_id_field.attr("value", entity_id);
+     $action_role_field.attr("value",action_role );
+     $action_field.attr("value", action_value);
+     
+     if( confirm("Are you sure?") ){
+       $this.showLoading(); 
+
+       $.ajax({
+         url: $form.attr("action"),
+         type: "POST",
+         data: $form.serialize(),
+         dataType: 'script',
+         success: function(response){
+           $form.clearForm();
+           $this.hideLoading();
+         }
+       });
+     }
+     
+     return false;
+   });
 });
 
 
@@ -236,24 +280,6 @@ $.fn.clearForm = function() {
   });
 };
 
-function action_error(text){
-  alert(text);
-}
-
-// <div class="modal" id="myModal" style="display:none;">
-//    <div class="modal-header">
-//      <a class="close" data-dismiss="modal">×</a>
-//      <h3>Modal header</h3>
-//    </div>
-//    <div class="modal-body">
-//      <p>One fine body…</p>
-//    </div>
-//    <div class="modal-footer">
-//      <a href="#" class="btn modal-closer">Close</a>
-//      <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
-//    </div>
-//  </div>
-//  
 
 function summonModal(header_text, body_text, modal_id){
   var $modal_wrapper = $("#" + modal_id); 
@@ -270,8 +296,10 @@ function summonModal(header_text, body_text, modal_id){
     // console.log("Oh yeah baby, closed");
     $modal_wrapper.modal('hide');
   });
-  
 }
+
+
+
 
 function reverseCheckbox( checkbox_id ){
   var $checkbox = $("#" + checkbox_id );

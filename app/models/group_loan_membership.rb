@@ -86,6 +86,7 @@ class GroupLoanMembership < ActiveRecord::Base
       :member_id => member.id,
       :group_loan_id => group_loan.id
     )
+    GroupLoanSubcription.create :group_loan_membership_id => group_loan_membership.id 
     # put the user activity list on who the creator is 
     
   end
@@ -104,6 +105,7 @@ class GroupLoanMembership < ActiveRecord::Base
     if  group_loan_membership.nil?
       return group_loan_membership
     end
+    
     
     group_loan_membership.destroy 
     # put the user activity list on who the destroyer is 

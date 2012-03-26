@@ -1,0 +1,24 @@
+<tr id="start_group_loan-<%= group_loan.id %>">
+  <td><%= link_to group_loan.name, new_group_loan_group_loan_subcription_url(group_loan) %></td>
+  <td><%= group_loan.get_commune %></td>
+  <td><%= group_loan.members.count %></td>
+
+  
+  <td><%=  print_money( group_loan.aggregated_principal_amount ) %></td>
+  <td><%=  print_money( group_loan.aggregated_interest_amount ) %></td>
+  <td><%=  group_loan.aggregated_interest_rate_percentage.to_s + " %" %></td>
+  
+ 
+  <% if group_loan.is_started == false && group_loan.is_proposed == true %>
+    <td style="text-align:center;">
+      <a href="#" class="btn approve action true_check"
+          id="finalize-<%= group_loan.id %>">Approve</a>
+    </td>
+  
+    <td style="text-align:center;">
+      <a href="#" class="btn approve action"
+          id="reject-<%= group_loan.id %>">Reject</a>
+    </td>
+  <% end %>
+  
+</tr>

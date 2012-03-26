@@ -33,6 +33,20 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_to_assign_member' => "group_loans#select_group_loan_to_assign_member", :as => :select_group_loan_to_assign_member
   match 'select_group_loan_to_group_loan_product' => "group_loans#select_group_loan_to_group_loan_product", :as => :select_group_loan_to_group_loan_product
   match 'select_group_loan_for_finalization' => "group_loans#select_group_loan_for_finalization", :as => :select_group_loan_for_finalization
+  match 'execute_propose_finalization' => "group_loans#execute_propose_finalization", :as => :execute_propose_finalization, :method => :post 
+
+=begin
+  Branch Manager Routes
+=end
+  match 'select_group_loan_to_start' => "group_loans#select_group_loan_to_start", :as => :select_group_loan_to_start
+  match 'execute_start_group_loan' => "group_loans#execute_start_group_loan", :as => :execute_start_group_loan, :method => :post 
+  match 'select_started_group_loan_to_be_managed' => "group_loans#select_started_group_loan_to_be_managed", :as => :select_started_group_loan_to_be_managed
+  
+=begin
+  Field Worker Routes
+=end
+  match 'select_group_loan_for_setup_payment' => "group_loans#select_group_loan_for_setup_payment", :as => :select_group_loan_for_setup_payment
+  match 'group_loan/:group_loan_id/group_loan_memberships_for_setup_fee' => "group_loan_memberships#group_loan_memberships_for_setup_fee", :as => :group_loan_memberships_for_setup_fee
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

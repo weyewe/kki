@@ -17,6 +17,12 @@ class CreateGroupLoans < ActiveRecord::Migration
       # when loan is started, loan officer is authorized to take setup fee from member
       # cashier is authorized to take $$$ 
       
+      
+      t.boolean :is_loan_disbursement_done, :default => false 
+      t.integer :loan_disburser_id 
+      # when loan is started, loan officer is authorized to take setup fee from member
+      # cashier is authorized to take $$$
+      
       t.boolean :is_setup_fee_collection_approved, :default => false 
       t.integer :setup_fee_collection_approver_id
       # the cashier has to approve the setup fee collection (the amount)

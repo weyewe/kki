@@ -1,0 +1,22 @@
+$(document).ready(function(){
+ 
+  <% if @group_loan.unassigned_members.count != 0 %>
+    var header_text = "Fail to Propose Finalization";
+    var body_text = "Reason: there is member who hasn't been assigned group loan";
+    summonModal(header_text, body_text, "myModal");
+    
+  
+  <% else %>
+  
+    <% if @group_loan.is_proposed == true %>
+      <% new_row = escape_javascript( render :partial => "group_loans/group_loan_proposal", 
+            :locals => {:group_loan => @group_loan}) %>
+
+      $("#finalize_group_loan-<%= @group_loan.id %>").replaceWith('<%= new_row %>');
+    <% end %>
+    
+    
+    
+  <% end %>
+  
+});
