@@ -2,12 +2,16 @@ class CreateTransactionActivities < ActiveRecord::Migration
   def change
     create_table :transaction_activities do |t|
       t.integer :creator_id # the user who executed the transaction 
-      t.decimal :total_transaction_amount # 
+      t.decimal :total_transaction_amount , :default => 0, :precision => 9, :scale => 2 # 10^7 == 10 million ( max value )
+      
+    
+      
+      
       
       # from employee to member? like returning deposit, or savings withdrawal 
       # from member to employee -> Payment of weekly task 
-      t.integer :from_id 
-      t.integer :to_id   
+      t.boolean :from_member, :default => true 
+      t.integer :member_id 
       
       # we need to know at which office this transaction is happening 
       t.integer :office_id 

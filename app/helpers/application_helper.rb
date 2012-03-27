@@ -443,6 +443,16 @@ module ApplicationHelper
         ]
       },
       {
+        :title => "Finalize Setup Payment",
+        :destination_link => 'root_url',
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'something'
+          }
+        ]
+      },
+      {
         :title => "Group Weekly Payment",
         :destination_link => 'root_url',
         :conditions => [
