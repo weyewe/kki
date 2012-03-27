@@ -453,7 +453,17 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Group Weekly Payment",
+        :title => "Weekly Meeting",
+        :destination_link => 'root_url',
+        :conditions => [
+          {
+            :controller => 'loan_product',
+            :action => 'banzai'
+          }
+        ]
+      },
+      {
+        :title => "Weekly Payment",
         :destination_link => 'root_url',
         :conditions => [
           {

@@ -1,4 +1,4 @@
-<tr id="start_payment-<%= group_loan_membership.member.id %>" class="row_wrapper">
+<tr id="start_payment-<%= group_loan_membership.id %>" class="row_wrapper">
   <% group_loan_product = group_loan_membership.group_loan_subcription.group_loan_product %>
   <td class="member_name"><%= group_loan_membership.member.name %></td>
   <td>
@@ -17,7 +17,16 @@
     <%=  print_money( group_loan_membership.deposit ) %>
   </td>
   
-  <td style="text-align:center;" colspan="2"> <button href="#" class="btn setup_payment">Pay Setup Fee</button> </td>
+  <td style="text-align:center;" > 
+    <% if not group_loan_membership.has_paid_setup_fee == true  %>
+      <button href="#" class="btn setup_payment">Pay Setup Fee</button> 
+    <% else %>
+      <span class="label label-success">PAID</span>
+    <% end %>
+  </td>
+  <td>
+    <%= group_loan_membership.setup_fee_transaction_id %>
+  </td>
 
   
 </tr>

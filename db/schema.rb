@@ -53,18 +53,20 @@ ActiveRecord::Schema.define(:version => 20120319042038) do
   create_table "group_loan_memberships", :force => true do |t|
     t.integer  "group_loan_id"
     t.integer  "member_id"
-    t.decimal  "deposit",       :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "deposit",                  :precision => 9, :scale => 2, :default => 0.0
+    t.boolean  "has_paid_setup_fee",                                     :default => false
+    t.integer  "setup_fee_transaction_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   create_table "group_loan_products", :force => true do |t|
     t.integer  "creator_id"
-    t.decimal  "principal",       :precision => 9, :scale => 2
-    t.decimal  "interest",        :precision => 9, :scale => 2
-    t.decimal  "min_savings",     :precision => 9, :scale => 2
-    t.decimal  "admin_fee",       :precision => 9, :scale => 2
-    t.decimal  "initial_savings", :precision => 9, :scale => 2
+    t.decimal  "principal",       :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "interest",        :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "min_savings",     :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "admin_fee",       :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "initial_savings", :precision => 9, :scale => 2, :default => 0.0
     t.integer  "total_weeks"
     t.integer  "office_id"
     t.datetime "created_at"
@@ -166,7 +168,7 @@ ActiveRecord::Schema.define(:version => 20120319042038) do
   end
 
   create_table "saving_books", :force => true do |t|
-    t.decimal  "total",      :precision => 10, :scale => 2
+    t.decimal  "total",      :precision => 11, :scale => 2, :default => 0.0
     t.integer  "member_id"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -194,9 +196,9 @@ ActiveRecord::Schema.define(:version => 20120319042038) do
 
   create_table "transaction_activities", :force => true do |t|
     t.integer  "creator_id"
-    t.decimal  "total_transaction_amount"
-    t.integer  "from_id"
-    t.integer  "to_id"
+    t.decimal  "total_transaction_amount", :precision => 9, :scale => 2, :default => 0.0
+    t.boolean  "from_member",                                            :default => true
+    t.integer  "member_id"
     t.integer  "office_id"
     t.integer  "transaction_case"
     t.datetime "created_at"
@@ -206,6 +208,7 @@ ActiveRecord::Schema.define(:version => 20120319042038) do
   create_table "transaction_books", :force => true do |t|
     t.integer  "member_id"
     t.integer  "creator_id"
+    t.decimal  "total",      :precision => 12, :scale => 2, :default => 0.0
     t.datetime "created_at"
     t.datetime "updated_at"
   end

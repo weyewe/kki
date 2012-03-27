@@ -5,8 +5,20 @@ $(document).ready(function(){
   
   $("#form_body").hide();
   //hide the form
-  $("#notification_modal_body").show();
-  // show the notification 
+  <% if not @transaction_activity.nil? %> 
   
-  // change the row
+    $("#notification_modal_body").show();
+    
+    <% new_row = escape_javascript( render :partial => "group_loan_memberships/setup_payment", :locals => {
+      :group_loan_membership => @group_loan_membership
+    }) %>
+  
+    $("#myModal").hideLoading();
+    $("#start_payment-<%= @group_loan_membership.id %>").replaceWith('<%= new_row %>');
+  
+  <% else %>
+  
+  <% end %>
+  
+  
 });

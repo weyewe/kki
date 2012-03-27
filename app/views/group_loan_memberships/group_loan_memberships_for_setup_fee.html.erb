@@ -33,8 +33,8 @@
             <th>Admin Fee</th>
             <th>Initial Saving</th>
             <th>Deposit</th>
-            <th style="text-align:center;" colspan="2">Action</th> 
-            
+            <th style="text-align:center;" >Action</th> 
+            <th>TransactionID</td>
           </tr>
         </thead>
         <tbody>
@@ -93,7 +93,7 @@
         var $form = $("#pay_setup_fee_form");
         var $row_wrapper = $this.parents("tr");
         var row_id_prefix = $row_wrapper.attr("id").split("-")[0];
-        var member_id = $row_wrapper.attr("id").split("-")[1];
+        var group_loan_membership_id = $row_wrapper.attr("id").split("-")[1];
         
         var $modal_wrapper = $("#myModal"); 
         var $header = $(".modal-header", $modal_wrapper);
@@ -112,7 +112,7 @@
         $("#admin_fee").attr('value', admin_fee);
         $("#initial_savings").attr("value", min_initial_savings);
         $("#admin_fee_uneditable").text( admin_fee );
-        $("#member_id").attr('value', member_id)
+        $("#group_loan_membership_id").attr('value', group_loan_membership_id);
         
         var total = admin_fee + min_initial_savings;
         $("#total_setup_payment").text( total );
@@ -161,7 +161,7 @@
                  data: $form.serialize(),
                  dataType: 'script',
                  success: function(response){
-                   $modal_wrapper.hideLoading();
+                   // $modal_wrapper.hideLoading();
                  }
                });
             }else{

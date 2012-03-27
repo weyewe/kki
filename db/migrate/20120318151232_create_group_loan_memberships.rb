@@ -14,7 +14,8 @@ class CreateGroupLoanMemberships < ActiveRecord::Migration
       # t.integer :initial_deposit_creator_id   store in the activity table 
       #     t.integer :initial_saving_creator_id
       #     t.integer :admin_fee_creator_id
-      
+      t.boolean :has_paid_setup_fee, :default => false 
+      t.integer :setup_fee_transaction_id 
       
       
       # if the member has no sufficient $$ to pay for weekly payment

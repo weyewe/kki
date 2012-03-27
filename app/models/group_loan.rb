@@ -104,6 +104,12 @@ class GroupLoan < ActiveRecord::Base
     self.group_loan_memberships.count - self.unassigned_members.count 
   end
   
+  def paid_members_count
+    self.group_loan_memberships.where(
+      :has_paid_setup_fee => true
+    ).count
+  end
+  
   def change_group_loan_subcription( new_group_loan_product_id , old_group_loan_product_id)
     new_group_loan_product = GroupLoanProduct.find_by_id  new_group_loan_product_id
     old_group_loan_product = GroupLoanProduct.find_by_id old_group_loan_product_id

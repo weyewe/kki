@@ -414,6 +414,7 @@ first_subcription = GroupLoanSubcription.create_or_change( group_loan_product_1.
 second_subcription = GroupLoanSubcription.create_or_change( group_loan_product_1.id, second_membership.id )
 third_subcription = GroupLoanSubcription.create_or_change( group_loan_product_2.id, third_membership.id )
  # we leave the fourth membership's group loan as empty 
+ 
 
 
 
