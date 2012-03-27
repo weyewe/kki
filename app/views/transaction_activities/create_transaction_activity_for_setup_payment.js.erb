@@ -1,11 +1,13 @@
 $(document).ready(function(){
-  console.log("I am backfrom the server");
+  
   $(".modal-footer .execute_transaction").hide();
   
   
   $("#form_body").hide();
-  //hide the form
+  
   <% if not @transaction_activity.nil? %> 
+    $("#notification_modal_body").html('<p>The transaction is successful.<br />The transaction id is ' + 
+                    '<b><%= @group_loan_membership.setup_fee_transaction_id %></b>');
   
     $("#notification_modal_body").show();
     
@@ -17,7 +19,10 @@ $(document).ready(function(){
     $("#start_payment-<%= @group_loan_membership.id %>").replaceWith('<%= new_row %>');
   
   <% else %>
-  
+    $("#notification_modal_body").html('<p>The transaction is failed for some unknown reason.<br />'+
+                      'Please send feedback to <%= DEV_EMAIL %>' );
+    $("#notification_modal_body").show();
+    $("#myModal").hideLoading();
   <% end %>
   
   

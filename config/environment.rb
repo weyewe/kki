@@ -50,7 +50,7 @@ PAYMENT_TYPE = {
   
 }
 
-
+DEV_EMAIL = "w.yunnal@gmail.com"
 
 TRUE_CHECK = 1
 FALSE_CHECK = 0

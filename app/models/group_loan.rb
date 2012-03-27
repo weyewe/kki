@@ -156,13 +156,15 @@ class GroupLoan < ActiveRecord::Base
   Finalization Approval 
 =end
 
+  def equal_loan_duration
+    array = self.all_group_loan_products_used.compact.map {|x| x.total_weeks}
+    array.uniq.length == 1 
+  end
+
   def execute_propose_finalization( current_user )
-    puts "The shit is called\n"*5
-    if self.unassigned_members.count != 0 
-      puts "Gonna return shit "
+    if self.unassigned_members.count != 0  or self.equal_loan_duration == false 
       return
     else
-      puts "Damn, it is still execute"
       self.is_proposed = true 
       self.group_loan_proposer_id = current_user.id 
       self.save 

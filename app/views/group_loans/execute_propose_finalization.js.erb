@@ -1,11 +1,22 @@
 $(document).ready(function(){
  
-  <% if @group_loan.unassigned_members.count != 0 %>
+  <% if @group_loan.unassigned_members.count != 0 or @group_loan.equal_loan_duration == false %>
     var header_text = "Fail to Propose Finalization";
-    var body_text = "Reason: there is member who hasn't been assigned group loan";
+    
+    var body_text = "Reason: " ;
+    
+    <% if @group_loan.unassigned_members.count != 0 %>
+      body_text = body_text + " There is member who hasn't been assigned group loan." 
+    <% end %>
+    
+    <% if @group_loan.equal_loan_duration == false %> 
+      body_text = body_text + " The loan durations are not equal "
+    <% end %> 
+    
     summonModal(header_text, body_text, "myModal");
     
   
+    
   <% else %>
   
     <% if @group_loan.is_proposed == true %>
