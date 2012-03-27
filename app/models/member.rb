@@ -10,6 +10,8 @@ class Member < ActiveRecord::Base
 
   belongs_to :office 
   
+  after_create :create_saving_book, :create_transaction_book
+  
   validates_presence_of :name, :id_card_no , :commune_id 
   
   validates :id_card_no, :uniqueness => { 
@@ -64,6 +66,17 @@ class Member < ActiveRecord::Base
     else
       return group_loan_subcription.group_loan_product
     end
+  end
+  
+  
+  protected
+  
+  def create_saving_book
+    SavingBook.create(:member_id => self.id )
+  end
+  
+  def create_transaction_book
+    TransactionBook.create(:member_id => self.id )
   end
 
   

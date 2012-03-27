@@ -48,6 +48,15 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_setup_payment' => "group_loans#select_group_loan_for_setup_payment", :as => :select_group_loan_for_setup_payment
   match 'group_loan/:group_loan_id/group_loan_memberships_for_setup_fee' => "group_loan_memberships#group_loan_memberships_for_setup_fee", :as => :group_loan_memberships_for_setup_fee
 
+=begin
+  Transaction routes 
+=end
+  resources :transaction_activities do
+    resources :transaction_entries
+  end
+  
+  match 'transaction_activity/setup_payment' => 'transaction_activities#create_transaction_activity_for_setup_payment', :as => :create_transaction_activity_for_setup_payment
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

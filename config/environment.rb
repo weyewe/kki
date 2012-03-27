@@ -58,6 +58,38 @@ FALSE_CHECK = 0
 PROPOSER_ROLE = 0 
 APPROVER_ROLE = 1 
 
+TRANSACTION_CASE = {
+  :setup_payment => 1,
+  :weekly_payment_basic => 2 , 
+  :weekly_payment_no_principal => 3 , 
+  :weekly_payment_extra_savings => 4 ,
+  :weekly_payment_multiple_weeks => 5 , 
+  :weekly_payment_soft_saving_withdrawal => 6,
+  
+  # all transaction from the company to the member
+  :saving_withdrawal => 101, 
+  :deposit_return_complete => 102, 
+  :deposit_return_deduct_default => 103 
+  
+}
+
+TRANSACTION_ENTRY_CODE = {
+  :initial_deposit => 1,
+  :initial_savings => 2, 
+  :admin_fee => 3 ,
+  :weekly_principal => 4,
+  :weekly_saving => 5, 
+  :weekly_interest => 6, 
+  :late_payment_fine => 7 ,
+  
+  
+  # all transaction from company to the member
+  :return_deposit => 101, 
+  :soft_savings_withdrawal => 102,
+  :hard_saving_withdrawal => 103 
+  
+}
+
 
 
 
