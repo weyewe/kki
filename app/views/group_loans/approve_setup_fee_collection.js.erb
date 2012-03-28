@@ -1,0 +1,18 @@
+$(document).ready(function(){
+  
+  
+  $("#setup_payment_approval-<%= @group_loan.id %>").remove();
+  var header_text, body_text;
+  header_text = "Notice";
+  <% if @group_loan.is_setup_fee_collection_rejected? %>
+    body_text = "Reject Group Loan is successful.";
+  <% else %>
+    body_text = "Approve Group Loan is successful.";
+  <% end %>
+  
+  
+  summonModal( header_text , 
+              body_text, 
+                "myModal");
+                
+});

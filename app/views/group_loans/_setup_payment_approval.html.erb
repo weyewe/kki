@@ -1,0 +1,30 @@
+<tr id="setup_payment_approval-<%= group_loan.id %>">
+  <td><%= link_to group_loan.name, new_group_loan_group_loan_subcription_url(group_loan) %></td>
+  <td><%= group_loan.get_commune %></td>
+  <td><%= group_loan.members.count %></td>
+  
+  
+  <% total_initial_savings = group_loan.total_initial_savings %>
+  <% total_deposit = group_loan.total_deposit %>
+  <% total_admin_fee = group_loan.total_admin_fee %>
+  <% total = total_initial_savings +  total_deposit + total_admin_fee %>
+  
+  <td><%=  print_money( total_initial_savings ) %> </td>
+  <td><%=  print_money( total_deposit ) %></td>
+  <td><%=  print_money( total_admin_fee ) %></td>
+  <td><%=  print_money( total) %></td>
+
+  
+
+  
+    <td style="text-align:center;">
+      <a href="#" class="btn approve action true_check"
+          id="finalize-<%= group_loan.id %>">Approve</a>
+    </td>
+  
+    <td style="text-align:center;">
+      <a href="#" class="btn approve action"
+          id="reject-<%= group_loan.id %>">Reject</a>
+    </td>
+  
+</tr>

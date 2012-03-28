@@ -46,6 +46,23 @@ class Office < ActiveRecord::Base
     self.group_loans.where(:is_closed => false , :is_proposed => true , :is_started => false )
   end
   
+  def pending_setup_collection_group_loans
+    self.group_loans.where(:is_closed => false , 
+                :is_proposed => true , 
+                :is_started => true,
+                :is_setup_fee_collection_finalized => true , 
+                :is_setup_fee_collection_approved => false  )
+  end
+  
+  def disbursable_group_loans
+    self.group_loans.where(:is_closed => false , 
+                :is_proposed => true , 
+                :is_started => true,
+                :is_setup_fee_collection_finalized => true , 
+                :is_setup_fee_collection_approved => true , 
+                :is_loan_disbursement_done => false  )
+  end
+  
   # it is runnning.. can't be changed anymore 
   def started_group_loans
     self.group_loans.where(:is_started => true , :is_closed => false )

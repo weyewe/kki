@@ -4,8 +4,35 @@
   <td><%= group_loan.members.count %></td>
 
   
-  <td><span class="label">Pending</span></td>
-  <td><span class="label">Pending</span></td>
+  <td>
+    <% if group_loan.is_setup_fee_collection_finalized == false %>
+      <span class="label">Pending</span>
+    <% elsif group_loan.is_setup_fee_collection_finalized == true  and 
+              group_loan.is_setup_fee_collection_approved == false and 
+               group_loan.is_setup_fee_collection_approved == false %>
+      <span class="label label-warning">Pending Cashier Approval</span>
+    <% elsif   group_loan.is_setup_fee_collection_finalized == true  and 
+               group_loan.is_setup_fee_collection_approved == true and 
+               group_loan.is_setup_fee_collection_approved == true  %>
+      <span class="label label-success">DONE</span>
+    <% end %>
+  </td>
+  
+  
+  <td>
+    <% if group_loan.is_setup_fee_collection_finalized == true  and 
+          group_loan.is_setup_fee_collection_approved == true and 
+          group_loan.is_setup_fee_collection_approved == true and 
+          group_loan.is_loan_disbursement_done == false  %>
+      <span class="label label-warning">In Progress</span>
+    <% elsif   group_loan.is_setup_fee_collection_finalized == true  and 
+            group_loan.is_setup_fee_collection_approved == true and 
+            group_loan.is_setup_fee_collection_approved == true and 
+            group_loan.is_loan_disbursement_done == true    %>
+      <span class="label label-success">DONE</span>
+    <% end %>
+  </td>
+  
   <td><span class="label">80%</span></td>
   
  

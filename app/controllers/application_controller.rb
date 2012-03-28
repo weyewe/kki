@@ -31,6 +31,11 @@ class ApplicationController < ActionController::Base
       return select_group_loan_for_setup_payment_url
     end
     
+    if current_user.has_role?(:cashier, active_job_attachment)
+      puts "user has role field_worker!\n"*10
+      return select_group_loan_for_setup_payment_collection_approval_url
+    end
+    
     
     
     puts "God.. no role at all.. something messed up with the seeds\n"*10

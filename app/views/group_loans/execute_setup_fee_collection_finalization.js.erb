@@ -1,3 +1,21 @@
 $(document).ready(function(){
+ 
+  <% if @group_loan.uncollected_setup_fee.count != 0  %>
+    var header_text = "Fail to Finalize Setup Fee Collection";
+    
+    var body_text = "Reason: " ;
+    
+    <% if @group_loan.uncollected_setup_fee.count != 0 %>
+      body_text = body_text + " We still have pending Setup Fee collection." 
+    <% end %>
+    
+    
+    summonModal(header_text, body_text, "myModal");
+  <% else %>
+      <% new_row = escape_javascript( render :partial => "group_loans/group_loan_setup", 
+            :locals => {:group_loan => @group_loan}) %>
+
+      $("#start_group_loan-<%= @group_loan.id %>").replaceWith('<%= new_row %>');
+  <% end %>
   
 });

@@ -43,4 +43,14 @@ class GroupLoanMembershipsController < ApplicationController
     @group_loan_memberships = @group_loan.group_loan_memberships.order("created_at DESC")
   end
   
+=begin
+  For Cashier to disburse group loan 
+=end
+
+  def group_loan_disbursement_recipients
+    @office = current_user.active_job_attachment.office
+    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+    @group_loan_memberships = @group_loan.group_loan_memberships.order("created_at DESC")
+  end
+  
 end

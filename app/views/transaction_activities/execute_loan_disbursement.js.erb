@@ -1,0 +1,17 @@
+$(document).ready(function(){
+  
+  
+  
+  <% if not @transaction_activity.nil? %> 
+    <% new_row =  escape_javascript( 
+            render :partial => "group_loan_memberships/member_to_be_disbursed", 
+                  :locals => { 
+                    :group_loan_membership => @group_loan_membership 
+            }) %>
+    
+    $("#membership_to_be_loan_disbursed-<%= @group_loan_membership.id %>").replaceWith('<%= new_row %>');
+  
+  <% end %>
+  
+  
+});

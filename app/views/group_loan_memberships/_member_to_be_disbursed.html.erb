@@ -1,0 +1,30 @@
+<% member  = group_loan_membership.member  %>
+<% group_loan_product = group_loan_membership.group_loan_product %>
+
+<tr id="membership_to_be_loan_disbursed-<%= group_loan_membership.id %>">
+  <td class="user-nim"><%= member.name %></td>
+  <td><%= print_money( group_loan_product.loan_amount )%></td>
+  
+  
+  
+  <td style="text-align:center;">
+    <% if group_loan_membership.has_received_loan_disbursement == false %>
+      <a href="#" 
+        id="disburse_loan-<%= group_loan_membership.id %>" 
+        class="btn action propose approve">Disburse</a>
+    <% else %>
+    	<span class="label label-success">Disbursed</span>
+    <% end %>
+  </td>
+  
+  
+  <td>
+    <% if group_loan_membership.has_received_loan_disbursement == false %>
+    --
+    <% else %>
+   <%=  group_loan_membership.loan_disbursement_transaction_id  %> 
+    <% end %>
+    
+  </td>
+  
+</tr>

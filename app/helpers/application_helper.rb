@@ -382,22 +382,26 @@ module ApplicationHelper
     :header_title => "CASHIER",
     :processes => [
       {
-        :title => "Approve Group Weekly Payment",
-        :destination_link => 'root_url',
+        :title => "Approves Setup Payment ",
+        :destination_link => 'select_group_loan_for_setup_payment_collection_approval_url',
         :conditions => [
           {
-            :controller => 'enrollments',
-            :action => 'kungfu'
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_setup_payment_collection_approval'
           }
         ]
       },
       {
-        :title => "Approve Loan Disbursment",
-        :destination_link => 'root_url',
+        :title => "Loan Disbursement",
+        :destination_link => 'select_group_loan_for_loan_disbursement_url',
         :conditions => [
           {
-            :controller => 'loan_product',
-            :action => 'banzai'
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_loan_disbursement'
+          },
+          {
+            :controller => "group_loan_memberships",
+            :action => "group_loan_disbursement_recipients"
           }
         ]
       },
@@ -412,7 +416,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Approves Setup Payment",
+        :title => "Approve Group Weekly Payment",
         :destination_link => 'root_url',
         :conditions => [
           {

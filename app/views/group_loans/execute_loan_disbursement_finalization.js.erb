@@ -1,0 +1,27 @@
+$(document).ready(function(){
+ 
+  <% if @group_loan.undisbursed_members.count != 0  %>
+    var header_text = "Fail to Propose Finalization";
+    
+    var body_text = "Reason: " ;
+    body_text = body_text + " There is member whose loan hasn't been disbursed loan." ;
+    summonModal(header_text, body_text, "myModal");
+    
+  <% else %>
+  
+    <% if @group_loan.is_loan_disbursement_done == true %>
+      <% new_row = escape_javascript( render :partial => "group_loans/group_loan_disbursement", 
+            :locals => {:group_loan => @group_loan}) %>
+
+
+        
+                
+                
+      $("#group_loan_disbursement-<%= @group_loan.id %>").replaceWith('<%= new_row %>');
+    <% end %>
+    
+    
+    
+  <% end %>
+  
+});

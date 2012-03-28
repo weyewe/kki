@@ -1,0 +1,22 @@
+<tr id="group_loan_disbursement-<%= group_loan.id %>">
+  <td><%= link_to group_loan.name, group_loan_disbursement_recipients_url(group_loan) %></td>
+  <td><%= group_loan.get_commune %></td>
+  <td><%= group_loan.members.count %></td>
+  
+  
+  <td><%= group_loan.disbursed_members.count  %></td>
+  <td><%= print_money( group_loan.total_disbursement_amount ) %></td>
+
+  <td style='text-align:center;'>
+    <% if group_loan.is_loan_disbursement_done  == false%>
+      <a href="#" class="btn propose action"
+          id="finalize-<%= group_loan.id %>">Finalize</a>
+    <% else %>
+      <span class="label label-info">DONE</span>
+    <% end %>
+    
+  </td>
+  
+</tr>
+
+

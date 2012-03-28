@@ -42,11 +42,36 @@ class TransactionActivity < ActiveRecord::Base
     
     transaction_activity = TransactionActivity.create new_hash 
     group_loan_membership.deposit = deposit
+    group_loan_membership.initial_savings = initial_savings
+    group_loan_membership.admin_fee = admin_fee
     group_loan_membership.has_paid_setup_fee = true
     group_loan_membership.setup_fee_transaction_id = transaction_activity.id 
     group_loan_membership.save
+    
+    return transaction_activity 
     # group_loan.update_setup_deposit( group_loan_membership.deposit )
     # how can we create the transaction entries ?
+  end
+  
+  
+  def self.execute_loan_disbursement( group_loan_membership , cashier)
+    group_loan_product = group_loan_membership.group_loan_product
+    member = group_loan_membership.member 
+    
+    new_hash = {}
+    new_hash[:total_transaction_amount]  = group_loan_product.loan_amount
+    new_hash[:transaction_case] = TRANSACTION_CASE[:loan_disbursement]
+    new_hash[:creator_id] = cashier.id 
+    new_hash[:office_id] = cashier.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    
+    transaction_activity = TransactionActivity.create new_hash 
+    
+    group_loan_membership.has_received_loan_disbursement = true
+    group_loan_membership.loan_disbursement_transaction_id = transaction_activity.id 
+    group_loan_membership.save 
+    
+    return transaction_activity 
   end
   
   

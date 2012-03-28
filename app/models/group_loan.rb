@@ -184,8 +184,16 @@ class GroupLoan < ActiveRecord::Base
     self.group_loan_memberships.sum("deposit")
   end
   
+  def total_initial_savings
+    self.group_loan_memberships.sum("initial_savings")
+  end
+  
+  def total_admin_fee
+    self.group_loan_memberships.sum("admin_fee")
+  end
+  
   def uncollected_setup_fee
-    self.group_memberships.where(:has_paid_setup_fee => false )
+    self.group_loan_memberships.where(:has_paid_setup_fee => false )
   end
   
   def execute_finalize_setup_fee_collection( current_user )
@@ -196,6 +204,48 @@ class GroupLoan < ActiveRecord::Base
        self.setup_fee_collection_finalizer_id = current_user.id 
        self.save
      end 
-    
   end
+  
+=begin
+  For Cashier
+=end
+  def approve_setup_fee_collection( current_user )
+    self.is_setup_fee_collection_approved  = true 
+    self.setup_fee_collection_approver_id  = current_user.id 
+    self.save
+    
+    # create all those payment payable : loan disbursement 
+  end
+  
+  def reject_setup_fee_collection( current_user )
+    self.is_setup_fee_collection_finalized = false 
+    self.save 
+  end
+  
+  def is_setup_fee_collection_rejected?
+    self.is_setup_fee_collection_approved == false 
+  end
+  
+  # Loan Disbursement 
+  def disbursed_members
+    self.group_loan_memberships.where(:has_received_loan_disbursement => true )
+  end
+  
+  def undisbursed_members
+    self.group_loan_memberships.where(:has_received_loan_disbursement => false )
+  end
+  
+  def total_disbursement_amount
+    value = BigDecimal.new('0')
+    self.group_loan_memberships.each {|x|  value += x.group_loan_product.loan_amount }
+    
+    return value
+  end
+  
+  def execute_finalize_loan_disbursement( current_user )
+    self.is_loan_disbursement_done = true 
+    self.loan_disburser_id = current_user.id
+    self.save 
+  end
+  
 end

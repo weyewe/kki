@@ -53,9 +53,14 @@ ActiveRecord::Schema.define(:version => 20120319042038) do
   create_table "group_loan_memberships", :force => true do |t|
     t.integer  "group_loan_id"
     t.integer  "member_id"
-    t.decimal  "deposit",                  :precision => 9, :scale => 2, :default => 0.0
-    t.boolean  "has_paid_setup_fee",                                     :default => false
+    t.decimal  "deposit",                          :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "initial_savings",                  :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "admin_fee",                        :precision => 9, :scale => 2, :default => 0.0
+    t.boolean  "has_paid_setup_fee",                                             :default => false
     t.integer  "setup_fee_transaction_id"
+    t.integer  "loan_disbursement_transaction_id"
+    t.boolean  "has_received_loan_disbursement",                                 :default => false
+    t.integer  "loan_disburser_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

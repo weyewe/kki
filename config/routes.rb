@@ -47,6 +47,20 @@ Debita46::Application.routes.draw do
 =end
   match 'select_group_loan_for_setup_payment' => "group_loans#select_group_loan_for_setup_payment", :as => :select_group_loan_for_setup_payment
   match 'group_loan/:group_loan_id/group_loan_memberships_for_setup_fee' => "group_loan_memberships#group_loan_memberships_for_setup_fee", :as => :group_loan_memberships_for_setup_fee
+  match 'execute_setup_fee_collection_finalization' => "group_loans#execute_setup_fee_collection_finalization", :as => :execute_setup_fee_collection_finalization, :method => :post 
+
+=begin
+  Cashier Routes 
+=end
+
+  match 'select_group_loan_for_setup_payment_collection_approval' => "group_loans#select_group_loan_for_setup_payment_collection_approval", :as => :select_group_loan_for_setup_payment_collection_approval
+  match 'approve_setup_fee_collection' => "group_loans#approve_setup_fee_collection", :as => :approve_setup_fee_collection, :method => :post
+
+  match 'select_group_loan_for_loan_disbursement' => "group_loans#select_group_loan_for_loan_disbursement", :as => :select_group_loan_for_loan_disbursement
+  match 'group_loan_disbursement_recipients/:group_loan_id' => "group_loan_memberships#group_loan_disbursement_recipients", :as => :group_loan_disbursement_recipients
+  
+  
+  match 'execute_loan_disbursement_finalization' => "group_loans#execute_loan_disbursement_finalization", :as => :execute_loan_disbursement_finalization, :method => :post 
 
 =begin
   Transaction routes 
@@ -55,8 +69,8 @@ Debita46::Application.routes.draw do
     resources :transaction_entries
   end
   
-  match 'transaction_activity/setup_payment' => 'transaction_activities#create_transaction_activity_for_setup_payment', :as => :create_transaction_activity_for_setup_payment
-  match 'execute_setup_fee_collection_finalization' => "group_loans#execute_setup_fee_collection_finalization", :as => :execute_setup_fee_collection_finalization, :method => :post 
+  match 'transaction_activity/setup_payment' => 'transaction_activities#create_transaction_activity_for_setup_payment', :as => :create_transaction_activity_for_setup_payment, :method => :post
+  match 'transaction_activity/execute_loan_disbursement' => 'transaction_activities#execute_loan_disbursement', :as => :execute_loan_disbursement, :method => :post
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

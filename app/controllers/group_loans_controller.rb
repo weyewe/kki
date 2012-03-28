@@ -110,9 +110,62 @@ class GroupLoansController < ApplicationController
       format.html {  redirect_to root_url }
       format.js 
     end
-    
-    
   end
+  
+=begin
+  Role == Cashier 
+=end
+  
+  def select_group_loan_for_setup_payment_collection_approval
+    @office = current_user.active_job_attachment.office
+    @pending_setup_collection_group_loans = @office.pending_setup_collection_group_loans
+  end
+  
+  
+  def approve_setup_fee_collection
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
+    @action_role = params[:action_role].to_i
+    @action_value = params[:action_value].to_i
+    
+    if @action_role == APPROVER_ROLE
+      if @action_value == TRUE_CHECK
+        @group_loan.approve_setup_fee_collection( current_user )
+      elsif @action_value == FALSE_CHECK
+        @group_loan.reject_setup_fee_collection( current_user )
+      end
+    end
+    
+    respond_to do |format|
+      format.html {  redirect_to root_url }
+      format.js 
+    end
+  end
+  
+  # in disbursing the loan 
+  
+  def select_group_loan_for_loan_disbursement 
+    @office = current_user.active_job_attachment.office
+    @disbursable_group_loans = @office.disbursable_group_loans
+  end
+  
+  def execute_loan_disbursement_finalization
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
+    @action_role = params[:action_role].to_i
+    @action_value = params[:action_value].to_i
+    
+    if @action_role == PROPOSER_ROLE 
+      @group_loan.execute_finalize_loan_disbursement( current_user )
+    end
+    
+    respond_to do |format|
+      format.html {  redirect_to root_url }
+      format.js 
+    end
+  end
+  
+  # def execute_loan_disbursement   it is the responsibility of group_loan_membership
+  #   end
+  
   
   
   

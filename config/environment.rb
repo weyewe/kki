@@ -67,6 +67,7 @@ TRANSACTION_CASE = {
   :weekly_payment_soft_saving_withdrawal => 6,
   
   # all transaction from the company to the member
+  :loan_disbursement => 100,
   :saving_withdrawal => 101, 
   :deposit_return_complete => 102, 
   :deposit_return_deduct_default => 103 

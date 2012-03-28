@@ -6,16 +6,21 @@
   <!-- For details, see select_gruop_laon_setup_for_finalization -->
   <td><%= group_loan.paid_members_count %></td>
   <td>
-  <% if group_loan.is_setup_fee_collection_finalized == false %>
-    <a href="#" class="btn propose action"
-        id="finalize-<%= group_loan.id %>">Finalize</a>
-  <% else %>
-    <span class="label label-info">Finalized</span>
-  <% end %>
+    <% if group_loan.is_setup_fee_collection_finalized == false %>
+      <a href="#" class="btn propose action"
+          id="finalize-<%= group_loan.id %>">Finalize</a>
+    <% else %>
+      <span class="label label-info">Finalized</span>
+    <% end %>
   </td>
 
   <td>
-    Pending
+    <% if group_loan.is_setup_fee_collection_approved  == false%>
+      <span class="label">Pending</span>
+    <% else %>
+      <span class="label label-success">Approved</span>
+    <% end %>
+    
   </td>
   
 </tr>
