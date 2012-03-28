@@ -15,30 +15,14 @@ class GroupLoan < ActiveRecord::Base
   attr_protected :is_proposed, :group_loan_proposer_id,
                   :is_started, :group_loan_starter_id ,
                   :is_closed, :group_loan_closer_id, 
-                  :is_setup_fee_collection_approved, :setup_fee_collection_approver_id,
-                   :is_loan_disbursement_done, :loan_disburser_id,
+                  :is_setup_fee_collection_finalized, :setup_fee_collection_finalizer_id, # finalized by loan_officer
+                  :is_setup_fee_collection_approved, :setup_fee_collection_approver_id, # approval by cashier
+                  :is_loan_disbursement_done, :loan_disburser_id,
                   :aggregated_principal_amount, :aggregated_interest_amount,
                   :total_default, :default_creator_id 
                   
   
-  # :is_started, :is_closed, :is_proposed, 
-  #                   :aggregated_principal_amount, 
-  #                   :aggregated_interest_amount,
-  #                   :total_default
-  # 
-  # t.string   "name"
-  # t.integer  "creator_id",                            :null => false
-  # t.integer  "office_id"
-  # t.boolean  "is_closed",          :default => false
-  # t.integer  "group_closer_id"
-  # t.boolean  "is_started",         :default => false
-  # t.integer  "group_starter_id"
-  # t.integer  "total_default"
-  # t.boolean  "any_default",        :default => false
-  # t.integer  "default_creator_id"
-  # t.integer  "commune_id"
-  # t.datetime "created_at"
-  # t.datetime "updated_at"
+  
   
   
   def get_commune
@@ -48,18 +32,18 @@ class GroupLoan < ActiveRecord::Base
     "#{subdistrict.name}, #{village.name} -- RW #{commune.number }"
   end
   
-  def propose_to_start_group_loan
-    
-  end
-  
-  def start_loan
-    ###### IMPORTANT ########## 
-    # a member can only be in 1 group loan at a given time. 
-    # so, when the loan is started, destroy all other group loan membership 
-    # and group loan can't be started if there is a member with no group_loan_subcription 
-    
-    ## after the deposit  + initial savings has been received, loan $$$ can be disbursed 
-  end
+  # def propose_to_start_group_loan
+  #     
+  #   end
+  #   
+  #   def start_loan
+  #     ###### IMPORTANT ########## 
+  #     # a member can only be in 1 group loan at a given time. 
+  #     # so, when the loan is started, destroy all other group loan membership 
+  #     # and group loan can't be started if there is a member with no group_loan_subcription 
+  #     
+  #     ## after the deposit  + initial savings has been received, loan $$$ can be disbursed 
+  #   end
   
   def commune
     Commune.find_by_id self.commune_id
@@ -163,7 +147,7 @@ class GroupLoan < ActiveRecord::Base
 
   def execute_propose_finalization( current_user )
     if self.unassigned_members.count != 0  or self.equal_loan_duration == false 
-      return
+      return nil
     else
       self.is_proposed = true 
       self.group_loan_proposer_id = current_user.id 
@@ -193,4 +177,25 @@ class GroupLoan < ActiveRecord::Base
     # maybe, in the operational_activity timeline, it is gonna be much better. Tracability
   end
   
+=begin
+  finalize setup fee collection 
+=end
+  def total_deposit
+    self.group_loan_memberships.sum("deposit")
+  end
+  
+  def uncollected_setup_fee
+    self.group_memberships.where(:has_paid_setup_fee => false )
+  end
+  
+  def execute_finalize_setup_fee_collection( current_user )
+     if self.uncollected_setup_fee.count != 0 
+       return nil
+     else
+       self.is_setup_fee_collection_finalized  = true 
+       self.setup_fee_collection_finalizer_id = current_user.id 
+       self.save
+     end 
+    
+  end
 end

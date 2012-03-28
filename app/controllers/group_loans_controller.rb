@@ -97,6 +97,23 @@ class GroupLoansController < ApplicationController
     @started_group_loans = @office.started_group_loans
   end
   
+  def execute_setup_fee_collection_finalization
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
+    @action_role = params[:action_role].to_i
+    @action_value = params[:action_value].to_i
+    
+    if @action_role == PROPOSER_ROLE 
+      @group_loan.execute_finalize_setup_fee_collection( current_user )
+    end
+    
+    respond_to do |format|
+      format.html {  redirect_to root_url }
+      format.js 
+    end
+    
+    
+  end
+  
   
   
   protected

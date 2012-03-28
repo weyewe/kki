@@ -23,6 +23,12 @@ class CreateGroupLoans < ActiveRecord::Migration
       # when loan is started, loan officer is authorized to take setup fee from member
       # cashier is authorized to take $$$
       
+      
+      t.boolean :is_setup_fee_collection_finalized, :default => false 
+      t.integer :setup_fee_collection_finalizer_id
+      # when all setup payment from all members have been collected,
+      # the field_worker has to finalize such activity by clicking the button.
+      
       t.boolean :is_setup_fee_collection_approved, :default => false 
       t.integer :setup_fee_collection_approver_id
       # the cashier has to approve the setup fee collection (the amount)
@@ -33,9 +39,8 @@ class CreateGroupLoans < ActiveRecord::Migration
       t.integer :group_loan_proposer_id # when loan is disbursed, it is started, can't add new members
   
       
-      # => default payment 
-      # t.integer :total_default
-      t.decimal :total_default , :precision => 11, :scale => 2 , :default => 0# 10^9 == 1 Billion ( max value ) all loan == default
+      # t.decimal :total_deposit,  :precision => 11, :scale => 2 , :default => 0   # 10^9 == 9 Billion ( max value )  
+      t.decimal :total_default , :precision => 11, :scale => 2 , :default => 0  # 10^9 == 9 Billion ( max value ) all loan == default
       t.boolean :any_default , :default => false 
       t.integer :default_creator_id  # no conflict resolution takes place, it is declared as default
       

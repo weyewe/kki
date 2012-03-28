@@ -31,6 +31,7 @@ class TransactionActivity < ActiveRecord::Base
     end
     
     member = group_loan_membership.member 
+    # group_loan = group_loan_membership.group_loan 
     
     new_hash = {}
     new_hash[:total_transaction_amount]  = admin_fee +  initial_savings +  deposit
@@ -44,6 +45,7 @@ class TransactionActivity < ActiveRecord::Base
     group_loan_membership.has_paid_setup_fee = true
     group_loan_membership.setup_fee_transaction_id = transaction_activity.id 
     group_loan_membership.save
+    # group_loan.update_setup_deposit( group_loan_membership.deposit )
     # how can we create the transaction entries ?
   end
   

@@ -56,7 +56,7 @@ Debita46::Application.routes.draw do
   end
   
   match 'transaction_activity/setup_payment' => 'transaction_activities#create_transaction_activity_for_setup_payment', :as => :create_transaction_activity_for_setup_payment
-
+  match 'execute_setup_fee_collection_finalization' => "group_loans#execute_setup_fee_collection_finalization", :as => :execute_setup_fee_collection_finalization, :method => :post 
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

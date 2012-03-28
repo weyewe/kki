@@ -19,6 +19,7 @@
             <th>Total Member</th>
             <th>Paid Member</th>
             <th>Finalize</th>
+            <th>Cashier Approval</th>
           
           </tr>
         </thead>
@@ -35,13 +36,31 @@
     </div><!-- end of #data_list -->
   </div>
   
+  
+  
   <div class=" hidden" id="approve_propose_form_wrapper">
-    <%= form_for GroupLoan.new, :url =>execute_propose_finalization_url   do |f| %>
+    <%= form_for GroupLoan.new, :url =>execute_setup_fee_collection_finalization_url   do |f| %>
       <%= hidden_field_tag 'entity_id' , ''  %>
       <%= hidden_field_tag 'action_role', '' %>
       <%= hidden_field_tag 'action_value', '' %>
     <% end %>
   </div>
+  
+  
+  <div class="modal" id="myModal" style="display:none;">
+     <div class="modal-header">
+       <a class="close" data-dismiss="modal">×</a>
+       <h3>Modal header</h3>
+     </div>
+     <div class="modal-body">
+       <p>One fine body…</p>
+     </div>
+     <div class="modal-footer">
+       <a href="#" class="btn modal-closer">Close</a>
+       <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
+     </div>
+   </div>
+  
   
   
 

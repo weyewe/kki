@@ -3,8 +3,19 @@
   <td><%= group_loan.get_commune %></td>
   <td><%= group_loan.members.count %></td>
   
+  <!-- For details, see select_gruop_laon_setup_for_finalization -->
   <td><%= group_loan.paid_members_count %></td>
-  <td>Finalize</td>
+  <td>
+  <% if group_loan.is_setup_fee_collection_finalized == false %>
+    <a href="#" class="btn propose action"
+        id="finalize-<%= group_loan.id %>">Finalize</a>
+  <% else %>
+    <span class="label label-info">Finalized</span>
+  <% end %>
+  </td>
 
+  <td>
+    Pending
+  </td>
   
 </tr>
