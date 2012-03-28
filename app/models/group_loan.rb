@@ -243,9 +243,13 @@ class GroupLoan < ActiveRecord::Base
   end
   
   def execute_finalize_loan_disbursement( current_user )
-    self.is_loan_disbursement_done = true 
-    self.loan_disburser_id = current_user.id
-    self.save 
+    if self.undisbursed_members.count != 0 
+      return self
+    else
+      self.is_loan_disbursement_done = true 
+      self.loan_disburser_id = current_user.id
+      self.save 
+    end
   end
   
 end
