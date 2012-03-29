@@ -163,8 +163,11 @@ class GroupLoansController < ApplicationController
     end
   end
   
-  # def execute_loan_disbursement   it is the responsibility of group_loan_membership
-  #   end
+  # loan collection 
+  def select_group_loan_for_weekly_meeting_attendance_marking
+    @office = current_user.active_job_attachment.office
+    @running_group_loans = @office.running_group_loans
+  end
   
   
   

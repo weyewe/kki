@@ -63,6 +63,16 @@ class Office < ActiveRecord::Base
                 :is_loan_disbursement_done => false  )
   end
   
+  def running_group_loans
+    self.group_loans.where(:is_closed => false , 
+                :is_proposed => true , 
+                :is_started => true,
+                :is_setup_fee_collection_finalized => true , 
+                :is_setup_fee_collection_approved => true , 
+                :is_loan_disbursement_done => true, 
+                :is_closed => false  )
+  end
+  
   # it is runnning.. can't be changed anymore 
   def started_group_loans
     self.group_loans.where(:is_started => true , :is_closed => false )

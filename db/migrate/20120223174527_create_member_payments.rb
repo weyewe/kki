@@ -1,12 +1,8 @@
 class CreateMemberPayments < ActiveRecord::Migration
   def change
     create_table :member_payments do |t|
-      t.integer :member_id 
-      t.integer :amount 
-      t.integer :payment_id 
-      t.integer :user_id # the one who received the $$
-    
-
+      t.integer :transaction_activity_id # information about the amount, and the field_worker id , and the payee id
+      t.integer :weekly_payment_id
       t.timestamps
     end
   end

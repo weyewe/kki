@@ -59,8 +59,10 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_loan_disbursement' => "group_loans#select_group_loan_for_loan_disbursement", :as => :select_group_loan_for_loan_disbursement
   match 'group_loan_disbursement_recipients/:group_loan_id' => "group_loan_memberships#group_loan_disbursement_recipients", :as => :group_loan_disbursement_recipients
   
-  
   match 'execute_loan_disbursement_finalization' => "group_loans#execute_loan_disbursement_finalization", :as => :execute_loan_disbursement_finalization, :method => :post 
+
+  match 'select_group_loan_for_weekly_meeting_attendance_marking' => "group_loans#select_group_loan_for_weekly_meeting_attendance_marking", :as => :select_group_loan_for_weekly_meeting_attendance_marking
+
 
 =begin
   Transaction routes 

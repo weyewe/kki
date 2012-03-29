@@ -448,11 +448,11 @@ module ApplicationHelper
       },
       {
         :title => "Weekly Meeting",
-        :destination_link => 'root_url',
+        :destination_link => 'select_group_loan_for_weekly_meeting_attendance_marking_url',
         :conditions => [
           {
-            :controller => 'loan_product',
-            :action => 'banzai'
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_weekly_meeting_attendance_marking'
           }
         ]
       },

@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class WeeklyPaymentTest < ActiveSupport::TestCase
+class MemberAttendanceTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

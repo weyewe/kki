@@ -6,7 +6,7 @@ class GroupLoan < ActiveRecord::Base
   has_many :group_loan_memberships
   has_many :members, :through => :group_loan_memberships
   
-  has_many :weekly_tasks 
+  has_many :weekly_tasks
   
   # belongs_to :group_loan 
   belongs_to :office
@@ -249,6 +249,21 @@ class GroupLoan < ActiveRecord::Base
       self.is_loan_disbursement_done = true 
       self.loan_disburser_id = current_user.id
       self.save 
+      
+      
+      self.initiate_weekly_tasks
+      # group loan has these things
+      # create the weekly_payment
+        # weekly_payment has_many member_payments
+      # create the weekly meeting 
+        # weekly meeting has many member_attendances 
+    end
+  end
+  
+  def initiate_weekly_tasks
+    total_weeks = self.group_loan_memberships.first.group_loan_product.total_weeks
+    (1..total_weeks).each do |week_number|
+      WeeklyTask.create :week_number => week_number, :group_loan_id => self.id 
     end
   end
   

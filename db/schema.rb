@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120319042038) do
+ActiveRecord::Schema.define(:version => 20120329055234) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
@@ -125,11 +125,17 @@ ActiveRecord::Schema.define(:version => 20120319042038) do
     t.datetime "updated_at"
   end
 
-  create_table "member_payments", :force => true do |t|
+  create_table "member_attendances", :force => true do |t|
+    t.integer  "weekly_meeting_id"
+    t.boolean  "is_present",        :default => false
     t.integer  "member_id"
-    t.integer  "amount"
-    t.integer  "payment_id"
-    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "member_payments", :force => true do |t|
+    t.integer  "transaction_activity_id"
+    t.integer  "weekly_payment_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -257,36 +263,17 @@ ActiveRecord::Schema.define(:version => 20120319042038) do
     t.datetime "updated_at"
   end
 
-  create_table "weekly_attendances", :force => true do |t|
-    t.integer  "week"
-    t.date     "meeting_date"
-    t.time     "meeting_time"
-    t.integer  "group_id"
-    t.integer  "membership_id"
-    t.boolean  "is_attending"
-    t.integer  "field_worker_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "weekly_payments", :force => true do |t|
-    t.integer  "week"
-    t.integer  "group_id"
-    t.integer  "membership_id"
-    t.integer  "amount_paid"
-    t.integer  "debt_collector_id"
-    t.boolean  "is_cashier_approved"
-    t.integer  "cashier_id"
-    t.integer  "payment_status",                   :default => 0
-    t.integer  "less_than_minimum_payment_amount"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "weekly_tasks", :force => true do |t|
     t.integer  "group_loan_id"
-    t.integer  "total_attendance"
-    t.decimal  "total_payment_amount"
+    t.integer  "week_number"
+    t.datetime "weekly_attendance_marking_done_time"
+    t.boolean  "is_weekly_attendance_marking_done",      :default => false
+    t.integer  "attendance_closer_id"
+    t.datetime "weekly_payment_collection_done_time"
+    t.boolean  "is_weekly_payment_collection_finalized", :default => false
+    t.integer  "weekly_payment_collection_finalizer_id"
+    t.boolean  "is_weekly_payment_approved_by_cashier",  :default => false
+    t.integer  "weekly_payment_approver_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
