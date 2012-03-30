@@ -453,6 +453,14 @@ module ApplicationHelper
           {
             :controller => 'group_loans',
             :action => 'select_group_loan_for_weekly_meeting_attendance_marking'
+          },
+          {
+            :controller => "weekly_tasks",
+            :action => "select_weekly_meeting_for_attendance_marking"
+          },
+          {
+            :controller => "weekly_tasks",
+            :action => "mark_attendance"
           }
         ]
       },

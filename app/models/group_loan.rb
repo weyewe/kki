@@ -260,8 +260,16 @@ class GroupLoan < ActiveRecord::Base
     end
   end
   
+  def total_loan_duration
+    self.group_loan_memberships.first.group_loan_product.total_weeks
+  end
+  
+  def total_completed_meeting
+    self.weekly_tasks.where(:is_weekly_attendance_marking_done => true ).count
+  end
+  
   def initiate_weekly_tasks
-    total_weeks = self.group_loan_memberships.first.group_loan_product.total_weeks
+    total_weeks = self.total_loan_duration
     (1..total_weeks).each do |week_number|
       WeeklyTask.create :week_number => week_number, :group_loan_id => self.id 
     end

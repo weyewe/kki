@@ -1,0 +1,31 @@
+<% member = group_loan_membership.member %>
+<tr id="mark_attendance_wrapper-<%= member.id %>">
+  
+  <td><%= member.name %></td>
+  <td><%= member.address %></td>
+  <td style='text-align:center;'>
+    
+    
+    <% if weekly_task.attendance_marking_not_closed? %>
+      <% if weekly_task.has_attendance(member)  %>
+        <span class="label label-success">Present</span>
+      <% else %>
+        <a href="#" class="btn propose action"
+          id="mark_attendance-<%= member.id %>">Attend</a>
+      <% end %>
+    <% else %>
+    
+      <% if weekly_task.has_attendance(member)  %>
+        <span class="label label-success">Present</span>
+      <% else %>
+        <span class="label label-important">Absent</span>
+      <% end %>
+      
+    <% end %>
+    
+    
+  
+    
+    
+  </td>
+</tr>

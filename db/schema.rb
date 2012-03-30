@@ -126,8 +126,9 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
   end
 
   create_table "member_attendances", :force => true do |t|
-    t.integer  "weekly_meeting_id"
-    t.boolean  "is_present",        :default => false
+    t.integer  "weekly_task_id"
+    t.boolean  "is_present",           :default => false
+    t.integer  "attendance_marker_id"
     t.integer  "member_id"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -135,7 +136,7 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
 
   create_table "member_payments", :force => true do |t|
     t.integer  "transaction_activity_id"
-    t.integer  "weekly_payment_id"
+    t.integer  "weekly_task_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

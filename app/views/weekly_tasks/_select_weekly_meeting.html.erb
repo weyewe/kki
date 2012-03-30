@@ -1,0 +1,15 @@
+<tr id="weekly_meeting_wrapper-<%= weekly_task.id %>">
+  <td><%= link_to "Week: #{weekly_task.week_number} ", mark_attendance_url(group_loan.id, weekly_task.id) %></td>
+  <td><%= total_group_member %></td>
+  <td><%= weekly_task.total_members_present %></td>
+  <td style='text-align:center;'>
+ 
+    <% if weekly_task.attendance_marking_not_closed? %>
+      <a href="#" class="btn propose action"
+          id="close_weekly_meeting-<%= weekly_task.id %>">Close</a>
+    <% else %>
+      <span class="label label-success">Closed</span>
+    <% end %>
+    
+  </td>
+</tr>

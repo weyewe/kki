@@ -1,7 +1,7 @@
 class CreateMemberAttendances < ActiveRecord::Migration
   def change
     create_table :member_attendances do |t|
-      t.integer :weekly_meeting_id 
+      t.integer :weekly_task_id 
       # the weekly meeting SOP: 1. marking attendance
       # the field_worker has to click the Close Marking Attendance Button
       # in order to collect payment 
@@ -15,7 +15,7 @@ class CreateMemberAttendances < ActiveRecord::Migration
       
       # so, say that a member is late, marked as is_present => false
       # but, the member paid $$$. What does it do? it just do payment. nothing else
-      
+      t.integer :attendance_marker_id 
       t.integer :member_id 
       t.timestamps
     end

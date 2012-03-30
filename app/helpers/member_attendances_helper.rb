@@ -1,0 +1,2 @@
+module MemberAttendancesHelper
+end
