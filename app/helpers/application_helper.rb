@@ -466,11 +466,19 @@ module ApplicationHelper
       },
       {
         :title => "Weekly Payment",
-        :destination_link => 'root_url',
+        :destination_link => 'select_group_loan_for_weekly_payment_url',
         :conditions => [
           {
-            :controller => 'loan_product',
-            :action => 'banzai'
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_weekly_payment'
+          },
+          {
+            :controller => "weekly_tasks",
+            :action => "select_weekly_meeting_for_weekly_payment"
+          },
+          {
+            :controller => "weekly_tasks",
+            :action => "make_member_payment"
           }
         ]
       }

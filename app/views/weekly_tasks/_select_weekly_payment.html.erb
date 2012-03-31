@@ -1,0 +1,11 @@
+<tr id="weekly_payment_wrapper-<%= weekly_task.id %>">
+  <td><%= link_to "Week: #{weekly_task.week_number} ", make_member_payment_url(group_loan.id, weekly_task.id) %></td>
+  <td><%= total_group_member %></td>
+  <td><%= weekly_task.total_members_paid %></td>
+  <td><%= weekly_task.total_members_paid_only_savings %></td>
+  <td><%= weekly_task.total_members_not_paying %></td>
+  <td style='text-align:center;'>
+      <a href="#" class="btn propose action"
+          id="close_weekly_meeting-<%= weekly_task.id %>">Close</a>
+  </td>
+</tr>

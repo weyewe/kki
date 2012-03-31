@@ -11,6 +11,22 @@ class WeeklyTask < ActiveRecord::Base
     self.member_attendances.where(:is_present => true).count
   end
   
+  def total_members_paid
+  # thanks to squeel
+    self.member_payments.where( :has_paid => true , :only_savings => false ).count
+  end
+  
+  def total_members_paid_only_savings
+  # thanks to squeel
+    self.member_payments.where( :has_paid => true , :only_savings => true ).count
+  end
+  
+  
+  def total_members_not_paying
+  # thanks to squeel
+    self.member_payments.where( :has_paid => false ).count
+  end
+  
 =begin
   FOr the weekly meeting
 =end

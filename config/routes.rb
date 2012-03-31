@@ -59,10 +59,13 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_weekly_meeting_attendance_marking' => "group_loans#select_group_loan_for_weekly_meeting_attendance_marking", :as => :select_group_loan_for_weekly_meeting_attendance_marking
   match 'select_weekly_meeting_for_attendance_marking/:group_loan_id' => "weekly_tasks#select_weekly_meeting_for_attendance_marking", :as => :select_weekly_meeting_for_attendance_marking
   match 'mark_attendance/:group_loan_id/for_week/:weekly_task_id' => "weekly_tasks#mark_attendance", :as => :mark_attendance
-
   # close weekly meeting 
   match 'close_weekly_meeting' => "weekly_tasks#close_weekly_meeting", :as => :close_weekly_meeting, :method => :post 
-
+  
+  #weekly payment
+  match 'select_group_loan_for_weekly_payment' => "group_loans#select_group_loan_for_weekly_payment", :as => :select_group_loan_for_weekly_payment
+  match 'select_weekly_meeting_for_weekly_payment/:group_loan_id' => "weekly_tasks#select_weekly_meeting_for_weekly_payment", :as => :select_weekly_meeting_for_weekly_payment
+  match 'make_member_payment/:group_loan_id/for_week/:weekly_task_id' => "weekly_tasks#make_member_payment", :as => :make_member_payment
 =begin
   Cashier Routes 
 =end

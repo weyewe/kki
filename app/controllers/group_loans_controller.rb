@@ -165,14 +165,23 @@ class GroupLoansController < ApplicationController
   
   # loan collection 
   def select_group_loan_for_weekly_meeting_attendance_marking
-    @office = current_user.active_job_attachment.office
-    @running_group_loans = @office.running_group_loans
+    setup_group_loan_for_weekly_task
+  end
+  
+  def select_group_loan_for_weekly_payment
+    setup_group_loan_for_weekly_task
   end
   
   
   
   
   protected
+  
+  def setup_group_loan_for_weekly_task
+    @office = current_user.active_job_attachment.office
+    @running_group_loans = @office.running_group_loans
+  end
+  
   def setup_group_loan
     @office = current_user.active_job_attachment.office
     @active_group_loans = @office.active_group_loans

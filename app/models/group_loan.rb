@@ -268,6 +268,10 @@ class GroupLoan < ActiveRecord::Base
     self.weekly_tasks.where(:is_weekly_attendance_marking_done => true ).count
   end
   
+  def total_completed_group_payment
+    self.weekly_tasks.where(:is_weekly_payment_collection_finalized => true ).count
+  end
+  
   def initiate_weekly_tasks
     total_weeks = self.total_loan_duration
     (1..total_weeks).each do |week_number|

@@ -137,6 +137,8 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
   create_table "member_payments", :force => true do |t|
     t.integer  "transaction_activity_id"
     t.integer  "weekly_task_id"
+    t.boolean  "has_paid",                :default => false
+    t.boolean  "only_savings",            :default => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

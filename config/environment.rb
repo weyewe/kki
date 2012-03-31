@@ -65,6 +65,7 @@ TRANSACTION_CASE = {
   :weekly_payment_extra_savings => 4 ,
   :weekly_payment_multiple_weeks => 5 , 
   :weekly_payment_soft_saving_withdrawal => 6,
+  :backlog_payment => 7, # has to be paid in full
   
   # all transaction from the company to the member
   :loan_disbursement => 100,
