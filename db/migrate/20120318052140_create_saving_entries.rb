@@ -4,8 +4,8 @@ class CreateSavingEntries < ActiveRecord::Migration
 
       t.integer :saving_book_id 
       t.integer :saving_entry_code , :nil => false 
-      t.decimal :amount 
-      
+      t.integer :saving_action_type, :nil => false 
+      t.decimal :amount ,:precision => 11, :scale => 2 , :default => 0 
       t.timestamps
     end
   end

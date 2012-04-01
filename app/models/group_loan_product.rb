@@ -48,6 +48,8 @@ class GroupLoanProduct < ActiveRecord::Base
   def interest_rate_in_percent
     interest_rate * 100 
   end
+  
+ 
  
  
   

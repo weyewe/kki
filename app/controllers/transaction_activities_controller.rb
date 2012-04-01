@@ -17,4 +17,32 @@ class TransactionActivitiesController < ApplicationController
   end
   
   
+=begin
+  For the Member Payment in Weekly Group Loan
+=end
+  
+  def create_basic_weekly_payment 
+    @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id])
+    @member = Member.find_by_id( params[:entity_id] )
+    @group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+      :member_id => @member.id,
+      :group_loan_id => @weekly_task.group_loan.id 
+    })
+    @transaction_activity = TransactionActivity.create_basic_weekly_payment(
+      @member,
+      @weekly_task,
+      current_user
+    )
+  end
+  
+  def create_special_weekly_payment
+  end
+  
+  def create_savings_only_as_weekly_payment
+  end
+  
+  def create_backlog_payment
+  end
+  
+  
 end

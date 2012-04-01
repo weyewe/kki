@@ -1,4 +1,5 @@
 <% member = group_loan_membership.member %>
+<% group_loan = group_loan_membership.group_loan %>
 
 
 
@@ -7,21 +8,49 @@
   <td><%= member.name %></td>
   <td><%= member.address %></td>
   <!-- basic payment -->
-  <td>50,000.00</td>
-  <td> Pay Basic</td>
   
-  <!-- back log payment  -->
-  <td>50,000.00</td>
-  <td>Pay Backlog</td>
   
-  <!-- Special Payment -->
-  <td>Special Payment</td>
-    
   
-    
-    
   
+  
+  
+    <% if weekly_task.has_paid_weekly_payment?(member)  %>
+      <td colspan="2" style="text-align:center;">
+        <span class="label label-success">PAID</span>
+      </td>
+    <% else %>
+      <td><%= print_money(group_loan_membership.group_loan_product.total_weekly_payment)  %></td>
+      <td>
+        <a href="#" class="btn propose action"
+          id="make_basic_payment-<%= member.id %>">Pay</a>
+      </td>
+      
+    <% end %>
+  
+ 
+  
+  
+
+    <!-- back log payment  -->
+     <td style="text-align:center;">50,000.00</td>
+
+
+
+      <% if weekly_task.has_paid_weekly_payment?(member)  %>
+         <td style="text-align:center;">
+           <span class="label label-success">PAID</span>
+         </td>
+       <% else %>
+         <td>
+           <%= link_to "Special Payment",
+              special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
+                :class => "btn", 
+                :id => "make_basic_payment-#{member.id}"  %>
+          </td>
+       <% end %>
+       
+       
+     
+
     
-    
-  </td>
 </tr>

@@ -107,9 +107,25 @@ class WeeklyTask < ActiveRecord::Base
     else
       return false
     end
-    
   end
   
+  # gonna make payment 
+ 
+  def create_basic_weekly_payment( member, transaction_activity)
+    self.member_payments.create(
+      :transaction_activity_id => transaction_activity.id,
+      :member_id => member.id , 
+      :has_paid => true 
+    )
+  end
+  
+  # def has_paid_basic_weekly_payment?(member)
+  #    self.member_payments.where(:member_id => member.id).length != 0 
+  #  end
+  
+  def has_paid_weekly_payment?(member)
+    self.member_payments.where(:member_id => member.id).length != 0 
+  end
   
 =begin
   For the weekly payment 

@@ -20,6 +20,14 @@ class TransactionActivity < ActiveRecord::Base
   
   
   after_create :create_transaction_entries 
+  
+  
+=begin
+  On all payment
+  1. check the value validity
+  2. create the transaction activity 
+  3. create the savings ( if there is any ) 
+=end
   # all data coming in are BigDecimal
   def self.create_setup_payment( admin_fee, initial_savings, deposit, field_worker, group_loan_membership )
     group_loan_product = group_loan_membership.group_loan_subcription.group_loan_product
@@ -48,6 +56,8 @@ class TransactionActivity < ActiveRecord::Base
     group_loan_membership.setup_fee_transaction_id = transaction_activity.id 
     group_loan_membership.save
     
+    member.add_savings(initial_savings, SAVING_ENTRY_CODE[:initial_setup_saving])
+    
     return transaction_activity 
     # group_loan.update_setup_deposit( group_loan_membership.deposit )
     # how can we create the transaction entries ?
@@ -74,6 +84,34 @@ class TransactionActivity < ActiveRecord::Base
     return transaction_activity 
   end
   
+
+  
+  def TransactionActivity.create_basic_weekly_payment(member,weekly_task, current_user )
+    group_loan = weekly_task.group_loan
+    group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+      :group_loan_id => group_loan.id, 
+      :member_id => member.id 
+    })
+    group_loan_product = group_loan_membership.group_loan_product
+    
+    
+    new_hash = {}
+    new_hash[:total_transaction_amount]  = group_loan_product.total_weekly_payment
+    new_hash[:transaction_case] = TRANSACTION_CASE[:weekly_payment_basic]
+    new_hash[:creator_id] = current_user.id 
+    new_hash[:office_id] = current_user.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    
+    transaction_activity = TransactionActivity.create new_hash 
+    weekly_task.create_basic_weekly_payment( member, transaction_activity)
+    
+    member.add_savings(group_loan_product.min_savings, 
+          SAVING_ENTRY_CODE[:weekly_saving_from_basic_payment])
+    
+    
+    
+    return transaction_activity 
+  end
   
   protected
   def create_transaction_entries

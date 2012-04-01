@@ -479,6 +479,10 @@ module ApplicationHelper
           {
             :controller => "weekly_tasks",
             :action => "make_member_payment"
+          },
+          {
+            :controller => "weekly_tasks",
+            :action => "special_weekly_payment_for_member"
           }
         ]
       }

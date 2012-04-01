@@ -1,0 +1,9 @@
+$(document).ready(function(){
+  <% if not @transaction_activity.nil? %>
+    <% new_row = escape_javascript(render :partial => "weekly_tasks/make_payment" , 
+        :locals => { :group_loan_membership => @group_loan_membership, 
+          :weekly_task => @weekly_task}) %>
+        
+    $("#make_payment_wrapper-<%= @member.id %>").replaceWith('<%= new_row %>');
+  <% end %>
+});

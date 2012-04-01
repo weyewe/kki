@@ -66,6 +66,8 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_weekly_payment' => "group_loans#select_group_loan_for_weekly_payment", :as => :select_group_loan_for_weekly_payment
   match 'select_weekly_meeting_for_weekly_payment/:group_loan_id' => "weekly_tasks#select_weekly_meeting_for_weekly_payment", :as => :select_weekly_meeting_for_weekly_payment
   match 'make_member_payment/:group_loan_id/for_week/:weekly_task_id' => "weekly_tasks#make_member_payment", :as => :make_member_payment
+  match 'special_weekly_payment_for_member/:group_loan_id/for_week/:weekly_task_id/member/:member_id' => "weekly_tasks#special_weekly_payment_for_member", :as => :special_weekly_payment_for_member
+  
 =begin
   Cashier Routes 
 =end
@@ -89,6 +91,8 @@ Debita46::Application.routes.draw do
   
   match 'transaction_activity/setup_payment' => 'transaction_activities#create_transaction_activity_for_setup_payment', :as => :create_transaction_activity_for_setup_payment, :method => :post
   match 'transaction_activity/execute_loan_disbursement' => 'transaction_activities#execute_loan_disbursement', :as => :execute_loan_disbursement, :method => :post
+  
+  match 'transaction_activity/create_basic_weekly_payment/:weekly_task_id' => 'transaction_activities#create_basic_weekly_payment', :as => :create_basic_weekly_payment, :method => :post
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

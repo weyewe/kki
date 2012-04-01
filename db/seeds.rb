@@ -419,198 +419,39 @@ third_subcription = GroupLoanSubcription.create_or_change( group_loan_product_2.
 
 
 
-puts "8234 ---- stuck over here"# 
-# first_group_loan_membership = first_group_loan.get_membership_for_member( first_member )
-# second_group_loan_membership = first_group_loan.get_membership_for_member( second_member )
-# third_group_loan_membership = first_group_loan.get_membership_for_member( third_member )
-# 
-# loan_officer.assign_group_loan_product( first_membership,  group_loan_product_a )
-# # loan_officer.assign_product( second_membership,  loan_product_b )
-# # loan_officer.assign_product( third_membership,  loan_product_c )
+puts "Phase 2 : for the Weekly Payment ITSELF"#
+fourth_subcription = GroupLoanSubcription.create_or_change( group_loan_product_2.id, fourth_membership.id )
 
-puts "Done assigning loan product to the membership "
+puts "loan officer propose group_loan finalization"
+group_loan.execute_propose_finalization( loan_officer )
 
-puts "_____________FUCKING DONE WITH THE BASIC_____"
+puts "Branch manager approves the finalization"
+group_loan.start_group_loan( branch_manager )
 
-puts "The steps of group loan start?"
+puts "collect the setup fee from members by field_worker"
+group_loan.group_loan_memberships.each do |group_loan_membership|
+  deposit = BigDecimal.new("50000")
+  group_loan_product = group_loan_membership.group_loan_product
+  admin_fee = group_loan_product.admin_fee
+  initial_savings = group_loan_product.initial_savings 
+  TransactionActivity.create_setup_payment( admin_fee, initial_savings,
+            deposit, field_worker , group_loan_membership )
+end
 
-puts "How do we model payment"
-=begin
-  One TransactionActivity has many Payments 
-  example, the member gives 50,000 rupiah to field worker
-    it can be for 4 payments:
-    1. 20,000 cash is the principal payment
-    2. 5000 cash is the fine (late payment )
-    3. 20,000 cash is for the savings payment 
-    4. 5,0000 cash is for the interest payment
-    
-  But, it can only happen that one TransactionActivity contains less than 4 payments:
-  example: not enough money (just 4000).  so, the member asked the worker to do: 
-  Basic payment: 25k (20k == principal, 5k == interest)
-  Transaction:
-  1. Take 21k cash from savings account (saving credit)
-  2. Pay 20k for principal
-  3. Pay 5k for interest
-=end
+puts "Field WOrker finalize the setup collection, pass to cashier"
+group_loan.execute_finalize_setup_fee_collection( field_worker )
+
+puts "cashier approve the setup fee collection"
+group_loan.approve_setup_fee_collection( cashier )
+
+puts "cashier disburse the loan"
+group_loan.group_loan_memberships.each do |group_loan_membership|
+  TransactionActivity.execute_loan_disbursement( group_loan_membership , cashier)
+end
 
 
-# These shites are not done 
-
-# 
-# =begin
-#   after all deposit, cashier has to approve the deposit 
-#   cashier doesn't go into the details of who paid how much.
-#   As far as cashier is concerned, he only cares that all money information is true. 
-# =end 
-# cashier.approve_deposit( first_group )
-# cashier.approve_initial_savings( first_group )
-# cashier.approve_admin_fee( first_group )
-# 
-# # after cashier has approved the deposit, the branch manager will be notified
-# # branch manager has to approve the shit as well 
-# branch_manager.approve_loan_disbursement( first_group )
-# # loan_is_started .. auto generate 25 weekly attendance for each group membership
-# # auto generate 25 weekly payments for each group membership
-# 
-# 
-# # after branch manager approval, cashier will distribute the money (in the office)
-# # accompanied by the related field_worker 
-# 
-# cashier.disburse_loan( first_membership )
-# cashier.disburse_loan( second_membership )
-# cashier.disburse_loan( third_membership )
-# 
-# 
-# 
-# =begin
-#   Done. With the loan financial information + deposit, the field worker will have 
-#   information to select the group leader, create subgroup, and create subgroup leader
-# =end
-# 
-# field_worker.set_group_leader( first_group, first_member) 
-# 
-# first_subgroup = first_group.subgroups.create 
-# second_subgroup = first_group.subgroups.create 
-# third_subgroup = first_group.subgroups.create 
-# 
-# first_subgroup.add_member( first_membership ) 
-# second_subgroup.add_member( second_membership )
-# third_subgroup.add_member( third_membership )
-# 
-# first_subgroup.set_leader( first_membership ) 
-# second_subgroup.set_leader( second_membership )
-# third_subgroup.set_leader( third_membership )
-# 
-# 
-# =begin
-#   DONE, they can take weekly payment. 
-#   The week when the money was disbursed == week 0
-#   The first week will begin in the week after 
-#   
-#   LOAN PAYMENT! + PAYMENT LOGIC
-# =end
-# 
-# 
-# # loan_product_a = branch_manager.group_loans.create :principal => 20000, 
-# #                                   :interest => 4000, 
-# #                                   :min_savings => 8000, :total_weeks => 25 ,
-# #                                   :admin_fee => 25000, :initial_savings => 15000
-# # with this information, minimal weekly payment is 20000 + 4000 + 8000 == 32000
-# 
-# # => case 1 #=> normal minimum payment
-# field_worker.add_weekly_payment( first_membership , 32000 )
-#   # => in the backend, payment is created 
-#   # => principal == 20000, status = NORMAL_PAYMENT
-#   # => savings is added  == 8000
-#   # => interest is added == 4000 
-#   
-# # => case 2 # => less than minimum payment
-# field_worker.add_weekly_payment( first_membership,  28000 )
-#   # => in the backend:
-#   # => in the membership => status = BUFFER_PAYMENT
-#   # => principal => unpaid, status =  LESS_THAN_NORMAL
-#   # => savings  # => added by 28000
-#   # => interest is not added
-#   
-# # => case 3 # => multiple weeks payment
-# field_worker.add_multiple_weeks( first_membership , 90000)
-#   # => in the backend
-#   # => find the total number of weeks of weekly minimum
-#     # => in this case, we have 2 weeks( 64k, + extra 28k)
-#     # => payment for 2 weeks will be generated
-#     # => interest for 2 weeks will be generated
-#     # => savings for 2 weeks will be generated + extra 28K
-# 
-# # => case 4 # => late payment
-# field_worker.add_weekly_payment( first_membership, 32000, 2000 ) # membership, payment, fine
-#   # => in the backend:
-#   # => principal == 20000, status = LATE_PAYMENT
-#   # => savings added == 8000
-#   # => interest added = 4000
-#   
-# # => case 5 # => payment using voluntary savings
-# field_worker.add_full_payment_with_voluntary_savings( first_membership )
-#   # in the backend
-#   # => principal = 20000, status = FULL_VOLUNTARY_SAVINGS
-#   # => savings added == 8000, savings reduced == min payment
-#   # => interest added = 4000
-# 
-# # => case 6 # => partial payment with voluntary and cash
-# field_worker.add_partial_payment_with_voluntary_savings( first_membership, 20000)
-# # in the backend
-# # => principal = 2000, status = PARTIAL_PAYMENT
-# # => savings added == 8000, savings reduced  = min-payment - payment
-# # => interest_added = 4000
-# 
-# # what is the case to give fine?
-# 
-# =begin
-#   Weekly payment is done. 
-#   But, attendance has to be recorded
-# =end
-# 
-# field_worker.add_attendance( membership, true_or_false )
-# # => in the backend, there will be weekly history
-# 
-# =begin
-#   After taking the weekly payment, field worker has to cash in the money to the cashier.
-#   We are shifting the $$ amount to the cashier. But, the responsibility of the $$ distribution
-#   in the group membership belongs to the field worker s
-# =end
-# 
-# cashier.approve_weekly_payment( first_group, field_worker, description )
-# # cashier.disapprove_weekly_payment( first_group, field_worker, description )
-# 
-# =begin
-#   Finally, after 25 weeks, loan is done. 
-#   There are 2 cases:
-#   1. No default
-#   2. Default
-#   
-#   For no default case, branch manager can just close the loan. 
-#   Then, cashier has to return the deposit. 
-#   After the disbursment of deposit, branch manager will finalize the closing 
-# 
-#   What if there are defaults? DEEP SHIT
-#   1. Default resolution: 
-#   calculate default, default payment will happen from 
-#     group deposit and group savings 
-#     
-# =end
-# 
-# branch_manager.calculate_default_loan_resolution( first_group )
-# # only shows the calculation, about how much money will be taken from the deposit
-# # and the money will be taken from the savings account
-# 
-# 
-# branch_manager.execute_default_loan_resolution( first_group )
-# 
-#   
-#   
-# 
-
-
-
+puts "cashier finaliz the disbursement"
+group_loan.execute_finalize_loan_disbursement( cashier )
 
 
 

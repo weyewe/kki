@@ -1,0 +1,93 @@
+
+
+
+<div class="row-fluid tab-pane fade  active in" id="only_savings_payment" >
+  <div class="span8">
+    <h2>Only Savings</h2><br />
+
+    <%= simple_form_for(GroupLoanProduct.new, :html => {:class => 'form-horizontal' }) do |f| %>
+      <%= f.input :principal , :input_html => {:class => "input-xlarge span5", :id =>"weekly_principal"}, 
+      :hint => "Pembayaran Cicilan Principal Mingguan", :label => "Installment Principal" %>
+
+      <%= f.input :interest, :input_html => {:class => "input-xlarge span5",:id =>"weekly_interest"  },
+      :hint => "Pembayaran Bunga Mingguan", :label => "Interest Payment"%>
+
+      <%= f.input :min_savings, :input_html => { :class => "input-xlarge span5" },
+      :hint => "Minimum Tabungan Mingguan", :label => "Min Weekly Saving"%>
+
+      <%= f.input :admin_fee, :input_html => {:class => "input-xlarge span5" },
+      :hint => "Biaya administrasi awal" %>
+
+      <%= f.input :initial_savings, :input_html => { :class => "input-xlarge span5" },
+      :hint => "Jumlah tabungan minimum awal"%>
+
+      <%= f.input :total_weeks, :input_html => {:class => "input-xlarge span5", :id => "duration" },
+      :hint => "Jangka Waktu Pembayaran(minggu)" %>
+      
+      <div class="form-actions">
+        <%= f.button :submit , :class => "btn btn-primary", :text=> "Create Group Loan Product" %>
+      </div>
+    <% end %>
+    
+    
+   
+    
+  </div> 
+    
+    
+    
+  <div class="span4">
+    <table cellpadding="0" cellspacing="0" border="0" 
+          class="table table-striped table-bordered" id="example">
+      <thead>
+        <tr><th colspan="2" style="text-align:center;">Loan Calculator</th></tr>
+      </thead>
+      <tbody>
+          <tr>
+            <td>Principal (Rp)</td>
+            <td id="total_principal">
+              <div class="input-append">
+                <input type="text" size="16" id="appendedInput" class="span8" >
+                <span class="add-on">.00</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>Interest</td>
+            <td id="percentage_interest">
+              <div class="input-append">
+                <input type="text" size="16" id="appendedInput" class="span8" >
+                <span class="add-on">%</span>
+              </div>
+            </td>
+          </tr>
+          
+          <tr>
+            <td>Duration</td>
+            <td id="calculator_duration">
+              <div class="input-append">
+                <input type="text" size="16" id="appendedInput" class="span5" >
+                <span class="add-on">weeks</span>
+              </div>
+            </td>
+          </tr>
+          
+          <tr>
+            <td colspan="2" style="text-align:center;">
+              <button href="#" class="btn btn-primary" id="simulate_group_loan_product">Simulate</button>
+            </td>
+          </tr>
+          
+        
+      </tbody>
+    </table>
+    
+  </div><!--/span-->
+  
+</div><!--/row-->
+
+
+
+
+
+

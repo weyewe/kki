@@ -137,6 +137,7 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
   create_table "member_payments", :force => true do |t|
     t.integer  "transaction_activity_id"
     t.integer  "weekly_task_id"
+    t.integer  "member_id"
     t.boolean  "has_paid",                :default => false
     t.boolean  "only_savings",            :default => false
     t.datetime "created_at"
@@ -193,7 +194,8 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
   create_table "saving_entries", :force => true do |t|
     t.integer  "saving_book_id"
     t.integer  "saving_entry_code"
-    t.decimal  "amount"
+    t.integer  "saving_action_type"
+    t.decimal  "amount",             :precision => 11, :scale => 2, :default => 0.0
     t.datetime "created_at"
     t.datetime "updated_at"
   end

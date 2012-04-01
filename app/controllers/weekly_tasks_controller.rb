@@ -30,6 +30,27 @@ class WeeklyTasksController < ApplicationController
   def close_weekly_meeting_for_member_payment
     setup_for_weekly_meeting_task_closing
   end
+
+=begin
+  Weekly Special Payment 
+=end
+
+  def special_weekly_payment_for_member
+    
+    setup_for_weekly_task_fulfillment_details
+    @member = Member.find_by_id params[:member_id]
+    @group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+      :member_id => @member.id , 
+      :group_loan_id => @group_loan.id
+    })
+    @group_loan_product = @group_loan_membership.group_loan_product
+    
+    if @weekly_task.has_paid_weekly_payment?(@member) 
+      redirect_to make_member_payment_url(@group_loan, @weekly_task)
+    end
+    
+    
+  end
   
   protected
   def setup_for_select_weekly_meeting

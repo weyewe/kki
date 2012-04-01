@@ -68,6 +68,26 @@ class Member < ActiveRecord::Base
     end
   end
   
+  def add_savings(saving_amount, saving_entry_code )
+    self.saving_book.saving_entries.create(
+      :saving_entry_code => saving_entry_code,
+      :amount => saving_amount,
+      :saving_action_type => SAVING_ACTION_TYPE[:debit]
+    )
+  end
+  
+  def deduct_savings( saving_amount, saving_entry_code)
+    self.saving_book.saving_entries.create(
+      :saving_entry_code => saving_entry_code,
+      :amount => saving_amount,
+      :saving_action_type => SAVING_ACTION_TYPE[:credit]
+    )
+  end
+  
+  def total_savings
+    self.saving_book.total 
+  end
+  
   
   protected
   

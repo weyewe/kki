@@ -95,3 +95,19 @@ TRANSACTION_ENTRY_CODE = {
 
 
 
+SAVING_ENTRY_CODE = {
+  :initial_setup_saving => 1 , 
+  :weekly_saving_from_basic_payment => 2 , 
+  :weekly_saving_no_basic_payment => 3 ,
+  :independent_saving => 4, 
+  
+  :soft_withdraw_to_pay_basic_weekly_payment => 100, 
+  :hard_withdrawal => 101
+  
+  
+}
+
+SAVING_ACTION_TYPE = {
+  :debit => 1 ,
+  :credit => 2 
+}

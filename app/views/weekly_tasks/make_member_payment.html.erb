@@ -17,8 +17,9 @@
             <th>Member Name</th>
             <th>Address</th>
             <th colspan="2">Basic Payment</th>
-            <th colspan="2">Backlog</th>
+            <th>Backlog</th>
             <th>Special Payment</th>
+            
           </tr>
         </thead>
         <tbody>
@@ -38,7 +39,7 @@
   
   
   <div class=" hidden" id="approve_propose_form_wrapper">
-    <%= form_for MemberAttendance.new, :url => weekly_task_member_attendances_url(@weekly_task.id)   do |f| %>
+    <%= form_for WeeklyTask.new, :url => create_basic_weekly_payment_url(@weekly_task.id)   do |f| %>
       <%= hidden_field_tag 'entity_id' , ''  %>
       <%= hidden_field_tag 'action_role', '' %>
       <%= hidden_field_tag 'action_value', '' %>

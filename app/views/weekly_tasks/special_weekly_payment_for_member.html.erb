@@ -1,0 +1,46 @@
+<div class="span9 content">
+  <%= create_guide("Special Payment", 
+        "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
+        "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "Member: <b>#{@member.name}</b>" + "<br />" + 
+        "Payment for week: <b>#{@weekly_task.week_number}</b>" + "<br />" + 
+        "Minimum weekly payment: <b>#{print_money(@group_loan_product.total_weekly_payment)}</b>" ).html_safe %>
+        
+  
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <% if flash[:notice] %>
+    <div class="alert alert-success">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Well done!</strong> <%= flash[:notice].html_safe %>
+    </div>
+  <% end %>
+  
+  <% if flash[:error] %>
+    <div class="alert alert-error">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Create Failure!</strong> Please fill in all required (*) fields.
+    </div>
+  <% end %>
+  
+  
+  
+  
+  <ul class="nav nav-tabs" id="tab">
+    <li class="active"><a data-toggle="tab" href="#only_savings_payment"><strong>Only Savings</strong></a></li>
+    <li class=""><a data-toggle="tab" href="#multiple_weeks_payment"><strong>Multiple Weeks</strong></a></li>
+    <li class=""><a data-toggle="tab" href="#structured_payment"><strong>Structured</strong></a></li>
+    <li class=""><a data-toggle="tab" href="#backlog_payment"><strong>Backlog</strong></a></li>
+   
+  </ul>
+
+  <div class="tab-content" id="myTabContent">
+    <%= render :partial => "weekly_tasks/special_payments/only_savings_payment" %>
+    
+    <%= render :partial => "weekly_tasks/special_payments/multiple_weeks_payment" %>
+    <%= render :partial => "weekly_tasks/special_payments/structured_payment" %>
+    <%= render :partial => "weekly_tasks/special_payments/backlog_payment" %>
+  </div>
+  
+  
+   <hr />
+</div><!--/span-->
