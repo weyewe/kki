@@ -35,11 +35,15 @@ class TransactionActivitiesController < ApplicationController
     )
   end
   
+  def create_savings_only_as_weekly_payment
+    @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
+    @member  = Member.find_by_id params[:member_id]
+  end
+  
   def create_special_weekly_payment
   end
   
-  def create_savings_only_as_weekly_payment
-  end
+  
   
   def create_backlog_payment
   end

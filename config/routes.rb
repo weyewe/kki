@@ -93,6 +93,12 @@ Debita46::Application.routes.draw do
   match 'transaction_activity/execute_loan_disbursement' => 'transaction_activities#execute_loan_disbursement', :as => :execute_loan_disbursement, :method => :post
   
   match 'transaction_activity/create_basic_weekly_payment/:weekly_task_id' => 'transaction_activities#create_basic_weekly_payment', :as => :create_basic_weekly_payment, :method => :post
+  match 'transaction_activity/create_savings_only_as_weekly_payment/:weekly_task_id/member/:member_id' => 'transaction_activities#create_savings_only_as_weekly_payment', :as => :create_savings_only_as_weekly_payment, :method => :post
+  
+  
+  
+  
+  
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

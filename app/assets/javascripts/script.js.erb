@@ -264,19 +264,36 @@ $(document).ready(function() {
    });
    
    /*
-    Special Payment JS 
+    Special Payment JS . 
+    the namespace for fields/forms = sp_ << for user entry
+    for the js display sp_display_ namespace
    */
-   $("a.special_payment_button").live('click', function(){
-     var modal_id = $(this).attr("id").split("-")[1];
-
-     var $modal_wrapper = $("#myModal-" + modal_id );
-     $modal_wrapper.modal('show');
-     var $modal_closer = $(".modal-footer .modal-closer", $modal_wrapper);
-     $modal_closer.click(function(){
-       $modal_wrapper.modal('hide');
-       return false;
-     });
-
+   $("#sp_simulate_structured_payment").live('click', function(){
+     var cash = newParseInt( $("#sp_calc_cash").attr("value") );
+     var number_of_weeks = newParseInt( $("#sp_calc_weeks").attr("value") );
+     var stated_savings_withdrawal = newParseInt( $("#sp_calc_savings_withdraw").attr("value") );
+     var basic_weekly_payment_amount = newParseInt( $("#basic_weekly_payment_amount").attr("value") );
+     var total_savings = newParseInt( $("#sp_total_savings_amount").attr("value") );
+     var savings_withdrawal; 
+     
+     if( total_savings - stated_savings_withdrawal   >= 0 ){
+       savings_withdrawal = stated_savings_withdrawal;
+     }else{
+       savings_withdrawal = total_savings;
+     }
+     
+     var total_payment = number_of_weeks*basic_weekly_payment_amount; 
+     var balance = cash + savings_withdrawal - total_payment ; 
+     
+     
+     // show the data 
+     $("#sp_display_weeks").text( number_of_weeks );
+     $("#sp_display_total_payment").text( addCommas(total_payment) );
+     $("#sp_display_cash").text( addCommas(cash));
+     $("#sp_display_savings_withdrawal").text( addCommas(savings_withdrawal));
+     
+     $("#sp_display_balance").text( addCommas(balance));
+     
      return false; 
    });
 

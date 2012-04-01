@@ -88,6 +88,10 @@ class Member < ActiveRecord::Base
     self.saving_book.total 
   end
   
+  def can_pay_with_savings?( total_fee )
+    self.total_savings >= total_fee
+  end
+  
   
   protected
   
