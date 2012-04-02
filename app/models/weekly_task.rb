@@ -119,6 +119,19 @@ class WeeklyTask < ActiveRecord::Base
     )
   end
   
+  def create_multiple_weeks_payment( member, transaction_activity, number_of_weeks)
+    current_week = self.week_number
+    final_week = current_week + number_of_weeks - 1 
+    group_loan = self.group_loan
+    (current_week..final_week).each do |target_week_number|
+      group_loan.find_weekly_task_by_week_number( target_week_number ).member_payments.create(
+        :transaction_activity_id => transaction_activity.id,
+        :member_id => member.id , 
+        :has_paid => true
+      ) 
+    end
+  end
+  
   # def has_paid_basic_weekly_payment?(member)
   #    self.member_payments.where(:member_id => member.id).length != 0 
   #  end

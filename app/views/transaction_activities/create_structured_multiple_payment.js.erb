@@ -4,6 +4,8 @@ $(document).ready(function(){
   
     
   var body_html; 
+  var header_html;
+  
     
   <% if not @transaction_activity.nil? %>  
     <% transaction_activity_details = 
@@ -11,11 +13,13 @@ $(document).ready(function(){
         :transaction_activity => @transaction_activity 
       } ) %>
     body_html = '<%= transaction_activity_details %>';
+    header_html = "<h3>Transaction for member <%= @member.name %> is successful</h3>"
   <% else %>
     body_html = '<p>Error in creating the transaction</p>';
+     header_html = "<h3>Transaction for member <%= @member.name %> FAIL</h3>"
   <% end %>
   
-  summonModalHTML( "<h3>Sukses Payment for member <%= @member.name %></h3>" , 
+  summonModalHTML( header_html , 
               body_html, 
                 "myModal");
 });

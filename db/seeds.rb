@@ -239,14 +239,14 @@ puts "Done adding roles to the JobAttachment"
 puts "the first"
 group_loan_product_a = GroupLoanProduct.create :principal => 20000, 
                                   :interest => 4000, 
-                                  :min_savings => 8000, :total_weeks => 25 ,
+                                  :min_savings => 8000, :total_weeks => 4 ,
                                   :admin_fee => 25000, :initial_savings => 15000,
                                   :creator_id => branch_manager.id ,
                                   :office_id => cilincing_office.id
 puts "the second"
 group_loan_product_b = GroupLoanProduct.create :principal => 25000, 
                                   :interest => 3000, 
-                                  :min_savings => 8000, :total_weeks => 25 ,
+                                  :min_savings => 8000, :total_weeks => 4 ,
                                   :admin_fee => 25000, :initial_savings => 20000,
                                   :creator_id => branch_manager.id,
                                   :office_id => cilincing_office.id 
@@ -254,7 +254,7 @@ group_loan_product_b = GroupLoanProduct.create :principal => 25000,
 puts "The third"
 group_loan_product_c = GroupLoanProduct.create :principal => 40000, 
                                    :interest => 1000, 
-                                   :min_savings => 8000, :total_weeks => 25 ,
+                                   :min_savings => 8000, :total_weeks => 4 ,
                                    :admin_fee => 25000, :initial_savings => 50000,
                                    :creator_id => branch_manager.id ,
                                    :office_id => cilincing_office.id

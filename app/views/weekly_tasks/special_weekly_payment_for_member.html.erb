@@ -34,7 +34,7 @@
         </strong>
       </a>
     </li>
-    <!-- <li class=""><a data-toggle="tab" href="#structured_payment"><strong>Structured</strong></a></li> -->
+    <li class=""><a data-toggle="tab" href="#no_payment"><strong>No Payment</strong></a></li>
     <!-- <li class=""><a data-toggle="tab" href="#backlog_payment"><strong>Backlog</strong></a></li> -->
    
   </ul>
@@ -43,8 +43,7 @@
     <%= render :partial => "weekly_tasks/special_payments/only_savings_payment" %>
     
     <%= render :partial => "weekly_tasks/special_payments/structured_multiple_payment" %>
-    <%#= render :partial => "weekly_tasks/special_payments/structured_payment" %>
-    <%#= render :partial => "weekly_tasks/special_payments/backlog_payment" %>
+    <%= render :partial => "weekly_tasks/special_payments/no_payment" %>
   </div>
   
   

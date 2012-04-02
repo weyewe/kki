@@ -311,28 +311,53 @@ $(document).ready(function() {
      return false; 
    });
 
-    
+    /*
+    Still the special payment. 
+    */
    $("#pay_and_save_balance").live('click', function(){
-        // fill in the form 
-        // smf_savings_withdrawal
-        //         smf_balance
-        //         smf_cash
-        //         smf_weeks
-        //         
-        
         
      var $form = $("#structured_multiple_form");
         
      var balance = $('#smf_balance').attr('value');
-     if( balance < 0 ) {
+     if( balance < 0  ) {
        alert("Negative balance: " + addCommas(balance) +  ". Can't perform transaction");
        return false; 
+     }else if( balance == '' ){
+       alert("No value. Please simulate the Calculator.");
+       return false;
+       
      }else{
-       alert("Gonna send the data");
        
-       $form.showLoading();
-       
-       $.ajax({
+       if(confirm("Are you sure?")){
+         $form.showLoading();
+
+         $.ajax({
+           url: $form.attr("action"),
+           type: "POST",
+           data: $form.serialize(),
+           dataType: 'script',
+           success: function(response){
+             // $form.clearForm();
+             $form.hideLoading();
+           }
+         });
+         return false ;
+       }else{
+         return false;
+       }
+     }
+   });
+   
+   /*
+    No payment 
+   */
+   
+   $("#no_payment_form").live('submit',function(){
+     var $form =$(this);
+     if(confirm("Are you sure for authorizing no payment?")){
+        $form.showLoading();
+
+        $.ajax({
           url: $form.attr("action"),
           type: "POST",
           data: $form.serialize(),
@@ -342,12 +367,15 @@ $(document).ready(function() {
             $form.hideLoading();
           }
         });
-        
-        
-       
-       return false ;
-     }
+        return false ;
+      }else{
+        return false;
+      }
+     
    });
+   
+   
+   
 });
 
 

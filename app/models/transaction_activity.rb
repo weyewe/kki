@@ -144,6 +144,10 @@ class TransactionActivity < ActiveRecord::Base
       return nil
     end
     
+    if( cash <= 0 ) && (balance <= zero_value) && (savings_withdrawal <= 0 )
+      return nil
+    end
+    
     new_hash = {}
     
   
@@ -177,10 +181,12 @@ class TransactionActivity < ActiveRecord::Base
               member
             )
             
-    
-    weekly_task.create_basic_weekly_payment( member, transaction_activity)
-    # member.add_savings(group_loan_product.min_savings, 
-    #        SAVING_ENTRY_CODE[:weekly_saving_from_basic_payment]) # done in the entries
+    if number_of_weeks == 1 
+      weekly_task.create_basic_weekly_payment( member, transaction_activity)
+    elsif number_of_weeks > 1 
+      weekly_task.create_multiple_weeks_payment( member, transaction_activity, number_of_weeks)
+    end
+   
     
     return transaction_activity 
   end

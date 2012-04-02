@@ -279,4 +279,12 @@ class GroupLoan < ActiveRecord::Base
     end
   end
   
+  
+  def find_weekly_task_by_week_number( week_number )
+    WeeklyTask.find(:first, :conditions => {
+      :week_number => week_number,
+      :group_loan_id => self.id 
+    })
+  end
+  
 end

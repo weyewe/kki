@@ -1,0 +1,70 @@
+
+
+
+<div class="row-fluid tab-pane fade   in pane_wrapper" id="no_payment" >
+  <div class="span8">
+    <h2>No Payment</h2><br />
+
+    <% if @member.can_pay_with_savings?( @group_loan_product.total_weekly_payment ) %>
+      <div class="alert alert-success">
+        <a data-dismiss="alert" class="close">×</a>
+        <strong>Notification!</strong> This member's saving is enough to pay for the weekly payment.<br />
+        Try to use the <strong>"Structured" payment method</strong>.
+      </div>
+    <% end %>
+    
+    <%= form_tag  create_no_weekly_payment_url(@weekly_task, @member) , 
+      :method => :post, :id => "no_payment_form"  do  %>
+      <table cellpadding="0" cellspacing="0" border="0" 
+            class=" table table-striped table-bordered" >
+        <thead>
+          <tr>
+            <th colspan="2">No payment can be made</th>
+          </tr>
+        </thead>
+        <tbody>
+         
+          <tr>
+            <td></td>
+            <td>
+              <div class="form-actions">
+                <button class="btn btn-danger no_payment_exe" type="submit">No Weekly Payment</button>
+              </div>
+            </td>
+          </tr>
+
+
+        </tbody>
+      </table>
+    <% end %>
+    
+    
+   
+    
+  </div> 
+    
+    
+    
+  <div class="span4">
+    <table cellpadding="0" cellspacing="0" border="0" 
+          class="table table-striped table-bordered" id="example">
+      <thead>
+        <tr><th colspan="2" style="text-align:center;">Current Savings</th></tr>
+      </thead>
+      <tbody>
+          <tr>
+            <td>Total Savings</td>
+            <td id="total_principal"><%= print_money(@member.total_savings)%> </td>
+          </tr>
+      </tbody>
+    </table>
+    
+  </div><!--/span-->
+  
+</div><!--/row-->
+
+
+
+
+
+

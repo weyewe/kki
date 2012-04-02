@@ -66,7 +66,10 @@ class TransactionActivitiesController < ApplicationController
   def create_only_savings_payment
   end
   
-  def create_no_payment
+  def create_no_weekly_payment
+    @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
+    @member  = Member.find_by_id params[:member_id]
+    # @member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment
   end
   
   
