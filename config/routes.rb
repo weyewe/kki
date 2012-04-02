@@ -94,7 +94,7 @@ Debita46::Application.routes.draw do
   
   match 'transaction_activity/create_basic_weekly_payment/:weekly_task_id' => 'transaction_activities#create_basic_weekly_payment', :as => :create_basic_weekly_payment, :method => :post
   match 'transaction_activity/create_savings_only_as_weekly_payment/:weekly_task_id/member/:member_id' => 'transaction_activities#create_savings_only_as_weekly_payment', :as => :create_savings_only_as_weekly_payment, :method => :post
-  
+  match 'transaction_activity/create_structured_multiple_payment/:weekly_task_id/member/:member_id' => 'transaction_activities#create_structured_multiple_payment', :as => :create_structured_multiple_payment, :method => :post
   
   
   

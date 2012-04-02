@@ -78,7 +78,6 @@ $(document).ready(function() {
          data: $form.serialize(),
          dataType: 'script',
          success: function(response){
-
            $form.clearForm();
            $checkbox.hideLoading();
          }
@@ -267,6 +266,10 @@ $(document).ready(function() {
     Special Payment JS . 
     the namespace for fields/forms = sp_ << for user entry
     for the js display sp_display_ namespace
+    for the fields in the form to be sent to the server : smf_
+   */
+   /*
+   The structured_multiple calculator
    */
    $("#sp_simulate_structured_payment").live('click', function(){
      var cash = newParseInt( $("#sp_calc_cash").attr("value") );
@@ -291,14 +294,59 @@ $(document).ready(function() {
      $("#sp_display_total_payment").text( addCommas(total_payment) );
      $("#sp_display_cash").text( addCommas(cash));
      $("#sp_display_savings_withdrawal").text( addCommas(savings_withdrawal));
-     
      $("#sp_display_balance").text( addCommas(balance));
+     
+  
+     
+     $("#smf_savings_withdrawal").attr( 'value', savings_withdrawal );
+     $("#smf_balance").attr( 'value', balance );
+     $("#smf_cash").attr( 'value', cash );
+     $("#smf_weeks").attr( 'value', number_of_weeks );
+     
+     
+     if( balance < 0 ){
+       alert("Negative balance: " + addCommas(balance) );
+     }
      
      return false; 
    });
 
     
-   
+   $("#structured_multiple_form").live('submit', function(){
+        // fill in the form 
+        // smf_savings_withdrawal
+        //         smf_balance
+        //         smf_cash
+        //         smf_weeks
+        //         
+        
+     var $form = $(this);
+        
+     var balance = $('#smf_balance').attr('value');
+     if( balance < 0 ) {
+       alert("Negative balance: " + addCommas(balance) +  ". Can't perform transaction");
+       return false; 
+     }else{
+       alert("Gonna send the data");
+       
+       $form.showLoading();
+       
+       $.ajax({
+          url: $form.attr("action"),
+          type: "POST",
+          data: $form.serialize(),
+          dataType: 'script',
+          success: function(response){
+            // $form.clearForm();
+            $form.hideLoading();
+          }
+        });
+        
+        
+       
+       return false ;
+     }
+   });
 });
 
 

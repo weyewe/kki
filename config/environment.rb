@@ -61,11 +61,25 @@ APPROVER_ROLE = 1
 TRANSACTION_CASE = {
   :setup_payment => 1,
   :weekly_payment_basic => 2 , 
-  :weekly_payment_no_principal => 3 , 
-  :weekly_payment_extra_savings => 4 ,
-  :weekly_payment_multiple_weeks => 5 , 
-  :weekly_payment_soft_saving_withdrawal => 6,
-  :backlog_payment => 7, # has to be paid in full
+  :weekly_payment_only_savings => 3 , 
+  # case: basic payment is 32k. member gave 40k. Use the change as savings
+  :weekly_payment_single_week_extra_savings => 4 ,
+  
+  # case: basic_payment is 32k. member has only 20k cash. 
+  #   but, his savings is more than the delta. so, he can pay in cash 20k, and 12k from savings
+  :weekly_payment_single_week_structured_with_soft_savings_withdrawal => 5 , 
+  # case 6 should never happen.
+  # if basic payment is 32k. member has only 20k. His savings is more than 12k. 
+  # He shouldn't withdraw 14 k, and using 18k cash + 2k savings 
+  # but, most of the users are stupid. so, fuck it. s
+  :weekly_payment_single_week_structured_with_soft_savings_withdrawal_extra_savings => 6 ,
+  
+  
+  :weekly_payment_structured_multiple_weeks => 7 , 
+  :weekly_payment_structured_multiple_weeks_extra_savings => 8 , 
+  :weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal => 9,
+  :weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal_extra_savings => 10,
+  :backlog_payment => 11, # has to be paid in full
   
   # all transaction from the company to the member
   :loan_disbursement => 100,
@@ -83,12 +97,13 @@ TRANSACTION_ENTRY_CODE = {
   :weekly_saving => 5, 
   :weekly_interest => 6, 
   :late_payment_fine => 7 ,
-  
+  :extra_weekly_saving => 8, 
   
   # all transaction from company to the member
   :return_deposit => 101, 
   :soft_savings_withdrawal => 102,
-  :hard_saving_withdrawal => 103 
+  :hard_saving_withdrawal => 103 ,
+  :loan_disbursement => 104 
   
 }
 
@@ -98,7 +113,7 @@ TRANSACTION_ENTRY_CODE = {
 SAVING_ENTRY_CODE = {
   :initial_setup_saving => 1 , 
   :weekly_saving_from_basic_payment => 2 , 
-  :weekly_saving_no_basic_payment => 3 ,
+  :weekly_saving_extra_from_basic_payment => 3 ,
   :independent_saving => 4, 
   
   :soft_withdraw_to_pay_basic_weekly_payment => 100, 
@@ -108,6 +123,12 @@ SAVING_ENTRY_CODE = {
 }
 
 SAVING_ACTION_TYPE = {
-  :debit => 1 ,
-  :credit => 2 
+  :debit => 1 , # money is going into the member's savings account
+  :credit => 2  # money is going out from the member's savings account
 }
+
+TRANSACTION_ACTION_TYPE = {
+  :inward => 1 , #money is going into the company
+  :outward => 2  # money is going out from the company
+}
+

@@ -21,6 +21,9 @@ class Office < ActiveRecord::Base
   has_many :subdistricts, :through => :geo_scopes
   has_many :geo_scopes
   
+  
+  after_create :create_cashflow_book
+  
   def all_communes_under_management
     subdistricts = self.subdistricts.includes(:villages => [:communes] ) 
     puts "good with subdistricts"
@@ -83,5 +86,21 @@ class Office < ActiveRecord::Base
     self.group_loans.where(:is_started => true , :is_closed => true )
   end
   
+=begin
+  TransactionActivity reporting 
+=end
+  
+  def loan_disbursement_transaction_activities
+    TransactionActivity.find(:all, :conditions => {
+      :office_id => self.id ,
+      :transaction_case => TRANSACTION_CASE[:loan_disbursement]
+    })
+  end
+  
+  protected
+  def create_cashflow_book
+    # self.cashflow_book.create 
+    CashflowBook.create :office_id => self.id
+  end
   
 end

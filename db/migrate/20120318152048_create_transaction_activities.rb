@@ -13,6 +13,7 @@ class CreateTransactionActivities < ActiveRecord::Migration
       t.boolean :from_member, :default => true 
       t.integer :member_id 
       
+      t.integer :transaction_action_type , :nil => false 
       # we need to know at which office this transaction is happening 
       t.integer :office_id 
       

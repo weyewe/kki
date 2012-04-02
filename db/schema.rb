@@ -30,8 +30,8 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
 
   create_table "cashflow_books", :force => true do |t|
     t.integer  "office_id"
-    t.decimal  "total_incoming_to_date"
-    t.decimal  "total_outgoing_to_date"
+    t.decimal  "total_incoming_to_date", :precision => 13, :scale => 2, :default => 0.0
+    t.decimal  "total_outgoing_to_date", :precision => 13, :scale => 2, :default => 0.0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -217,6 +217,7 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
     t.decimal  "total_transaction_amount", :precision => 9, :scale => 2, :default => 0.0
     t.boolean  "from_member",                                            :default => true
     t.integer  "member_id"
+    t.integer  "transaction_action_type"
     t.integer  "office_id"
     t.integer  "transaction_case"
     t.datetime "created_at"
@@ -234,8 +235,9 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
   create_table "transaction_entries", :force => true do |t|
     t.integer  "transaction_book_id"
     t.integer  "transaction_entry_code"
-    t.decimal  "amount"
-    t.integer  "cashflow_book_entry"
+    t.integer  "transaction_activity_id"
+    t.decimal  "amount",                  :precision => 9, :scale => 2, :default => 0.0
+    t.integer  "cashflow_book_entry_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
