@@ -113,7 +113,7 @@ class TransactionActivity < ActiveRecord::Base
     new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward]
     
     transaction_activity = TransactionActivity.create new_hash 
-    transaction_activity.create_basic_payment_entries(group_loan_product, field_worker, member )
+    transaction_activity.create_basic_payment_entries(group_loan_product, current_user, member )
     
     weekly_task.create_basic_weekly_payment( member, transaction_activity)
     
@@ -155,6 +155,7 @@ class TransactionActivity < ActiveRecord::Base
     )
     
     if result_resolve.nil?
+      puts "result resolve is nil\n"*10
       return nil
     end
     
@@ -199,17 +200,20 @@ class TransactionActivity < ActiveRecord::Base
     #    t.integer  "cashflow_book_entry_id"
     self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:initial_deposit], 
-                      :amount => deposit  
+                      :amount => deposit  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
     
     self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:initial_savings], 
-                      :amount => initial_savings  
+                      :amount => initial_savings  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                       
     self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:admin_fee], 
-                      :amount => admin_fee  
+                      :amount => admin_fee  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                       
     member.add_savings(initial_savings, SAVING_ENTRY_CODE[:initial_setup_saving]) 
@@ -220,7 +224,8 @@ class TransactionActivity < ActiveRecord::Base
     cashflow_book = cashier.active_job_attachment.office.cashflow_book
     self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:loan_disbursement], 
-                      :amount => amount  
+                      :amount => amount  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
                       )
   end
   
@@ -228,17 +233,20 @@ class TransactionActivity < ActiveRecord::Base
     cashflow_book = field_worker.active_job_attachment.office.cashflow_book
     self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_principal], 
-                      :amount => group_loan_product.principal  
+                      :amount => group_loan_product.principal  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
     
     self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_saving], 
-                      :amount => group_loan_product.min_savings
+                      :amount => group_loan_product.min_savings,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                       
     self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_interest], 
-                      :amount => group_loan_product.interest
+                      :amount => group_loan_product.interest,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                       
     member.add_savings(group_loan_product.min_savings, SAVING_ENTRY_CODE[:weekly_saving_from_basic_payment]) 
@@ -248,7 +256,8 @@ class TransactionActivity < ActiveRecord::Base
     cashflow_book = current_user.active_job_attachment.office.cashflow_book
     self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:extra_weekly_saving], 
-                      :amount => balance 
+                      :amount => balance ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                       
     member.add_savings(balance, SAVING_ENTRY_CODE[:weekly_saving_extra_from_basic_payment]) 
@@ -258,7 +267,8 @@ class TransactionActivity < ActiveRecord::Base
     cashflow_book = current_user.active_job_attachment.office.cashflow_book
     self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal], 
-                      :amount => savings_withdrawal 
+                      :amount => savings_withdrawal ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
                       )
                       
     # update member savings , add saving entries 
@@ -325,6 +335,7 @@ class TransactionActivity < ActiveRecord::Base
     balance = cash + savings_withdrawal -  total_fee
     transaction_amount = nil
     transaction_case = nil
+    zero_value = BigDecimal.new("0")
    
  
     if (savings_withdrawal == zero_value) and (cash == total_fee ) and 
@@ -348,8 +359,9 @@ class TransactionActivity < ActiveRecord::Base
         transaction_case = TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks_extra_savings]
       end
       
-    elsif (savings_withdrawal > zero_value ) and (cash < total_fee ) and
-                  ( balance == zero_value )
+    elsif (savings_withdrawal > zero_value ) and ( balance == zero_value )
+      #  (cash < total_fee ) and #independent of cash value 
+                  
                   
       transaction_amount  = cash + savings_withdrawal
       
@@ -359,8 +371,9 @@ class TransactionActivity < ActiveRecord::Base
         transaction_case = TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal]
       end
       
-    elsif (savings_withdrawal > zero_value ) and (cash < total_fee ) and
-                  ( balance > zero_value )
+    elsif (savings_withdrawal > zero_value ) and  ( balance > zero_value )
+      # (  or (cash < total_fee )  )and # doesn't depend on cash value
+                 
                   
       transaction_amount  = cash + savings_withdrawal
       

@@ -7,6 +7,8 @@ class CreateMemberPayments < ActiveRecord::Migration
       
       t.boolean :has_paid, :default => false 
       t.boolean :only_savings, :default => false 
+      
+      t.boolean :no_payment , :default => false 
       t.timestamps
     end
   end

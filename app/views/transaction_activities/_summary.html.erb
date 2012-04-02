@@ -1,0 +1,20 @@
+<table cellpadding="0" cellspacing="0" border="0" 
+      class="table table-striped table-bordered" id="example">
+  <thead>
+    <tr>
+      <th>Total paid: <b><%= print_money( transaction_activity.total_transaction_amount )%></b></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% transaction_activity.transaction_entries.each do |transaction_entry| %>
+      <%= render :partial => "transaction_entries/summary_entry", 
+              :locals => { 
+                :transaction_entry => transaction_entry 
+              }
+      %>
+    <% end %>
+
+
+   
+  </tbody>
+</table>

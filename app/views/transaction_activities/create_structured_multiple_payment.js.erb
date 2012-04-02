@@ -1,5 +1,21 @@
 $(document).ready(function(){
-  summonModal( "Sukses boow" , 
-              "Hahaha", 
+  
+                
+  
+    
+  var body_html; 
+    
+  <% if not @transaction_activity.nil? %>  
+    <% transaction_activity_details = 
+      escape_javascript( render :partial => "transaction_activities/summary", :locals => {
+        :transaction_activity => @transaction_activity 
+      } ) %>
+    body_html = '<%= transaction_activity_details %>';
+  <% else %>
+    body_html = '<p>Error in creating the transaction</p>';
+  <% end %>
+  
+  summonModalHTML( "<h3>Sukses Payment for member <%= @member.name %></h3>" , 
+              body_html, 
                 "myModal");
 });

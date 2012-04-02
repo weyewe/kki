@@ -34,23 +34,37 @@
     <!-- back log payment  -->
      <td style="text-align:center;">50,000.00</td>
 
+    <!-- Special Payment -->
 
-
-      <% if weekly_task.has_paid_weekly_payment?(member)  %>
-         <td style="text-align:center;">
-           <span class="label label-success">PAID</span>
-         </td>
-       <% else %>
-         <td>
-           <%= link_to "Special Payment",
-              special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
-                :class => "btn", 
-                :id => "make_basic_payment-#{member.id}"  %>
-          </td>
-       <% end %>
+  <% if weekly_task.has_paid_weekly_payment?(member)  %>
+     <td style="text-align:center;">
+       <span class="label label-success">PAID</span>
+     </td>
+   <% else %>
+     <td>
+       <%= link_to "Special Payment",
+          special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
+            :class => "btn", 
+            :id => "make_basic_payment-#{member.id}"  %>
+      </td>
+   <% end %>
        
+       <!-- No payment -->
        
-     
+  <% if weekly_task.has_paid_weekly_payment?(member)  %>
+    <td style="text-align:center;">
+      <span class="label label-success">PAID</span>
+    </td>
+  <% else %>
+    <td>
+      <%= link_to "Special Payment",
+         special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
+           :class => "btn", 
+           :id => "no_payment-#{member.id}"  %>
+     </td>
+  <% end %>
 
+
+       
     
 </tr>

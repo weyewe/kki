@@ -312,7 +312,7 @@ $(document).ready(function() {
    });
 
     
-   $("#structured_multiple_form").live('submit', function(){
+   $("#pay_and_save_balance").live('click', function(){
         // fill in the form 
         // smf_savings_withdrawal
         //         smf_balance
@@ -320,7 +320,8 @@ $(document).ready(function() {
         //         smf_weeks
         //         
         
-     var $form = $(this);
+        
+     var $form = $("#structured_multiple_form");
         
      var balance = $('#smf_balance').attr('value');
      if( balance < 0 ) {
@@ -380,8 +381,29 @@ function summonModal(header_text, body_text, modal_id){
   $modal_closer.click(function(){
     // console.log("Oh yeah baby, closed");
     $modal_wrapper.modal('hide');
+    return false;
   });
 }
+
+function summonModalHTML(header_html, body_html, modal_id){
+  var $modal_wrapper = $("#" + modal_id); 
+  var $header = $(".modal-header", $modal_wrapper);
+  var $body  = $(".modal-body", $modal_wrapper);
+  var $modal_closer = $(".modal-footer .modal-closer ", $modal_wrapper);
+  // setting the header text
+  $header.html( header_html );
+  $body.html( body_html );
+  
+  $modal_wrapper.modal('show');
+  
+  $modal_closer.click(function(){
+    // console.log("Oh yeah baby, closed");
+    $modal_wrapper.modal('hide');
+    return false;
+  });
+}
+
+
 
 
 

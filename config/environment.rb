@@ -132,3 +132,8 @@ TRANSACTION_ACTION_TYPE = {
   :outward => 2  # money is going out from the company
 }
 
+
+TRANSACTION_ENTRY_ACTION_TYPE = {
+  :inward => 1 , #money is going into the company
+  :outward => 2  # money is going out from the company
+}

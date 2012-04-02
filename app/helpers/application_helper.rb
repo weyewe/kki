@@ -8,6 +8,45 @@ module ApplicationHelper
   NEXT_BUTTON_TEXT = "Next &rarr;"
   PREV_BUTTON_TEXT = " &larr; Prev "
   
+  TRANSACTION_ENTRY_DESCRIPTION_HASH = {
+    1 => "Deposito awal",
+    2 => "Tabungan awal dari pinjaman group",
+    3 => "Biaya Administrasi",
+    4 => "Pembayaran pinjaman dasar mingguan",
+    5 => "Pembayaran bunga mingguan", 
+    6 => "Pembayaran tabungan wajib mingguan",
+    7 => "Pembayaran denda keterlambatan",
+    8 => "Pembayaran extra tabungan mingguan",
+    
+    
+    101 => "Pengembalian deposito awal",
+    102 => "Penarikan dana lunak dari tabungan",
+    103 => "Penarikan dana real dari tabungan",
+    104 => "Pemberian pinjaman"
+  }
+  
+  
+  
+  
+=begin
+  For printing the transaction entry details 
+=end
+  def transaction_entry_description(transaction_entry)
+    #transaction_entry_code
+    #transaction_entry_action_type
+    TRANSACTION_ENTRY_DESCRIPTION_HASH[ transaction_entry.transaction_entry_code ]
+  end
+  
+  def transaction_entry_value_display(transaction_entry)
+    if transaction_entry.transaction_entry_action_type == TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+      print_money( transaction_entry.amount ) 
+    elsif transaction_entry.transaction_entry_action_type == TRANSACTION_ENTRY_ACTION_TYPE[:outward]
+      "(-" + print_money( transaction_entry.amount ) + ")"
+    end
+  end
+
+
+  
 =begin
   For printing numbers (money)
 =end

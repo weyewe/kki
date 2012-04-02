@@ -236,7 +236,8 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
     t.integer  "transaction_book_id"
     t.integer  "transaction_entry_code"
     t.integer  "transaction_activity_id"
-    t.decimal  "amount",                  :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "amount",                        :precision => 9, :scale => 2, :default => 0.0
+    t.integer  "transaction_entry_action_type"
     t.integer  "cashflow_book_entry_id"
     t.datetime "created_at"
     t.datetime "updated_at"
