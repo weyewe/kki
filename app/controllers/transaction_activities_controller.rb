@@ -1,5 +1,8 @@
 class TransactionActivitiesController < ApplicationController
   
+=begin
+  Group Loan Initialization 
+=end
   def create_transaction_activity_for_setup_payment
     admin_fee = BigDecimal.new( params[:admin_fee] )
     initial_savings = BigDecimal.new( params[:initial_savings] )
@@ -38,6 +41,16 @@ class TransactionActivitiesController < ApplicationController
   def create_savings_only_as_weekly_payment
     @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
     @member  = Member.find_by_id params[:member_id]
+    @savings_only = BigDecimal.new( params[:os_cash_amount])
+    
+    @transaction_activity = TransactionActivity.create_savings_only_weekly_payment(
+      @member,
+      @weekly_task,
+      @savings_only,
+      current_user
+    )
+    
+    
   end
   
   def create_structured_multiple_payment
@@ -58,19 +71,18 @@ class TransactionActivitiesController < ApplicationController
     )
   end
   
-  
+
+  def create_no_weekly_payment
+    @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
+    @member  = Member.find_by_id params[:member_id]
+    
+    # weekly_task.has_paid_weekly_payment?(member)  << filter to prevent double member payment
+    @member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment(@member)
+  end
   
   def create_backlog_payment
   end
   
-  def create_only_savings_payment
-  end
-  
-  def create_no_weekly_payment
-    @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
-    @member  = Member.find_by_id params[:member_id]
-    # @member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment
-  end
   
   
 end

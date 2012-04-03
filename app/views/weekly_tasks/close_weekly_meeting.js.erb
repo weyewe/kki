@@ -1,12 +1,11 @@
 $(document).ready(function(){
-  console.log("The meeting is closed baby");
   <% new_row = escape_javascript( render :partial => "weekly_tasks/select_weekly_meeting" , 
       :locals => {:weekly_task => @weekly_task,
         :total_group_member => @group_loan.members.count, 
         :group_loan => @group_loan} 
         )   %>
   
-  <% if @weekly_task.is_prev_weekly_task_approved? %>
+  <% if @weekly_task.attendace_marking_closed? %>
     $("#weekly_meeting_wrapper-<%= @weekly_task.id %>").replaceWith('<%= new_row %>');
   <% else %>
     var header_text = "Fail to Close weekly meeting: week <%= @weekly_task.week_number  %> ";

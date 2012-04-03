@@ -1,3 +1,19 @@
 $(document).ready(function(){
-  alert("We are good");
+  var header_html;
+  var body_html;
+  
+  <% if @member_payment.nil? %>
+    header_html = "<h3>Declaring no payment FAIL</h3>";
+    body_html = "<p>There is payment declaration for the given week</p>";
+    
+  <% else %>
+    header_html = "<h3>Savings only payment  is SUCCESS</h3>";
+    body_html = "<p><h3>Member: <%= @member.name %></h3>"+
+                "Week <%= @weekly_task.week_number %>, "+
+              "is declared as NO PAYMENT ";
+  <% end %>
+  
+  summonModalHTML( header_html , 
+              body_html, 
+                "myModal");
 });

@@ -59,15 +59,19 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_weekly_meeting_attendance_marking' => "group_loans#select_group_loan_for_weekly_meeting_attendance_marking", :as => :select_group_loan_for_weekly_meeting_attendance_marking
   match 'select_weekly_meeting_for_attendance_marking/:group_loan_id' => "weekly_tasks#select_weekly_meeting_for_attendance_marking", :as => :select_weekly_meeting_for_attendance_marking
   match 'mark_attendance/:group_loan_id/for_week/:weekly_task_id' => "weekly_tasks#mark_attendance", :as => :mark_attendance
-  # close weekly meeting 
+  # close weekly meeting  
   match 'close_weekly_meeting' => "weekly_tasks#close_weekly_meeting", :as => :close_weekly_meeting, :method => :post 
+  
   
   #weekly payment
   match 'select_group_loan_for_weekly_payment' => "group_loans#select_group_loan_for_weekly_payment", :as => :select_group_loan_for_weekly_payment
   match 'select_weekly_meeting_for_weekly_payment/:group_loan_id' => "weekly_tasks#select_weekly_meeting_for_weekly_payment", :as => :select_weekly_meeting_for_weekly_payment
   match 'make_member_payment/:group_loan_id/for_week/:weekly_task_id' => "weekly_tasks#make_member_payment", :as => :make_member_payment
   match 'special_weekly_payment_for_member/:group_loan_id/for_week/:weekly_task_id/member/:member_id' => "weekly_tasks#special_weekly_payment_for_member", :as => :special_weekly_payment_for_member
-  
+  # close weekly payment ?
+  match 'close_weekly_payment' => "weekly_tasks#close_weekly_payment", :as => :close_weekly_payment, :method => :post 
+
+
 =begin
   Cashier Routes 
 =end
@@ -80,7 +84,10 @@ Debita46::Application.routes.draw do
   
   match 'execute_loan_disbursement_finalization' => "group_loans#execute_loan_disbursement_finalization", :as => :execute_loan_disbursement_finalization, :method => :post 
 
-
+  # approve weekly payment by field_worker 
+  # objective is to ensure the total amount from a given group is matching the value 
+  match 'list_pending_weekly_collection_approval' => "weekly_tasks#list_pending_weekly_collection_approval", :as => :list_pending_weekly_collection_approval
+  match 'execute_weekly_collection_approval' => "weekly_tasks#execute_weekly_collection_approval", :as => :execute_weekly_collection_approval, :method => :post
 
 =begin
   Transaction routes 

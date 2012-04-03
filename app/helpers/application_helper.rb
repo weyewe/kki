@@ -456,11 +456,11 @@ module ApplicationHelper
       },
       {
         :title => "Approve Group Weekly Payment",
-        :destination_link => 'root_url',
+        :destination_link => 'list_pending_weekly_collection_approval_url',
         :conditions => [
           {
-            :controller => 'loan_product',
-            :action => 'banzai'
+            :controller => 'weekly_tasks',
+            :action => 'list_pending_weekly_collection_approval'
           }
         ]
       }

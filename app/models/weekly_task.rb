@@ -5,7 +5,12 @@ class WeeklyTask < ActiveRecord::Base
   
   
   # after_create :create_the_respective_meeting_attendances_and_payment_collections
-  
+  def member_payment_for(member)
+    MemberPayment.find(:first,:conditions => {
+      :weekly_task_id => self.id,
+      :member_id => member.id 
+    })
+  end
   
   def total_members_present
     self.member_attendances.where(:is_present => true).count
@@ -67,8 +72,51 @@ class WeeklyTask < ActiveRecord::Base
     end
   end
   
+  def close_weekly_payment(current_user)
+    if self.attendace_marking_closed?
+      self.is_weekly_payment_collection_finalized = true
+      self.weekly_payment_collection_finalizer_id = current_user.id
+      self.weekly_payment_collection_done_time = self.create_current_date_time  
+      self.save
+    else
+      return false 
+    end
+  end
+  
+  
   def attendance_marking_not_closed?
     self.is_weekly_attendance_marking_done == false 
+  end
+  
+  def attendace_marking_closed?
+    not attendance_marking_not_closed?
+  end
+  
+  def attendance_marking_can_be_closed?
+    is_prev_weekly_task_approved?
+  end
+  
+  def attendance_marking_can_be_done?
+    is_prev_weekly_task_approved?
+  end
+  
+  def member_payment_not_closed?
+    self.is_weekly_payment_collection_finalized == false 
+  end
+  
+  def member_payment_closed?
+    not member_payment_not_closed?
+  end
+  
+  def member_payment_can_be_closed?
+    # all member_payment has been made
+    # either : only_savings, basic_payment_and_more, or no_payment
+    self.member_payments.count == self.group_loan.group_loan_memberships.count 
+  end
+  
+  def member_payment_can_be_started?
+    # the previous weekly task is approved by cashier 
+    is_prev_weekly_task_approved? and attendace_marking_closed?
   end
   
   def has_attendance(member)
@@ -109,39 +157,133 @@ class WeeklyTask < ActiveRecord::Base
     end
   end
   
-  # gonna make payment 
- 
-  def create_basic_weekly_payment( member, transaction_activity)
-    self.member_payments.create(
-      :transaction_activity_id => transaction_activity.id,
-      :member_id => member.id , 
-      :has_paid => true 
-    )
-  end
+=begin
+  Creating weekly payment 
+=end
+
   
-  def create_multiple_weeks_payment( member, transaction_activity, number_of_weeks)
-    current_week = self.week_number
-    final_week = current_week + number_of_weeks - 1 
-    group_loan = self.group_loan
-    (current_week..final_week).each do |target_week_number|
-      group_loan.find_weekly_task_by_week_number( target_week_number ).member_payments.create(
+  def create_weekly_payment_declared_as_only_savings(member, transaction_activity, cash_passed)
+    if self.has_paid_weekly_payment?(member)  
+      return nil
+    else 
+      self.member_payments.create(
         :transaction_activity_id => transaction_activity.id,
         :member_id => member.id , 
-        :has_paid => true
-      ) 
+        :has_paid => true,
+        :no_payment => false ,
+        :only_savings => true ,
+        :cash_passed => cash_passed
+      )
+      # self.add_total_cash( amount )
+    end
+  end
+ 
+  def create_basic_weekly_payment( member, transaction_activity, cash_passed)
+    if self.has_paid_weekly_payment?(member)  
+      return nil
+    else 
+      self.member_payments.create(
+        :transaction_activity_id => transaction_activity.id,
+        :member_id => member.id , 
+        :has_paid => true ,
+        :no_payment => false, 
+        :only_savings => false,
+        :cash_passed => cash_passed
+      )
+      # self.add_total_cash( amount )
     end
   end
   
-  # def has_paid_basic_weekly_payment?(member)
-  #    self.member_payments.where(:member_id => member.id).length != 0 
-  #  end
+  def create_multiple_weeks_payment( member, transaction_activity, number_of_weeks, cash_passed)
+    
+    current_week = self.week_number
+    final_week = current_week + number_of_weeks - 1 
+    group_loan = self.group_loan
+    
+    
+    # for multiple payment? # Can't pay for multiple weeks 
+    #   if final_week > self.group_loan_weekly_tasks.count 
+    if final_week > self.group_loan.weekly_tasks.count 
+      return nil
+    end
+    
+    (current_week..final_week).each do |target_week_number|
+      weekly_task = group_loan.find_weekly_task_by_week_number( target_week_number )
+      # protection. if there has been payment for the given week, can't be double payment
+      # if you want to pay for the backlog, go to the backlog payment 
+      # IMPORTANT -> DO THIS KIND OF PROTECTION IN THE TRANSACTION ACTIVITY LEVEL
+      # we are protected by the UI (JS, not allowing payment )
+      # but, what if they bypassed the JS? fuck 
+      if( weekly_task.has_paid_weekly_payment?(member)  )
+        next
+      end
+      if target_week_number == current_week
+        weekly_task.member_payments.create(
+          :transaction_activity_id => transaction_activity.id,
+          :member_id => member.id , 
+          :has_paid => true,
+          :no_payment => false , 
+          :only_savings => false ,
+          :cash_passed => cash_passed
+        )
+      else
+        weekly_task.member_payments.create(
+          :transaction_activity_id => transaction_activity.id,
+          :member_id => member.id , 
+          :has_paid => true,
+          :no_payment => false , 
+          :only_savings => false 
+        )
+      end
+      
+    end
+  end
   
+  def create_weekly_payment_declared_as_no_payment(member)
+    if self.has_paid_weekly_payment?(member)  
+      return nil
+    else 
+      self.member_payments.create(
+        :transaction_activity_id => nil,
+        :member_id => member.id , 
+        :has_paid => false,
+        :no_payment => true ,
+        :only_savings => false 
+      )
+    end
+  end
+  
+  
+  
+=begin
+  Checking weekly payment 
+=end
   def has_paid_weekly_payment?(member)
     self.member_payments.where(:member_id => member.id).length != 0 
   end
   
+  
+  
+  def weekly_payment_declared_as_no_payment?(member)
+    member_payment = self.member_payments.where(:member_id => member.id).first 
+    ( member_payment.no_payment == true ) and (member_payment.has_paid == false) and
+     (member_payment.only_savings == false) and (member_payment.transaction_activity_id.nil?)
+  end
+  
+  def weekly_payment_declared_as_only_savings?(member)
+    member_payment = self.member_payments.where(:member_id => member.id).first 
+    ( member_payment.no_payment == false ) and (member_payment.has_paid == true) and
+     (member_payment.only_savings == true) and (not member_payment.transaction_activity_id.nil?)
+  end
+  
+  def weekly_payment_declared_as_paid?(member)
+    member_payment = self.member_payments.where(:member_id => member.id).first 
+    ( member_payment.no_payment == false ) and (member_payment.has_paid == true) and
+     (member_payment.only_savings == false) and (not member_payment.transaction_activity_id.nil?)
+  end
+  
 =begin
-  For the weekly payment 
+  For the weekly payment FINALIZATION
 =end
 
   def finalize_weekly_payment(current_user)
@@ -177,13 +319,26 @@ class WeeklyTask < ActiveRecord::Base
     })
   end
   
+=begin
+  For Cashier Approval in the weekly payment collection
+=end
+  def WeeklyTask.get_pending_cashier_approval_for_weekly_collection( office )
+    weekly_tasks_pending_approval = []
+    office.running_group_loans.each do |running_group_loan|
+      weekly_tasks_pending_approval += running_group_loan.weekly_tasks_pending_cashier_approval
+    end
+    
+    return weekly_tasks_pending_approval
+  end
   
+  def total_cash_received
+    self.member_payments.sum("cash_passed")
+  end
+
+
   protected
   
-  # def create_the_respective_meeting_attendances_and_payment_collections
-  #    self.create_member_attendances
-  #    self.create_member_payments
-  #  end
+
   
   def create_current_date_time
     current_time = Time.now
@@ -198,8 +353,5 @@ class WeeklyTask < ActiveRecord::Base
     # UTC TIME ( server time )
     return datetime
   end
-  
-  # def meeting_does_happened
-  #    self.member_attendances.count != 0
-  #  end
+ 
 end

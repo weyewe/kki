@@ -319,6 +319,11 @@ $(document).ready(function() {
      var $form = $("#structured_multiple_form");
         
      var balance = $('#smf_balance').attr('value');
+     
+     var balance_value = newParseInt( $("#smf_balance").attr("value") );
+     var savings_withdrawal_value = newParseInt( $("#smf_savings_withdrawal").attr("value") );
+     var cash_value = newParseInt( $("#smf_cash").attr("value") );
+     
      if( balance < 0  ) {
        alert("Negative balance: " + addCommas(balance) +  ". Can't perform transaction");
        return false; 
@@ -326,6 +331,10 @@ $(document).ready(function() {
        alert("No value. Please simulate the Calculator.");
        return false;
        
+     }else if( (balance_value ==  0 ) && (cash_value == 0 ) 
+                    && (savings_withdrawal_value ==0)){
+       alert("Invalid case");
+       return false;
      }else{
        
        if(confirm("Are you sure?")){
@@ -374,6 +383,40 @@ $(document).ready(function() {
      
    });
    
+   
+   /*
+   Only savings payment  
+   */
+   $("#form_only_savings_payment").live("submit", function(){
+     var $form = $(this);
+     
+     
+     var value = newParseInt( $("#os_cash_amount").attr("value") );
+     
+     if( value <= 0 ){
+       alert("Wrong value, equal or less than 0");
+       return false 
+     }else{
+       if(confirm("Are you sure for savings_only payment with amount " +addCommas(value)+  " ?")){
+         $form.showLoading();
+         $.ajax({
+            url: $form.attr("action"),
+            type: "POST",
+            data: $form.serialize(),
+            dataType: 'script',
+            success: function(response){
+              $form.clearForm();
+              $form.hideLoading();
+            }
+          });
+          return false ;
+       }else{
+         return false;
+       }
+     }
+
+     
+   });
    
    
 });

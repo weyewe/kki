@@ -13,6 +13,7 @@ class WeeklyTasksController < ApplicationController
   
   def close_weekly_meeting
     setup_for_weekly_meeting_task_closing
+    @weekly_task.close_weekly_meeting( current_user )
   end
   
 =begin
@@ -27,9 +28,12 @@ class WeeklyTasksController < ApplicationController
     setup_for_weekly_task_fulfillment_details
   end
   
-  def close_weekly_meeting_for_member_payment
+  def close_weekly_payment 
     setup_for_weekly_meeting_task_closing
+    @weekly_task.close_weekly_payment( current_user )
   end
+  
+  
 
 =begin
   Weekly Special Payment 
@@ -48,8 +52,14 @@ class WeeklyTasksController < ApplicationController
     if @weekly_task.has_paid_weekly_payment?(@member) 
       redirect_to make_member_payment_url(@group_loan, @weekly_task)
     end
-    
-    
+  end
+  
+=begin
+  Cashier Approval 
+=end
+  def list_pending_weekly_collection_approval
+    @office = current_user.active_job_attachment.office
+    @pending_weekly_tasks_cashier_approval = WeeklyTask.get_pending_cashier_approval_for_weekly_collection(@office)
   end
   
   protected
@@ -68,7 +78,6 @@ class WeeklyTasksController < ApplicationController
   
   def setup_for_weekly_meeting_task_closing
     @weekly_task = WeeklyTask.find_by_id( params[:entity_id])
-    @weekly_task.close_weekly_meeting( current_user )
     @group_loan = @weekly_task.group_loan
   end
   

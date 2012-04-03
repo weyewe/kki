@@ -287,4 +287,16 @@ class GroupLoan < ActiveRecord::Base
     })
   end
   
+=begin
+  For weekly task approval by cashier 
+=end
+  def weekly_tasks_pending_cashier_approval
+    self.weekly_tasks.where(
+     :is_weekly_attendance_marking_done  => true ,
+     :is_weekly_payment_collection_finalized => true,
+     :is_weekly_payment_approved_by_cashier =>  false
+    )
+    
+  end
+  
 end

@@ -8,7 +8,7 @@
   <td><%= member.name %></td>
   <td><%= member.address %></td>
   <!-- basic payment -->
-  
+  <% member_payment =  weekly_task.member_payment_for(member) %>
   
   
   
@@ -16,7 +16,14 @@
   
     <% if weekly_task.has_paid_weekly_payment?(member)  %>
       <td colspan="2" style="text-align:center;">
-        <span class="label label-success">PAID</span>
+        
+         <% if member_payment.is_full_payment? %>
+          <span class="label label-success">PAID</span>
+         <% elsif member_payment.only_savings_payment? %>
+          <span class="label label-warning">Only Savings</span>
+         <% elsif  member_payment.no_payment?  %>
+          <span class="label label-important">No Payment</span>
+         <% end %>
       </td>
     <% else %>
       <td><%= print_money(group_loan_membership.group_loan_product.total_weekly_payment)  %></td>
@@ -38,7 +45,15 @@
 
   <% if weekly_task.has_paid_weekly_payment?(member)  %>
      <td style="text-align:center;">
-       <span class="label label-success">PAID</span>
+       
+       <% if member_payment.is_full_payment? %>
+        <span class="label label-success">PAID</span>
+       <% elsif member_payment.only_savings_payment? %>
+        <span class="label label-warning">Only Savings</span>
+       <% elsif  member_payment.no_payment?  %>
+        <span class="label label-important">No Payment</span>
+       <% end %>
+       
      </td>
    <% else %>
      <td>

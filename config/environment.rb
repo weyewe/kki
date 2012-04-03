@@ -98,6 +98,7 @@ TRANSACTION_ENTRY_CODE = {
   :weekly_interest => 6, 
   :late_payment_fine => 7 ,
   :extra_weekly_saving => 8, 
+  :no_weekly_payment_only_savings => 9,
   
   # all transaction from company to the member
   :return_deposit => 101, 
@@ -115,6 +116,7 @@ SAVING_ENTRY_CODE = {
   :weekly_saving_from_basic_payment => 2 , 
   :weekly_saving_extra_from_basic_payment => 3 ,
   :independent_saving => 4, 
+  :no_weekly_payment_only_savings => 5 ,
   
   :soft_withdraw_to_pay_basic_weekly_payment => 100, 
   :hard_withdrawal => 101

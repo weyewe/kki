@@ -1,0 +1,25 @@
+<% group_loan  = weekly_task.group_loan %>
+<tr id="weekly_payment_collection_cashier_approval-<%= weekly_task.id %>">
+  <td><%= group_loan.name  %></td>
+  <td><%= group_loan.get_commune %></td>
+  <td><%= weekly_task.week_number %></td>
+
+  <td><%=  weekly_task.weekly_payment_collection_finalizer_id %></td>
+  <td><%=  weekly_task.weekly_payment_collection_done_time %></td>
+  <!-- expected cash -->
+  <td><%=  print_money( weekly_task.total_cash_received ) %></td>
+  
+ <!-- action button -->
+  <%# if group_loan.is_started == false && group_loan.is_proposed == true %>
+    <td style="text-align:center;">
+      <a href="#" class="btn approve action true_check"
+          id="finalize-<%= weekly_task.id %>">Approve</a>
+    </td>
+  
+    <td style="text-align:center;">
+      <a href="#" class="btn approve action"
+          id="reject-<%= weekly_task.id %>">Reject</a>
+    </td>
+  <%# end %>
+  
+</tr>

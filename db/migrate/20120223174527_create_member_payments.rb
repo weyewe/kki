@@ -9,6 +9,11 @@ class CreateMemberPayments < ActiveRecord::Migration
       t.boolean :only_savings, :default => false 
       
       t.boolean :no_payment , :default => false 
+      
+      
+      t.decimal :cash_passed , :default => 0, :precision => 9, :scale => 2 #10^7 = 9.999.999 
+      
+      
       t.timestamps
     end
   end
