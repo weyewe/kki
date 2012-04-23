@@ -33,15 +33,29 @@ class TransactionActivity < ActiveRecord::Base
   5. update the  group_loan_membership data
 =end
   # all data coming in are BigDecimal
+  def TransactionActivity.find_setup_transaction_for(group_loan_membership)
+    member = group_loan_membership.member
+    TransactionActivity.find(:first, :conditions => {
+      :transaction_case => TRANSACTION_CASE[:setup_payment],
+      :transaction_action_type => TRANSACTION_ACTION_TYPE[:inward],
+      :member_id => member.id 
+    })
+  end
+  
   def self.create_setup_payment( admin_fee, initial_savings, deposit, field_worker, group_loan_membership )
     group_loan_product = group_loan_membership.group_loan_subcription.group_loan_product
     
+    # if there has been such payment
+    if group_loan_membership.has_paid_setup_fee == true 
+      return TransactionActivity.find_setup_transaction_for(group_loan_membership)
+    end
     
     if initial_savings < group_loan_product.initial_savings  or 
             admin_fee < group_loan_product.admin_fee
       return nil
     end
     
+
     member = group_loan_membership.member 
     # group_loan = group_loan_membership.group_loan 
     
@@ -52,6 +66,8 @@ class TransactionActivity < ActiveRecord::Base
     new_hash[:office_id] = field_worker.active_job_attachment.office.id
     new_hash[:member_id] = member.id 
     new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward]
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
     
     
     transaction_activity = TransactionActivity.create new_hash 
@@ -79,18 +95,47 @@ class TransactionActivity < ActiveRecord::Base
     member = group_loan_membership.member 
     
     new_hash = {}
-    new_hash[:total_transaction_amount]  = group_loan_product.loan_amount
-    new_hash[:transaction_case] = TRANSACTION_CASE[:loan_disbursement]
+    if group_loan_membership.deduct_setup_payment_from_loan ==true 
+      #  create another transaction 
+      new_hash[:total_transaction_amount]  = group_loan_product.loan_amount - group_loan_membership.min_setup_payment
+      new_hash[:transaction_case] = TRANSACTION_CASE[:loan_disbursement_with_setup_payment_deduction]
+      # new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:outward]
+    else
+      new_hash[:total_transaction_amount]  = group_loan_product.loan_amount
+      new_hash[:transaction_case] = TRANSACTION_CASE[:loan_disbursement_no_setup_payment_deduction]
+      # new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:outward]
+    end
+
+
+    # new_hash[:total_transaction_amount]  = group_loan_product.loan_amount
+    # new_hash[:transaction_case] = TRANSACTION_CASE[:loan_disbursement]
     new_hash[:creator_id] = cashier.id 
     new_hash[:office_id] = cashier.active_job_attachment.office.id
     new_hash[:member_id] = member.id
     new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:outward]
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
     transaction_activity = TransactionActivity.create new_hash 
-    transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , cashier ) 
+    
+    # this entries will be different, if the setup payment is paid using the loan 
+    # deduct_setup_payment_from_loan = false 
+    #   
+    #   if group_loan_membership.deduct_setup_payment_from_loan ==true 
+    #     deduct_setup_payment_from_loan = true
+    #     transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , cashier, false ) 
+    #   else
+    #     transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , cashier, true ) 
+    #   end
+    
+    transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , 
+                      cashier, 
+                      group_loan_membership.deduct_setup_payment_from_loan  ) 
     
     group_loan_membership.has_received_loan_disbursement = true
     group_loan_membership.loan_disbursement_transaction_id = transaction_activity.id 
     group_loan_membership.save 
+    
+   
     
     return transaction_activity 
   end
@@ -266,13 +311,30 @@ class TransactionActivity < ActiveRecord::Base
             
   end
   
-  def create_loan_disbursement_entries( amount , cashier ) 
+  def create_loan_disbursement_entries( amount , cashier , deduct_setup_payment_from_loan ) 
     cashflow_book = cashier.active_job_attachment.office.cashflow_book
-    self.transaction_entries.create( 
-                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:loan_disbursement], 
-                      :amount => amount  ,
-                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
-                      )
+    
+    if deduct_setup_payment_from_loan 
+       deduction_amount = amount - self.total_transaction_amount
+       self.transaction_entries.create( 
+                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:loan_disbursement], 
+                          :amount => amount  ,
+                          :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
+                          )
+       self.transaction_entries.create( 
+                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:deduct_setup_fee_from_loan_disbursement], 
+                          :amount => deduction_amount  ,
+                          :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+                          )
+      
+    else
+      self.transaction_entries.create( 
+                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:loan_disbursement], 
+                          :amount => amount  ,
+                          :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
+                          )
+    end
+   
   end
   
   

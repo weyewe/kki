@@ -25,6 +25,9 @@ class CreateGroupLoanMemberships < ActiveRecord::Migration
       t.integer :loan_disburser_id 
       
       
+      t.boolean :deduct_setup_payment_from_loan , :default => false 
+      
+      
       # if the member has no sufficient $$ to pay for weekly payment
       # and, doesn't intend to use the saving || the saving is not enough to cover for the remnant
       # t.boolean :backlog_payment , :default => false 

@@ -1,9 +1,10 @@
+
 <div class="span9 content">
-  <%= create_guide("Select Group Loan", 
-        "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Running Group Loans: <b>#{@running_group_loans.count}</b> ").html_safe %>
+  <%= create_guide("Backlog Payment", 
+        "Finalize group loan for office: <b>#{@office.name}</b>" + "<br />" + 
+        "Total Running Group Loan: <b>#{@running_group_loans.count}</b> ").html_safe %>
   
-  <%= create_breadcrumb(@breadcrumbs).html_safe %>
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
   
    
@@ -16,17 +17,18 @@
             <th>Nama Group</th>
             <th>Lokasi RW</th>
             <th>Total Member</th>
-            <th>Total Meeting</th>
-            <th>Completed Meeting</th>
-            <th style="text-align:center;">Finalize</th>
+            <th>Total Backlog</th>
+            <th>Cleared Backlog</th>
+            
           </tr>
         </thead>
         <tbody>
           <% @running_group_loans.each do |group_loan| %>
-            <%#= render :partial => "group_loans/group_loan_setup" , 
+            <%= render :partial => "group_loans/group_loan_with_backlog" , 
                 :locals => {:group_loan => group_loan}%>
-            <%= render :partial => "group_loans/group_weekly_attendance_marking" , 
-                :locals => {:group_loan => group_loan}%>
+            
+   
+            
           <% end %>
        
           
@@ -36,15 +38,14 @@
     </div><!-- end of #data_list -->
   </div>
   
-  
-  
   <div class=" hidden" id="approve_propose_form_wrapper">
-    <%= form_for GroupLoan.new, :url => execute_loan_disbursement_finalization_url   do |f| %>
+    <%= form_for GroupLoan.new, :url => execute_start_group_loan_url   do |f| %>
       <%= hidden_field_tag 'entity_id' , ''  %>
       <%= hidden_field_tag 'action_role', '' %>
       <%= hidden_field_tag 'action_value', '' %>
     <% end %>
   </div>
+  
   
   
   <div class="modal" id="myModal" style="display:none;">
@@ -60,9 +61,8 @@
        <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
      </div>
    </div>
-  
-  
-  
+   
+   
 
 </div><!--/span-->
 

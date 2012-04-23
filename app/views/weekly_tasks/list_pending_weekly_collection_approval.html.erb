@@ -40,7 +40,7 @@
   
   
   <div class=" hidden" id="approve_propose_form_wrapper">
-    <%= form_for GroupLoan.new, :url => execute_loan_disbursement_finalization_url   do |f| %>
+    <%= form_for WeeklyTask.new, :url => execute_weekly_collection_approval_url   do |f| %>
       <%= hidden_field_tag 'entity_id' , ''  %>
       <%= hidden_field_tag 'action_role', '' %>
       <%= hidden_field_tag 'action_value', '' %>

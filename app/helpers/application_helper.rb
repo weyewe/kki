@@ -524,6 +524,16 @@ module ApplicationHelper
             :action => "special_weekly_payment_for_member"
           }
         ]
+      },
+      {
+        :title => "Backlog Payment",
+        :destination_link => "select_group_loan_for_backlog_weekly_payment_url",
+        :conditions => [
+          {
+            :controller => "group_loans",
+            :action => "select_group_loan_for_backlog_weekly_payment"
+          }
+        ]
       }
     ]
   }

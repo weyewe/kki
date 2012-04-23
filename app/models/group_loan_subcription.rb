@@ -25,7 +25,7 @@ class GroupLoanSubcription < ActiveRecord::Base
     end
     
     if not group_loan_subcription.nil?
-      puts "3353 in the not nil block\n"*2
+      # puts "3353 in the not nil block\n"*2
       old_group_loan_product_id = group_loan_subcription.group_loan_product_id
       new_group_loan_product_id = group_loan_product_id
       

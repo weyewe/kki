@@ -82,10 +82,11 @@ TRANSACTION_CASE = {
   :backlog_payment => 11, # has to be paid in full
   
   # all transaction from the company to the member
-  :loan_disbursement => 100,
-  :saving_withdrawal => 101, 
-  :deposit_return_complete => 102, 
-  :deposit_return_deduct_default => 103 
+  :loan_disbursement_no_setup_payment_deduction => 100,
+  :loan_disbursement_with_setup_payment_deduction => 101,
+  :saving_withdrawal => 200, 
+  :deposit_return_complete => 300, 
+  :deposit_return_deduct_default => 301 
   
 }
 
@@ -102,9 +103,10 @@ TRANSACTION_ENTRY_CODE = {
   
   # all transaction from company to the member
   :return_deposit => 101, 
-  :soft_savings_withdrawal => 102,
-  :hard_saving_withdrawal => 103 ,
-  :loan_disbursement => 104 
+  :soft_savings_withdrawal => 200,
+  :hard_saving_withdrawal => 201 ,
+  :loan_disbursement => 300,
+  :deduct_setup_fee_from_loan_disbursement => 301  
   
 }
 
@@ -138,4 +140,23 @@ TRANSACTION_ACTION_TYPE = {
 TRANSACTION_ENTRY_ACTION_TYPE = {
   :inward => 1 , #money is going into the company
   :outward => 2  # money is going out from the company
+}
+
+BACKLOG_TYPE = {
+  :only_savings_without_weekly_payment => 1,
+  :no_payment =>2 
+}
+
+
+LOAN_TYPE = {
+  :group_loan => 1 ,
+  :personal_loan => 2 
+}
+
+
+ATTENDANCE_STATUS = {
+  :unmarked => 0 , 
+  :present_on_time => 1 , 
+  :present_late => 2 , 
+  :absent => 3 
 }

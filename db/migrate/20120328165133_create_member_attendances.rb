@@ -10,7 +10,8 @@ class CreateMemberAttendances < ActiveRecord::Migration
       # t.boolean :is_on_time, :default => false  
       
       # fuck, it is either is present or not present
-      t.boolean :is_present , :default => false 
+      # t.boolean :is_present , :default => false 
+      t.integer :attendance_status, :default => ATTENDANCE_STATUS[:unmarked] 
       
       
       # so, say that a member is late, marked as is_present => false

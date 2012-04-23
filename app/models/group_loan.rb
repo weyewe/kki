@@ -7,6 +7,7 @@ class GroupLoan < ActiveRecord::Base
   has_many :members, :through => :group_loan_memberships
   
   has_many :weekly_tasks
+  has_many :backlog_payments 
   
   # belongs_to :group_loan 
   belongs_to :office
@@ -192,8 +193,13 @@ class GroupLoan < ActiveRecord::Base
     self.group_loan_memberships.sum("admin_fee")
   end
   
+  
+  
   def uncollected_setup_fee
-    self.group_loan_memberships.where(:has_paid_setup_fee => false )
+    self.group_loan_memberships.where{
+      (has_paid_setup_fee.eq false ) & 
+      (deduct_setup_payment_from_loan.eq false ) 
+    }
   end
   
   def execute_finalize_setup_fee_collection( current_user )
@@ -297,6 +303,17 @@ class GroupLoan < ActiveRecord::Base
      :is_weekly_payment_approved_by_cashier =>  false
     )
     
+  end
+  
+=begin
+  For backlog
+=end
+  def total_backlogs
+    self.backlog_payments.count
+  end
+  
+  def total_resolved_backlogs
+    self.backlog_payments.where(:is_cleared => true ).count
   end
   
 end

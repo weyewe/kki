@@ -3,6 +3,7 @@ class WeeklyTask < ActiveRecord::Base
   has_many :member_attendances 
   belongs_to :group_loan
   
+  has_many :backlog_payments
   
   # after_create :create_the_respective_meeting_attendances_and_payment_collections
   def member_payment_for(member)
@@ -13,7 +14,7 @@ class WeeklyTask < ActiveRecord::Base
   end
   
   def total_members_present
-    self.member_attendances.where(:is_present => true).count
+    self.member_attendances.where(:attendance_status => ATTENDANCE_STATUS[:present_on_time]).count
   end
   
   def total_members_paid
@@ -123,7 +124,7 @@ class WeeklyTask < ActiveRecord::Base
     member_attendance = self.member_attendances.where(:member_id => member.id ).first
     if member_attendance.nil?
       return false
-    elsif member_attendance.is_present == true 
+    elsif member_attendance.attendance_status  == ATTENDANCE_STATUS[:present_on_time] 
       return true 
     end
   end
@@ -143,11 +144,11 @@ class WeeklyTask < ActiveRecord::Base
         # if there has not been any member_attendance
         member_attendance =     self.member_attendances.create(   
               :attendance_marker_id => current_user.id ,
-              :is_present => true ,
+              :attendance_status => ATTENDANCE_STATUS[:present_on_time] ,
               :member_id => member.id 
             )
       else
-        member_attendance.is_present = true
+        member_attendance.attendance_status = ATTENDANCE_STATUS[:present_on_time] 
         member_attendance.save 
       end
       
@@ -166,7 +167,7 @@ class WeeklyTask < ActiveRecord::Base
     if self.has_paid_weekly_payment?(member)  
       return nil
     else 
-      self.member_payments.create(
+      member_payment = self.member_payments.create(
         :transaction_activity_id => transaction_activity.id,
         :member_id => member.id , 
         :has_paid => true,
@@ -174,6 +175,17 @@ class WeeklyTask < ActiveRecord::Base
         :only_savings => true ,
         :cash_passed => cash_passed
       )
+      
+      
+      group_loan = self.group_loan 
+      BacklogPayment.create(
+        :group_loan_id => group_loan.id, 
+        :weekly_task_id => self.id , 
+        :member_payment_id => member_payment.id, 
+        :backlog_type => BACKLOG_TYPE[:only_savings_without_weekly_payment]
+      )
+      
+      return member_payment 
       # self.add_total_cash( amount )
     end
   end
@@ -243,13 +255,26 @@ class WeeklyTask < ActiveRecord::Base
     if self.has_paid_weekly_payment?(member)  
       return nil
     else 
-      self.member_payments.create(
+      member_payment = self.member_payments.create(
         :transaction_activity_id => nil,
         :member_id => member.id , 
         :has_paid => false,
         :no_payment => true ,
         :only_savings => false 
       )
+      
+      
+      group_loan = self.group_loan 
+      BacklogPayment.create(
+        :group_loan_id => group_loan.id, 
+        :weekly_task_id => self.id , 
+        :member_payment_id => member_payment.id, 
+        :backlog_type => BACKLOG_TYPE[:no_payment]
+      )
+      
+      return member_payment
+      
+      
     end
   end
   
@@ -335,6 +360,23 @@ class WeeklyTask < ActiveRecord::Base
     self.member_payments.sum("cash_passed")
   end
 
+
+  def approve_weekly_payment_collection( current_user )
+    self.is_weekly_payment_approved_by_cashier = true 
+    self.weekly_payment_approver_id = current_user.id
+    self.save
+  end
+  
+  def reject_weekly_payment_collection( current_user )
+    self.is_weekly_payment_approved_by_cashier = false 
+    self.is_weekly_payment_collection_finalized = false
+    self.save
+    # send email notification to the field_worker. record in user activity 
+  end
+  
+  def weekly_collection_approved?
+    self.is_weekly_payment_approved_by_cashier == true 
+  end
 
   protected
   

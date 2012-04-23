@@ -4,7 +4,7 @@
         "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
         "Total Member: <b>#{@group_loan.members.count}</b>"  ).html_safe %>
   
-  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
   
    
@@ -16,7 +16,7 @@
           <tr>
             <th>Member Name</th>
             <th>Address</th>
-            <th style="text-align:center;">Mark Attendance</th>
+            <th style="text-align:center;" colspan="2">Mark Attendance</th>
           </tr>
         </thead>
         <tbody>

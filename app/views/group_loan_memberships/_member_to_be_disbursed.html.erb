@@ -5,7 +5,26 @@
   <td class="user-nim"><%= member.name %></td>
   <td><%= print_money( group_loan_product.loan_amount )%></td>
   
+  <td style="text-align:center;">
+    <% if group_loan_membership.deduct_setup_payment_from_loan == true %>
+      	<span class="label label-important"><%= print_money( group_loan_membership.min_setup_payment )%></span>
+    <% else %>
+    	<span class="label label-success">0</span>
+    <% end %>
+    <!-- Setup Payment Deduction -->
+  </td>
   
+  <td>
+    <% if group_loan_membership.deduct_setup_payment_from_loan == true %>
+      	<span class="label label-success">
+      	  <%= print_money( group_loan_product.loan_amount - group_loan_membership.min_setup_payment  ) %>
+      	</span>
+    <% else %>
+    	<span class="label label-success">
+    	  <%= print_money( group_loan_product.loan_amount   ) %>
+    	</span>
+    <% end %>
+  </td>
   
   <td style="text-align:center;">
     <% if group_loan_membership.has_received_loan_disbursement == false %>

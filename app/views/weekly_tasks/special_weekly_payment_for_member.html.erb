@@ -7,7 +7,7 @@
         "Minimum weekly payment: <b>#{print_money(@group_loan_product.total_weekly_payment)}</b>" ).html_safe %>
         
   
-  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
   <% if flash[:notice] %>
     <div class="alert alert-success">
       <a data-dismiss="alert" class="close">×</a>

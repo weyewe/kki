@@ -57,7 +57,7 @@
 </div><!--/span-->
 
 
-<div class="modal" id="myModal" style="display:none;">
+<div class="modal" id="myModal" data-backdrop="static" style="display:none;">
   
   
   <div class="modal-header">
@@ -75,8 +75,10 @@
 </div>
 
 
-<div class="hidden" id="form_setup_payment_wrapper">
-  
+<div class="hidden" id="form_setup_payment_wrapper_declare_loan_deduction">
+ <%= form_tag declare_setup_payment_by_loan_deduction_url do %> 
+  <%= hidden_field_tag 'group_loan_membership_id', '', :id=>"group_loan_membership_deduct_loan"%>
+ <% end %>
   
   
 </div>
@@ -85,102 +87,163 @@
 
 <% content_for :additional_js  do %>
   <script type="text/javascript">
+    // $(document).ready(function(){
+    //      $(".setup_payment").live('click', function(){
+    //        // console.log("first click");
+    //      
+    //        var $this = $(this);
+    //        var $form = $("#pay_setup_fee_form");
+    //        var $row_wrapper = $this.parents("tr");
+    //        // var row_id_prefix = $row_wrapper.attr("id").split("-")[1];
+    //        //     console.log("The row id is " + row_id_prefix);
+    //        console.log("row wrapper id is " + $row_wrapper.attr("id"));
+    //        var group_loan_membership_id = $row_wrapper.attr("id").split("-")[1];
+    //        console.log("group loan membership id is " + group_loan_membership_id);
+    //        
+    //        var $modal_wrapper = $("#myModal"); 
+    //        var $header = $(".modal-header", $modal_wrapper);
+    //        var $body  = $("#form_body", $modal_wrapper);
+    //        var $modal_closer = $(".modal-footer .modal-closer ", $modal_wrapper);
+    //        var $modal_exe = $(".modal-footer .execute_transaction");
+    //        
+    //        
+    //        
+    //        
+    //        var member_name =  $(".member_name", $row_wrapper).text()  ;
+    //        var admin_fee = newParseInt( $(".admin_fee", $row_wrapper).attr("value") );
+    //        var min_initial_savings = newParseInt(  $(".initial_savings" , $row_wrapper).attr("value") );
+    //        console.log("min_initial_savings is " + min_initial_savings);
+    //        
+    //        var header_html = "Setup Payment for <b>"+ member_name + "</b>";
+    //        $("#admin_fee").attr('value', admin_fee);
+    //        $("#initial_savings").attr("value", min_initial_savings);
+    //        $("#admin_fee_uneditable").text( admin_fee );
+    //        $("#group_loan_membership_id").attr('value', group_loan_membership_id);
+    //        
+    //        var total = admin_fee + min_initial_savings;
+    //        $("#total_setup_payment").text( total );
+    //        
+    //        $header.html( header_html );
+    //        
+    // 
+    //        $modal_wrapper.modal("show");
+    //        
+    //   
+    // 
+    //        $modal_closer.click(function(){
+    //          $modal_wrapper.modal('hide');
+    //          $("#deposit").attr("value", '' );
+    //          $modal_exe.show();
+    //          $form.clearForm();
+    //          // hide the notification modal
+    //          $("#notification_modal_body").hide();
+    //          // show the form_modal
+    //          $("#form_body").show();
+    //          return false;
+    //        });
+    // 
+    //        console.log("before modal_exe,min_initial_savings is " + min_initial_savings);
+    //        var double_click_blocker = 0 ;
+    //        $modal_exe.click(function(e){
+    //          console.log("modal exe is clicked");
+    //          console.log("beginning modal_exe,min_initial_savings is " + min_initial_savings);
+    //          
+    //          if ($(e.target).is("a[disabled]")){
+    //             return false;
+    //          }
+    //                   
+    //          
+    //          $modal_exe.attr("disabled", "disabled"  );
+    //          
+    //          // $modal_exe.unbind('click');
+    //          // e.stopPropagation();
+    //          
+    //          if( double_click_blocker == 1 ) {
+    //            return false ; 
+    //          }else{
+    //            double_click_blocker = 1 ;
+    //          }
+    //          var min_initial_savings = newParseInt( $("#initial_savings").attr('value') ) ;
+    //          var new_initial_savings = newParseInt( $("#initial_savings").attr("value"));
+    //          // console.log("new_initial_savings is " + new_initial_savings );
+    //          // console.log("min_initial_savings is " + min_initial_savings);
+    //          var deposit  = newParseInt(  $("#deposit").attr("value"));
+    //          var total_value = admin_fee + new_initial_savings + deposit; 
+    //          
+    //          var errors = [];
+    //          // console.log("the length of errors is " + errors.length );
+    //          if( deposit < 0 ){
+    //            errors.push("Deposit can't be smaller than 0");
+    //          }
+    //          
+    //          if( new_initial_savings < min_initial_savings){            // 
+    //                      // console.log("inside shite, new_initial_savings: " + new_initial_savings);
+    //                      // console.log("inside shite, min_initial_savings: " + min_initial_savings);
+    //            errors.push("Initial savings can't be smaller than " + min_initial_savings );
+    //          }
+    //          
+    //          if( errors.length == 0  && double_click_blocker == 1) {
+    //            if(  confirm("The total value is " + addCommas(total_value) + ". Are you sure?")  ){
+    //              $modal_wrapper.showLoading();
+    //              $.ajax({
+    //                 url: $form.attr("action"),
+    //                 type: "POST",
+    //                 data: $form.serialize(),
+    //                 dataType: 'script',
+    //                 success: function(response){
+    //                   // $modal_wrapper.hideLoading();
+    //                   double_click_blocker = 0 ;
+    //                 }
+    //               });
+    //            }else{
+    //              //rebinding the exe
+    //              $modal_exe.attr("disabled", false);
+    //              double_click_blocker = 0 ;
+    //              return false ;
+    //              // $modal_closer.trigger('click');
+    //              // $this.trigger('click');
+    //            }
+    //          }else{
+    //            for( var i = 0; i < errors.length; i++){
+    //              alert( errors[i]);
+    //            }
+    //            //rebinding the exe
+    //            double_click_blocker = 0;
+    //            $modal_exe.attr("disabled", false );
+    //            // $modal_closer.trigger('click');
+    //            // $this.trigger('click');
+    //            
+    //          }
+    //        });
+    //        
+    //        // $modal_exe.bind('click');
+    //        $modal_exe.attr("disabled", false);
+    //        return false;
+    //      });
+    //    });
     $(document).ready(function(){
-      $(".setup_payment").live('click', function(){
-        // console.log("first click");
-      
-        var $this = $(this);
-        var $form = $("#pay_setup_fee_form");
-        var $row_wrapper = $this.parents("tr");
-        var row_id_prefix = $row_wrapper.attr("id").split("-")[0];
+      $(".deduct_loan_payment").click(function(){
+        
+        var $row_wrapper = $(this).parents("tr");
         var group_loan_membership_id = $row_wrapper.attr("id").split("-")[1];
-        
-        var $modal_wrapper = $("#myModal"); 
-        var $header = $(".modal-header", $modal_wrapper);
-        var $body  = $("#form_body", $modal_wrapper);
-        var $modal_closer = $(".modal-footer .modal-closer ", $modal_wrapper);
-        var $modal_exe = $(".modal-footer .execute_transaction");
-        
-        
-        
-        
         var member_name =  $(".member_name", $row_wrapper).text()  ;
-        var admin_fee = newParseInt( $(".admin_fee", $row_wrapper).attr("value") );
-        var min_initial_savings = newParseInt(  $(".initial_savings" , $row_wrapper).attr("value") );
         
-        var header_html = "Setup Payment for <b>"+ member_name + "</b>";
-        $("#admin_fee").attr('value', admin_fee);
-        $("#initial_savings").attr("value", min_initial_savings);
-        $("#admin_fee_uneditable").text( admin_fee );
-        $("#group_loan_membership_id").attr('value', group_loan_membership_id);
+        $("#group_loan_membership_deduct_loan").attr("value", group_loan_membership_id);
+        var $form = $("#form_setup_payment_wrapper_declare_loan_deduction form");
         
-        var total = admin_fee + min_initial_savings;
-        $("#total_setup_payment").text( total );
-        
-        $header.html( header_html );
-        
-
-        $modal_wrapper.modal("show");
-        
-   
-
-        $modal_closer.click(function(){
-          $modal_wrapper.modal('hide');
-          $("#deposit").attr("value", '' );
-          $modal_exe.show();
-          $form.clearForm();
-          // hide the notification modal
-          $("#notification_modal_body").hide();
-          // show the form_modal
-          $("#form_body").show();
+        if( confirm("Are you sure to declare loan deduction for " + member_name)){
+          $.ajax({
+             url: $form.attr("action"),
+             type: "POST",
+             data: $form.serialize(),
+             dataType: 'script',
+             success: function(response){
+             }
+           });
+        }else{
           return false;
-        });
-
-
-        $modal_exe.click(function(){
-          $modal_exe.unbind('click');
-          var new_initial_savings = newParseInt( $("#initial_savings").attr("value"));
-          var deposit  = newParseInt(  $("#deposit").attr("value"));
-          var total_value = admin_fee + new_initial_savings + deposit; 
-          
-          var errors = [];
-          if( deposit < 0 ){
-            errors.push("Deposit can't be smaller than 0");
-          }
-          
-          if( new_initial_savings < min_initial_savings){
-            errors.push("Initial savings can't be smaller than " + min_initial_savings );
-          }
-          
-          if( errors.length == 0 ) {
-            if(  confirm("The total value is " + addCommas(total_value) + ". Are you sure?")  ){
-              $modal_wrapper.showLoading();
-              $.ajax({
-                 url: $form.attr("action"),
-                 type: "POST",
-                 data: $form.serialize(),
-                 dataType: 'script',
-                 success: function(response){
-                   // $modal_wrapper.hideLoading();
-                 }
-               });
-            }else{
-              //rebinding the exe
-              $modal_closer.trigger('click');
-              $this.trigger('click');
-            }
-          }else{
-            for( var i = 0; i < errors.length; i++){
-              alert( errors[i]);
-            }
-            //rebinding the exe
-            $modal_closer.trigger('click');
-            $this.trigger('click');
-          }
-        });
-        
-        
-        return false;
+        }
+        return false; 
       });
     });
   </script>

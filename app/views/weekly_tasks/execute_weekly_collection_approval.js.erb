@@ -1,0 +1,18 @@
+$(document).ready(function(){
+  
+  
+  $("#weekly_payment_collection_cashier_approval-<%= @weekly_task.id %>").remove();
+  var header_text, body_text;
+  header_text = "Notice for Weekly Payment Collection";
+  <% if @weekly_task.weekly_collection_approved? %>
+    body_text = "Approval for weekly payment week <%= @weekly_task.week_number %> is successful.";
+  <% else %>
+    body_text = "Weekly payment collection for <%= @weekly_task.week_number %> is rejected";
+  <% end %>
+  
+  
+  summonModal( header_text , 
+              body_text, 
+                "myModal");
+                
+});

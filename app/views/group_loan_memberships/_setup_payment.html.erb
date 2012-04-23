@@ -18,10 +18,18 @@
   </td>
   
   <td style="text-align:center;" > 
-    <% if not group_loan_membership.has_paid_setup_fee == true  %>
-      <button href="#" class="btn setup_payment">Pay Setup Fee</button> 
+    <% if not  group_loan_membership.has_paid_setup_payment?  %>
+      <button href="#" class="btn setup_payment">Pay Cash</button> 
+      <button href="#" class="btn deduct_loan_payment">Deduct Loan</button>
+    
+       
     <% else %>
-      <span class="label label-success">PAID</span>
+      <% if group_loan_membership.has_paid_setup_fee == true %>
+        <span class="label label-success">PAID</span>
+      <% elsif group_loan_membership.deduct_setup_payment_from_loan ==true %>
+        <span class="label label-warning">Deduct Loan</span>
+      <% end %>
+    
     <% end %>
   </td>
   <td>

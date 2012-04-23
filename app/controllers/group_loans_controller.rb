@@ -112,6 +112,11 @@ class GroupLoansController < ApplicationController
     end
   end
   
+  def select_group_loan_for_backlog_weekly_payment
+    @office = current_user.active_job_attachment.office
+    @running_group_loans = @office.running_group_loans
+  end
+  
 =begin
   Role == Cashier 
 =end
@@ -166,10 +171,13 @@ class GroupLoansController < ApplicationController
   # loan collection 
   def select_group_loan_for_weekly_meeting_attendance_marking
     setup_group_loan_for_weekly_task
+    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
   end
   
   def select_group_loan_for_weekly_payment
     setup_group_loan_for_weekly_task
+    
+    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
   end
   
   

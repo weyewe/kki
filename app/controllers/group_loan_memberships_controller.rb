@@ -34,13 +34,23 @@ class GroupLoanMembershipsController < ApplicationController
   end
   
 =begin
-  For Field Worker to take setup fee 
+  For Field Worker to take setup fee : cash and loan deduction 
 =end
 
   def group_loan_memberships_for_setup_fee
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id( params[:group_loan_id] )
     @group_loan_memberships = @group_loan.group_loan_memberships.order("created_at DESC")
+  end
+  
+  # declare that the setup payment will be taken from the loan
+  def declare_setup_payment_by_loan_deduction
+    @office = current_user.active_job_attachment.office
+    @group_loan_membership = GroupLoanMembership.find params[:group_loan_membership_id]
+    # we need to check whether such group loan membership can be updated by current user
+    # Field Worker Task assignment : assigning responsibility between field_worker and  the group loan 
+    @group_loan_membership.declare_setup_payment_by_loan_deduction
+    
   end
   
 =begin

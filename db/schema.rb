@@ -11,11 +11,21 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120329055234) do
+ActiveRecord::Schema.define(:version => 20120403091043) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
     t.integer  "job_attachment_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "backlog_payments", :force => true do |t|
+    t.integer  "group_loan_id"
+    t.integer  "weekly_task_id"
+    t.integer  "member_payment_id"
+    t.boolean  "is_cleared",        :default => false
+    t.integer  "backlog_type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -61,6 +71,7 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
     t.integer  "loan_disbursement_transaction_id"
     t.boolean  "has_received_loan_disbursement",                                 :default => false
     t.integer  "loan_disburser_id"
+    t.boolean  "deduct_setup_payment_from_loan",                                 :default => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -127,7 +138,7 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
 
   create_table "member_attendances", :force => true do |t|
     t.integer  "weekly_task_id"
-    t.boolean  "is_present",           :default => false
+    t.integer  "attendance_status",    :default => 0
     t.integer  "attendance_marker_id"
     t.integer  "member_id"
     t.datetime "created_at"
@@ -222,6 +233,8 @@ ActiveRecord::Schema.define(:version => 20120329055234) do
     t.integer  "transaction_action_type"
     t.integer  "office_id"
     t.integer  "transaction_case"
+    t.integer  "loan_type"
+    t.integer  "loan_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

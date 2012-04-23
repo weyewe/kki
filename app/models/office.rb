@@ -76,6 +76,8 @@ class Office < ActiveRecord::Base
                 :is_closed => false  )
   end
   
+  
+  
   # it is runnning.. can't be changed anymore 
   def started_group_loans
     self.group_loans.where(:is_started => true , :is_closed => false )

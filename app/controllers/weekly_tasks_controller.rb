@@ -5,10 +5,22 @@ class WeeklyTasksController < ApplicationController
 =end
   def select_weekly_meeting_for_attendance_marking
     setup_for_select_weekly_meeting
+    
+    
+    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
+    set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_attendance_marking_path' + "(#{@group_loan.id})", 
+                "Select Week"
+    
   end
   
   def mark_attendance
     setup_for_weekly_task_fulfillment_details
+    
+    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
+    set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_attendance_marking_path' + "(#{@group_loan.id})", 
+                "Select Week"
+    set_breadcrumb_for @group_loan, 'mark_attendance_path' + "(#{@group_loan.id}, #{@weekly_task.id})", 
+                "Mark Attendance"        
   end
   
   def close_weekly_meeting
@@ -22,10 +34,22 @@ class WeeklyTasksController < ApplicationController
 
   def select_weekly_meeting_for_weekly_payment
     setup_for_select_weekly_meeting
+    
+    # select_weekly_meeting_for_weekly_payment_url(group_loan)
+    
+    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
+    set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 
+                "Select Week"
   end
   
   def make_member_payment
     setup_for_weekly_task_fulfillment_details
+    
+    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
+    set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 
+                "Select Week"
+    set_breadcrumb_for @group_loan, 'make_member_payment_url' + "(#{@group_loan.id}, #{@weekly_task.id})", 
+                "Make Payment"
   end
   
   def close_weekly_payment 
@@ -52,6 +76,15 @@ class WeeklyTasksController < ApplicationController
     if @weekly_task.has_paid_weekly_payment?(@member) 
       redirect_to make_member_payment_url(@group_loan, @weekly_task)
     end
+    
+    
+    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
+    set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 
+                "Select Week"
+    set_breadcrumb_for @group_loan, 'make_member_payment_url' + "(#{@group_loan.id}, #{@weekly_task.id})", 
+                "Make Payment"
+    set_breadcrumb_for @group_loan, 'special_weekly_payment_for_member_url' + "(#{@group_loan.id}, #{@weekly_task.id}, #{@member.id})", 
+                "Special Payment"
   end
   
 =begin
@@ -60,6 +93,25 @@ class WeeklyTasksController < ApplicationController
   def list_pending_weekly_collection_approval
     @office = current_user.active_job_attachment.office
     @pending_weekly_tasks_cashier_approval = WeeklyTask.get_pending_cashier_approval_for_weekly_collection(@office)
+  end
+  
+  def execute_weekly_collection_approval
+    @weekly_task = WeeklyTask.find_by_id params[:entity_id]
+    @action_role = params[:action_role].to_i
+    @action_value = params[:action_value].to_i
+    
+    if @action_role == APPROVER_ROLE
+      if @action_value == TRUE_CHECK
+        @weekly_task.approve_weekly_payment_collection( current_user )
+      elsif @action_value == FALSE_CHECK
+        @weekly_task.reject_weekly_payment_collection( current_user )
+      end
+    end
+    
+    respond_to do |format|
+      format.html {  redirect_to root_url }
+      format.js 
+    end
   end
   
   protected

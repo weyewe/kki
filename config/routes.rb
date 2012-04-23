@@ -52,6 +52,9 @@ Debita46::Application.routes.draw do
 =end
   match 'select_group_loan_for_setup_payment' => "group_loans#select_group_loan_for_setup_payment", :as => :select_group_loan_for_setup_payment
   match 'group_loan/:group_loan_id/group_loan_memberships_for_setup_fee' => "group_loan_memberships#group_loan_memberships_for_setup_fee", :as => :group_loan_memberships_for_setup_fee
+  
+  match 'declare_setup_payment_by_loan_deduction' => "group_loan_memberships#declare_setup_payment_by_loan_deduction", :as => :declare_setup_payment_by_loan_deduction, :method => :post 
+  
   match 'execute_setup_fee_collection_finalization' => "group_loans#execute_setup_fee_collection_finalization", :as => :execute_setup_fee_collection_finalization, :method => :post 
   
   # weekly meeting
@@ -71,6 +74,9 @@ Debita46::Application.routes.draw do
   # close weekly payment ?
   match 'close_weekly_payment' => "weekly_tasks#close_weekly_payment", :as => :close_weekly_payment, :method => :post 
 
+
+  # backlog payment 
+  match 'select_group_loan_for_backlog_weekly_payment' => "group_loans#select_group_loan_for_backlog_weekly_payment", :as => :select_group_loan_for_backlog_weekly_payment
 
 =begin
   Cashier Routes 

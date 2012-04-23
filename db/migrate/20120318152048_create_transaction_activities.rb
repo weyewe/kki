@@ -21,7 +21,10 @@ class CreateTransactionActivities < ActiveRecord::Migration
       # 2 => from member to company   -> from_id is the member_id, to_id is the employee_id 
       t.integer :transaction_case 
       
-      
+      t.integer :loan_type
+      # if it is group_loan , use the group_loan id as the loan_id 
+      # if it si the single loan, not our problem yet 
+      t.integer :loan_id
       
       t.timestamps
     end

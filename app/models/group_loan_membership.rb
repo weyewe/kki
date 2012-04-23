@@ -112,7 +112,25 @@ class GroupLoanMembership < ActiveRecord::Base
   end
   
   
+=begin
+  Declaring that the setup payment will be deducted from Loan Disbursement 
+=end
+
+  def declare_setup_payment_by_loan_deduction
+    self.deduct_setup_payment_from_loan = true
+    self.save 
+  end
   
+  def min_setup_payment
+    group_loan_product = self.group_loan_product
+    group_loan_product.admin_fee + group_loan_product.initial_savings 
+  end
+  
+  def has_paid_setup_payment?
+    (self.has_paid_setup_fee == true) or
+    (self.deduct_setup_payment_from_loan == true )
+  end
+
   protected
   def destroy_group_loan_subcription
     GroupLoanSubcription.find(:all, :conditions => {
