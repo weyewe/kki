@@ -21,6 +21,7 @@ Debita46::Application.routes.draw do
   resources :group_loans  do
     resources :group_loan_memberships
     resources :group_loan_subcriptions
+    resources :backlog_payments 
   end
   resources :group_loan_memberships
   resources :group_loan_subcriptions

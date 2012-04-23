@@ -1,0 +1,81 @@
+
+<div class="span9 content">
+  <%= create_guide("Backlog Payment", 
+        "Office: <b>#{@office.name}</b>" + "<br />" + 
+        "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "Total Backlogs: <b>#{@backlog_payments.count}</b> ").html_safe %>
+  
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  
+  
+   
+  <div class="row-fluid">
+    <div id="data_list">
+      <table cellpadding="0" cellspacing="0" border="0" 
+      class="table table-striped table-bordered" id="example">
+      <thead>
+        <tr>
+          <th>Member Name</th>
+          <th>Week</th>
+          <th>Amount</th>
+          <th>Remark</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @backlog_payments.each do |backlog_payment| %>
+          <%= render :partial => "backlog_payments/backlog_index_entry", :locals => {
+            :backlog_payment => backlog_payment 
+          }  %>
+        <% end %>
+
+
+
+        </tbody> 
+      </table>
+      
+        
+    </div><!-- end of #data_list -->
+  </div>
+  
+  <div class=" hidden" id="approve_propose_form_wrapper">
+    <%= form_for GroupLoan.new, :url => execute_start_group_loan_url   do |f| %>
+      <%= hidden_field_tag 'entity_id' , ''  %>
+      <%= hidden_field_tag 'action_role', '' %>
+      <%= hidden_field_tag 'action_value', '' %>
+    <% end %>
+  </div>
+  
+  
+  
+  <div class="modal" id="myModal" style="display:none;">
+     <div class="modal-header">
+       <a class="close" data-dismiss="modal">×</a>
+       <h3>Modal header</h3>
+     </div>
+     <div class="modal-body">
+       <p>One fine body…</p>
+     </div>
+     <div class="modal-footer">
+       <a href="#" class="btn modal-closer">Close</a>
+       <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
+     </div>
+   </div>
+   
+   
+
+</div><!--/span-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

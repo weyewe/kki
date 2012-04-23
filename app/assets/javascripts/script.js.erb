@@ -225,6 +225,11 @@ $(document).ready(function() {
      
      if( $this.hasClass("propose")){
        action_role = <%= PROPOSER_ROLE %>;
+       if($this.hasClass("true_check")){
+          action_value = <%= TRUE_CHECK %>;
+        }else{
+          action_value = <%= FALSE_CHECK %>;
+        }
      }else if( $this.hasClass("approve") ){
        action_role = <%= APPROVER_ROLE %>;
        //  approver can approve or reject.. if it is FALSE_CHECK -> reject action. vice versa
@@ -242,8 +247,9 @@ $(document).ready(function() {
      
      $entity_id_field.attr("value", entity_id);
      $action_role_field.attr("value",action_role );
-     $action_field.attr("value", action_value);
      
+     $action_field.attr("value", action_value);
+     console.log("The action value is " + action_value);
      if( confirm("Are you sure?") ){
        $this.showLoading(); 
 

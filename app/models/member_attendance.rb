@@ -14,4 +14,12 @@ class MemberAttendance < ActiveRecord::Base
   end
   
   
+  def is_late?
+    self.attendance_status == ATTENDANCE_STATUS[:present_late]
+  end
+  
+  def is_on_time?
+    self.attendance_status == ATTENDANCE_STATUS[:present_on_time]
+  end
+  
 end

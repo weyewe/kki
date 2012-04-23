@@ -48,10 +48,14 @@ class WeeklyTask < ActiveRecord::Base
     
     no_attendance_member_id_list = group_loan_member_id_list - marked_group_loan_member_id_list
     
+    
+     # mark_member_attendance( member, current_user,ATTENDANCE_STATUS[:present_late]  )
     no_attendance_member_id_list.each do |member_id|
+       # mark_member_attendance( member, current_user,ATTENDANCE_STATUS[:present_late]  )
+       
       MemberAttendance.create :weekly_task_id => self.id, 
                   :member_id => member_id, 
-                  :is_present => false ,
+                  :attendance_status => ATTENDANCE_STATUS[:absent] ,
                   :attendance_marker_id => current_user.id 
     end
     
@@ -124,12 +128,29 @@ class WeeklyTask < ActiveRecord::Base
     member_attendance = self.member_attendances.where(:member_id => member.id ).first
     if member_attendance.nil?
       return false
-    elsif member_attendance.attendance_status  == ATTENDANCE_STATUS[:present_on_time] 
+    elsif [
+          ATTENDANCE_STATUS[:present_on_time] , 
+          ATTENDANCE_STATUS[:present_late]
+        ].include?(member_attendance.attendance_status )
       return true 
     end
   end
   
-  def mark_attendance_as_present( member, current_user)
+  def member_attendance(member)
+    self.member_attendances.where(:member_id => member.id ).first 
+  end
+  
+  
+  
+  def mark_attendance_as_late(member, current_user )
+    mark_member_attendance( member, current_user,ATTENDANCE_STATUS[:present_late]  )
+  end
+  
+  def mark_attendance_as_present(member, current_user )
+    mark_member_attendance( member, current_user,ATTENDANCE_STATUS[:present_on_time]  )
+  end
+  
+  def mark_member_attendance( member , current_user, attendance_status)
     if self.attendance_marking_not_closed? and 
         not self.has_attendance(member)
         
@@ -144,11 +165,11 @@ class WeeklyTask < ActiveRecord::Base
         # if there has not been any member_attendance
         member_attendance =     self.member_attendances.create(   
               :attendance_marker_id => current_user.id ,
-              :attendance_status => ATTENDANCE_STATUS[:present_on_time] ,
+              :attendance_status => attendance_status ,
               :member_id => member.id 
             )
       else
-        member_attendance.attendance_status = ATTENDANCE_STATUS[:present_on_time] 
+        member_attendance.attendance_status = attendance_status
         member_attendance.save 
       end
       

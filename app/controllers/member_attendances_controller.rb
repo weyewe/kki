@@ -6,6 +6,10 @@ class MemberAttendancesController < ApplicationController
       :member_id => @member.id, 
       :group_loan_id => @weekly_task.group_loan.id 
     })
-    @weekly_task.mark_attendance_as_present( @member, current_user )
+    if params[:action_value].to_i == TRUE_CHECK
+      @weekly_task.mark_attendance_as_present( @member, current_user )
+    elsif params[:action_value].to_i == FALSE_CHECK
+      @weekly_task.mark_attendance_as_late( @member, current_user )
+    end
   end
 end

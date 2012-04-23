@@ -1,0 +1,5 @@
+<% if member_attendance.is_late? %>
+  <span class="label label-warning">Late</span>
+<% elsif member_attendance.is_on_time? %>
+  <span class="label label-success">Present</span>
+<% end %>
