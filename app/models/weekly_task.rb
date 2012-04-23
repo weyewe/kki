@@ -203,7 +203,8 @@ class WeeklyTask < ActiveRecord::Base
         :group_loan_id => group_loan.id, 
         :weekly_task_id => self.id , 
         :member_payment_id => member_payment.id, 
-        :backlog_type => BACKLOG_TYPE[:only_savings_without_weekly_payment]
+        :backlog_type => BACKLOG_TYPE[:only_savings_without_weekly_payment],
+        :member_id => member.id 
       )
       
       return member_payment 
@@ -290,7 +291,8 @@ class WeeklyTask < ActiveRecord::Base
         :group_loan_id => group_loan.id, 
         :weekly_task_id => self.id , 
         :member_payment_id => member_payment.id, 
-        :backlog_type => BACKLOG_TYPE[:no_payment]
+        :backlog_type => BACKLOG_TYPE[:no_payment],
+        :member_id => member.id 
       )
       
       return member_payment

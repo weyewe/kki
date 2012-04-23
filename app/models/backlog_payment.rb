@@ -14,4 +14,5 @@ class BacklogPayment < ActiveRecord::Base
   belongs_to :group_loan
   belongs_to :weekly_task
   belongs_to :member_payment
+  belongs_to :member
 end

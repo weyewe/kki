@@ -3,7 +3,7 @@
   <%= create_guide("Backlog Payment", 
         "Office: <b>#{@office.name}</b>" + "<br />" + 
         "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
-        "Total Backlogs: <b>#{@backlog_payments.count}</b> ").html_safe %>
+        "Total member with backlogs: <b>#{@member_with_backlog_payments.count}</b> ").html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -16,16 +16,26 @@
       <thead>
         <tr>
           <th>Member Name</th>
-          <th>Week</th>
-          <th>Amount</th>
-          <th>Remark</th>
+          <th>Number of Backlogs (week unpaid)</th>
+          <th>Number of Paid Backlogs</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        <% @backlog_payments.each do |backlog_payment| %>
-          <%= render :partial => "backlog_payments/backlog_index_entry", :locals => {
-            :backlog_payment => backlog_payment 
-          }  %>
+        <% @member_with_backlog_payments.each do |member| %>
+          <% backlog_payments_for_member = member.backlog_payments_for_group_loan(@group_loan) %>
+          
+          <% if backlog_payments_for_member.count > 0  %>
+            <%= render :partial => "backlog_payments/backlog_index_entry", :locals => {
+              :member  => member, 
+              :backlog_payments_for_member => backlog_payments_for_member, 
+              :group_loan => @group_loan  
+              }  %>
+          <% else %>
+          <tr>
+              Nothing to see here. <%= backlog_payments_for_member.count %>
+          </tr>
+          <% end %>
         <% end %>
 
 

@@ -212,6 +212,7 @@ class GroupLoan < ActiveRecord::Base
      end 
   end
   
+
 =begin
   For Cashier
 =end
@@ -315,5 +316,10 @@ class GroupLoan < ActiveRecord::Base
   def total_resolved_backlogs
     self.backlog_payments.where(:is_cleared => true ).count
   end
+  
+  
+ 
+  
+  
   
 end

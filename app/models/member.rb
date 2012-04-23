@@ -6,7 +6,7 @@ class Member < ActiveRecord::Base
   has_one :saving_book
   # transaction_book will list all the record of member's transaction 
   has_one :transaction_book
-
+  has_many :backlog_payments
 
   belongs_to :office 
   
@@ -92,6 +92,19 @@ class Member < ActiveRecord::Base
     self.total_savings >= total_fee
   end
   
+=begin
+  Backlog Payment 
+=end
+
+  def has_backlog_payments_for_group_loan?( group_loan ) 
+    self.backlog_payments.where(:group_loan_id => group_loan.id ).count > 0 
+  end
+  
+  def backlog_payments_for_group_loan( group_loan)
+    self.backlog_payments.where(:group_loan_id => group_loan.id )
+  end
+  
+ 
   
   protected
   

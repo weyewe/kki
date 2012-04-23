@@ -532,6 +532,24 @@ module ApplicationHelper
           {
             :controller => "group_loans",
             :action => "select_group_loan_for_backlog_weekly_payment"
+          },
+          {
+            :controller => "backlog_payments",
+            :action => "index"
+          },
+          {
+            :controller => "backlog_payments",
+            :action => "pay_backlog_for_group_loan"
+          }
+        ]
+      },
+      {
+        :title => "Loan Default Resolution",
+        :destination_link => 'root_url',
+        :conditions => [
+          {
+            :action => '',
+            :conditions => ''
           }
         ]
       }

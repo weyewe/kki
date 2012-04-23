@@ -79,9 +79,15 @@ TRANSACTION_CASE = {
   :weekly_payment_structured_multiple_weeks_extra_savings => 8 , 
   :weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal => 9,
   :weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal_extra_savings => 10,
-  :backlog_payment_exact_amount => 51, # has to be paid in full
-  :backlog_payment_extra_savings => 52,
-  :backlog_payment_using_savings => 53, 
+  
+  
+  # backlog payment 
+  :single_backlog_payment_exact_amount => 51, # has to be paid in full
+  :single_backlog_payment_extra_savings => 52,
+  :single_backlog_payment_using_savings => 53, 
+  :multiple_backlog_payment_exact_amount => 54,
+  :multiple_backlog_payment_extra_savings => 55,
+  :multiple_backlog_payment_using_savings => 56, 
   
   # all transaction from the company to the member
   :loan_disbursement_no_setup_payment_deduction => 100,
