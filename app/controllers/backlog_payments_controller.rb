@@ -20,4 +20,5 @@ class BacklogPaymentsController < ApplicationController
     @group_loan_product = @group_loan_membership.group_loan_product
    
   end
+  
 end

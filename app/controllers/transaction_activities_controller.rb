@@ -81,6 +81,15 @@ class TransactionActivitiesController < ApplicationController
   end
   
   def create_backlog_payment
+    # @member = Member.find params[:member_id]
+    #   @group_loan = GroupLoan.find params[:group_loan_id] 
+    #   
+    #   
+    #   @transaction_activity = TransactionActivity.create_backlog_payment(
+    #     @member,
+    #     @group_loan,
+    #   )
+    #   
   end
   
   

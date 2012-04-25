@@ -104,6 +104,10 @@ class Member < ActiveRecord::Base
     self.backlog_payments.where(:group_loan_id => group_loan.id )
   end
   
+  def total_backlog_payments_for_group_loan( group_loan) 
+    backlog_payments_for_group_loan(group_loan).count 
+  end
+  
  
   
   protected

@@ -249,7 +249,7 @@ $(document).ready(function() {
      $action_role_field.attr("value",action_role );
      
      $action_field.attr("value", action_value);
-     console.log("The action value is " + action_value);
+     // console.log("The action value is " + action_value);
      if( confirm("Are you sure?") ){
        $this.showLoading(); 
 
@@ -284,6 +284,7 @@ $(document).ready(function() {
      var basic_weekly_payment_amount = newParseInt( $("#basic_weekly_payment_amount").attr("value") );
      var total_savings = newParseInt( $("#sp_total_savings_amount").attr("value") );
      var savings_withdrawal; 
+     var total_payable_weeks = newParseInt( $("#total_payable_weeks").attr("value")    )
      
      if( total_savings - stated_savings_withdrawal   >= 0 ){
        savings_withdrawal = stated_savings_withdrawal;
@@ -296,23 +297,30 @@ $(document).ready(function() {
      
      
      // show the data 
-     $("#sp_display_weeks").text( number_of_weeks );
-     $("#sp_display_total_payment").text( addCommas(total_payment) );
-     $("#sp_display_cash").text( addCommas(cash));
-     $("#sp_display_savings_withdrawal").text( addCommas(savings_withdrawal));
-     $("#sp_display_balance").text( addCommas(balance));
-     
-  
-     
-     $("#smf_savings_withdrawal").attr( 'value', savings_withdrawal );
-     $("#smf_balance").attr( 'value', balance );
-     $("#smf_cash").attr( 'value', cash );
-     $("#smf_weeks").attr( 'value', number_of_weeks );
-     
-     
-     if( balance < 0 ){
-       alert("Negative balance: " + addCommas(balance) );
+     if( number_of_weeks <= total_payable_weeks ){
+       $("#sp_display_weeks").text( number_of_weeks );
+        $("#sp_display_total_payment").text( addCommas(total_payment) );
+        $("#sp_display_cash").text( addCommas(cash));
+        $("#sp_display_savings_withdrawal").text( addCommas(savings_withdrawal));
+        $("#sp_display_balance").text( addCommas(balance));
+
+
+
+        $("#smf_savings_withdrawal").attr( 'value', savings_withdrawal );
+        $("#smf_balance").attr( 'value', balance );
+        $("#smf_cash").attr( 'value', cash );
+        $("#smf_weeks").attr( 'value', number_of_weeks );
+        
+        if( balance < 0 ){
+           alert("Negative balance: " + addCommas(balance) );
+         }
+     }else{
+       alert("Max number of weeks payable: " + total_payable_weeks  );
      }
+     
+     
+     
+     
      
      return false; 
    });
@@ -330,10 +338,18 @@ $(document).ready(function() {
      var savings_withdrawal_value = newParseInt( $("#smf_savings_withdrawal").attr("value") );
      var cash_value = newParseInt( $("#smf_cash").attr("value") );
      
+     var duration = newParseInt( $("#sp_calc_weeks").attr("value") );
+     
+     if(   duration == 0   ){
+       alert("Can't execute payment. Duration is 0.");
+     }
+     
      if( balance < 0  ) {
        alert("Negative balance: " + addCommas(balance) +  ". Can't perform transaction");
        return false; 
-     }else if( balance == '' ){
+     }else if(   ( balance == '') || 
+                 (  cash_value ==  0  && savings_withdrawal_value == 0  )  || 
+                 (  duration == 0   )){
        alert("No value. Please simulate the Calculator.");
        return false;
        
@@ -426,8 +442,119 @@ $(document).ready(function() {
    
    
    
+   /*
+   Backlog Payment
+   */
    
    
+   $("#bp_simulate_structured_payment").live('click', function(){
+      var cash = newParseInt( $("#bp_calc_cash").attr("value") );
+      var number_of_weeks = newParseInt( $("#bp_calc_weeks").attr("value") );
+      var stated_savings_withdrawal = newParseInt( $("#bp_calc_savings_withdraw").attr("value") );
+      var basic_weekly_payment_amount = newParseInt( $("#basic_weekly_payment_amount").attr("value") );
+      var total_savings = newParseInt( $("#bp_total_savings_amount").attr("value") );
+      var savings_withdrawal; 
+      var total_payable_weeks = newParseInt( $("#total_backlog_weeks_payable").attr("value")    )
+
+      if( total_savings - stated_savings_withdrawal   >= 0 ){
+        savings_withdrawal = stated_savings_withdrawal;
+      }else{
+        savings_withdrawal = total_savings;
+      }
+
+      var total_payment = number_of_weeks*basic_weekly_payment_amount; 
+      var balance = cash + savings_withdrawal - total_payment ; 
+
+
+      // show the data 
+      if( number_of_weeks <= total_payable_weeks ){
+        $("#bp_display_weeks").text( number_of_weeks );
+         $("#bp_display_total_payment").text( addCommas(total_payment) );
+         $("#bp_display_cash").text( addCommas(cash));
+         $("#bp_display_savings_withdrawal").text( addCommas(savings_withdrawal));
+         $("#bp_display_balance").text( addCommas(balance));
+
+
+
+         $("#bmf_savings_withdrawal").attr( 'value', savings_withdrawal );
+         $("#bmf_balance").attr( 'value', balance );
+         $("#bmf_cash").attr( 'value', cash );
+         $("#bmf_weeks").attr( 'value', number_of_weeks );
+         if( balance < 0 ){
+           alert("Negative balance: " + addCommas(balance) );
+         }
+      }else{
+        alert("Max number of backlog weeks payable: " + total_payable_weeks  );
+      }
+
+
+
+      
+
+      return false; 
+    });
+   
+   /*
+   Execute backlog payment 
+   */
+   
+    $("#pay_backlog_and_save_balance").live('click', function(){
+
+       var $form = $("#backlog_structured_multiple_form");
+
+       var balance = $('#bmf_balance').attr('value');
+
+       var balance_value = newParseInt( $("#bmf_balance").attr("value") );
+       var savings_withdrawal_value = newParseInt( $("#bmf_savings_withdrawal").attr("value") );
+       var cash_value = newParseInt( $("#bmf_cash").attr("value") );
+       
+       var duration = newParseInt( $("#bp_calc_weeks").attr("value") );
+       
+       // console.log("Balance value : "  + balance_value );
+       //       console.log("Savings withdrawal value : "  + savings_withdrawal_value );
+       //       console.log("Cash value : "  + cash_value );
+      
+       if(   duration == 0   ){
+          alert("Can't execute payment. Duration is 0.");
+        }
+   
+       
+       if( balance < 0  ) {
+         alert("Negative balance: " + addCommas(balance) +  ". Can't perform transaction");
+         return false; 
+       }else if( ( balance == '') || 
+                (  cash_value ==  0  && savings_withdrawal_value == 0  )  || 
+                ( duration == 0 ) ){
+         alert("No value. Please simulate the Calculator.");
+         return false;
+
+       }else if( (balance_value ==  0 ) && (cash_value == 0 ) 
+                      && (savings_withdrawal_value ==0)){
+         alert("Invalid case");
+         return false;
+       }else{
+
+         if(confirm("Are you sure?")){
+           $form.showLoading();
+
+           $.ajax({
+             url: $form.attr("action"),
+             type: "POST",
+             data: $form.serialize(),
+             dataType: 'script',
+             success: function(response){
+               // $form.clearForm();
+               $form.hideLoading();
+             }
+           });
+           return false ;
+         }else{
+           return false;
+         }
+       }
+     });
+     
+     
 });
 
 

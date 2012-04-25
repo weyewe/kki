@@ -79,7 +79,7 @@ Debita46::Application.routes.draw do
   # backlog payment 
   match 'select_group_loan_for_backlog_weekly_payment' => "group_loans#select_group_loan_for_backlog_weekly_payment", :as => :select_group_loan_for_backlog_weekly_payment
   match 'pay_backlog_for_group_loan/:group_loan_id/member/:member_id' => "backlog_payments#pay_backlog_for_group_loan", :as => :pay_backlog_for_group_loan
-  match 'create_backlog_payment' => "backlog_payments#create_backlog_payment", :as => :create_backlog_payment, :method => :post 
+  
 =begin
   Cashier Routes 
 =end
@@ -113,7 +113,8 @@ Debita46::Application.routes.draw do
   
   match 'transaction_activity/create_no_weekly_payment/:weekly_task_id/member/:member_id' => 'transaction_activities#create_no_weekly_payment', :as => :create_no_weekly_payment, :method => :post
   
-  
+  match 'transaction_activity/create_backlog_payment' => 'transaction_activities#create_backlog_payment', :as => :create_backlog_payment, :method => :post
+ 
   
   # The priority is based upon order of creation:
   # first created -> highest priority.

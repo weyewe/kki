@@ -2,9 +2,12 @@
   <div class="span8">
     
     <%= form_tag  create_backlog_payment_url, 
-      :method => :post, :id => "structured_multiple_form"  do  %>
+      :method => :post, :id => "backlog_structured_multiple_form"  do  %>
       
-      
+      <%= hidden_field_tag 'member_id',
+          member.id  %>
+      <%= hidden_field_tag 'group_loan_id',
+          group_loan.id  %>
     <table cellpadding="0" cellspacing="0" border="0" 
           class="table table-striped table-bordered" id="example">
       <thead>
@@ -19,7 +22,7 @@
           <tr>
             <td><b>Min. Weekly Payment </b></td>
             <td><span class="input-xlarge uneditable-input"
-              id="sp_display_min_weekly_payment">
+              id="bp_display_min_weekly_payment">
               <%= print_money( group_loan_product.total_weekly_payment)%></span></td>
               
           </tr>
@@ -29,11 +32,11 @@
             <td id="calculator_duration">
               <div class="input-append">
                 <span class="input-xlarge uneditable-input"
-                  id="sp_display_weeks"></span>
+                  id="bp_display_weeks"></span>
                 <span class="add-on">weeks</span>
               </div>
             </td>
-            <%= hidden_field_tag 'smf_weeks',
+            <%= hidden_field_tag 'bmf_weeks',
                 '' %>
           </tr>
           
@@ -42,7 +45,7 @@
             <td id="calculator_duration">
               <div class="input-append">
                 <b><span class="input-xlarge uneditable-input"
-                  id="sp_display_total_payment"></span></b>
+                  id="bp_display_total_payment"></span></b>
               </div>
             </td>
           </tr>
@@ -54,10 +57,10 @@
             <td id="total_cash">
               <div class="input-append">
                 <span class="input-xlarge uneditable-input" 
-                  id="sp_display_cash"></span>
+                  id="bp_display_cash"></span>
               </div>
             </td>
-            <%= hidden_field_tag 'smf_cash',
+            <%= hidden_field_tag 'bmf_cash',
                 '' %>
           </tr>
           
@@ -66,8 +69,8 @@
           <tr>
             <td>From Savings</td>
             <td><span class="input-xlarge uneditable-input" 
-                id="sp_display_savings_withdrawal"></span></td>
-            <%= hidden_field_tag 'smf_savings_withdrawal',
+                id="bp_display_savings_withdrawal"></span></td>
+            <%= hidden_field_tag 'bmf_savings_withdrawal',
                 '' %>
           </tr>
           
@@ -75,16 +78,16 @@
           <tr>
             <td><b>Balance</b></td>
             <td><b><span class="input-xlarge uneditable-input"
-              id="sp_display_balance"></span></b></td>
-            <%= hidden_field_tag 'smf_balance',
+              id="bp_display_balance"></span></b></td>
+            <%= hidden_field_tag 'bmf_balance',
                 '' %>
           </tr>
           
           
           <tr>
             <td colspan="2" style="text-align:center;">
-              <button href="#" class="btn btn-primary" id="pay_and_save_balance">
-                Pay and Save Excess $$
+              <button href="#" class="btn btn-primary" id="pay_backlog_and_save_balance">
+                Pay and Save Balance
               </button>
             </td>
           </tr>
@@ -111,7 +114,7 @@
           <tr>
             <td>Total Savings</td>
             <td id="total_principal"><%= print_money(member.total_savings)%> </td>
-            <%= hidden_field_tag 'sp_total_savings_amount',
+            <%= hidden_field_tag 'bp_total_savings_amount',
                 member.total_savings.to_i %>
           </tr>
       </tbody>
@@ -127,11 +130,13 @@
          
           <%= hidden_field_tag 'basic_weekly_payment_amount',
               group_loan_product.total_weekly_payment.to_i %>
+          <%= hidden_field_tag 'total_backlog_weeks_payable',
+              member.total_backlog_payments_for_group_loan(group_loan)  %>
           <tr>
             <td><b>Cash</b></td>
             <td id="total_cash">
               <div class="input-append">
-                <input type="text" size="16"  class="span8" id="sp_calc_cash" >
+                <input type="text" size="16"  class="span8" id="bp_calc_cash" >
               </div>
             </td>
           </tr>
@@ -140,7 +145,7 @@
             <td><b>Duration</b></td>
             <td id="calculator_duration">
               <div class="input-append">
-                <input type="text" size="16"  class="span5" id="sp_calc_weeks" >
+                <input type="text" size="16"  class="span5" id="bp_calc_weeks" >
                 <span class="add-on">weeks</span>
               </div>
             </td>
@@ -148,13 +153,13 @@
          
           <tr>
             <td><b>Savings Withdrawal</b></td>
-            <td> <input type="text" size="16"  class="span8" id="sp_calc_savings_withdraw"> </td>
+            <td> <input type="text" size="16"  class="span8" id="bp_calc_savings_withdraw"> </td>
           </tr>
           
           <tr>
             <td colspan="2" style="text-align:center;">
               <button href="#" class="btn btn-primary"
-               id="sp_simulate_structured_payment">Simulate</button>
+               id="bp_simulate_structured_payment">Simulate</button>
             </td>
           </tr>
           

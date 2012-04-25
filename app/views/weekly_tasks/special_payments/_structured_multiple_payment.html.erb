@@ -84,7 +84,7 @@
           <tr>
             <td colspan="2" style="text-align:center;">
               <button href="#" class="btn btn-primary" id="pay_and_save_balance">
-                Pay and Save Excess $$
+                Pay and Save Balance
               </button>
             </td>
           </tr>
@@ -127,6 +127,8 @@
          
           <%= hidden_field_tag 'basic_weekly_payment_amount',
               @group_loan_product.total_weekly_payment.to_i %>
+          <%= hidden_field_tag 'total_payable_weeks',
+              (@group_loan_product.total_weeks - @weekly_task.week_number + 1 ) %>
           <tr>
             <td><b>Cash</b></td>
             <td id="total_cash">
