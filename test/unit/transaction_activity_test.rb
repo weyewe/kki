@@ -13,4 +13,7 @@ class TransactionActivityTest < ActiveSupport::TestCase
   # http://jamesmead.org/talks/2007-07-09-introduction-to-mock-objects-in-ruby-at-lrug/
   # and i am not sure about testing with each test case
   # it seems that at this point, we will have to learn unit test, or at least rspec, unit testing.. T__T
+  # http://everydayrails.com/2011/01/11/beginning-rails-testing.html
+  
+  # we can't get wrong on this financial data. fuck my life T___T 
 end
