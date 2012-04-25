@@ -81,15 +81,41 @@ class TransactionActivitiesController < ApplicationController
   end
   
   def create_backlog_payment
-    # @member = Member.find params[:member_id]
-    #   @group_loan = GroupLoan.find params[:group_loan_id] 
-    #   
-    #   
-    #   @transaction_activity = TransactionActivity.create_backlog_payment(
-    #     @member,
-    #     @group_loan,
-    #   )
-    #   
+    
+    
+    # {
+    #     "utf8"=>"✓", 
+    #     "authenticity_token"=>"JfsFeTvGuh/VqYMm+ikD+8TOS7Jx2CJr6yNV5M0/jSo=", 
+    #     "member_id"=>"2", 
+    #     "group_loan_id"=>"1", 
+    #     "bmf_weeks"=>"1", 
+    #     "bmf_cash"=>"50000", 
+    #     "bmf_savings_withdrawal"=>"5000", 
+    #     "bmf_balance"=>"23000",
+    #     "method"=>:post
+    #   }
+    
+    
+    @member = Member.find params[:member_id]
+    @group_loan = GroupLoan.find params[:group_loan_id]
+
+    cash = BigDecimal.new( params[:bmf_cash] )
+    savings_withdrawal = BigDecimal.new( params[:bmf_savings_withdrawal] )
+    number_of_weeks = params[:bmf_weeks].to_i
+
+    @transaction_activity = TransactionActivity.create_backlog_payments(
+      @member,
+      @group_loan,
+      current_user,
+      cash,
+      savings_withdrawal,
+      number_of_weeks
+    )
+    # 
+    
+ 
+    
+    
   end
   
   

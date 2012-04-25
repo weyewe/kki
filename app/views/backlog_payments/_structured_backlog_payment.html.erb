@@ -131,7 +131,7 @@
           <%= hidden_field_tag 'basic_weekly_payment_amount',
               group_loan_product.total_weekly_payment.to_i %>
           <%= hidden_field_tag 'total_backlog_weeks_payable',
-              member.total_backlog_payments_for_group_loan(group_loan)  %>
+              uncleared_backlog_payments.count  %>
           <tr>
             <td><b>Cash</b></td>
             <td id="total_cash">

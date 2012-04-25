@@ -2,8 +2,8 @@
 
 <tr>
   <td><%= member.name %></td>
-  <td><%= backlog_payments_for_member.count %></td>
-  <td><%= backlog_payments_for_member.delete_if{|x| x.is_cleared == false }.count  %></td>
+  <td><%= total_backlog_payments_for_member  %></td>
+  <td><%= total_cleared_backlog_payments_for_member  %></td>
   <td>
     
     <%= link_to "Pay Backlog", pay_backlog_for_group_loan_url(group_loan, member), 

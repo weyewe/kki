@@ -28,13 +28,10 @@
           <% if backlog_payments_for_member.count > 0  %>
             <%= render :partial => "backlog_payments/backlog_index_entry", :locals => {
               :member  => member, 
-              :backlog_payments_for_member => backlog_payments_for_member, 
+              :total_backlog_payments_for_member => member.backlog_payments_for_group_loan(@group_loan).count , 
+              :total_cleared_backlog_payments_for_member => member.cleared_backlog_payments_for_group_loan(@group_loan).count ,
               :group_loan => @group_loan  
               }  %>
-          <% else %>
-          <tr>
-              Nothing to see here. <%= backlog_payments_for_member.count %>
-          </tr>
           <% end %>
         <% end %>
 

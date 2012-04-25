@@ -84,10 +84,13 @@ TRANSACTION_CASE = {
   # backlog payment 
   :single_backlog_payment_exact_amount => 51, # has to be paid in full
   :single_backlog_payment_extra_savings => 52,
-  :single_backlog_payment_using_savings => 53, 
-  :multiple_backlog_payment_exact_amount => 54,
-  :multiple_backlog_payment_extra_savings => 55,
-  :multiple_backlog_payment_using_savings => 56, 
+  :single_backlog_payment_soft_savings_withdrawal => 53, 
+  :single_backlog_payment_soft_savings_withdrawal_extra_savings => 54, 
+  
+  :multiple_backlog_payment_exact_amount => 55,
+  :multiple_backlog_payment_extra_savings => 56,
+  :multiple_backlog_payment_soft_savings_withdrawal => 57, 
+  :multiple_backlog_payment_soft_savings_withdrawal_extra_savings => 58, 
   
   # all transaction from the company to the member
   :loan_disbursement_no_setup_payment_deduction => 100,

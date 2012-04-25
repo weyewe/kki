@@ -1,7 +1,7 @@
 <div class="span9 content">
   <%= create_guide("Backlog Payment", 
         "Backlog Payment for : <b>#{@member.name}</b>" + "<br />" + 
-        "Number of backlogs weeks-payable: <b>#{@backlog_payments.count}</b>" + "<br />" ).html_safe %>
+        "Number of backlogs weeks-payable: <b>#{@uncleared_backlog_payments.count}</b>" + "<br />" ).html_safe %>
         
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
@@ -30,7 +30,8 @@
     <%= render :partial => "backlog_payments/structured_backlog_payment", :locals => {
       :member => @member,
       :group_loan_product => @group_loan_product,
-      :group_loan => @group_loan 
+      :group_loan => @group_loan ,
+      :uncleared_backlog_payments => @uncleared_backlog_payments
     } %>
     <%#= render :partial => "weekly_tasks/special_payments/structured_multiple_payment" %>
     <%#= render :partial => "weekly_tasks/special_payments/no_payment" %>

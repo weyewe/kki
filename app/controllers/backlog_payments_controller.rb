@@ -12,6 +12,7 @@ class BacklogPaymentsController < ApplicationController
     @member = Member.find_by_id params[:member_id]
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @backlog_payments = @member.backlog_payments_for_group_loan( @group_loan)
+    @uncleared_backlog_payments = @member.uncleared_backlog_payments_for_group_loan( @group_loan)
     @group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
       :member_id => @member.id,
       :group_loan_id => @group_loan.id 

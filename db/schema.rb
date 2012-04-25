@@ -25,7 +25,8 @@ ActiveRecord::Schema.define(:version => 20120403091043) do
     t.integer  "weekly_task_id"
     t.integer  "member_payment_id"
     t.integer  "member_id"
-    t.boolean  "is_cleared",        :default => false
+    t.boolean  "is_cleared",                    :default => false
+    t.integer  "backlog_cleared_declarator_id"
     t.integer  "backlog_type"
     t.datetime "created_at"
     t.datetime "updated_at"

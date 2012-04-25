@@ -4,4 +4,13 @@ class TransactionActivityTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end
+  
+  # This is the shit. we have to test the transaction activity.
+  # if it is not tested, it is broken! 
+  # however, we need other object to play with this, such as member, group_loan, group_loan_product
+  # how can we do it? FUCK!
+  # http://www.ibm.com/developerworks/web/library/wa-mockrails/index.html
+  # http://jamesmead.org/talks/2007-07-09-introduction-to-mock-objects-in-ruby-at-lrug/
+  # and i am not sure about testing with each test case
+  # it seems that at this point, we will have to learn unit test, or at least rspec, unit testing.. T__T
 end
