@@ -230,6 +230,10 @@ module ApplicationHelper
       return create_process_nav(LOAN_OFFICER_PROCESS_LIST, params )
     end
     
+    if symbol == :group_management
+      return create_process_nav(GROUP_MANAGEMENT_PROCESS_LIST, params )
+    end
+    
     if symbol == :cashier
       return create_process_nav(CASHIER_PROCESS_LIST, params )
     end
@@ -377,20 +381,6 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Assign Member to GroupLoan",
-        :destination_link => 'select_group_loan_to_assign_member_url',
-        :conditions => [
-          {
-            :controller => 'group_loans',
-            :action => 'select_group_loan_to_assign_member'
-          },
-          {
-            :controller => "group_loan_memberships",
-            :action => "new"
-          }
-        ]
-      },
-      {
         :title => "Assign GroupLoanProduct",
         :destination_link => 'select_group_loan_to_group_loan_product_url',
         :conditions => [
@@ -411,6 +401,56 @@ module ApplicationHelper
           {
             :controller => "group_loans",
             :action => "select_group_loan_for_finalization"
+          }
+        ]
+      }
+    ]
+  }
+  
+  GROUP_MANAGEMENT_PROCESS_LIST = {
+    :header_title => "Group Member Management",
+    :processes => [
+      {
+        :title => "Assign Member to GroupLoan",
+        :destination_link => 'select_group_loan_to_assign_member_url',
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_assign_member'
+          },
+          {
+            :controller => "group_loan_memberships",
+            :action => "new"
+          }
+        ]
+      },
+      {
+        :title => "Select Group Leader",
+        :destination_link => 'root_url',
+        :conditions => [
+          {
+            :controller => '',
+            :action => ''
+          }
+        ]
+      },
+      {
+        :title => "Create SubGroup",
+        :destination_link => 'root_url',
+        :conditions => [
+          {
+            :controller => '',
+            :action => ''
+          }
+        ]
+      },
+      {
+        :title => "Select Sub Group Leader",
+        :destination_link => 'root_url',
+        :conditions => [
+          {
+            :controller => '',
+            :action => ''
           }
         ]
       }

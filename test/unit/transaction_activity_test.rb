@@ -16,4 +16,5 @@ class TransactionActivityTest < ActiveSupport::TestCase
   # http://everydayrails.com/2011/01/11/beginning-rails-testing.html
   
   # we can't get wrong on this financial data. fuck my life T___T 
+  # http://stackoverflow.com/questions/5255506/good-tutorial-for-rspec-with-rails-3
 end

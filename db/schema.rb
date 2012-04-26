@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120403091043) do
+ActiveRecord::Schema.define(:version => 20120426143458) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
@@ -74,6 +74,7 @@ ActiveRecord::Schema.define(:version => 20120403091043) do
     t.boolean  "has_received_loan_disbursement",                                 :default => false
     t.integer  "loan_disburser_id"
     t.boolean  "deduct_setup_payment_from_loan",                                 :default => false
+    t.integer  "sub_group_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -211,6 +212,14 @@ ActiveRecord::Schema.define(:version => 20120403091043) do
     t.integer  "saving_entry_code"
     t.integer  "saving_action_type"
     t.decimal  "amount",             :precision => 11, :scale => 2, :default => 0.0
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "sub_groups", :force => true do |t|
+    t.integer  "group_loan_id"
+    t.integer  "sub_group_leader_id"
+    t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

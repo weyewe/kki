@@ -26,6 +26,7 @@ class CreateGroupLoanMemberships < ActiveRecord::Migration
       
       
       t.boolean :deduct_setup_payment_from_loan , :default => false 
+      t.integer :sub_group_id 
       
       
       # if the member has no sufficient $$ to pay for weekly payment

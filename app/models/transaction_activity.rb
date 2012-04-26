@@ -115,6 +115,7 @@ class TransactionActivity < ActiveRecord::Base
     new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:outward]
     new_hash[:loan_type] = LOAN_TYPE[:group_loan]
     new_hash[:loan_id] = group_loan_membership.group_loan_id
+    
     transaction_activity = TransactionActivity.create new_hash 
     
     # this entries will be different, if the setup payment is paid using the loan 
@@ -156,6 +157,8 @@ class TransactionActivity < ActiveRecord::Base
     new_hash[:office_id] = current_user.active_job_attachment.office.id
     new_hash[:member_id] = member.id
     new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward]
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
 
     transaction_activity = TransactionActivity.create new_hash 
     transaction_activity.create_only_savings_payment_entry(savings_amount, current_user, member )
@@ -182,6 +185,8 @@ class TransactionActivity < ActiveRecord::Base
     new_hash[:office_id] = current_user.active_job_attachment.office.id
     new_hash[:member_id] = member.id
     new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward]
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
     
     transaction_activity = TransactionActivity.create new_hash 
     transaction_activity.create_basic_payment_entries(group_loan_product, current_user, member )
@@ -247,6 +252,8 @@ class TransactionActivity < ActiveRecord::Base
     new_hash[:creator_id] = current_user.id 
     new_hash[:office_id] = current_user.active_job_attachment.office.id
     new_hash[:member_id] = member.id
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
     
     transaction_activity = TransactionActivity.create new_hash 
     transaction_activity.create_structured_multi_payment_entries(
@@ -323,6 +330,8 @@ class TransactionActivity < ActiveRecord::Base
    new_hash[:creator_id] = current_user.id 
    new_hash[:office_id] = current_user.active_job_attachment.office.id
    new_hash[:member_id] = member.id
+   new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+   new_hash[:loan_id] = group_loan_membership.group_loan_id
    
    transaction_activity = TransactionActivity.create new_hash 
    

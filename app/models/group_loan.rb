@@ -6,6 +6,8 @@ class GroupLoan < ActiveRecord::Base
   has_many :group_loan_memberships
   has_many :members, :through => :group_loan_memberships
   
+  has_many :sub_groups
+  
   has_many :weekly_tasks
   has_many :backlog_payments 
   

@@ -2,6 +2,8 @@ class GroupLoanMembership < ActiveRecord::Base
   belongs_to :member
   belongs_to :group_loan
   
+  belongs_to :sub_group 
+  
   
   has_many :weekly_attendances
   has_many :weekly_payments 
