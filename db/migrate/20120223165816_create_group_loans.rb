@@ -49,6 +49,8 @@ class CreateGroupLoans < ActiveRecord::Migration
       # 50 members.. if  1 is borrowing 2 mi -> 100 mi
       
       
+      # the group_leader 
+      t.integer :group_leader_id 
       
       # the business logic => group members has to be in the same commune id 
       t.integer :commune_id

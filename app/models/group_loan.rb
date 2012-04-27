@@ -22,7 +22,8 @@ class GroupLoan < ActiveRecord::Base
                   :is_setup_fee_collection_approved, :setup_fee_collection_approver_id, # approval by cashier
                   :is_loan_disbursement_done, :loan_disburser_id,
                   :aggregated_principal_amount, :aggregated_interest_amount,
-                  :total_default, :default_creator_id 
+                  :total_default, :default_creator_id ,
+                  :group_leader_id
                   
   
   
@@ -319,7 +320,33 @@ class GroupLoan < ActiveRecord::Base
     self.backlog_payments.where(:is_cleared => true ).count
   end
   
+=begin
+  Group Loan Management
+=end
+
+  def group_leader
+    if self.group_leader_id.nil?
+      return nil
+    else
+      Member.find_by_id( self.group_leader_id )
+    end
+  end
   
+  
+  def set_group_leader( member)
+    self.group_leader_id = member.id
+    self.save 
+  end
+  
+  def remove_group_leader
+    self.group_leader_id = nil
+    self.save
+  end
+  
+  
+  def unassigned_members_to_sub_group
+    self.group_loan_memberships.where(:sub_group_id => nil )
+  end
  
   
   

@@ -120,6 +120,7 @@ ActiveRecord::Schema.define(:version => 20120426143458) do
     t.integer  "default_creator_id"
     t.decimal  "aggregated_principal_amount",       :precision => 11, :scale => 2, :default => 0.0
     t.decimal  "aggregated_interest_amount",        :precision => 10, :scale => 2, :default => 0.0
+    t.integer  "group_leader_id"
     t.integer  "commune_id"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -219,7 +220,7 @@ ActiveRecord::Schema.define(:version => 20120426143458) do
   create_table "sub_groups", :force => true do |t|
     t.integer  "group_loan_id"
     t.integer  "sub_group_leader_id"
-    t.string   "name"
+    t.integer  "number"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

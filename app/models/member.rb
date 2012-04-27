@@ -52,6 +52,10 @@ class Member < ActiveRecord::Base
       :group_loan_id => group_loan.id 
       }).nil?
   end
+  
+  def is_sub_group_group_loan_member?(group_loan_membership , sub_group)
+    group_loan_membership == sub_group.id 
+  end
 
 
   def get_group_loan_product_for(group_loan)

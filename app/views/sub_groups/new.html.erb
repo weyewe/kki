@@ -1,0 +1,128 @@
+
+<div class="span9 content">
+  <%= create_guide("Create Sub Group", 
+        "For Group Loan: <b>#{@group_loan.name}</b> " + "<br />"   + 
+        "Total Members: <b>#{@group_loan.members.count}</b>"   + "<br />" + 
+        "Total Subgroups: <b>#{@group_loan.sub_groups.count}</b>" ).html_safe %>
+  
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <% if flash[:notice] %>
+    <div class="alert alert-success">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Well done!</strong> <%= flash[:notice].html_safe %>
+    </div>
+  <% end %>
+  
+  <% if flash[:error] %>
+    <div class="alert alert-error">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Create Failure!</strong> Please fill in all fields.
+    </div>
+  <% end %>
+  
+  
+  <div class="row-fluid">
+    <div class="span8">
+      
+      <h2>New Group Loan details</h2><br />
+
+ 
+  
+      <%= form_for [@group_loan, @new_sub_group_loan]  ,:url => group_loan_sub_groups_url(@group_loan) , 
+        :html => {:class => "form-horizontal"} do |f| %>
+        <div class="control-group">
+          <%= f.label :title, "SubGroups" %>
+          <div class="controls">
+            <%#= f.text_field :title, :class=>"input-xlarge" %>
+            <%#= f.time_zone_select :time_zone %>
+            <%= select_tag "total_sub_groups", 
+              select_total_subgroups_to_be_created( @group_loan ).html_safe %>
+            <!-- <p class="help-block">Masukkan kode kelas.</p> -->
+          </div>
+        </div>
+        
+        
+        
+        
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Create Sub Groups</button>
+        </div>
+      <% end %>
+      
+     
+      
+    </div>
+    
+    <div class="span4">
+      
+      <% if @group_loan.sub_groups.count == 0 %>
+      <table cellpadding="0" cellspacing="0" border="0" 
+          class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th style="text-align:center;">No Sub Groups</th>
+          </tr>
+        </thead>
+      </table>
+      <% else %>
+      
+        <table cellpadding="0" cellspacing="0" border="0" 
+            class="table table-striped table-bordered">
+          <tbody>
+            <tr>
+              <td><b>Members without subgroup</b></td>
+              <td><%= @group_loan.unassigned_members_to_sub_group.count %></td>
+            </tr>
+          </tboy>
+        </table>
+        
+     
+              
+              
+        <table cellpadding="0" cellspacing="0" border="0" 
+              class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th colspan="1" style="text-align:center;">
+              SubGroup Name
+            </th>
+            <th colspan="1" style="text-align:center;">
+              Total Member
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+            <% @sub_groups.each do |sub_group| %>
+              <tr>
+                <td>
+                  <%= "SubGroup-#{sub_group.number}"%>
+                </td>
+                <td>
+                  <%= sub_group.group_loan_memberships.count %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </div> 
+      
+  </div><!--/row-->
+   <hr />
+
+</div><!--/span-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

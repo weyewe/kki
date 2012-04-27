@@ -1,0 +1,51 @@
+
+<div class="span9 content">
+  <%= create_guide("Select Group Leader",  
+        "Group: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "Total SubGroups: <b>#{@sub_groups.count}</b> ").html_safe %>
+  
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  
+  
+   
+  <div class="row-fluid">
+    <div id="data_list">
+      <table cellpadding="0" cellspacing="0" border="0" 
+            class="table table-striped table-bordered" id="example">
+        <thead>
+          <tr>
+            <th>Nama Group</th>
+            <th>Total Member</th>
+            <th>Total Sub Group</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @sub_groups.each do |sub_group| %>
+            <tr>
+              <td><%= link_to "SubGroup-#{sub_group.number}", select_sub_group_to_pick_leader_url( @group_loan) %></td>
+              <td><%= sub_group.group_loan_memberships.count %></td>
+              <td><%=  extract_member_name( sub_group.leader )%></td>
+            </tr>
+          <% end %>
+
+        </tbody>
+      </table>
+    </div><!-- end of #data_list -->
+  </div>
+
+</div><!--/span-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

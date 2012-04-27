@@ -22,6 +22,7 @@ Debita46::Application.routes.draw do
     resources :group_loan_memberships
     resources :group_loan_subcriptions
     resources :backlog_payments 
+    resources :sub_groups
   end
   resources :group_loan_memberships
   resources :group_loan_subcriptions
@@ -40,6 +41,25 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_to_group_loan_product' => "group_loans#select_group_loan_to_group_loan_product", :as => :select_group_loan_to_group_loan_product
   match 'select_group_loan_for_finalization' => "group_loans#select_group_loan_for_finalization", :as => :select_group_loan_for_finalization
   match 'execute_propose_finalization' => "group_loans#execute_propose_finalization", :as => :execute_propose_finalization, :method => :post 
+
+# select group loan leader
+  match 'select_group_loan_to_select_group_leader' => "group_loans#select_group_loan_to_select_group_leader", :as => :select_group_loan_to_select_group_leader
+  match 'select_group_leader_from_member/:group_loan_id' => "group_loans#select_group_leader_from_member", :as => :select_group_leader_from_member
+  match 'execute_select_group_leader' => "group_loans#execute_select_group_leader", :as => :execute_select_group_leader, :method => :post 
+  
+
+  
+# select group loan to create subgroup 
+  match 'select_group_loan_to_create_sub_group' => "group_loans#select_group_loan_to_create_sub_group", :as => :select_group_loan_to_create_sub_group
+
+# assign member to the sub group 
+  match 'select_group_loan_to_assign_member_to_sub_group' => "group_loans#select_group_loan_to_assign_member_to_sub_group", :as => :select_group_loan_to_assign_member_to_sub_group
+  match 'select_sub_group_from/:group_loan_id/to_assign_members' => "sub_groups#select_sub_group_to_assign_members", :as => :select_sub_group_to_assign_members
+  match 'assign_member_to_sub_group/:sub_group_id' => "sub_groups#assign_member_to_sub_group", :as => :assign_member_to_sub_group
+
+# select sub_group_leader  
+match 'select_sub_group_from/:group_loan_id/to_select_leader' => "sub_groups#select_sub_group_to_pick_leader", :as => :select_sub_group_to_pick_leader
+
 
 =begin
   Branch Manager Routes

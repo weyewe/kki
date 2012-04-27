@@ -26,8 +26,37 @@ module ApplicationHelper
   }
   
   
+
   
+=begin
+  Group Member management 
+=end  
+
+  def select_total_subgroups_to_be_created(group_loan)
+    array = ""
+   
+    
+    (1..10).each do |sub_groups_count|
+      if group_loan.sub_groups.count == sub_groups_count
+        array << "<option value='#{sub_groups_count}' selected='selected'>#{sub_groups_count} </option>"
+      else
+        array << "<option value='#{sub_groups_count}'>#{sub_groups_count} </option>"
+      end
+    end
   
+    return array
+  end
+
+
+
+  def extract_member_name(member)
+    if member.nil? 
+      return "--"
+    else
+      member.name 
+    end
+  end
+
 =begin
   For printing the transaction entry details 
 =end
@@ -426,21 +455,47 @@ module ApplicationHelper
       },
       {
         :title => "Select Group Leader",
-        :destination_link => 'root_url',
+        :destination_link => 'select_group_loan_to_select_group_leader_url',
         :conditions => [
           {
-            :controller => '',
-            :action => ''
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_select_group_leader'
+          },
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_leader_from_member'
           }
         ]
       },
       {
         :title => "Create SubGroup",
-        :destination_link => 'root_url',
+        :destination_link => 'select_group_loan_to_create_sub_group_url',
         :conditions => [
           {
-            :controller => '',
-            :action => ''
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_create_sub_group'
+          },
+          {
+            :controller => "sub_groups",
+            :action => "new"
+          }
+        ]
+      },
+      {
+        :title => "Assign Member to Subgroup",
+        :destination_link => 'select_group_loan_to_assign_member_to_sub_group_url',
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_assign_member_to_sub_group'
+          },
+          {
+            :controller => "sub_groups",
+            :action => "select_sub_group_to_assign_members"
+          },
+          {
+            :controller => "sub_groups",
+            :action => "assign_member_to_sub_group"
           }
         ]
       },

@@ -1,0 +1,117 @@
+
+<div class="span9 content">
+  <%= create_guide("Member -> SubGroup", 
+        "Group Loan ID: <b>#{@group_loan.name}</b>" + "<br />" +
+        "<b>SubGroup-#{@sub_group.number}</b>" + "<br />" + 
+        "Total SubGroup Member: <b>#{@sub_group.group_loan_memberships.count}</b>"   ).html_safe %>
+  
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  
+  <!-- <hr /> -->
+  
+  
+  <div class="row-fluid">
+    <!-- <div class="span12"> -->
+      
+      <table cellpadding="0" cellspacing="0" border="0" 
+            class="table table-striped table-bordered" id="example">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Current SubGroup</th>
+            <th>Assign to SubGroup-<%= @sub_group.number %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @members.each do |member| %>
+            <% group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+              :group_loan_id => @group_loan.id,
+              :member_id => member.id
+            }) %>
+            <tr>
+              <td class="user-nim"><%= member.name %></td>
+              <td><%= member.address %></td>
+              
+              <td id='<%= "current_group_loans_provider_#{@sub_group.id}-consumer_#{member.id}" %>'>
+                <% if group_loan_membership.sub_group.nil? %>
+                  <span class="label">No SubGroup</span>
+                <% elsif group_loan_membership.sub_group_id == @sub_group.id %>
+                  <span class="label label-success">SubGroup-<%= @sub_group.number %></span>
+                <% else %>
+                  <span class="label label-info">SubGroup-<%= group_loan_membership.number %></span>
+                <% end %>
+              </td>
+       
+              <td class="well">
+                <label class="checkbox">
+                  
+                  <% checkbox_value = member.is_sub_group_group_loan_member?(group_loan_membership, @sub_group) %>
+             
+                  <%= check_box_tag 'is_checked', get_checkbox_value(checkbox_value )   , 
+                      checkbox_value, :class => 'checkbox_tracker', 
+                      :id => "provider_#{@group_loan.id}-consumer_#{member.id}" %> Assigned
+                </label>
+
+              </td>
+            </tr>
+          <% end %>
+
+
+         
+        </tbody>
+      </table>
+      
+      
+      
+      <div class=" hidden" id="checkbox_form_wrapper">
+        <%= form_for GroupLoanMembership.new, :url =>group_loan_memberships_url   do |f| %>
+          <%= hidden_field_tag 'membership_provider' , ''  %>
+          <%= hidden_field_tag 'membership_consumer', '' %>
+          <%= hidden_field_tag 'membership_decision', '' %>
+        <% end %>
+      </div>
+      <!-- <div class="alert alert-success allert-message">
+             <a class="close" href="#">&times;</a>
+             <strong>Well done!</strong> You successfully read this important alert message.
+           </div>
+
+           
+           <div class="form-actions">
+             <%#= hidden_field_tag 'destination_url', 
+                     group_group_memberships_url(@group) ,
+                      :id => "destination_url" %>
+
+             <button class="btn btn-large btn-primary"
+                   type="submit" id="save_button">Save changes</button>
+           </div> -->
+     
+
+     <div class="modal" id="myModal" style="display:none;">
+       <div class="modal-header">
+         <a class="close" data-dismiss="modal">×</a>
+         <h3>Modal header</h3>
+       </div>
+       <div class="modal-body">
+         <p>One fine body…</p>
+       </div>
+       <div class="modal-footer">
+         <a href="#" class="btn modal-closer">Close</a>
+         <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
+       </div>
+     </div>
+        
+      
+    <!-- </div> -->   <!--/span12-->
+  </div><!--/row-->
+
+</div><!--/span-->
+
+
+
+
+
+
+
+
+
