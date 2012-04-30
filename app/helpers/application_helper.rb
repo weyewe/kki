@@ -378,6 +378,26 @@ module ApplicationHelper
             :action => "select_started_group_loan_to_be_managed"
           }
         ]
+      },
+      {
+        :title => "Declare Default Loan",
+        :destination_link => "root_url",
+        :conditions => [
+          {
+            :controller => '',
+            :action => ''
+          }
+        ]
+      },
+      {
+        :title => "Close Group Loan",
+        :destination_link => "root_url",
+        :conditions => [
+          {
+            :controller => '',
+            :action => ''
+          }
+        ]
       }
     ]
   }
@@ -510,6 +530,10 @@ module ApplicationHelper
           {
             :controller => "sub_groups",
             :action => "select_sub_group_to_pick_leader"
+          },
+          {
+            :controller => "sub_groups",
+            :action => "select_sub_group_leader_from_sub_group"
           }
         ]
       }

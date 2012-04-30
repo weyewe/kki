@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120426143458) do
+ActiveRecord::Schema.define(:version => 20120430151312) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
@@ -51,6 +51,16 @@ ActiveRecord::Schema.define(:version => 20120426143458) do
   create_table "communes", :force => true do |t|
     t.string   "number"
     t.integer  "village_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "default_payments", :force => true do |t|
+    t.integer  "group_loan_membership_id"
+    t.decimal  "amount_subgroup_share",    :precision => 10, :scale => 2, :default => 0.0
+    t.decimal  "amount_group_share",       :precision => 10, :scale => 2, :default => 0.0
+    t.decimal  "amount_paid",              :precision => 10, :scale => 2, :default => 0.0
+    t.boolean  "is_defaultee",                                            :default => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

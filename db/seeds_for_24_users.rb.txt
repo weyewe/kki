@@ -168,6 +168,9 @@ cashier = User.create :email => "cashier@gmail.com", :password => "willy1234",
 
 field_worker = User.create :email => "field_worker@gmail.com", :password => "willy1234",
                   :password_confirmation => "willy1234"# , :office_id => cilincing_office.id
+                  
+field_worker_2 = User.create :email => "field_worker_2@gmail.com", :password => "willy1234",
+                  :password_confirmation => "willy1234"# , :office_id => cilincing_office.id
       
 puts "Done creating user. Gonna create job_attachment"            
 =begin
@@ -186,6 +189,9 @@ cashier_job_attachment = JobAttachment.create(:office_id => cilincing_office.id,
 # cilincing_office.users << field_worker 
 field_worker_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
               :user_id => field_worker.id, :is_active => true )
+              
+field_worker_2_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+              :user_id => field_worker_2.id, :is_active => true )
 
 
 
@@ -208,6 +214,9 @@ cashier_job_attachment.save
 field_worker_job_attachment.roles << field_worker_role
 field_worker_job_attachment.save
 
+field_worker_2_job_attachment.roles << field_worker_role
+field_worker_2_job_attachment.save
+
 puts "Done adding roles to the JobAttachment"
 
 
@@ -216,24 +225,24 @@ puts "Done adding roles to the JobAttachment"
     group loan product 
 =end
 puts "the first"
-group_loan_product_a = GroupLoanProduct.create :principal => 500000, 
-                                  :interest => 200000, 
-                                  :min_savings => 8000, :total_weeks => 2 ,
+group_loan_product_a = GroupLoanProduct.create :principal => 20000, 
+                                  :interest => 4000, 
+                                  :min_savings => 8000, :total_weeks => 3 ,
                                   :admin_fee => 25000, :initial_savings => 15000,
                                   :creator_id => branch_manager.id ,
                                   :office_id => cilincing_office.id
 puts "the second"
-group_loan_product_b = GroupLoanProduct.create :principal => 1000000, 
-                                  :interest => 20000, 
-                                  :min_savings => 8000, :total_weeks => 2 ,
+group_loan_product_b = GroupLoanProduct.create :principal => 25000, 
+                                  :interest => 3000, 
+                                  :min_savings => 8000, :total_weeks => 3 ,
                                   :admin_fee => 25000, :initial_savings => 20000,
                                   :creator_id => branch_manager.id,
                                   :office_id => cilincing_office.id 
                                   
 puts "The third"
-group_loan_product_c = GroupLoanProduct.create :principal => 1500000, 
-                                   :interest => 300000, 
-                                   :min_savings => 8000, :total_weeks => 2 ,
+group_loan_product_c = GroupLoanProduct.create :principal => 40000, 
+                                   :interest => 1000, 
+                                   :min_savings => 8000, :total_weeks => 3 ,
                                    :admin_fee => 25000, :initial_savings => 50000,
                                    :creator_id => branch_manager.id ,
                                    :office_id => cilincing_office.id
@@ -254,14 +263,12 @@ puts "done creating loan product"
 first_village = Village.first
 commune       = first_village.communes.first
 
-# puts "create the group loan"
-# first_group_loan = GroupLoan.create  :commune_id => commune.id, 
-#               :creator_id => loan_officer.id
-# 
-# puts "create 2 sub groups "
-# SubGroup.set_sub_groups( first_group_loan , 2)
-#   # auto create group name 
-# puts "create the member"
+puts "create the group loan"
+first_group_loan = GroupLoan.create  :commune_id => commune.id, 
+              :creator_id => loan_officer.id
+              
+  # auto create group name 
+puts "create the member"
 
 
 first_member = Member.create :name => "Tuti Astuti", 
@@ -291,7 +298,17 @@ fourth_member = Member.create :name => "Jimmy Wales",
               :address => "Jalan Tikus Gang 33252 no 59",
               :creator_id => loan_officer.id,
               :office_id => cilincing_office.id
-              
+       
+member_hash = {}       
+(1..24).each do |x|
+  member_hash[x] = Member.create :name => "Member #{x}", 
+                :id_card_no => "1233435253#{x}",  :village_id => first_village.id,
+                :commune_id => commune.id, :neighborhood_no => x,
+                :address => "Jalan Tikus Gang 33252 no 55 #{x}",
+                :creator_id => loan_officer.id,
+                :office_id => cilincing_office.id
+end            
+  
 puts "DONe creating the member"
 
 =begin
@@ -304,6 +321,11 @@ puts "DONe creating the member"
 # first_group_loan.members << first_member
 # first_group_loan.members << second_member
 # first_group_loan.members << third_member
+# first_group_loan.save
+
+# member_hash.each do |key, member|
+#   first_group_loan.members << member_hash[key]
+# end
 # first_group_loan.save
 
 puts "Done assigning member to the group"
@@ -341,33 +363,28 @@ group_loan = GroupLoan.create :commune_id => first_member.commune_id , :name => 
       :creator_id => branch_manager.id ,
       :office_id => cilincing_office.id
 
-puts "Gonna create the  2 sub_groups from group_loan"
-SubGroup.set_sub_groups( group_loan,  2 )
-sub_group_first = SubGroup.first
-sub_group_second = SubGroup.last 
-
 puts "Gonna create the GroupLoanMembership"
-first_membership = GroupLoanMembership.create_membership( loan_officer, first_member, group_loan)
-puts "The first Membership #{first_membership}"
-first_membership.sub_group_id = sub_group_first.id
-first_membership.save 
-second_membership = GroupLoanMembership.create_membership( loan_officer, second_member, group_loan)
-second_membership.sub_group_id = sub_group_first.id
-second_membership.save
 
+group_loan_membership_hash = {}
+member_hash.each do |key, member|
+  group_loan_membership_hash[key]  = GroupLoanMembership.create_membership( loan_officer, member_hash[key], group_loan)
+end
 
-third_membership = GroupLoanMembership.create_membership( loan_officer, third_member, group_loan)
-third_membership.sub_group_id = sub_group_second.id
-third_membership.save
+# 
+# first_membership = GroupLoanMembership.create_membership( loan_officer, first_member, group_loan)
+# second_membership = GroupLoanMembership.create_membership( loan_officer, second_member, group_loan)
+# third_membership = GroupLoanMembership.create_membership( loan_officer, third_member, group_loan)
+# fourth_membership = GroupLoanMembership.create_membership( loan_officer, fourth_member, group_loan)
 
-fourth_membership = GroupLoanMembership.create_membership( loan_officer, fourth_member, group_loan)
-fourth_membership.sub_group_id = sub_group_second.id
-fourth_membership.save
 
 puts " Gonna create the group_loan_subcription "
-first_subcription = GroupLoanSubcription.create_or_change( group_loan_product_1.id,  first_membership.id )
-second_subcription = GroupLoanSubcription.create_or_change( group_loan_product_1.id, second_membership.id )
-third_subcription = GroupLoanSubcription.create_or_change( group_loan_product_2.id, third_membership.id )
+group_loan_subcription_hash = {}
+group_loan_membership_hash.each do |key, group_loan_membership|
+  group_loan_subcription_hash[key] =  GroupLoanSubcription.create_or_change( group_loan_product_1.id,  group_loan_membership.id )
+end
+# first_subcription = GroupLoanSubcription.create_or_change( group_loan_product_1.id,  first_membership.id )
+# second_subcription = GroupLoanSubcription.create_or_change( group_loan_product_1.id, second_membership.id )
+# third_subcription = GroupLoanSubcription.create_or_change( group_loan_product_2.id, third_membership.id )
  # we leave the fourth membership's group loan as empty 
  # loan oficer has to assign it
  # then, finalize the loan proposal 
@@ -377,43 +394,39 @@ third_subcription = GroupLoanSubcription.create_or_change( group_loan_product_2.
 # 
 # 
 # puts "Phase 2 : for the Weekly Payment ITSELF"#
-fourth_subcription = GroupLoanSubcription.create_or_change( group_loan_product_2.id, fourth_membership.id )
+# fourth_subcription = GroupLoanSubcription.create_or_change( group_loan_product_2.id, fourth_membership.id )
 
 puts "loan officer propose group_loan finalization"
 group_loan.execute_propose_finalization( loan_officer )
 
 puts "Branch manager approves the finalization"
 group_loan.start_group_loan( branch_manager )
-
-
-puts "Field Worker collect the setup payment"
-first_membership.declare_setup_payment_by_loan_deduction
-second_membership.declare_setup_payment_by_loan_deduction
-third_membership.declare_setup_payment_by_loan_deduction
-fourth_membership.declare_setup_payment_by_loan_deduction
-group_loan.execute_finalize_setup_fee_collection( field_worker )
-
-
-puts "cashier approves the setup payment"
-group_loan.approve_setup_fee_collection( cashier )
-
-
-puts "cashier disburses the loan"
-TransactionActivity.execute_loan_disbursement( first_membership  , cashier)
-TransactionActivity.execute_loan_disbursement( second_membership  , cashier)
-TransactionActivity.execute_loan_disbursement( third_membership  , cashier)
-TransactionActivity.execute_loan_disbursement( fourth_membership  , cashier)
-
-group_loan.execute_finalize_loan_disbursement( cashier )
-
-
-
-puts "--  field worker taking weekly meeting attendance"
-
-puts "-- field worker taking weekly payment"
-
-puts "-- cashier approve the collection amount"
-puts "-- do this till the end"
+# 
+# puts "collect the setup fee from members by field_worker"
+# group_loan.group_loan_memberships.each do |group_loan_membership|
+#   deposit = BigDecimal.new("50000")
+#   group_loan_product = group_loan_membership.group_loan_product
+#   admin_fee = group_loan_product.admin_fee
+#   initial_savings = group_loan_product.initial_savings 
+#   TransactionActivity.create_setup_payment( admin_fee, initial_savings,
+#             deposit, field_worker , group_loan_membership )
+# end
+# 
+# puts "Field WOrker finalize the setup collection, pass to cashier"
+# group_loan.execute_finalize_setup_fee_collection( field_worker )
+# 
+# puts "cashier approve the setup fee collection"
+# group_loan.approve_setup_fee_collection( cashier )
+# 
+# puts "cashier disburse the loan"
+# group_loan.group_loan_memberships.each do |group_loan_membership|
+#   TransactionActivity.execute_loan_disbursement( group_loan_membership , cashier)
+# end
+# 
+# 
+# puts "cashier finaliz the disbursement"
+# group_loan.execute_finalize_loan_disbursement( cashier )
+# 
 
 
 

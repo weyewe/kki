@@ -11,6 +11,9 @@ class GroupLoanMembership < ActiveRecord::Base
   has_one :group_loan_subcription
   has_one :group_loan_product, :through => :group_loan_subcription
   
+  # in the case of default payment (group loan)
+  has_one :default_payment
+  
   
   before_destroy :destroy_group_loan_subcription
   
@@ -90,7 +93,7 @@ class GroupLoanMembership < ActiveRecord::Base
     )
     GroupLoanSubcription.create :group_loan_membership_id => group_loan_membership.id 
     # put the user activity list on who the creator is 
-    
+    return group_loan_membership
   end
   
   def self.destroy_membership( destroyer, member, group_loan)

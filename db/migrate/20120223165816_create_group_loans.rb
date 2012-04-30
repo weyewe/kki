@@ -41,8 +41,12 @@ class CreateGroupLoans < ActiveRecord::Migration
       
       # t.decimal :total_deposit,  :precision => 11, :scale => 2 , :default => 0   # 10^9 == 9 Billion ( max value )  
       t.decimal :total_default , :precision => 11, :scale => 2 , :default => 0  # 10^9 == 9 Billion ( max value ) all loan == default
-      t.boolean :any_default , :default => false 
+      t.boolean :is_group_loan_default , :default => false 
       t.integer :default_creator_id  # no conflict resolution takes place, it is declared as default
+      
+      #after the default loan resolution
+      t.decimal :total_loss , :precision => 11, :scale => 2 , :default => 0 
+      
       
       t.decimal :aggregated_principal_amount , :precision => 11, :scale => 2, :default => 0 # 10^9 == 1 Billion ( max value )
       t.decimal :aggregated_interest_amount , :precision => 10, :scale => 2, :default => 0 # 10^9== 100 million ( max value )

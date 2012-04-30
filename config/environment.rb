@@ -92,6 +92,9 @@ TRANSACTION_CASE = {
   :multiple_backlog_payment_soft_savings_withdrawal => 57, 
   :multiple_backlog_payment_soft_savings_withdrawal_extra_savings => 58, 
   
+  :default_loan_payment_as_sub_group_member => 70,
+  :default_loan_payment_as_group_member => 71, 
+  
   # all transaction from the company to the member
   :loan_disbursement_no_setup_payment_deduction => 100,
   :loan_disbursement_with_setup_payment_deduction => 101,

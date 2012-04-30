@@ -230,6 +230,11 @@ class GroupLoansController < ApplicationController
     setup_group_loan
   end
   
+  
+=begin
+  LOAN DEFAULT RESOLUTION
+=end
+  
   protected
   
   def setup_group_loan_for_weekly_task
