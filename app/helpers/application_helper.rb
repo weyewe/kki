@@ -501,11 +501,15 @@ module ApplicationHelper
       },
       {
         :title => "Select Sub Group Leader",
-        :destination_link => 'root_url',
+        :destination_link => 'select_group_loan_to_select_sub_group_leader_url',
         :conditions => [
           {
-            :controller => '',
-            :action => ''
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_select_sub_group_leader'
+          },
+          {
+            :controller => "sub_groups",
+            :action => "select_sub_group_to_pick_leader"
           }
         ]
       }

@@ -1,0 +1,26 @@
+<tr id="add_sub_group_member_wrapper_row_<%= member.id %>">
+  <td class="user-nim"><%= member.name %></td>
+  <td><%= member.address %></td>
+  
+  <td id='<%= "current_group_loans_provider_#{sub_group.id}-consumer_#{member.id}" %>' style="text-align:center;">
+    <% if group_loan_membership.sub_group.nil? %>
+      <span class="label">No SubGroup</span>
+    <% elsif group_loan_membership.sub_group_id == sub_group.id %>
+      <span class="label label-success">This SubGroup</span>
+    <% else %>
+      <span class="label label-info">SubGroup-<%= group_loan_membership.sub_group.number %></span>
+    <% end %>
+  </td>
+
+  <td class="well">
+    <label class="checkbox">
+      
+      <% checkbox_value = group_loan_membership.sub_group_id == sub_group.id  %>
+ 
+      <%= check_box_tag 'is_checked', get_checkbox_value(checkbox_value )   , 
+          checkbox_value, :class => 'checkbox_tracker', 
+          :id => "provider_#{sub_group.id}-consumer_#{member.id}" %> Assigned
+    </label>
+
+  </td>
+</tr>

@@ -63,6 +63,34 @@ class SubGroup < ActiveRecord::Base
   end
   
   
+  
+  
+  def add_member( member )
+    group_loan_membership = self.get_group_loan_membership( member ) 
+    
+    
+    group_loan_membership.sub_group_id = self.id 
+    group_loan_membership.save  
+  end
+  
+  def remove_member(member )
+    group_loan_membership = self.get_group_loan_membership( member ) 
+    group_loan_membership.sub_group_id = nil
+    group_loan_membership.save
+  end
+  
+  def get_group_loan_membership( member ) 
+    group_loan = self.group_loan 
+    group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+      :group_loan_id => group_loan.id,
+      :member_id => member.id
+    })
+  end
+  
+=begin
+  Set SubGroup Leader
+=end
+
   def leader
     if self.sub_group_leader_id.nil?
       return nil
@@ -70,6 +98,17 @@ class SubGroup < ActiveRecord::Base
       Member.find_by_id self.sub_group_leader_id 
     end
   end
+  
+  def set_group_leader( member )
+    self.sub_group_leader_id = member.id 
+    self.save
+  end
+  
+  def remove_group_leader
+    self.sub_group_leader_id =  nil 
+    self.save
+  end
+  
   
   protected 
   def set_group_loan_membership_sub_group_to_nil

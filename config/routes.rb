@@ -56,11 +56,13 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_to_assign_member_to_sub_group' => "group_loans#select_group_loan_to_assign_member_to_sub_group", :as => :select_group_loan_to_assign_member_to_sub_group
   match 'select_sub_group_from/:group_loan_id/to_assign_members' => "sub_groups#select_sub_group_to_assign_members", :as => :select_sub_group_to_assign_members
   match 'assign_member_to_sub_group/:sub_group_id' => "sub_groups#assign_member_to_sub_group", :as => :assign_member_to_sub_group
-
+  match 'execute_sub_group_assignment' => "sub_groups#execute_sub_group_assignment", :as => :execute_sub_group_assignment, :method => :post 
+  
 # select sub_group_leader  
-match 'select_sub_group_from/:group_loan_id/to_select_leader' => "sub_groups#select_sub_group_to_pick_leader", :as => :select_sub_group_to_pick_leader
-
-
+  match 'select_group_loan_to_select_sub_group_leader' => "group_loans#select_group_loan_to_select_sub_group_leader", :as => :select_group_loan_to_select_sub_group_leader
+  match 'select_sub_group_from/:group_loan_id/to_select_leader' => "sub_groups#select_sub_group_to_pick_leader", :as => :select_sub_group_to_pick_leader
+  match 'select_sub_group_leader_from/:sub_group_id' => "sub_groups#select_sub_group_leader_from_sub_group", :as => :select_sub_group_leader_from_sub_group
+  match 'execute_select_sub_group_leader' => "sub_groups#execute_select_sub_group_leader", :as => :execute_select_sub_group_leader, :method => :post
 =begin
   Branch Manager Routes
 =end

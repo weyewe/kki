@@ -18,6 +18,9 @@ class SubGroupsController < ApplicationController
       
   end
   
+=begin
+  Assign member to sub group 
+=end
   def select_sub_group_to_assign_members
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @sub_groups = @group_loan.sub_groups.order("number ASC")
@@ -29,9 +32,60 @@ class SubGroupsController < ApplicationController
     @members = @group_loan.members
   end
   
+  def execute_sub_group_assignment
+    @member = Member.find_by_id params[:membership_consumer]
+    @sub_group  = SubGroup.find_by_id params[:membership_provider]
+   
+    @group_loan = @sub_group.group_loan 
+    
+    decision = params[:membership_decision].to_i
+    
+    if decision == TRUE_CHECK
+      @sub_group.add_member( @member ) 
+    elsif decision == FALSE_CHECK
+      @sub_group.remove_member( @member )
+    end
+    
+    @group_loan_membership = @sub_group.get_group_loan_membership( @member )
+    
+  end
   
+  
+=begin
+  Pick Sub group leader
+=end
+
   def select_sub_group_to_pick_leader
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @sub_groups = @group_loan.sub_groups.order("number ASC")
   end
+  
+  def select_sub_group_leader_from_sub_group
+    @sub_group = SubGroup.find_by_id params[:sub_group_id]
+    @group_loan = @sub_group.group_loan 
+    @group_loan_memberships_from_subgroup = @sub_group.group_loan_memberships.includes(:member)
+    @sub_group_leader_id = @sub_group.sub_group_leader_id
+  end
+  
+  
+  
+  def execute_select_sub_group_leader
+    @sub_group = SubGroup.find_by_id params[:membership_provider]
+    @member = Member.find_by_id params[:membership_consumer]
+    membership_decision = params[:membership_decision].to_i
+    @group_loan = @sub_group.group_loan 
+    
+    if membership_decision == TRUE_CHECK
+      @sub_group.set_group_leader( @member )
+    elsif membership_decision == FALSE_CHECK
+      @sub_group.remove_group_leader
+    end
+    redirect_to select_sub_group_leader_from_sub_group_url( @sub_group )
+  end
+  
+  
+  
+  
+
+  
 end

@@ -1,9 +1,9 @@
 
 <div class="span9 content">
-  <%= create_guide("Member -> SubGroup", 
-        "Group Loan ID: <b>#{@group_loan.name}</b>" + "<br />" +
-        "<b>SubGroup-#{@sub_group.number}</b>" + "<br />" + 
-        "Total SubGroup Member: <b>#{@sub_group.group_loan_memberships.count}</b>"   ).html_safe %>
+  <%= create_guide("Select Group Leader", 
+        "Group Loan ID: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "SubGroup: <b>SubGroup#{@sub_group.number}</b>" + "<br />" + 
+        "Group Leader: <b>#{@group_leader_name}</b>").html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -18,25 +18,36 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>Address</th>
-            <th style="text-align:center;">Current SubGroup</th>
-            <th>Assign to SubGroup-<%= @sub_group.number %></th>
+            <th>SubGroup</th>
+            <th>SubGroup Leader?</th>
+            <th>Group Leader?</th>
           </tr>
         </thead>
         <tbody>
-          <% @members.each do |member| %>
-            <% group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
-              :group_loan_id => @group_loan.id,
-              :member_id => member.id
-            }) %>
-            
-            <%= render :partial => "sub_groups/add_sub_group_member_row" , :locals => {
-              :member => member, 
-              :group_loan => @group_loan, 
-              :sub_group => @sub_group ,
-              :group_loan_membership => group_loan_membership
-            }%>
-            
+          <% @group_loan_memberships_from_subgroup.each do |group_loan_membership| %>
+            <% member =  group_loan_membership.member %>
+            <tr>
+              <td class="user-nim"><%= member.name %></td>
+              <td>Subgroup</td>
+              <td>Subgroup Leader</td>
+              
+              <td class="well">
+                <label class="checkbox">
+                  
+                  <% checkbox_value = member.id == @sub_group_leader_id %>
+             
+                  <%= check_box_tag 'is_checked', get_checkbox_value(checkbox_value )   , 
+                      checkbox_value, :class => 'checkbox_tracker single-submit', 
+                      :id => "provider_#{@sub_group.id}-consumer_#{member.id}" %>
+                      <% if checkbox_value == false %>
+                       Assign
+                      <% else %>
+                       <span class="label label-success">Leader</span>
+                      <% end %>
+                </label>
+
+              </td>
+            </tr>
           <% end %>
 
 
@@ -47,7 +58,7 @@
       
       
       <div class=" hidden" id="checkbox_form_wrapper">
-        <%= form_for GroupLoanMembership.new, :url => execute_sub_group_assignment_url   do |f| %>
+        <%= form_for GroupLoanMembership.new, :url => execute_select_sub_group_leader_url   do |f| %>
           <%= hidden_field_tag 'membership_provider' , ''  %>
           <%= hidden_field_tag 'membership_consumer', '' %>
           <%= hidden_field_tag 'membership_decision', '' %>

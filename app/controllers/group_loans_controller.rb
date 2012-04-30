@@ -226,6 +226,10 @@ class GroupLoansController < ApplicationController
     setup_group_loan
   end
   
+  def select_group_loan_to_select_sub_group_leader
+    setup_group_loan
+  end
+  
   protected
   
   def setup_group_loan_for_weekly_task

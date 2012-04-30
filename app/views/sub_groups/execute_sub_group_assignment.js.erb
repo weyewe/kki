@@ -1,0 +1,12 @@
+$(document).ready(function(){
+  <% new_row = escape_javascript(
+    render :partial => "sub_groups/add_sub_group_member_row", :locals => {
+      :member => @member, 
+      :group_loan => @group_loan, 
+      :sub_group => @sub_group ,
+      :group_loan_membership => @group_loan_membership
+    }) %>
+    
+    
+  $("#add_sub_group_member_wrapper_row_<%= @member.id %>").replaceWith('<%= new_row %>');
+});

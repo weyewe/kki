@@ -1,9 +1,7 @@
 
 <div class="span9 content">
-  <%= create_guide("Member -> SubGroup",  
-        "Group: <b>#{@group_loan.name}</b>" + "<br />" + 
-        "Total SubGroups: <b>#{@sub_groups.count}</b> " + "<br />" + 
-        "Total Group Members: <b>#{@group_loan.members.count}</b>").html_safe %>
+  <%= create_guide("Member -> SubGroup Leader",  
+        "Total Active Group Loan: <b>#{@active_group_loans.count}</b> ").html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -16,14 +14,16 @@
         <thead>
           <tr>
             <th>Nama Group</th>
-            <th>Total SubGroup Members</th>
+            <th>Total Member</th>
+            <th>Total Sub Group</th>
           </tr>
         </thead>
         <tbody>
-          <% @sub_groups.each do |sub_group| %>
+          <% @active_group_loans.each do |group_loan| %>
             <tr>
-              <td><%= link_to "SubGroup-#{sub_group.number}", select_sub_group_leader_from_sub_group_url( sub_group) %></td>
-              <td><%= sub_group.group_loan_memberships.count %></td>
+              <td><%= link_to group_loan.name, select_sub_group_to_pick_leader_url( group_loan ) %></td>
+              <td><%= group_loan.members.count %></td>
+              <td><%= group_loan.sub_groups.count %></td>
             </tr>
           <% end %>
 
