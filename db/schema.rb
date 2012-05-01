@@ -25,8 +25,9 @@ ActiveRecord::Schema.define(:version => 20120430151312) do
     t.integer  "weekly_task_id"
     t.integer  "member_payment_id"
     t.integer  "member_id"
-    t.boolean  "is_cleared",                    :default => false
+    t.boolean  "is_cleared",                        :default => false
     t.integer  "backlog_cleared_declarator_id"
+    t.boolean  "is_group_loan_declared_as_default", :default => false
     t.integer  "backlog_type"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -57,7 +58,7 @@ ActiveRecord::Schema.define(:version => 20120430151312) do
 
   create_table "default_payments", :force => true do |t|
     t.integer  "group_loan_membership_id"
-    t.decimal  "amount_subgroup_share",    :precision => 10, :scale => 2, :default => 0.0
+    t.decimal  "amount_sub_group_share",   :precision => 10, :scale => 2, :default => 0.0
     t.decimal  "amount_group_share",       :precision => 10, :scale => 2, :default => 0.0
     t.decimal  "amount_paid",              :precision => 10, :scale => 2, :default => 0.0
     t.boolean  "is_defaultee",                                            :default => false
@@ -111,25 +112,28 @@ ActiveRecord::Schema.define(:version => 20120430151312) do
 
   create_table "group_loans", :force => true do |t|
     t.string   "name"
-    t.integer  "creator_id",                                                                          :null => false
+    t.integer  "creator_id",                                                                                    :null => false
     t.integer  "office_id"
-    t.boolean  "is_closed",                                                        :default => false
+    t.boolean  "is_closed",                                                                  :default => false
     t.integer  "group_loan_closer_id"
-    t.boolean  "is_started",                                                       :default => false
+    t.boolean  "is_started",                                                                 :default => false
     t.integer  "group_loan_starter_id"
-    t.boolean  "is_loan_disbursement_done",                                        :default => false
+    t.boolean  "is_loan_disbursement_done",                                                  :default => false
     t.integer  "loan_disburser_id"
-    t.boolean  "is_setup_fee_collection_finalized",                                :default => false
+    t.boolean  "is_setup_fee_collection_finalized",                                          :default => false
     t.integer  "setup_fee_collection_finalizer_id"
-    t.boolean  "is_setup_fee_collection_approved",                                 :default => false
+    t.boolean  "is_setup_fee_collection_approved",                                           :default => false
     t.integer  "setup_fee_collection_approver_id"
-    t.boolean  "is_proposed",                                                      :default => false
+    t.boolean  "is_proposed",                                                                :default => false
     t.integer  "group_loan_proposer_id"
-    t.decimal  "total_default",                     :precision => 11, :scale => 2, :default => 0.0
-    t.boolean  "any_default",                                                      :default => false
+    t.decimal  "total_default_amount",                        :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "total_calculated_default_absorbed_by_office", :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "total_actual_default_absorbed_by_office",     :precision => 11, :scale => 2, :default => 0.0
+    t.boolean  "is_group_loan_default",                                                      :default => false
     t.integer  "default_creator_id"
-    t.decimal  "aggregated_principal_amount",       :precision => 11, :scale => 2, :default => 0.0
-    t.decimal  "aggregated_interest_amount",        :precision => 10, :scale => 2, :default => 0.0
+    t.decimal  "aggregated_principal_amount",                 :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "aggregated_interest_amount",                  :precision => 10, :scale => 2, :default => 0.0
+    t.integer  "total_weeks",                                                                :default => 0
     t.integer  "group_leader_id"
     t.integer  "commune_id"
     t.datetime "created_at"
@@ -231,6 +235,8 @@ ActiveRecord::Schema.define(:version => 20120430151312) do
     t.integer  "group_loan_id"
     t.integer  "sub_group_leader_id"
     t.integer  "number"
+    t.decimal  "sub_group_total_default",                :precision => 10, :scale => 2, :default => 0.0
+    t.decimal  "sub_group_default_payment_contribution", :precision => 10, :scale => 2, :default => 0.0
     t.datetime "created_at"
     t.datetime "updated_at"
   end

@@ -73,7 +73,22 @@ class Office < ActiveRecord::Base
                 :is_setup_fee_collection_finalized => true , 
                 :is_setup_fee_collection_approved => true , 
                 :is_loan_disbursement_done => true, 
-                :is_closed => false  )
+                :is_closed => false,
+                :is_group_loan_default => false   )
+  end
+  
+  
+  
+  
+  def default_declarable_group_loans
+    valid_running_group_loans = self.running_group_loans
+    group_loans_array = []
+    valid_running_group_loans.each do |group_loan|
+      if group_loan.completed_weekly_tasks.count == group_loan.total_loan_duration
+        group_loans_array << group_loan 
+      end
+    end
+    return group_loans_array 
   end
   
   

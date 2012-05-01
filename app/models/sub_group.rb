@@ -109,6 +109,58 @@ class SubGroup < ActiveRecord::Base
     self.save
   end
   
+=begin
+  SubGroup Default Payment
+=end
+  def extract_total_default( default_sub_group_member_id )
+    total_default = BigDecimal("0")
+    default_sub_group_member_id.each do |member_id|
+      
+
+      backlog_payments_count = BacklogPayment.find(:all, :conditions => {
+        :member_id => member_id, 
+        :group_loan_id => self.group_loan_id,
+        :is_cleared => false 
+      }).count
+
+      total_default +=  backlog_payments_count * glm.group_loan_product.total_weekly_payment
+    end
+    
+    return total_default 
+  end
+
+  
+  def generate_default_payments(list_of_non_default_member_id)
+    list_of_sub_group_member_id = self.group_loan_memberships.map{|x| x.member_id }
+    
+    default_sub_group_member_id = list_of_sub_group_member_id - list_of_non_default_member_id
+    non_default_sub_group_member_id = list_of_sub_group_member_id - default_sub_group_member_id 
+    
+    
+    if non_default_sub_group_member_id ==0 
+      return false
+    end
+    
+    total_default = self.extract_total_default( default_sub_group_member_id )
+      
+    sub_group_amount_share =( total_default/2 )  / non_default_sub_group_member_id.length 
+    
+    non_default_sub_group_member_id.each do |member_id|
+      glm  = self.group_loan_memberships.where(:member_id => member_id).first
+      default_payment = glm.default_payment 
+      default_payment.set_amount_sub_group_share(  sub_group_amount_share )
+    end
+    
+    default_sub_group_member_id.each do |member_id|
+      glm  = self.group_loan_memberships.where(:member_id => member_id).first
+      default_payment = glm.default_payment 
+      default_payment.set_default_payment_status_true
+    end
+     
+  end
+  
+  
+  
   
   protected 
   def set_group_loan_membership_sub_group_to_nil

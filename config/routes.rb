@@ -70,6 +70,9 @@ Debita46::Application.routes.draw do
   match 'execute_start_group_loan' => "group_loans#execute_start_group_loan", :as => :execute_start_group_loan, :method => :post 
   match 'select_started_group_loan_to_be_managed' => "group_loans#select_started_group_loan_to_be_managed", :as => :select_started_group_loan_to_be_managed
   
+  
+  match 'select_group_loan_to_be_declared_as_default' => "group_loans#select_group_loan_to_be_declared_as_default", :as => :select_group_loan_to_be_declared_as_default
+  match 'execute_declare_default_group_loan' => "group_loans#execute_declare_default_group_loan", :as => :execute_declare_default_group_loan, :method => :post 
 =begin
   Field Worker Routes
 =end

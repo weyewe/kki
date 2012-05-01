@@ -381,11 +381,11 @@ module ApplicationHelper
       },
       {
         :title => "Declare Default Loan",
-        :destination_link => "root_url",
+        :destination_link => "select_group_loan_to_be_declared_as_default_url",
         :conditions => [
           {
-            :controller => '',
-            :action => ''
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_be_declared_as_default'
           }
         ]
       },

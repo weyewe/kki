@@ -1,4 +1,9 @@
 class GroupLoansController < ApplicationController
+  
+=begin
+  Role == Branch Manager
+=end
+
   def new
     setup_group_loan
     @new_group_loan = GroupLoan.new 
@@ -19,6 +24,51 @@ class GroupLoansController < ApplicationController
       render :file => "group_loans/new"
     end
   end
+  
+  
+  def select_group_loan_to_start
+    setup_select_group_loan
+    @pending_approval_group_loans = @office.pending_approval_group_loans
+  end
+
+  def select_started_group_loan_to_be_managed
+    setup_select_group_loan
+    @started_group_loans = @office.started_group_loans
+  end
+
+
+  def execute_start_group_loan
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
+    @action_role = params[:action_role].to_i
+    @action_value = params[:action_value].to_i
+
+    if @action_role == APPROVER_ROLE
+      if @action_value == TRUE_CHECK
+        @group_loan.start_group_loan( current_user )
+      elsif @action_value == FALSE_CHECK
+        @group_loan.reject_group_loan_proposal( current_user )
+      end
+    end
+
+    respond_to do |format|
+      format.html {  redirect_to root_url }
+      format.js 
+    end
+  end
+  
+# list all active group loans, whose weekly tasks are all done 
+  def select_group_loan_to_be_declared_as_default
+    setup_select_group_loan
+    @default_declarable_group_loans = @office.default_declarable_group_loans
+  end
+  
+  def execute_declare_default_group_loan
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
+    if current_user.has_role?(:branch_manager)
+      @group_loan.declare_default(current_user) 
+    end
+  end
+  
   
 =begin
   To select group_loan in which member is gonna be assigned 
@@ -54,38 +104,7 @@ class GroupLoansController < ApplicationController
     end
   end
   
-=begin
-  Role == Branch Manager
-=end
-  def select_group_loan_to_start
-    setup_select_group_loan
-    @pending_approval_group_loans = @office.pending_approval_group_loans
-  end
-  
-  def select_started_group_loan_to_be_managed
-    setup_select_group_loan
-    @started_group_loans = @office.started_group_loans
-  end
-  
-  
-  def execute_start_group_loan
-    @group_loan = GroupLoan.find_by_id params[:entity_id]
-    @action_role = params[:action_role].to_i
-    @action_value = params[:action_value].to_i
-    
-    if @action_role == APPROVER_ROLE
-      if @action_value == TRUE_CHECK
-        @group_loan.start_group_loan( current_user )
-      elsif @action_value == FALSE_CHECK
-        @group_loan.reject_group_loan_proposal( current_user )
-      end
-    end
-    
-    respond_to do |format|
-      format.html {  redirect_to root_url }
-      format.js 
-    end
-  end
+
   
 =begin
   Role == Field Worker 

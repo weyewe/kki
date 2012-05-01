@@ -164,11 +164,29 @@ class GroupLoan < ActiveRecord::Base
   end
     
   def start_group_loan( current_user )
-    self.is_started = true 
-    self.group_loan_starter_id = current_user.id 
-    self.save
+   
     
-    # create the whole weekly payment + attendance
+    if all_members_have_equal_loan_duration?
+      self.is_started = true 
+      self.group_loan_starter_id = current_user.id 
+      self.total_weeks = self.total_loan_duration
+      self.save
+    else
+      return nil
+    end
+  end
+  
+  def all_members_have_equal_loan_duration?
+    group_loan_product_duration = [] 
+    self.group_loan_memberships.each do |x|
+      group_loan_product_duration << x.group_loan_product.total_weeks 
+    end
+    
+    if group_loan_product_duration.uniq.length == 1 
+      return true
+    else
+      return false
+    end
   end
   
   def reject_group_loan_proposal( current_user )
@@ -283,7 +301,7 @@ class GroupLoan < ActiveRecord::Base
   end
   
   def initiate_weekly_tasks
-    total_weeks = self.total_loan_duration
+    total_weeks = self.total_weeks
     (1..total_weeks).each do |week_number|
       WeeklyTask.create :week_number => week_number, :group_loan_id => self.id 
     end
@@ -348,6 +366,117 @@ class GroupLoan < ActiveRecord::Base
     self.group_loan_memberships.where(:sub_group_id => nil )
   end
  
+=begin
+  Declare default group loan... hahahaha, complicated bitch 
+=end
+  def completed_weekly_tasks
+    self.weekly_tasks.where(
+            :is_weekly_attendance_marking_done => true ,
+            :is_weekly_payment_collection_finalized => true, 
+            :is_weekly_payment_approved_by_cashier => true 
+    )
+  end
+  
+  def declare_default( current_user )
+    if not current_user.has_role?(:branch_manager)
+      return nil
+    end
+    
+    # put this in transaction block
+    self.default_creator_id = current_user.id
+    self.is_group_loan_default = true 
+    self.save 
+    self.generate_default_payments
+    
+  end
+  
+  
+  def extract_total_default_amount
+    total_default = BigDecimal("0")
+    
+    self.unpaid_backlogs.each do |backlog|
+      total_default += backlog.amount
+    end
+    
+    self.total_default_amount  =  total_default
+    self.save 
+    
+    return total_default
+  end
+  
+  def declare_backlog_payments_as_default
+    self.unpaid_backlogs.each do |backlog|
+      backlog.is_group_loan_declared_as_default = true
+      backlog.save
+    end
+  end
+  
+  def unpaid_backlogs
+    self.backlog_payments.where(:is_cleared => false )
+  end
+  
+  def extract_default_member_id
+    list_of_default_member_id = BacklogPayment.list_member_id_with_default_in_group_loan( self ) 
+  end
+  
+  def extract_non_default_member_id
+    list_of_default_member_id = self.extract_default_member_id
+    all_member_id = []
+    self.group_loan_memberships.each do |glm|
+      all_member_id << glm.member_id
+    end
+    
+    all_member_id - list_of_default_member_id
+  end
+  
+  def generate_default_payments_per_group_loan_membership
+    total_default = self.total_default_amount
+    self.group_loan_memberships.each do |glm|
+      DefaultPayment.create :group_loan_membership_id => glm.id 
+    end
+    
+    # get all member without default 
+    
+    
+    list_of_non_default_member_id = self.extract_non_default_member_id
+    if list_of_non_default_member_id.length == 0 
+      #  set the amount of KKI has to pay
+      self.total_default_amount = total_default
+      self.save 
+      return nil # fuck.. everyone is defaulting who should pay? KKI? 
+    end
+    
+    group_share_amount =  ( total_default/2 ) / list_of_non_default_member_id.length 
+    
+    
+    list_of_non_default_member_id.each do |non_default_member_id|
+      glm = GroupLoanMembership.find(:first, :conditions => {
+        :member_id => non_default_member_id,
+        :group_loan_id => self.id 
+      })
+      default_payment = glm.default_payment
+      default_payment.set_amount_group_share( group_share_amount ) 
+    end
+    
+    self.sub_groups.each do |sub_group|
+      sub_group.generate_default_payments( list_of_non_default_member_id )
+    end
+    
+    
+    self.group_loan_memberships.includes(:default_payment).each do |glm|
+      #  we do have the total_default 
+      default_payment = glm.default_payment
+      
+    end
+   
+  end
+  
+  def generate_default_payments
+    self.extract_total_default_amount
+    self.generate_default_payments_per_group_loan_membership 
+    self.declare_backlog_payments_as_default
+  end
+  
   
   
   

@@ -8,6 +8,8 @@ class CreateBacklogPayments < ActiveRecord::Migration
       t.boolean :is_cleared , :default => false 
       t.integer :backlog_cleared_declarator_id 
       
+      t.boolean :is_group_loan_declared_as_default, :default => false 
+      
       t.integer :backlog_type, :nil => false # is that penalty payment? is that weekly payment?
       t.timestamps
     end
