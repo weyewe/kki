@@ -29,6 +29,22 @@ class GroupLoan < ActiveRecord::Base
   
   
   
+  def self.create_group_loan_with_creator( group_loan_params, creator)
+    if not creator.has_role?( :branch_manager , creator.get_active_job_attachment)
+      return nil
+    end
+    
+    new_group_loan = GroupLoan.new group_loan_params
+    new_group_loan.creator_id = creator.id 
+    new_group_loan.office_id = creator.get_active_job_attachment.office.id 
+    
+    if new_group_loan.save
+      return new_group_loan
+    else
+      return nil
+    end
+  end
+  
   def get_commune
     commune = Commune.find_by_id self.commune_id
     village = commune.village

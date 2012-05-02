@@ -37,11 +37,3 @@ Debita46::Application.configure do
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
 end
-
-
-USER_ROLE = {
-  :branch_manager => "BranchManager",
-  :cashier => "Cashier",
-  :loan_officer => "LoanOfficer",
-  :field_worker => "FieldWorker"
-}

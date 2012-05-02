@@ -410,7 +410,7 @@ class TransactionActivity < ActiveRecord::Base
     if deduct_setup_payment_from_loan 
        deduction_amount = amount - self.total_transaction_amount
        self.transaction_entries.create( 
-                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:loan_disbursement], 
+                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:deducted_loan_disbursement], 
                           :amount => amount  ,
                           :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
                           )

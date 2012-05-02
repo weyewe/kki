@@ -49,5 +49,9 @@ class GroupLoanProduct < ActiveRecord::Base
     interest_rate * 100 
   end
   
+  def setup_payment_amount
+    self.admin_fee + self.initial_savings 
+  end
+  
   
 end

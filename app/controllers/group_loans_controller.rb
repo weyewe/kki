@@ -13,7 +13,8 @@ class GroupLoansController < ApplicationController
     setup_group_loan
     @new_group_loan = GroupLoan.new(params[:group_loan])
     @new_group_loan.creator_id  = current_user.id 
-    @new_group_loan.office_id = @office.id 
+    @new_group_loan.office_id = @office.id
+    #GroupLoan.create_group_loan( params[:group_loan], current_user)
     
     if @new_group_loan.save
       flash[:notice] = "The new member has been created." + 

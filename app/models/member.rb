@@ -9,6 +9,7 @@ class Member < ActiveRecord::Base
   has_many :backlog_payments
 
   belongs_to :office 
+  # belongs_to :commune
   
   after_create :create_saving_book, :create_transaction_book
   
