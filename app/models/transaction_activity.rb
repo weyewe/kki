@@ -118,15 +118,6 @@ class TransactionActivity < ActiveRecord::Base
     
     transaction_activity = TransactionActivity.create new_hash 
     
-    # this entries will be different, if the setup payment is paid using the loan 
-    # deduct_setup_payment_from_loan = false 
-    #   
-    #   if group_loan_membership.deduct_setup_payment_from_loan ==true 
-    #     deduct_setup_payment_from_loan = true
-    #     transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , cashier, false ) 
-    #   else
-    #     transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , cashier, true ) 
-    #   end
     
     transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , 
                       cashier, 

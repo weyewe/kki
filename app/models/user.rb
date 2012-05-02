@@ -129,7 +129,9 @@ class User < ActiveRecord::Base
     
   
   
-
+  def get_active_job_attachment
+    self.job_attachments.where(:is_active => true).first
+  end
   
   
   

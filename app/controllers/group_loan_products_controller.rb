@@ -11,6 +11,9 @@ class GroupLoanProductsController < ApplicationController
     @new_group_loan_product = GroupLoanProduct.new(params[:group_loan_product])
     @new_group_loan_product.office_id  = @office.id 
     
+    # @new_group_loan_product = GroupLoanProduct.create_by_branch_manager( 
+    #               params[:group_loan_product] , current_user )
+    
     if @new_group_loan_product.save
       flash[:notice] = "The new group loan product has been created." + 
                     " To see the list, click <a href='#data_list'>here</a>."

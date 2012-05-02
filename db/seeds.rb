@@ -7,7 +7,7 @@
   One office handles at least 1 subdistrict (kecamatan)
 =end
 
-cilincing_office = Office.create :name => "Cilincing", :regency_id => NORTH_JAKARTA_REGENCY
+
 
 =begin
   We need to create the geoscope of cilincing_office
@@ -17,7 +17,7 @@ java_island = Island.create :name => "Java"
 jakarta_province = Province.create :name => "Jakarta", :island_id => java_island.id
 north_jakarta_regency = Regency.create :name => "Jakarta Utara", :province_id => jakarta_province.id
 cilincing_subdistrict = Subdistrict.create :name => "Cilincing", :regency_id => north_jakarta_regency.id
-
+cilincing_office = Office.create :name => "Cilincing", :regency_id => north_jakarta_regency.id 
 =begin
   One office handles at least one subdistrict
   Office has_many :subdistricts through :geo_scopes
@@ -146,10 +146,10 @@ What are the roles in typical branch?
 
 Role.all.each { |role| role.destroy }
 
-branch_manager_role = Role.create :name => "BranchManager"
-loan_officer_role   = Role.create :name => "LoanOfficer"
-field_worker_role   = Role.create :name => "FieldWorker"
-cashier_role         = Role.create :name => "Cashier"
+branch_manager_role = Role.create :name => USER_ROLE[:branch_manager]
+loan_officer_role   = Role.create :name => USER_ROLE[:loan_officer]
+field_worker_role   = Role.create :name => USER_ROLE[:field_worker]
+cashier_role         = Role.create :name => USER_ROLE[:cashier]
 
 =begin
   Create the blank slate user 
@@ -216,25 +216,25 @@ puts "Done adding roles to the JobAttachment"
     group loan product 
 =end
 puts "the first"
-group_loan_product_a = GroupLoanProduct.create :principal => 500000, 
-                                  :interest => 200000, 
+group_loan_product_a = GroupLoanProduct.create :principal => 20000, 
+                                  :interest => 10000, 
                                   :min_savings => 8000, :total_weeks => 2 ,
-                                  :admin_fee => 25000, :initial_savings => 15000,
+                                  :admin_fee => 25000, :initial_savings => 1000,
                                   :creator_id => branch_manager.id ,
                                   :office_id => cilincing_office.id
 puts "the second"
-group_loan_product_b = GroupLoanProduct.create :principal => 1000000, 
-                                  :interest => 20000, 
+group_loan_product_b = GroupLoanProduct.create :principal => 50000, 
+                                  :interest => 25000, 
                                   :min_savings => 8000, :total_weeks => 2 ,
-                                  :admin_fee => 25000, :initial_savings => 20000,
+                                  :admin_fee => 25000, :initial_savings => 2000,
                                   :creator_id => branch_manager.id,
                                   :office_id => cilincing_office.id 
                                   
 puts "The third"
-group_loan_product_c = GroupLoanProduct.create :principal => 1500000, 
-                                   :interest => 300000, 
+group_loan_product_c = GroupLoanProduct.create :principal => 80000, 
+                                   :interest => 20000, 
                                    :min_savings => 8000, :total_weeks => 2 ,
-                                   :admin_fee => 25000, :initial_savings => 50000,
+                                   :admin_fee => 25000, :initial_savings => 5000,
                                    :creator_id => branch_manager.id ,
                                    :office_id => cilincing_office.id
                                   
@@ -409,13 +409,19 @@ group_loan.execute_finalize_loan_disbursement( cashier )
 
 
 puts "--  field worker taking weekly meeting attendance"
+# mark the meeting for each member , randomize the attendance 
+# mark finalize the meeting button 
 
 puts "-- field worker taking weekly payment"
+# mark the pay, special payment  + no payment 
 
 puts "-- cashier approve the collection amount"
-puts "-- do this till the end"
+# just mark the approval by default 
+
+puts "-- do this till the end--- repeat"
 
 
+puts "-- pay backlog_payment, leave 1 member not paying , to simulate default loan "
 
 
 

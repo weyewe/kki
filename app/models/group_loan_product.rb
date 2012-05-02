@@ -49,9 +49,5 @@ class GroupLoanProduct < ActiveRecord::Base
     interest_rate * 100 
   end
   
- 
- 
- 
-  
   
 end

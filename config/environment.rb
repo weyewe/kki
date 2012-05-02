@@ -10,6 +10,12 @@ NORTH_JAKARTA_REGENCY  = 1
 
 CILINCING_SUBDISTRICT = 1
 
+USER_ROLE = {
+  :branch_manager => "BranchManager",
+  :cashier => "Cashier",
+  :loan_officer => "LoanOfficer",
+  :field_worker => "FieldWorker"
+}
 
 WEEKLY_PAYMENT_STATUS = {
   :unpaid => 0,

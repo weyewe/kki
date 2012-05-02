@@ -20,6 +20,7 @@ gem 'acts_as_commentable_with_threading',
 gem "squeel" 
 gem 'acts_as_decimal'
 gem 'simple_form'
+# gem "factory_girl_rails", "~> 3.0"
 
 # gonna use this https://github.com/codegram/acts_as_decimal
 
@@ -48,6 +49,8 @@ gem 'jquery-rails'
 
 group :development, :test do 
   gem "rspec-rails", "~> 2.6"
+  gem "factory_girl_rails", "~> 3.0"
+  
 end
 
 

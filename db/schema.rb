@@ -235,8 +235,9 @@ ActiveRecord::Schema.define(:version => 20120430151312) do
     t.integer  "group_loan_id"
     t.integer  "sub_group_leader_id"
     t.integer  "number"
-    t.decimal  "sub_group_total_default",                :precision => 10, :scale => 2, :default => 0.0
-    t.decimal  "sub_group_default_payment_contribution", :precision => 10, :scale => 2, :default => 0.0
+    t.decimal  "sub_group_total_default_payment_amount",               :precision => 10, :scale => 2, :default => 0.0
+    t.decimal  "sub_group_default_payment_contribution_amount",        :precision => 10, :scale => 2, :default => 0.0
+    t.decimal  "actual_sub_group_default_payment_contribution_amount", :precision => 10, :scale => 2, :default => 0.0
     t.datetime "created_at"
     t.datetime "updated_at"
   end
