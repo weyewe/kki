@@ -352,60 +352,97 @@ describe TransactionActivity do
           another_weekly_payment.id.should  == @basic_weekly_payment_transaction.id
         end
         
-        it 'will create 3 transaction entries: principal, interest and savings' do
-          @basic_weekly_payment_transaction.should have(3).transaction_entries
-          
-          principal_count = 0
-          interest_count = 0
-          savings_count = 0 
-          @basic_weekly_payment_transaction.transaction_entries.each do |te|
-            if te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_principal]
-              principal_count += 1 
-            elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_saving]
-              savings_count += 1
-            elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_interest]
-              interest_count += 1 
+        context "checking the transaction entries generated" do
+          before(:each) do
+            @principal_count = 0
+            @interest_count = 0
+            @savings_count = 0 
+            @weekly_saving_transaction_entry  = ''
+            @weekly_principal_transaction_entry = ''
+            @weekly_interest_transaction_entry =''
+            @basic_weekly_payment_transaction.transaction_entries.each do |te|
+              if te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_principal]
+                @principal_count += 1 
+                @weekly_saving_transaction_entry = te
+              elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_saving]
+                @savings_count += 1
+                @weekly_saving_transaction_entry = te
+              elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_interest]
+                @interest_count += 1 
+                @weekly_interest_transaction_entry = te 
+              end
             end
+          end # end of the before block, in the "checking the transaction entries generated context"
+          
+          it 'will create 3 transaction entries: principal, interest and savings' do
+            @basic_weekly_payment_transaction.should have(3).transaction_entries
+            @principal_count.should == 1 
+            @savings_count.should == 1 
+            @interest_count.should == 1 
+            @weekly_saving_transaction_entry.should be_valid
+            @weekly_saving_transaction_entry.should be_valid
+            @weekly_interest_transaction_entry.should be_valid
+          end
+
+          it "produces one extra saving_entry for the member, with value equal to the min_savings" do
+            # @total_saving_entries_count_before_basic_payment
+            total_saving_entries_count_after_basic_payment = @member_for_basic_payment.saving_book.saving_entries.count
+            (total_saving_entries_count_after_basic_payment - @total_saving_entries_count_before_basic_payment).should == 1 
+
+            saving_entry = @member_for_basic_payment.saving_book.saving_entries.first
+            puts "the amount is #{saving_entry.amount}  *****************"
+          end
+
+          it "produces link between saving_entry and the transaction_entry itself" do
+            saving_entry = @member_for_basic_payment.saving_book.saving_entries.first
+
+            saving_entry.transaction_entry_id.should_not be_nil
+            saving_transaction_entry = saving_entry.transaction_entry 
+            saving_transaction_entry.should_not be_nil
+            @weekly_saving_transaction_entry.id.should_not be_nil
+            @weekly_saving_transaction_entry.id.should  == saving_entry.transaction_entry_id 
+
+          end
+
+          it "the difference of member's total_savings is equal to the min_savings in the group loan product"  do
+            glm = @group_loan.group_loan_memberships.where(:member_id => @member_for_basic_payment.id ).first
+            group_loan_product = glm.group_loan_product
+
+            puts "total savings before transaction = #{@total_savings_before_transaction }"
+            puts "total savings after transaction = #{@member_for_basic_payment.total_savings}"
+            puts "min savings in the group loan product = #{group_loan_product.min_savings}"
+            total_savings_difference = @member_for_basic_payment.total_savings - @total_savings_before_transaction 
+            total_savings_difference.should == group_loan_product.min_savings
           end
           
-          principal_count.should == 1 
-          savings_count.should == 1 
-          interest_count.should == 1 
-          
-        end
-        
-        it "produces one extra saving_entry for the member, with value equal to the min_savings" do
-          # @total_saving_entries_count_before_basic_payment
-          total_saving_entries_count_after_basic_payment = @member_for_basic_payment.saving_book.saving_entries.count
-          (total_saving_entries_count_after_basic_payment - @total_saving_entries_count_before_basic_payment).should == 1 
-          
-          saving_entry = @member_for_basic_payment.saving_book.saving_entries.first
-          puts "the amount is #{saving_entry.amount}  *****************"
-        end
-        
-        it "the difference of member's total_savings is equal to the min_savings in the group loan product"  do
-          glm = @group_loan.group_loan_memberships.where(:member_id => @member_for_basic_payment.id ).first
-          group_loan_product = glm.group_loan_product
-          
-          puts "total savings before transaction = #{@total_savings_before_transaction }"
-          puts "total savings after transaction = #{@member_for_basic_payment.total_savings}"
-          puts "min savings in the group loan product = #{group_loan_product.min_savings}"
-          total_savings_difference = @member_for_basic_payment.total_savings - @total_savings_before_transaction 
-          total_savings_difference.should == group_loan_product.min_savings
-        end
-      end
+        end # end of context "checking the transaction entries generated"
+      end # end of context "post-transaction conditions for basic payment"
       
       
-    end
+    end #end of context "basic payment"
     
     context "special payment" do
       context "savings only" do
-      end
-      context "structured multiple weeks payment" do
+        it "can only be paid if the weekly meeting has been finalized"
+        it "can only be paid if the executor has role field_worker and the weekly meeting is closed" 
+        # general behavior 
+        context "post transaction conditions"
+        context "checking the transaction_entries generated and savings entries"
       end
       
       context "no payment declaration" do
+        # general behavior 
+        context "post transaction conditions"
+        context "checking the transaction_entries generated and savings entries (side effect)"
       end
+      
+      context "structured multiple weeks payment" do
+        # general behavior 
+        context "post transaction conditions"
+        context "checking the transaction_entries generated and savings entries"
+      end
+      
+      
     end
   end
   

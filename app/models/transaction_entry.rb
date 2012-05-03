@@ -55,4 +55,6 @@ class TransactionEntry < ActiveRecord::Base
   
   belongs_to :cashflow_book_entry 
   
+  has_one :saving_entry # if it is linked to the weekly_payment from member to office
+  
 end

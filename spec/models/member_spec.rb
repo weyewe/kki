@@ -20,17 +20,19 @@ describe Member do
       savings_amount = BigDecimal("10000")
       saving_entry = @member.add_savings( savings_amount , SAVING_ENTRY_CODE[:weekly_saving_from_basic_payment] )
       
+      # saving_entry.should_receive(:update_saving_book)
       saving_entry.should be_valid
       saving_entry.amount.should == savings_amount
     end
     
     it "should add the total in the saving_book"  do
       initial_total_savings = @member.total_savings
+      @member.total_savings.should == BigDecimal("0")
       
       savings_amount = BigDecimal("10000")
       saving_entry = @member.add_savings( savings_amount , SAVING_ENTRY_CODE[:weekly_saving_from_basic_payment] )
       
-      final_total_savings = @member.total_savings - initial_total_savings
+      final_total_savings = @member.saving_book.total - initial_total_savings
       final_total_savings.should == savings_amount
     end
   end

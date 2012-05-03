@@ -73,22 +73,28 @@ class Member < ActiveRecord::Base
     end
   end
   
-  def add_savings(saving_amount, saving_entry_code )
-    return SavingEntry.create(
-      :saving_book_id => self.saving_book.id , 
-      :saving_entry_code => saving_entry_code, 
-      :amount => saving_amount, 
-      :saving_action_type => SAVING_ACTION_TYPE[:debit]
-    )
+  def add_savings(saving_amount, saving_entry_code, saving_transaction_entry )
+    self.create_saving( saving_amount, saving_entry_code, SAVING_ACTION_TYPE[:debit] ,saving_transaction_entry)
   end
   
-  def deduct_savings( saving_amount, saving_entry_code)
-    self.saving_book.saving_entries.create(
+  def deduct_savings( saving_amount, saving_entry_code, saving_transaction_entry)
+    self.create_saving( saving_amount, saving_entry_code, SAVING_ACTION_TYPE[:credit], saving_transaction_entry )
+  end
+  
+  def create_saving( saving_amount, saving_entry_code, saving_action_type, saving_transaction_entry)
+    saving_entry =  SavingEntry.create(
+      :saving_book_id => self.saving_book.id , 
       :saving_entry_code => saving_entry_code,
       :amount => saving_amount,
-      :saving_action_type => SAVING_ACTION_TYPE[:credit]
+      :saving_action_type => saving_action_type,
+      :transaction_entry_id => saving_transaction_entry.id
     )
+    
+    self.saving_book.update_total( saving_entry )
+    return saving_entry
   end
+  
+  
   
   def total_savings
     self.saving_book.total 

@@ -494,7 +494,7 @@ class TransactionActivity < ActiveRecord::Base
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
     
-    self.transaction_entries.create( 
+    saving_transaction_entry = self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_saving], 
                       :amount => group_loan_product.min_savings,
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
@@ -505,8 +505,9 @@ class TransactionActivity < ActiveRecord::Base
                       :amount => group_loan_product.interest,
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
-                      
-    member.add_savings(group_loan_product.min_savings, SAVING_ENTRY_CODE[:weekly_saving_from_basic_payment]) 
+    
+    # each saving should be able to be traced to the transaction_entry -> transaction_activity 
+    member.add_savings(group_loan_product.min_savings, SAVING_ENTRY_CODE[:weekly_saving_from_basic_payment], saving_transaction_entry) 
   end
   
   def create_extra_savings_entries( balance , current_user , member)
