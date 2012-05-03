@@ -104,6 +104,13 @@ class TransactionActivity < ActiveRecord::Base
     member = group_loan_membership.member
     
     # can't be executed if there is previous loan disbursement for the same entry
+    
+    # past_transaction_activity = TransactionActivity.previous_transaction_activity( weekly_task, member )
+    #     if not past_transaction_activity.nil?
+    #       return past_transaction_activity
+    #     end
+    
+    
     old_payment =  TransactionActivity.find(:first, :conditions => {
       :member_id => member.id, 
       :loan_type => LOAN_TYPE[:group_loan],
@@ -116,7 +123,7 @@ class TransactionActivity < ActiveRecord::Base
     if not old_payment.nil?
       return old_payment
     end
-    
+
     new_hash = {}
     if group_loan_membership.deduct_setup_payment_from_loan ==true 
       #  create another transaction 
@@ -155,14 +162,40 @@ class TransactionActivity < ActiveRecord::Base
     return transaction_activity 
   end
   
-
+  def TransactionActivity.previous_transaction_activity( weekly_task, member )
+    member_payment = weekly_task.member_payment_for(member)
+    if ( not member_payment.nil? )  and (not member_payment.transaction_activity.nil?)
+      return member_payment.transaction_activity
+    end
+  end
+  
   def TransactionActivity.create_savings_only_weekly_payment(member,weekly_task, savings_amount,  current_user )
+    if not TransactionActivity.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, current_user )
+      return nil
+    end
+    
+    if savings_amount <= BigDecimal("0")
+      return nil
+    end
+    
     group_loan = weekly_task.group_loan
     group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
       :group_loan_id => group_loan.id, 
       :member_id => member.id 
     })
     group_loan_product = group_loan_membership.group_loan_product
+    
+    # wrong, fucking wrong
+    
+    past_transaction_activity = TransactionActivity.previous_transaction_activity( weekly_task, member )
+    if not past_transaction_activity.nil?
+      return past_transaction_activity
+    end
+    
+    
+    
+  
+    
     
     new_hash = {}
     new_hash[:total_transaction_amount]  = savings_amount
@@ -183,7 +216,7 @@ class TransactionActivity < ActiveRecord::Base
     return transaction_activity
   end
   
-  def TransactionActivity.can_create_basic_weekly_payment?( weekly_task, current_user )
+  def TransactionActivity.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, current_user )
     if  (not current_user.has_role?(:field_worker, current_user.get_active_job_attachment) ) or
         ( not weekly_task.is_weekly_attendance_marking_done == true )
         return false
@@ -192,8 +225,10 @@ class TransactionActivity < ActiveRecord::Base
     end
   end
   
+  
+  
   def TransactionActivity.create_basic_weekly_payment(member,weekly_task, current_user )
-    if not self.can_create_basic_weekly_payment?( weekly_task, current_user )
+    if not self.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, current_user )
       return nil
     end
     
@@ -207,15 +242,20 @@ class TransactionActivity < ActiveRecord::Base
     group_loan_product = group_loan_membership.group_loan_product
     
     
-    old_payment =  TransactionActivity.find(:first, :conditions => {
-      :member_id => member.id, 
-      :loan_type => LOAN_TYPE[:group_loan],
-      :loan_id => group_loan_membership.group_loan_id,
-      :transaction_case =>   TRANSACTION_CASE[:weekly_payment_basic]
-    })
-    if not old_payment.nil?
-      return old_payment
+    past_transaction_activity = TransactionActivity.previous_transaction_activity( weekly_task, member )
+    if not past_transaction_activity.nil?
+      return past_transaction_activity
     end
+    
+    # old_payment =  TransactionActivity.find(:first, :conditions => {
+    #       :member_id => member.id, 
+    #       :loan_type => LOAN_TYPE[:group_loan],
+    #       :loan_id => group_loan_membership.group_loan_id,
+    #       :transaction_case =>   TRANSACTION_CASE[:weekly_payment_basic]
+    #     })
+    #     if not old_payment.nil?
+    #       return old_payment
+    #     end
    
     
     
@@ -417,13 +457,13 @@ class TransactionActivity < ActiveRecord::Base
 
   def create_only_savings_payment_entry(savings_amount, current_user, member )
     cashflow_book = current_user.active_job_attachment.office.cashflow_book
-    self.transaction_entries.create( 
+    savings_only_transaction_entry = self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:no_weekly_payment_only_savings], 
                       :amount => savings_amount  ,
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                       
-    member.add_savings(savings_amount, SAVING_ENTRY_CODE[:no_weekly_payment_only_savings]) 
+    member.add_savings(savings_amount, SAVING_ENTRY_CODE[:no_weekly_payment_only_savings], savings_only_transaction_entry) 
 
   end
   

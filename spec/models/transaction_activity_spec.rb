@@ -287,7 +287,7 @@ describe TransactionActivity do
         basic_weekly_payment.should be_nil
       end
       
-      it "can only be paid if the executor has role field_worker and the weekly meeting is closed" do
+      it "can only be paid if the executor has role field_worker and the weekly meeting is finalized" do
         weekly_task = @group_loan.currently_executed_weekly_task 
       
         # marking all the attendances, collection of present, absent , late 
@@ -423,21 +423,176 @@ describe TransactionActivity do
     
     context "special payment" do
       context "savings only" do
-        it "can only be paid if the weekly meeting has been finalized"
-        it "can only be paid if the executor has role field_worker and the weekly meeting is closed" 
-        # general behavior 
-        context "post transaction conditions"
-        context "checking the transaction_entries generated and savings entries"
-      end
+     
+        it "can only be paid if the weekly meeting has been finalized" do
+          member = @members[rand(8)]
+          weekly_task = @group_loan.currently_executed_weekly_task
+          savings_amount = BigDecimal("5000")
+          savings_only_transaction = TransactionActivity.create_savings_only_weekly_payment(
+                        member,
+                        weekly_task,
+                        savings_amount,
+                        @field_worker)
+                    
+          savings_only_transaction.should be_nil
+        end
+        
+       
+        
+        context "weekly meeting has been finalized" do
+          before(:each) do
+            @weekly_task = @group_loan.currently_executed_weekly_task
+            @selected_member = @members[rand(8)]
+            @members.each do |member|
+              value = rand(3)
+              if value == 0
+                @weekly_task.mark_attendance_as_late(member, @field_worker )
+              elsif value ==1 
+                @weekly_task.mark_attendance_as_present(member, @field_worker  )
+              elsif value == 2 
+                @weekly_task.mark_attendance_as_absent(member, @field_worker  )
+              end
+            end
+
+            @weekly_task.close_weekly_meeting( @field_worker )
+          end
+          
+          it "can only be paid if the employee has role field_worker" do
+            savings_amount = BigDecimal("5000")
+            savings_only_transaction  = TransactionActivity.create_savings_only_weekly_payment(
+                        @selected_member,
+                        @weekly_task, 
+                        savings_amount,
+                        @cashier )
+            savings_only_transaction.should be_nil
+            
+            savings_only_transaction  = TransactionActivity.create_savings_only_weekly_payment(
+                        @selected_member,
+                        @weekly_task, 
+                        savings_amount,
+                        @field_worker )
+            savings_only_transaction.should be_valid
+          end
+          
+          it "won't create double transaction_activity " do
+            savings_amount = BigDecimal("5000")
+            savings_only_transaction  = TransactionActivity.create_savings_only_weekly_payment(
+                        @selected_member,
+                        @weekly_task, 
+                        savings_amount,
+                        @field_worker )
+            savings_only_transaction.should be_valid
+            
+            savings_only_transaction_2  = TransactionActivity.create_savings_only_weekly_payment(
+                        @selected_member,
+                        @weekly_task, 
+                        savings_amount,
+                        @field_worker )
+            savings_only_transaction_2.id.should == savings_only_transaction.id
+            
+          end
+          
+          it "can only be paid if the savings_amount is bigger than 0" do
+            savings_amount = BigDecimal("0")
+            savings_only_transaction  = TransactionActivity.create_savings_only_weekly_payment(
+                        @selected_member,
+                        @weekly_task, 
+                        savings_amount,
+                        @field_worker )
+                        
+            savings_only_transaction.should be_nil
+            
+            savings_amount = BigDecimal("-500")
+            savings_only_transaction  = TransactionActivity.create_savings_only_weekly_payment(
+                        @selected_member,
+                        @weekly_task, 
+                        savings_amount,
+                        @field_worker )
+                        
+            savings_only_transaction.should be_nil
+            
+            savings_amount = BigDecimal("5000")
+            savings_only_transaction  = TransactionActivity.create_savings_only_weekly_payment(
+                        @selected_member,
+                        @weekly_task, 
+                        savings_amount,
+                        @field_worker )
+                        
+            savings_only_transaction.should be_valid
+          end
+          
+          context "post transaction conditions: checking the transaction entries, savings, and backlog payment" do
+            before(:each) do
+              @total_member_savings_before_transaction = @selected_member.total_savings
+              @savings_amount = BigDecimal("5000")
+              @savings_only_transaction  = TransactionActivity.create_savings_only_weekly_payment(
+                          @selected_member,
+                          @weekly_task, 
+                          @savings_amount,
+                          @field_worker )
+            end
+            
+            it "should produce 1 backlog payment"  do
+              member_payment= @weekly_task.member_payment_for(@selected_member)
+              member_payment.transaction_activity_id.should == @savings_only_transaction.id
+              member_payment.backlog_payment.should be_valid
+            end
+            
+            
+            it "should produce only 1 transaction entry and the transaction_entry code is no weekly payment, just savings" do
+              @savings_only_transaction.should have(1).transaction_entry 
+              
+              the_transaction_entry = @savings_only_transaction.transaction_entries.first 
+              the_transaction_entry.transaction_entry_code.should == TRANSACTION_ENTRY_CODE[:no_weekly_payment_only_savings]
+            end
+            
+            it "should have linked transaction entry with the saving entry" do 
+              the_saving_entry= @selected_member.saving_book.saving_entries.first 
+              
+              the_saving_entry.transaction_entry_id.should == @savings_only_transaction.transaction_entries.first.id
+            end
+            
+            it "should add the total_savings by savings_amount" do
+              total_savings_after_transaction = @selected_member.total_savings
+              difference = total_savings_after_transaction - @total_member_savings_before_transaction 
+              difference.should == @savings_amount
+            end
+          end
+          
+          
+        end
+        
+        
+      end # end of the savings only payment context 
       
       context "no payment declaration" do
         # general behavior 
         context "post transaction conditions"
         context "checking the transaction_entries generated and savings entries (side effect)"
+        context "no double backlog_payment for the same weeks"
       end
       
       context "structured multiple weeks payment" do
-        # general behavior 
+        
+        # TransactionActivity.create_structured_multiple_payment(
+        #      @member,
+        #      @weekly_task,
+        #      current_user,
+        #      cash,
+        #      savings_withdrawal,
+        #      number_of_weeks
+        #    )
+        #    
+        #    
+        context "weekly_payment_single_week_extra_savings "
+        context "weekly_payment_single_week_structured_with_soft_savings_withdrawal"  
+        context "weekly_payment_single_week_structured_with_soft_savings_withdrawal_extra_savings" 
+        context "weekly_payment_structured_multiple_weeks" 
+        context "weekly_payment_structured_multiple_weeks_extra_savings " 
+        context "weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal " 
+        context " weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal_extra_savings" 
+        
+        
         context "post transaction conditions"
         context "checking the transaction_entries generated and savings entries"
       end

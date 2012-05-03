@@ -282,6 +282,9 @@ class WeeklyTask < ActiveRecord::Base
   def create_weekly_payment_declared_as_no_payment(member)
     if self.has_paid_weekly_payment?(member)  
       return nil
+      
+    elsif not self.member_payment_for(member).nil?
+      return self.member_payment_for(member)
     else 
       member_payment = self.member_payments.create(
         :transaction_activity_id => nil,
