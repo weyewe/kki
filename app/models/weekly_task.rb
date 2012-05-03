@@ -6,6 +6,8 @@ class WeeklyTask < ActiveRecord::Base
   has_many :backlog_payments
   
   # after_create :create_the_respective_meeting_attendances_and_payment_collections
+  
+  
   def member_payment_for(member)
     MemberPayment.find(:first,:conditions => {
       :weekly_task_id => self.id,
@@ -148,6 +150,10 @@ class WeeklyTask < ActiveRecord::Base
   
   def mark_attendance_as_present(member, current_user )
     mark_member_attendance( member, current_user,ATTENDANCE_STATUS[:present_on_time]  )
+  end
+  
+  def mark_attendance_as_absent( member, current_user )
+    mark_member_attendance( member, current_user,ATTENDANCE_STATUS[:absent]  )
   end
   
   def mark_member_attendance( member , current_user, attendance_status)

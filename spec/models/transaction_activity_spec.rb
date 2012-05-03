@@ -111,7 +111,7 @@ describe TransactionActivity do
   end
   
   context "Loan Disbursement Transaction Activity: group loan has been approved and 
-          setup payment has been taken" do
+            setup payment has been taken" do
     
     # clear the setup payment transaction( everyone decides to do setup payment using the loan)
     before(:each) do 
@@ -126,9 +126,7 @@ describe TransactionActivity do
       @group_loan.execute_finalize_setup_fee_collection( @field_worker )
       @group_loan.approve_setup_fee_collection( @cashier )
     end
-    
-    # it 'is just playing around' do
-    #   end
+
     
     it "will execute loan disbursement if the current_user role is cashier" do 
        member = @members[ rand(8) ]
@@ -147,7 +145,7 @@ describe TransactionActivity do
        end
      end
     
-    it "won't execute the loan disbursement if there has been a previous loan disbursement for the same member" do 
+    it "will return the transaction_activity if it has been executed previously" do 
       member = @members[ rand(8) ]
       glm = GroupLoanMembership.find(:first, :conditions => {
         :member_id => member.id,
@@ -159,7 +157,7 @@ describe TransactionActivity do
       transaction_1.should be_valid
       
       transaction_2 = TransactionActivity.execute_loan_disbursement( glm , @cashier  )
-      transaction_2.should be_nil
+      transaction_2.id.should  == transaction_1.id
     end
     
     context "post condition after the disbursement transaction activity (deduct loan amount case)" do
@@ -189,7 +187,7 @@ describe TransactionActivity do
       end
 
       it "will create 2 transaction entries: giving the full amount to the member, 
-        and the member will return the one equal with setup amount " do
+          and the member will return the one equal with setup amount " do
         @transaction_1_executed.transaction_case.should ==TRANSACTION_CASE[:loan_disbursement_with_setup_payment_deduction]             
         @transaction_1_executed.should have(2).transaction_entries 
       
@@ -220,12 +218,184 @@ describe TransactionActivity do
         deducted_loan_disbursement_count.should ==  1 
         deduction_of_loan_disbursement_count.should  == 1 
         @transaction_1_executed.total_transaction_amount.should  ==  total_money_exchanging_hands 
+      end  # end of the it block
+      
+      
+      it "will not increase member's savings. no effects"
+    end # end of post loan_disbursement transaction  context
+    
+    context "cashier approval can be done if all members have received the loan disbursement" do
+      it "will produce false approval if not all members has received the loan disbursement" do
+        # total members == 8 
+        @group_loan.group_loan_memberships[0..5].each do |glm|
+          TransactionActivity.execute_loan_disbursement( glm , @cashier )
+        end
+        
+        @group_loan.execute_finalize_loan_disbursement( @cashier ).should be_false 
       end
-    end
-  end
+      
+      it "will produce false approval if not all members has received the loan disbursement" do
+        @group_loan.group_loan_memberships.each do |glm|
+          TransactionActivity.execute_loan_disbursement( glm , @cashier )
+        end
+
+        @group_loan.execute_finalize_loan_disbursement( @cashier ).should be_true
+      end
+    end #end of cashier approval context 
+  end # end of loan_disbursement context
   
   describe "Weekly Loan Payment Transaction Activity" do 
+    before(:each) do
+      @members.each do |member|
+        glm = GroupLoanMembership.find(:first, :conditions => {
+          :member_id => member.id,
+          :group_loan_id => @group_loan.id 
+        })
+        glm.declare_setup_payment_by_loan_deduction
+      end
+      
+      @group_loan.execute_finalize_setup_fee_collection( @field_worker )
+      @group_loan.approve_setup_fee_collection( @cashier )
+      
+      # create loan disbursement
+      @group_loan.group_loan_memberships.each do |glm|
+        TransactionActivity.execute_loan_disbursement( glm , @cashier )
+      end
+      #finalize loan disbursement 
+      @group_loan.execute_finalize_loan_disbursement( @cashier )
+    end
+    
+    context "all payments behavior" do
+      it "should have equal number of weekly_tasks in group_loan.total_weeks" do
+        puts "Total weeks == #{@group_loan.total_weeks}"
+        @group_loan.should have(@group_loan.total_weeks).weekly_tasks
+      end
+      
+      it "should have completed the weekly_task, meeting part before proceeding to weekly payment, any kind of payments" do
+        # we don't need to enforce this rule.. if they have the money, they can do the structured multiple weeks payment
+      end
+    end
+    
     context "basic payment" do
+      
+      it "can only be paid if the weekly meeting has been finalized" do
+        member = @members[rand(8)]
+        weekly_task = @group_loan.currently_executed_weekly_task 
+        puts "#{weekly_task.week_number}" 
+        
+        basic_weekly_payment  = TransactionActivity.create_basic_weekly_payment(member,weekly_task, @field_worker )
+        basic_weekly_payment.should be_nil
+      end
+      
+      it "can only be paid if the executor has role field_worker and the weekly meeting is closed" do
+        weekly_task = @group_loan.currently_executed_weekly_task 
+      
+        # marking all the attendances, collection of present, absent , late 
+        @members.each do |member|
+          value = rand(3)
+          if value == 0
+            weekly_task.mark_attendance_as_late(member, @field_worker )
+          elsif value ==1 
+            weekly_task.mark_attendance_as_present(member, @field_worker  )
+          elsif value == 2 
+            weekly_task.mark_attendance_as_absent(member, @field_worker  )
+          end
+        end
+        
+        member = @members[rand(8)]
+        basic_weekly_payment  = TransactionActivity.create_basic_weekly_payment(member,weekly_task, @field_worker )
+        basic_weekly_payment.should be_nil
+        
+        weekly_task.close_weekly_meeting( @field_worker )
+        basic_weekly_payment  = TransactionActivity.create_basic_weekly_payment(member,weekly_task, @field_worker )
+        basic_weekly_payment.should be_valid
+      end
+      
+      context "post-transaction conditions for basic payment" do
+        before(:each) do 
+          @weekly_task_for_basic_payment = @group_loan.currently_executed_weekly_task 
+
+          # marking all the attendances, collection of present, absent , late 
+          @members.each do |member|
+            value = rand(3)
+            if value == 0
+              @weekly_task_for_basic_payment.mark_attendance_as_late(member, @field_worker )
+            elsif value ==1 
+              @weekly_task_for_basic_payment.mark_attendance_as_present(member, @field_worker  )
+            elsif value == 2 
+              @weekly_task_for_basic_payment.mark_attendance_as_absent(member, @field_worker  )
+            end
+          end
+          @weekly_task_for_basic_payment.close_weekly_meeting( @field_worker )
+          @member_for_basic_payment = @members[rand(8)]
+          @total_savings_before_transaction = @member_for_basic_payment.total_savings
+          @total_saving_entries_count_before_basic_payment = @member_for_basic_payment.saving_book.saving_entries.count 
+          @basic_weekly_payment_transaction  = TransactionActivity.create_basic_weekly_payment(@member_for_basic_payment,
+                                @weekly_task_for_basic_payment, 
+                                @field_worker )
+        end
+        
+        it "will produce total transaction amount equals basic weekly payment of the group loan product " do
+          glm = @group_loan.group_loan_memberships.where(:member_id => @member_for_basic_payment.id ).first
+          group_loan_product = glm.group_loan_product
+          @basic_weekly_payment_transaction.total_transaction_amount.should == group_loan_product.total_weekly_payment
+        end
+        
+        it "will have transaction_case:#{TRANSACTION_CASE[:weekly_payment_basic]} " do
+          @basic_weekly_payment_transaction.transaction_case.should == TRANSACTION_CASE[:weekly_payment_basic]
+        end
+        it "won't create double basic_weekly_payment for the same week" do
+          another_weekly_payment = TransactionActivity.create_basic_weekly_payment(@member_for_basic_payment,
+                                @weekly_task_for_basic_payment, 
+                                @field_worker )
+                                
+          another_weekly_payment.id.should  == @basic_weekly_payment_transaction.id
+        end
+        
+        it 'will create 3 transaction entries: principal, interest and savings' do
+          @basic_weekly_payment_transaction.should have(3).transaction_entries
+          
+          principal_count = 0
+          interest_count = 0
+          savings_count = 0 
+          @basic_weekly_payment_transaction.transaction_entries.each do |te|
+            if te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_principal]
+              principal_count += 1 
+            elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_saving]
+              savings_count += 1
+            elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_interest]
+              interest_count += 1 
+            end
+          end
+          
+          principal_count.should == 1 
+          savings_count.should == 1 
+          interest_count.should == 1 
+          
+        end
+        
+        it "produces one extra saving_entry for the member, with value equal to the min_savings" do
+          # @total_saving_entries_count_before_basic_payment
+          total_saving_entries_count_after_basic_payment = @member_for_basic_payment.saving_book.saving_entries.count
+          (total_saving_entries_count_after_basic_payment - @total_saving_entries_count_before_basic_payment).should == 1 
+          
+          saving_entry = @member_for_basic_payment.saving_book.saving_entries.first
+          puts "the amount is #{saving_entry.amount}  *****************"
+        end
+        
+        it "the difference of member's total_savings is equal to the min_savings in the group loan product"  do
+          glm = @group_loan.group_loan_memberships.where(:member_id => @member_for_basic_payment.id ).first
+          group_loan_product = glm.group_loan_product
+          
+          puts "total savings before transaction = #{@total_savings_before_transaction }"
+          puts "total savings after transaction = #{@member_for_basic_payment.total_savings}"
+          puts "min savings in the group loan product = #{group_loan_product.min_savings}"
+          total_savings_difference = @member_for_basic_payment.total_savings - @total_savings_before_transaction 
+          total_savings_difference.should == group_loan_product.min_savings
+        end
+      end
+      
+      
     end
     
     context "special payment" do

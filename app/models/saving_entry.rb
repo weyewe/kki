@@ -3,14 +3,19 @@ class SavingEntry < ActiveRecord::Base
   
   after_create :update_saving_book
   
+  # belongs_to :transaction_entry
+  
   
   def update_saving_book
+    saving_book = self.saving_book
+    total = saving_book.total
     if self.saving_action_type == SAVING_ACTION_TYPE[:debit]
-      self.saving_book.total += self.amount 
+      total += self.amount 
     elsif self.saving_action_type == SAVING_ACTION_TYPE[:credit]
-      self.saving_book.total -= self.amount
+      total -= self.amount
     end
-    self.saving_book.save 
+    saving_book.total = total
+    saving_book.save  
   end
   
 end

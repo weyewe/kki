@@ -17,6 +17,7 @@
 class TransactionActivity < ActiveRecord::Base
   has_many :transaction_entries 
   belongs_to :office 
+  # has_many :saving_entries
   
   # has_one :member_payment
   
@@ -95,13 +96,15 @@ class TransactionActivity < ActiveRecord::Base
     if not cashier.has_role?(:cashier, cashier.get_active_job_attachment)
       return nil
     end
+    
+  
    
     
     group_loan_product = group_loan_membership.group_loan_product
     member = group_loan_membership.member
     
     # can't be executed if there is previous loan disbursement for the same entry
-    if TransactionActivity.find(:all, :conditions => {
+    old_payment =  TransactionActivity.find(:first, :conditions => {
       :member_id => member.id, 
       :loan_type => LOAN_TYPE[:group_loan],
       :loan_id => group_loan_membership.group_loan_id,
@@ -109,8 +112,9 @@ class TransactionActivity < ActiveRecord::Base
         TRANSACTION_CASE[:loan_disbursement_with_setup_payment_deduction], 
         TRANSACTION_CASE[:loan_disbursement_no_setup_payment_deduction]
       ]
-    }).count != 0 
-      return nil
+    })
+    if not old_payment.nil?
+      return old_payment
     end
     
     new_hash = {}
@@ -179,13 +183,42 @@ class TransactionActivity < ActiveRecord::Base
     return transaction_activity
   end
   
+  def TransactionActivity.can_create_basic_weekly_payment?( weekly_task, current_user )
+    if  (not current_user.has_role?(:field_worker, current_user.get_active_job_attachment) ) or
+        ( not weekly_task.is_weekly_attendance_marking_done == true )
+        return false
+    else
+      return true
+    end
+  end
+  
   def TransactionActivity.create_basic_weekly_payment(member,weekly_task, current_user )
+    if not self.can_create_basic_weekly_payment?( weekly_task, current_user )
+      return nil
+    end
+    
+  
+    
     group_loan = weekly_task.group_loan
     group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
       :group_loan_id => group_loan.id, 
       :member_id => member.id 
     })
     group_loan_product = group_loan_membership.group_loan_product
+    
+    
+    old_payment =  TransactionActivity.find(:first, :conditions => {
+      :member_id => member.id, 
+      :loan_type => LOAN_TYPE[:group_loan],
+      :loan_id => group_loan_membership.group_loan_id,
+      :transaction_case =>   TRANSACTION_CASE[:weekly_payment_basic]
+    })
+    if not old_payment.nil?
+      return old_payment
+    end
+   
+    
+    
     
     
     new_hash = {}

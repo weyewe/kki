@@ -74,9 +74,10 @@ class Member < ActiveRecord::Base
   end
   
   def add_savings(saving_amount, saving_entry_code )
-    self.saving_book.saving_entries.create(
-      :saving_entry_code => saving_entry_code,
-      :amount => saving_amount,
+    return SavingEntry.create(
+      :saving_book_id => self.saving_book.id , 
+      :saving_entry_code => saving_entry_code, 
+      :amount => saving_amount, 
       :saving_action_type => SAVING_ACTION_TYPE[:debit]
     )
   end

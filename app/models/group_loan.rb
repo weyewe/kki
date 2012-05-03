@@ -287,8 +287,10 @@ class GroupLoan < ActiveRecord::Base
   end
   
   def execute_finalize_loan_disbursement( current_user )
+    
+    
     if self.undisbursed_members.count != 0 
-      return self
+      return false
     else
       self.is_loan_disbursement_done = true 
       self.loan_disburser_id = current_user.id
@@ -301,6 +303,8 @@ class GroupLoan < ActiveRecord::Base
         # weekly_payment has_many member_payments
       # create the weekly meeting 
         # weekly meeting has many member_attendances 
+        
+      return true 
     end
   end
   
@@ -331,6 +335,14 @@ class GroupLoan < ActiveRecord::Base
     })
   end
   
+  def currently_executed_weekly_task
+    self.weekly_tasks.find(:first, :conditions => {
+      :is_weekly_attendance_marking_done  => false ,
+      :is_weekly_payment_collection_finalized => false,
+      :is_weekly_payment_approved_by_cashier =>  false
+    }, :limit => 1, :order => "week_number ASC")
+  end
+  
 =begin
   For weekly task approval by cashier 
 =end
@@ -340,7 +352,6 @@ class GroupLoan < ActiveRecord::Base
      :is_weekly_payment_collection_finalized => true,
      :is_weekly_payment_approved_by_cashier =>  false
     )
-    
   end
   
 =begin
