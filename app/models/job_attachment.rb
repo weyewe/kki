@@ -31,4 +31,6 @@ class JobAttachment < ActiveRecord::Base
     end
   end
   
+  
+  
 end

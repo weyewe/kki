@@ -122,8 +122,8 @@ TRANSACTION_ENTRY_CODE = {
   :soft_savings_withdrawal => 200,
   :hard_saving_withdrawal => 201 ,
   :loan_disbursement => 300,
-  :deducted_loan_disbursement => 301,
-  :deduct_setup_fee_from_loan_disbursement => 310
+  :total_loan_disbursement_amount => 301,
+  :setup_fee_deduction_from_disbursement_amount => 310
   
 }
 

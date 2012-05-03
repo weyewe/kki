@@ -6,13 +6,20 @@ FactoryGirl.define do
   # create 1  village.. and later 1 commune.. just for the sake of testing
   factory :group_loan_commune , parent: :commune do 
     number "1"
-    association :village, factory: :kalibaru_village 
+    after_create do |x|
+      x.village=  ( Village.find_by_name("Kalibaru") || FactoryGirl.create(:kalibaru_village) )
+      x.save
+    end
+    
   end
   
   
   factory :non_group_loan_commune , parent: :commune do 
     number "2"
-    association :village, factory: :kalibaru_village 
+    after_create do |x|
+      x.village =  (Village.find_by_name("Kalibaru") || FactoryGirl.create(:kalibaru_village))
+      x.save
+    end
   end
  
   

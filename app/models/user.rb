@@ -116,13 +116,7 @@ class User < ActiveRecord::Base
   
   
   def has_role?(role_sym,  active_job_attachment )
-    # job_attachment = JobAttachment.find(:first, :conditions => {
-    #      :office_id => office.id , 
-    #      :user_id => self.id 
-    #    })
-    
     active_job_attachment.has_role?(role_sym)
-    # roles.any? { |r| r.name.underscore.to_sym == role_sym }
   end
   
   

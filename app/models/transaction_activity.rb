@@ -91,8 +91,27 @@ class TransactionActivity < ActiveRecord::Base
   
   
   def self.execute_loan_disbursement( group_loan_membership , cashier)
+    # can only be executed by cashier 
+    if not cashier.has_role?(:cashier, cashier.get_active_job_attachment)
+      return nil
+    end
+   
+    
     group_loan_product = group_loan_membership.group_loan_product
-    member = group_loan_membership.member 
+    member = group_loan_membership.member
+    
+    # can't be executed if there is previous loan disbursement for the same entry
+    if TransactionActivity.find(:all, :conditions => {
+      :member_id => member.id, 
+      :loan_type => LOAN_TYPE[:group_loan],
+      :loan_id => group_loan_membership.group_loan_id,
+      :transaction_case => [
+        TRANSACTION_CASE[:loan_disbursement_with_setup_payment_deduction], 
+        TRANSACTION_CASE[:loan_disbursement_no_setup_payment_deduction]
+      ]
+    }).count != 0 
+      return nil
+    end
     
     new_hash = {}
     if group_loan_membership.deduct_setup_payment_from_loan ==true 
@@ -407,22 +426,24 @@ class TransactionActivity < ActiveRecord::Base
   def create_loan_disbursement_entries( amount , cashier , deduct_setup_payment_from_loan ) 
     cashflow_book = cashier.active_job_attachment.office.cashflow_book
     
+   
+    
     if deduct_setup_payment_from_loan 
        deduction_amount = amount - self.total_transaction_amount
        self.transaction_entries.create( 
-                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:deducted_loan_disbursement], 
+                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:total_loan_disbursement_amount], 
                           :amount => amount  ,
                           :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
                           )
        self.transaction_entries.create( 
-                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:deduct_setup_fee_from_loan_disbursement], 
+                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:setup_fee_deduction_from_disbursement_amount], 
                           :amount => deduction_amount  ,
                           :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                           )
       
     else
       self.transaction_entries.create( 
-                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:loan_disbursement], 
+                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:total_loan_disbursement_amount], 
                           :amount => amount  ,
                           :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
                           )

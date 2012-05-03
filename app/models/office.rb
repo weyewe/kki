@@ -17,12 +17,36 @@ class Office < ActiveRecord::Base
   
   has_many :transaction_activities 
   
+  
+  # regency : kabupaten ,several offices ? perhaps. best case 
+  
   # Normally, 1 Office represents 1 Subdistrict  
   has_many :subdistricts, :through => :geo_scopes
   has_many :geo_scopes
   
   
   after_create :create_cashflow_book
+  
+=begin
+  Office management
+=end
+
+  def create_user(role_list, user_hash)
+    new_user = User.new(user_hash)
+    
+    if not new_user.save
+      return nil
+    end
+    
+    job_attachment = JobAttachment.create(:user_id => new_user.id, :office_id => self.id)
+    
+    role_list.each do |role|
+      Assignment.create_role_assignment_if_not_exists( role,  new_user)
+    end
+    
+    return new_user 
+    
+  end
   
   def all_communes_under_management
     subdistricts = self.subdistricts.includes(:villages => [:communes] ) 

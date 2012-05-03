@@ -9,13 +9,13 @@ FactoryGirl.define do
     email "branch_manager@gmail.com"
     # created_user.after_create { |u| FactoryGirl(:branch_manager_role_assignment) }
     after_create do |x|  
+      # cilincing_office = Office.find_by_name("Cilincing Office")
       x.offices << FactoryGirl.create(:cilincing_office)  
       x.save
       job_attachment = x.get_active_job_attachment 
       
       branch_manager_role = Role.find_by_name(USER_ROLE[:branch_manager]) || FactoryGirl.create(:branch_manager_role)
       job_attachment.roles <<  branch_manager_role
-       
       job_attachment.save
     end
     

@@ -11,7 +11,11 @@ FactoryGirl.define do
     # postal_code '14110'
     name "Kali Baru"
     postal_code "14110"
-    association :subdistrict, factory: :cilincing_subdistrict 
+    after_create do |x|
+      x.subdistrict = ( Subdistrict.find_by_name("Cilincing") || FactoryGirl.create(:cilincing_subdistrict) )
+      x.save
+    end
+    # association :subdistrict, factory: :cilincing_subdistrict 
   end
  
   

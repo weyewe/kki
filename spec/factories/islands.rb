@@ -6,7 +6,7 @@ FactoryGirl.define do
   end
   
   factory :java_island, parent: :island do 
-    name "Java"
+    name "Jawa"
   end
   
   
