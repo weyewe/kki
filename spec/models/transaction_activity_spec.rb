@@ -1269,8 +1269,149 @@ describe TransactionActivity do
             actual_savings_difference.should == expected_savings_difference
           end
         end
-        context "weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal " 
-        context " weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal_extra_savings" 
+        context "weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal " do
+          before(:each) do
+            savings_amount = 2* @group_loan_product.total_weekly_payment
+            TransactionActivity.create_independent_savings( @selected_member, savings_amount, @field_worker )
+            @number_of_weeks = 2
+            
+            @cash_amount = @group_loan_product.total_weekly_payment
+            @savings
+            
+            @cash_amount =  ( @number_of_weeks- 1 )* @group_loan_product.total_weekly_payment  
+            @savings_withdrawal_amount  = @group_loan_product.total_weekly_payment  
+            
+            @initial_total_savings = @selected_member.total_savings
+            @structured_transaction = TransactionActivity.create_structured_multiple_payment(
+                @selected_member, #member
+                @weekly_task,  # the weekly task
+                @field_worker, # the field worker 
+                @cash_amount,   # the cash payment 
+                @savings_withdrawal_amount,  #savings withdrawal
+                @number_of_weeks)# number of weeks
+          end
+          
+          it "should produces number_of_weeks*3 + 1 transaction entries" do
+            # (principal, interest, savings)*number_of_weeks + soft_saving_withdrawal_entries
+            @structured_transaction.should have(@number_of_weeks*3  + 1 ).transaction_entries 
+            
+            principal_transaction_entry_count  = 0
+            savings_transaction_entry_count  = 0
+            interest_transaction_entry_count  = 0
+            savings_withdrawal_entry_count = 0 
+            extra_savings_entry_count = 0 
+            savings_withdrawal_transaction_entry = ''
+            extra_savings_transaction_entry = ''
+            @structured_transaction.transaction_entries.each do |te|
+              if te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_principal]
+                principal_transaction_entry_count +=1 
+              elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_saving]
+                savings_transaction_entry_count +=1 
+              elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_interest]
+                interest_transaction_entry_count += 1 
+              elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal]
+                savings_withdrawal_entry_count += 1 
+                savings_withdrawal_transaction_entry = te
+              elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:extra_weekly_saving]
+                extra_savings_entry_count += 1
+                extra_savings_transaction_entry = te 
+              end
+            end
+            
+            
+            principal_transaction_entry_count.should  ==  @number_of_weeks
+            savings_transaction_entry_count.should  == @number_of_weeks
+            interest_transaction_entry_count.should == @number_of_weeks
+            savings_withdrawal_entry_count.should == 1 
+            extra_savings_entry_count.should == 0 # total incoming == total weekly payment* number_of_weeks
+            
+            savings_withdrawal_transaction_entry.amount.should == @savings_withdrawal_amount
+          end
+          
+          
+          it "should produce savings difference: number_of_weeks*min_savings - savings_withdrawal" do 
+            final_total_savings=  @selected_member.total_savings
+            actual_total_savings_difference = final_total_savings -  @initial_total_savings
+            expected_total_savings_difference = @number_of_weeks*@group_loan_product.min_savings - @savings_withdrawal_amount
+          end
+          
+          
+          it "verify the member_payment created.. and the weekly task" do
+            @group_loan.remaining_weekly_tasks_count_for_member(@selected_member).should == ( @group_loan.total_weeks - @number_of_weeks)
+          end
+        end
+        
+        
+        context " weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal_extra_savings"  do
+          before(:each) do
+            savings_amount = 2* @group_loan_product.total_weekly_payment
+            TransactionActivity.create_independent_savings( @selected_member, savings_amount, @field_worker )
+            @number_of_weeks = 2
+            
+            @cash_amount = @group_loan_product.total_weekly_payment
+            @savings
+            
+            @cash_amount =  ( @number_of_weeks )* @group_loan_product.total_weekly_payment  
+            @savings_withdrawal_amount  = @group_loan_product.total_weekly_payment  
+            
+            @initial_total_savings = @selected_member.total_savings
+            @structured_transaction = TransactionActivity.create_structured_multiple_payment(
+                @selected_member, #member
+                @weekly_task,  # the weekly task
+                @field_worker, # the field worker 
+                @cash_amount,   # the cash payment 
+                @savings_withdrawal_amount,  #savings withdrawal
+                @number_of_weeks)# number of weeks
+          end
+          it "should produces number_of_weeks*3 + 2 transaction entries" do
+            @structured_transaction.should have(@number_of_weeks*3   +  2).transaction_entries
+            
+            principal_transaction_entry_count  = 0
+            savings_transaction_entry_count  = 0
+            interest_transaction_entry_count  = 0
+            savings_withdrawal_entry_count = 0 
+            extra_savings_entry_count = 0 
+            savings_withdrawal_transaction_entry = ''
+            extra_savings_transaction_entry = ''
+            @structured_transaction.transaction_entries.each do |te|
+              if te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_principal]
+                principal_transaction_entry_count +=1 
+              elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_saving]
+                savings_transaction_entry_count +=1 
+              elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_interest]
+                interest_transaction_entry_count += 1 
+              elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal]
+                savings_withdrawal_entry_count += 1 
+                savings_withdrawal_transaction_entry = te
+              elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:extra_weekly_saving]
+                extra_savings_entry_count += 1
+                extra_savings_transaction_entry = te 
+              end
+            end
+            
+            
+            principal_transaction_entry_count.should  ==  @number_of_weeks
+            savings_transaction_entry_count.should  == @number_of_weeks
+            interest_transaction_entry_count.should == @number_of_weeks
+            savings_withdrawal_entry_count.should == 1 
+            extra_savings_entry_count.should == 1 # total incoming == total weekly payment* number_of_weeks
+            
+            savings_withdrawal_transaction_entry.amount.should == @savings_withdrawal_amount
+            expected_extra_savings =  @cash_amount + @savings_withdrawal_amount - @number_of_weeks*@group_loan_product.total_weekly_payment
+            extra_savings_transaction_entry.amount.should == expected_extra_savings
+          end
+          
+          it "should produce savings difference: number_of_weeks*min_savings  + cash_amount - savings_withdrawal" do
+            final_total_savings_amount= @selected_member.total_savings
+            difference =  final_total_savings_amount  - @initial_total_savings
+            expected_extra_savings =  @cash_amount + @savings_withdrawal_amount - @number_of_weeks*@group_loan_product.total_weekly_payment
+            difference.should == @number_of_weeks*@group_loan_product.min_savings + expected_extra_savings - @savings_withdrawal_amount
+          end
+          
+          it "verify the member_payment created.. and the weekly task" do
+            @group_loan.remaining_weekly_tasks_count_for_member(@selected_member).should == (@group_loan.total_weeks - @number_of_weeks)
+          end
+        end
         
      
       end
@@ -1280,6 +1421,10 @@ describe TransactionActivity do
   end # end of "Weekly Loan Payment Transaction Activity"
   
   describe "Backlog Payment Transaction Activity" do 
+    before(:each) do
+    end
+    
+    
     context "basic single backlog payment" do
     end
     context "multiple backlog payments + structured" do
