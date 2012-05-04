@@ -102,7 +102,9 @@ TRANSACTION_CASE = {
   :loan_disbursement_with_setup_payment_deduction => 101,
   :saving_withdrawal => 200, 
   :deposit_return_complete => 300, 
-  :deposit_return_deduct_default => 301 
+  :deposit_return_deduct_default => 301 ,
+  
+  :independent_savings_deposit => 500
   
 }
 
@@ -121,6 +123,7 @@ TRANSACTION_ENTRY_CODE = {
   :return_deposit => 101, 
   :soft_savings_withdrawal => 200,
   :hard_saving_withdrawal => 201 ,
+  :independent_savings_deposit => 250,  ## awesome, member starts  to save!
   :loan_disbursement => 300,
   :total_loan_disbursement_amount => 301,
   :setup_fee_deduction_from_disbursement_amount => 310
@@ -134,7 +137,7 @@ SAVING_ENTRY_CODE = {
   :initial_setup_saving => 1 , 
   :weekly_saving_from_basic_payment => 2 , 
   :weekly_saving_extra_from_basic_payment => 3 ,
-  :independent_saving => 4, 
+  :independent_savings_deposit => 4, 
   :no_weekly_payment_only_savings => 5 ,
   
   :soft_withdraw_to_pay_basic_weekly_payment => 100, 

@@ -43,6 +43,32 @@ class TransactionActivity < ActiveRecord::Base
     })
   end
   
+  def TransactionActivity.create_independent_savings( member, amount, field_worker )
+    
+    # member.add_savings()
+    if amount <= BigDecimal("0")
+      return nil
+    end
+    
+    new_hash = {}
+    new_hash[:total_transaction_amount]  = amount
+    new_hash[:transaction_case] = TRANSACTION_CASE[:independent_savings_deposit]
+    new_hash[:creator_id] = field_worker.id 
+    new_hash[:office_id] = field_worker.active_job_attachment.office.id
+    new_hash[:member_id] = member.id 
+    new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward]
+    # new_hash[:loan_type] = 
+    #    new_hash[:loan_id] = 
+    
+    
+    transaction_activity = TransactionActivity.create new_hash 
+    transaction_activity.create_independent_savings_entry( amount, field_worker, member )
+    
+    
+    return transaction_activity
+    
+  end
+  
   def self.create_setup_payment( admin_fee, initial_savings, deposit, field_worker, group_loan_membership )
     group_loan_product = group_loan_membership.group_loan_subcription.group_loan_product
     
@@ -313,19 +339,6 @@ class TransactionActivity < ActiveRecord::Base
     end
     
     
-    
-    
-    # any similar payment?
-    # looks like faulty logic.... 
-    # what if it does multiple weeks payment, and tried to do the payment on the weeks 
-    # where it has been paid?
-    past_transaction_activity = TransactionActivity.previous_transaction_activity( weekly_task, member )
-    if not past_transaction_activity.nil?
-      return past_transaction_activity
-    end
-    
-    
-    
     group_loan_product = group_loan_membership.group_loan_product
     basic_weekly_payment = group_loan_product.total_weekly_payment
     
@@ -335,20 +348,14 @@ class TransactionActivity < ActiveRecord::Base
     # balance >= 0 
     balance = cash + savings_withdrawal - ( basic_weekly_payment*number_of_weeks )
     total_savings = member.total_savings
-    # if ( member.total_savings < savings_withdrawal ) or
-    #       ( balance < zero_value )
-    #     return nil
-    #   end
-    #   
-    #   if( cash <= 0 ) && (balance <= zero_value) && (savings_withdrawal <= 0 )
-    #     return nil
-    #   end
-    #   
-    # weekly_task.has_paid_weekly_payment?(member)
     
-    if ( not self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, number_of_weeks, basic_weekly_payment, total_savings ) ) and 
+    # if( member.total_savings < savings_withdrawal)
+    #       return nil
+    #     end
+    
+    if ( not self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, number_of_weeks, basic_weekly_payment, total_savings ) ) or 
         (  number_of_weeks > ( group_loan_product.total_weeks - weekly_task.week_number + 1 )  )
-      return false 
+      return nil 
     end 
     
     new_hash = {}
@@ -492,6 +499,19 @@ class TransactionActivity < ActiveRecord::Base
 =begin
   Creating the transaction_entries associated with the transaction_activity 
 =end
+
+
+  def create_independent_savings_entry(savings_amount, current_user, member )
+    cashflow_book = current_user.active_job_attachment.office.cashflow_book
+    savings_only_transaction_entry = self.transaction_entries.create( 
+                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:independent_savings_deposit], 
+                      :amount => savings_amount  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+                      )
+                    
+    member.add_savings(savings_amount, SAVING_ENTRY_CODE[:independent_savings_deposit], savings_only_transaction_entry) 
+
+  end
 
   def create_only_savings_payment_entry(savings_amount, current_user, member )
     cashflow_book = current_user.active_job_attachment.office.cashflow_book
@@ -824,12 +844,14 @@ class TransactionActivity < ActiveRecord::Base
     end
   end
   
-  def self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, number_of_weeks, basic_weekly_payment, total_savings )
+  def self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, number_of_weeks, 
+          basic_weekly_payment, total_savings )
     zero_value = BigDecimal.new("0")
     
     # check the validity, savings > savings withdrawal
     # balance >= 0 
     balance = cash + savings_withdrawal - ( basic_weekly_payment*number_of_weeks )
+    
     
     if (  total_savings < savings_withdrawal )  or  # member can't withdraw more than what he has 
        (  cash <  zero_value )     or # negative cash? no such thing
