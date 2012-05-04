@@ -404,6 +404,25 @@ class GroupLoan < ActiveRecord::Base
     )
   end
   
+  def accounted_weekly_payments_by(member)
+    weekly_task_id_list = self.weekly_tasks.collect do |weekly_task|
+      weekly_task.id
+    end
+    MemberPayment.find(:all,:conditions => {
+      :member_id => member.id, 
+      :weekly_task_id => weekly_task_id_list
+    }).map{|x| x.weekly_task}
+  end
+  
+  def remaining_weekly_tasks_count_for_member(member)
+    number_of_accounted_weeks = self.accounted_weekly_payments_by(member).count
+    remaining_weeks_count = self.weekly_tasks.count - number_of_accounted_weeks
+  end
+  
+  # def total_remaining_weekly_tasks
+  #     self.total_weeks - self.completed_weekly_tasks.count
+  #   end
+  
   def declare_default( current_user )
     if not current_user.has_role?(:branch_manager)
       return nil

@@ -574,17 +574,180 @@ describe TransactionActivity do
       
       context "structured multiple weeks payment" do
         
+        before(:each) do
+          @selected_member = @members[rand(8)]
+          @weekly_task = @group_loan.currently_executed_weekly_task
+          @group_loan_product = @group_loan.group_loan_memberships.where(:member_id => @selected_member.id).first.group_loan_product
+          # we need to finalize the weekly_meeting
+          
+          @members.each do |member|
+            value = rand(3)
+            if value == 0
+              @weekly_task.mark_attendance_as_late(member, @field_worker )
+            elsif value ==1 
+              @weekly_task.mark_attendance_as_present(member, @field_worker  )
+            elsif value == 2 
+              @weekly_task.mark_attendance_as_absent(member, @field_worker  )
+            end
+          end
+          @weekly_task.close_weekly_meeting( @field_worker )
+        end
+        # done in the context "Weekly Loan Payment Transaction Activity"
+        # we have @members
+        # we have @group_loan 
+        # we have group_loan_memberships hooked in between the group_loan and the member
+        # how about the group_loan_subcription? it is created as well
+        # is the loan disbursed? yes
+        # has cashier finalized it? yes 
+         #now, it is just weekly rock and roll
+        
         # TransactionActivity.create_structured_multiple_payment(
-        #      @member,
-        #      @weekly_task,
-        #      current_user,
-        #      cash,
-        #      savings_withdrawal,
-        #      number_of_weeks
-        #    )
+        #                      @member,
+        #                      @weekly_task,
+        #                      current_user,
+        #                      cash,
+        #                      savings_withdrawal,
+        #                      number_of_weeks
+        #                    )
         #    
         #    
-        context "weekly_payment_single_week_extra_savings "
+        
+        # general case
+        it "should not accept negative value for cash" do
+          cash = BigDecimal("-500")
+          number_of_weeks = 1
+          savings_withdrawal = BigDecimal("0")
+          transaction_activity = TransactionActivity.create_structured_multiple_payment(
+                       @selected_member,
+                       @weekly_task,
+                       @field_worker,
+                       cash,
+                       savings_withdrawal,
+                       number_of_weeks
+                     )
+                     
+          transaction_activity.should be_nil
+        end
+        
+        it "should be inacceptable  if  1 <= number_of_weeks <= max_available" do
+          # in total we have 5 
+          cash = BigDecimal("500")
+          number_of_weeks = 10 # in total, we have 5
+          savings_withdrawal = BigDecimal("0")
+          transaction_activity = TransactionActivity.create_structured_multiple_payment(
+                       @selected_member,
+                       @weekly_task,
+                       @field_worker,
+                       cash,
+                       savings_withdrawal,
+                       number_of_weeks
+                     )
+                     
+          transaction_activity.should be_nil
+          
+          
+          
+          cash = BigDecimal("500")
+          number_of_weeks = 0 # in total, we have 5
+          savings_withdrawal = BigDecimal("0")
+          transaction_activity = TransactionActivity.create_structured_multiple_payment(
+                       @selected_member,
+                       @weekly_task,
+                       @field_worker,
+                       cash,
+                       savings_withdrawal,
+                       number_of_weeks
+                     )
+                     
+          transaction_activity.should be_nil
+          
+          selected_glm = GroupLoanMembership.find(:first, :conditions => {
+            :member_id => @selected_member.id,
+            :group_loan_id => @group_loan.id
+          })
+          
+          group_loan_product = selected_glm.group_loan_product
+          
+          cash = group_loan_product.total_weekly_payment + BigDecimal("10000")
+          number_of_weeks = 1 # in total, we have 5
+          savings_withdrawal = BigDecimal("0")
+          transaction_activity = TransactionActivity.create_structured_multiple_payment(
+                       @selected_member,
+                       @weekly_task,
+                       @field_worker,
+                       cash,
+                       savings_withdrawal,
+                       number_of_weeks
+                     )
+                     
+          transaction_activity.should be_valid
+        end
+        
+        
+        
+        context "weekly_payment_single_week_no_extra_savings " do 
+          it "will just do basic_payment if no extra savings" do
+            cash = @group_loan_product.total_weekly_payment
+            savings_withdrawal = BigDecimal("0")
+            number_of_weeks = 1
+            # our loan duration = 5 weeks 
+            transaction_activity = TransactionActivity.create_structured_multiple_payment(
+                         @selected_member,
+                         @weekly_task,
+                         @field_worker,
+                         cash,
+                         savings_withdrawal,
+                         number_of_weeks
+                       )
+                       
+            transaction_activity.should be_valid
+            transaction_activity.transaction_case.should == TRANSACTION_CASE[:weekly_payment_basic]
+          end
+          
+          context "post conditions" do
+            before(:each) do
+              @initial_savings = @selected_member.total_savings
+
+              cash = @group_loan_product.total_weekly_payment
+              savings_withdrawal = BigDecimal("0")
+              number_of_weeks = 1
+              # our loan duration = 5 weeks 
+              
+              @initial_remaining_weekly_tasks_count = @group_loan.remaining_weekly_tasks_count_for_member(@selected_member)
+              @initial_accounted_weekly_tasks = @group_loan.accounted_weekly_payments_by(@selected_member)
+              @transaction_activity = TransactionActivity.create_structured_multiple_payment(
+                           @selected_member,
+                           @weekly_task,
+                           @field_worker,
+                           cash,
+                           savings_withdrawal,
+                           number_of_weeks
+                         )
+            end
+            
+            it "will increase the savings by min_savings" do
+              final_savings = @selected_member.total_savings
+              (final_savings-@initial_savings).should == @group_loan_product.min_savings
+            end
+            
+            it "will create one member payment associated with the week's payment" do
+              final_remaining_weekly_tasks_count = @group_loan.remaining_weekly_tasks_count_for_member(@selected_member)
+              final_accounted_weekly_tasks  = @group_loan.accounted_weekly_payments_by(@selected_member)
+              
+              ( @initial_remaining_weekly_tasks_count -final_remaining_weekly_tasks_count ).should == 1 
+              
+              weekly_task = ( final_accounted_weekly_tasks - @initial_accounted_weekly_tasks ) .first
+              member_payment = weekly_task.member_payment_for(@selected_member)
+              member_payment.transaction_activity_id.should == @transaction_activity.id
+            end
+          end # end of context "post conditions"
+          
+        end
+        
+        context "weekly_payment_single_week_extra_savings " do 
+          
+        end
+        
         context "weekly_payment_single_week_structured_with_soft_savings_withdrawal"  
         context "weekly_payment_single_week_structured_with_soft_savings_withdrawal_extra_savings" 
         context "weekly_payment_structured_multiple_weeks" 
@@ -599,7 +762,7 @@ describe TransactionActivity do
       
       
     end
-  end
+  end # end of "Weekly Loan Payment Transaction Activity"
   
   describe "Backlog Payment Transaction Activity" do 
     context "basic single backlog payment" do

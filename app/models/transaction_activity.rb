@@ -283,13 +283,49 @@ class TransactionActivity < ActiveRecord::Base
   end
   
   
+  def TransactionActivity.is_number_of_weeks_for_structured_multiple_payment_valid?( group_loan, member, number_of_weeks )
+    if ( group_loan.remaining_weekly_tasks_count_for_member(member) ) <= 0  or 
+      (number_of_weeks > group_loan.remaining_weekly_tasks_count_for_member(member)  ) or
+      ( number_of_weeks == 0 )
+      return false # no transaction can be done.. even if it is multiple weeks 
+      # if you wish, do the backlog payment. When is declared as no payment, it is no payment
+    else
+      return true
+    end
+  end
+  
   def TransactionActivity.create_structured_multiple_payment(member,weekly_task, current_user,
         cash, savings_withdrawal, number_of_weeks)
+        
+    if not self.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, current_user )
+      return nil
+    end
     group_loan = weekly_task.group_loan
     group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
       :group_loan_id => group_loan.id, 
       :member_id => member.id 
     })
+    
+    # group_loan_membership.extract_remaining_weeks
+    
+    if not TransactionActivity.is_number_of_weeks_for_structured_multiple_payment_valid?( group_loan, member, number_of_weeks )
+      return nil
+    end
+    
+    
+    
+    
+    # any similar payment?
+    # looks like faulty logic.... 
+    # what if it does multiple weeks payment, and tried to do the payment on the weeks 
+    # where it has been paid?
+    past_transaction_activity = TransactionActivity.previous_transaction_activity( weekly_task, member )
+    if not past_transaction_activity.nil?
+      return past_transaction_activity
+    end
+    
+    
+    
     group_loan_product = group_loan_membership.group_loan_product
     basic_weekly_payment = group_loan_product.total_weekly_payment
     
@@ -308,6 +344,8 @@ class TransactionActivity < ActiveRecord::Base
     #     return nil
     #   end
     #   
+    # weekly_task.has_paid_weekly_payment?(member)
+    
     if ( not self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, number_of_weeks, basic_weekly_payment, total_savings ) ) and 
         (  number_of_weeks > ( group_loan_product.total_weeks - weekly_task.week_number + 1 )  )
       return false 
@@ -552,25 +590,25 @@ class TransactionActivity < ActiveRecord::Base
   
   def create_extra_savings_entries( balance , current_user , member)
     cashflow_book = current_user.active_job_attachment.office.cashflow_book
-    self.transaction_entries.create( 
+    saving_entry = self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:extra_weekly_saving], 
                       :amount => balance ,
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                       
-    member.add_savings(balance, SAVING_ENTRY_CODE[:weekly_saving_extra_from_basic_payment]) 
+    member.add_savings(balance, SAVING_ENTRY_CODE[:weekly_saving_extra_from_basic_payment], saving_entry) 
   end
   
   def create_soft_savings_withdrawal_entries( savings_withdrawal, current_user , member)
     cashflow_book = current_user.active_job_attachment.office.cashflow_book
-    self.transaction_entries.create( 
+    saving_entry = self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal], 
                       :amount => savings_withdrawal ,
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
                       )
                       
     # update member savings , add saving entries 
-    member.deduct_savings( savings_withdrawal, SAVING_ENTRY_CODE[:soft_withdraw_to_pay_basic_weekly_payment])
+    member.deduct_savings( savings_withdrawal, SAVING_ENTRY_CODE[:soft_withdraw_to_pay_basic_weekly_payment],saving_entry )
     
   end
   
