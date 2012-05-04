@@ -336,8 +336,21 @@ class GroupLoan < ActiveRecord::Base
   end
   
   def currently_executed_weekly_task
+    # the first available, in which it is still a virgin , 
+    # where its attendance must be marked before going for the payment 
     self.weekly_tasks.find(:first, :conditions => {
       :is_weekly_attendance_marking_done  => false ,
+      :is_weekly_payment_collection_finalized => false,
+      :is_weekly_payment_approved_by_cashier =>  false
+    }, :limit => 1, :order => "week_number ASC")
+  end
+  
+  
+  def currently_being_payment_collected_weekly_task
+    # attendance marking has been finalized 
+    # now is in the $$ collection 
+    self.weekly_tasks.find(:first, :conditions => {
+      :is_weekly_attendance_marking_done  => true ,
       :is_weekly_payment_collection_finalized => false,
       :is_weekly_payment_approved_by_cashier =>  false
     }, :limit => 1, :order => "week_number ASC")

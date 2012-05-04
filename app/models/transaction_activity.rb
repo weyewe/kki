@@ -308,17 +308,36 @@ class TransactionActivity < ActiveRecord::Base
     return transaction_activity 
   end
   
-  
-  def TransactionActivity.is_number_of_weeks_for_structured_multiple_payment_valid?( group_loan, member, number_of_weeks )
-    if ( group_loan.remaining_weekly_tasks_count_for_member(member) ) <= 0  or 
-      (number_of_weeks > group_loan.remaining_weekly_tasks_count_for_member(member)  ) or
-      ( number_of_weeks == 0 )
-      return false # no transaction can be done.. even if it is multiple weeks 
-      # if you wish, do the backlog payment. When is declared as no payment, it is no payment
+  def TransactionActivity.is_number_of_weeks_valid?(number_of_weeks, group_loan, weekly_task, member)
+    #this one look wrong.. potential for double payment 
+    # ( group_loan.remaining_weekly_tasks_count_for_member(member) <= number_of_weeks )  and 
+    # ( number_of_weeks > 0   ) # and
+     #    ( number_of_weeks > ( group_loan.total_weeks - weekly_task.week_number+   1) ) # and 
+    #     ( not weekly_task.has_paid_weekly_payment?(member) )
+    # true
+    
+    if ( number_of_weeks > group_loan.total_weeks ) or
+      ( number_of_weeks <= 0 ) or 
+      #(  weekly_task.has_paid_weekly_payment?(member) ) or  # doesn't matter. the payment won't be counted towards this weekly task
+      ( number_of_weeks > group_loan.remaining_weekly_tasks_count_for_member(member) ) or 
+      (group_loan.remaining_weekly_tasks_count_for_member(member) == 0 )
+      return false
     else
       return true
     end
   end
+    # 
+    # 
+    # def TransactionActivity.is_number_of_weeks_for_structured_multiple_payment_valid?( group_loan, member, number_of_weeks )
+    #   if ( group_loan.remaining_weekly_tasks_count_for_member(member) ) <= 0  or 
+    #     (number_of_weeks > group_loan.remaining_weekly_tasks_count_for_member(member)  ) or
+    #     ( number_of_weeks == 0 )
+    #     return false # no transaction can be done.. even if it is multiple weeks 
+    #     # if you wish, do the backlog payment. When is declared as no payment, it is no payment
+    #   else
+    #     return true
+    #   end
+    # end
   
   def TransactionActivity.create_structured_multiple_payment(member,weekly_task, current_user,
         cash, savings_withdrawal, number_of_weeks)
@@ -334,9 +353,15 @@ class TransactionActivity < ActiveRecord::Base
     
     # group_loan_membership.extract_remaining_weeks
     
-    if not TransactionActivity.is_number_of_weeks_for_structured_multiple_payment_valid?( group_loan, member, number_of_weeks )
-      return nil
-    end
+    # if weekly_task !=  group_loan.currently_being_payment_collected_weekly_task
+    #       return nil
+    #     end
+    # no such limitation. 
+  
+        # 
+        # if not TransactionActivity.is_number_of_weeks_valid?(number_of_weeks, group_loan, weekly_task, member)
+        #   return nil
+        # end
     
     
     group_loan_product = group_loan_membership.group_loan_product
@@ -354,9 +379,14 @@ class TransactionActivity < ActiveRecord::Base
     #     end
     
     if ( not self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, number_of_weeks, basic_weekly_payment, total_savings ) ) or 
-        (  number_of_weeks > ( group_loan_product.total_weeks - weekly_task.week_number + 1 )  )
+        not TransactionActivity.is_number_of_weeks_valid?(number_of_weeks, group_loan, weekly_task, member)
+       
       return nil 
     end 
+    
+    # if all_weekly_task_has_been_paid?
+    #      return nil
+    #    end
     
     new_hash = {}
     
@@ -393,7 +423,18 @@ class TransactionActivity < ActiveRecord::Base
               current_user,
               member
             )
-            
+    
+    #  the last problem.. it has to be sequential, week number 1 -> x 
+    # no double s
+    # adjusting the weekly task 
+    
+    if weekly_task.has_paid_weekly_payment?(member)  
+      weekly_task = WeeklyTask.first_unpaid_weekly_task(group_loan, member)
+      if weekly_task.nil? 
+        return nil
+      end
+    end
+    
     if number_of_weeks == 1 
       weekly_task.create_basic_weekly_payment( member, transaction_activity, cash)
     elsif number_of_weeks > 1 

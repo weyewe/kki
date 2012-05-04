@@ -217,10 +217,51 @@ class WeeklyTask < ActiveRecord::Base
       # self.add_total_cash( amount )
     end
   end
- 
+  
+  def is_last_weekly_task?
+    if self.week_number == self.group_loan.total_weeks 
+      return self
+    end
+  end
+  
+  def next_weekly_task
+    total_weeks = self.group_loan.total_weeks
+    
+    
+    WeeklyTask.find(:first, :conditions => {
+      :group_loan_id => self.group_loan_id,
+      :week_number => self.week_number + 1 
+    })
+  end
+  
+  
+  def WeeklyTask.first_unpaid_weekly_task(group_loan, member)
+    paid_week_number_list = MemberPayment.find(:all, :conditions => {
+      :weekly_task_id => group_loan.weekly_tasks.map {|x| x.id } , 
+      :member_id => member.id 
+    }).map {|x| x.weekly_task.week_number }
+    
+    last_paid_week_number = paid_week_number_list.sort.last # by default, sort is ascending
+    if last_paid_week_number != group_loan.total_weeks
+      return group_loan.weekly_tasks.where(:week_number => last_paid_week_number + 1 ).first 
+    else
+      return nil
+    end
+    
+  end
+  
+  
   def create_basic_weekly_payment( member, transaction_activity, cash_passed)
     if self.has_paid_weekly_payment?(member)  
-      return nil
+      # pay for the next week.
+      # it is recursive.. any iteration method? 
+      if self.is_last_weekly_task?
+        return nil
+      else
+        self.next_weekly_task.create_basic_weekly_payment( member, transaction_activity, cash_passed)
+      end
+      
+      
     else 
       self.member_payments.create(
         :transaction_activity_id => transaction_activity.id,

@@ -1058,6 +1058,90 @@ describe TransactionActivity do
           
         end #context "weekly_payment_single_week_structured_with_soft_savings_withdrawal_extra_savings"
         
+        it "will still create transaction for those weeks in which it has paid" do
+          @number_of_weeks = 3 # max == 5 , in the current group loan product
+          
+          cash_amount =  (@number_of_weeks * 10 )* @group_loan_product.total_weekly_payment  
+          savings_withdrawal_amount  = BigDecimal("0")
+          structured_transaction = TransactionActivity.create_structured_multiple_payment(
+                @selected_member, #member
+                @weekly_task,  # the weekly task
+                @field_worker, # the field worker 
+                cash_amount,   # the cash payment 
+                savings_withdrawal_amount,  #savings withdrawal
+                @number_of_weeks)# number of weeks
+                
+          structured_transaction.should be_valid 
+          
+          
+          structured_transaction = TransactionActivity.create_structured_multiple_payment(
+                @selected_member, #member
+                @weekly_task,  # the weekly task
+                @field_worker, # the field worker 
+                cash_amount,   # the cash payment 
+                savings_withdrawal_amount,  #savings withdrawal
+                1)# number of weeks
+                
+          structured_transaction.should be_valid 
+          
+          
+        end
+        
+        it "won't create the transaction if the number of weeks is larger than what's remaining for the member" do
+          @number_of_weeks = 3 # max == 5 , in the current group loan product
+          
+          cash_amount =  (@number_of_weeks * 10 )* @group_loan_product.total_weekly_payment  
+          savings_withdrawal_amount  = BigDecimal("0")
+          structured_transaction = TransactionActivity.create_structured_multiple_payment(
+                @selected_member, #member
+                @weekly_task,  # the weekly task
+                @field_worker, # the field worker 
+                cash_amount,   # the cash payment 
+                savings_withdrawal_amount,  #savings withdrawal
+                @number_of_weeks)# number of weeks
+                
+          # latest_available_weeky_task = @group_loan.currently_being_payment_collected_weekly_task
+          structured_transaction = TransactionActivity.create_structured_multiple_payment(
+                @selected_member, #member
+                @weekly_task,  # the weekly task
+                @field_worker, # the field worker 
+                cash_amount,   # the cash payment 
+                savings_withdrawal_amount,  #savings withdrawal
+                3)# number of weeks
+                
+          structured_transaction.should be_nil
+        end
+        
+        it "will create the transaction if the number of weeks is not larger than what's remaining for the member" do
+          @number_of_weeks = 3 # max == 5 , in the current group loan product
+          
+          cash_amount =  (@number_of_weeks * 10 )* @group_loan_product.total_weekly_payment  
+          savings_withdrawal_amount  = BigDecimal("0")
+          structured_transaction = TransactionActivity.create_structured_multiple_payment(
+                @selected_member, #member
+                @weekly_task,  # the weekly task
+                @field_worker, # the field worker 
+                cash_amount,   # the cash payment 
+                savings_withdrawal_amount,  #savings withdrawal
+                @number_of_weeks)# number of weeks
+                
+          latest_available_weeky_task = @group_loan.currently_being_payment_collected_weekly_task
+          
+          # total member_payments associated with this == 3 
+          
+          puts "the week number #{latest_available_weeky_task.week_number}"
+          structured_transaction = TransactionActivity.create_structured_multiple_payment(
+                @selected_member, #member
+                latest_available_weeky_task,  # the weekly task
+                @field_worker, # the field worker 
+                cash_amount,   # the cash payment 
+                savings_withdrawal_amount,  #savings withdrawal
+                2)# number of weeks
+                
+          structured_transaction.should be_valid
+          @group_loan.remaining_weekly_tasks_count_for_member(@selected_member).should == 0 
+        end
+        
         
         context "weekly_payment_structured_multiple_weeks" do
           before(:each) do
