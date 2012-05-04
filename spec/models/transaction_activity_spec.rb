@@ -1418,26 +1418,73 @@ describe TransactionActivity do
       
       
     end
+    
+    context "Backlog Payment Transaction Activity" do 
+      # line 306.. 
+      # loan disbursement is executed
+
+      # context "basic single backlog payment" do
+      #   # no such thing as single backlog payment.. only structured
+      # end
+      
+      before(:each) do
+        @weekly_task_for_testing_backlog_payment = @group_loan.currently_executed_weekly_task 
+        @members.each do |member|
+          value = rand(3)
+          if value == 0
+            @weekly_task_for_testing_backlog_payment.mark_attendance_as_late(member, @field_worker )
+          elsif value ==1 
+            @weekly_task_for_testing_backlog_payment.mark_attendance_as_present(member, @field_worker  )
+          elsif value == 2 
+            @weekly_task_for_testing_backlog_payment.mark_attendance_as_absent(member, @field_worker  )
+          end
+        end
+        @weekly_task_for_testing_backlog_payment.close_weekly_meeting( @field_worker ) #line 350
+        
+        # create all transaction as no savings
+        @savings_amount = BigDecimal("10000")
+        @members.each do |member|
+          transaction_activity = TransactionActivity.create_savings_only_weekly_payment(
+            member,
+            @weekly_task_for_testing_backlog_payment,
+            @savings_amount,
+            @field_worker
+          )
+        end
+        
+        # cashier approve
+        @weekly_task_for_testing_backlog_payment.approve_weekly_payment_collection( @cashier )
+      end
+
+      it "should have @members.length  backlog payment, and all of them are unpaid" do
+        @group_loan.backlog_payments.count.should == @members.count 
+        @group_loan.unpaid_backlogs.count.should == @members.count 
+      end
+      
+      it "might contain the penalty payment for being late, in which the rule we haven't understood"
+      
+      
+      context "multiple backlog payments + structured" do
+        before(:each) do
+          # for all the remaining weeks, do basic payment
+          # if it is the selected member, just do savings
+          # we need to have several weeks of backlog payment
+          @selected_member = @members[rand(8)]
+          
+          # if it is the selected member, just do savings. # or else, do basic savings
+          
+        end
+      end
+
+    end# end of "Backlog Payment Transaction Activity"
+    
+    
   end # end of "Weekly Loan Payment Transaction Activity"
   
-  describe "Backlog Payment Transaction Activity" do 
-    before(:each) do
-    end
-    
-    
-    context "basic single backlog payment" do
-    end
-    context "multiple backlog payments + structured" do
-    end
-    it "records the principal, compulsory savings, and interest payment"
-    it "might contain the penalty payment for being late, in which the rule we haven't understood"
-  end
   
-  it "is storing reference to the loan type, either group_loan or backlog payment, or single loan"
-  it "has loan amount that is equal to the amoung of money exchanging hands from member to employee or vice versa"
-  it "won't create double transaction activities "
   
   describe "Group Loan Default Resolution Transaction Activity" do
+    # this default payment doesn't translate to principal, savings, and interest payment. pure profit!
     it 'records the payment from all member, the minimum denomination is 500 rupiah (up rounded)'
     it "records the excess due to rounding as rounding payment"
   end

@@ -82,20 +82,7 @@ class TransactionActivitiesController < ApplicationController
   
   def create_backlog_payment
     
-    
-    # {
-    #     "utf8"=>"✓", 
-    #     "authenticity_token"=>"JfsFeTvGuh/VqYMm+ikD+8TOS7Jx2CJr6yNV5M0/jSo=", 
-    #     "member_id"=>"2", 
-    #     "group_loan_id"=>"1", 
-    #     "bmf_weeks"=>"1", 
-    #     "bmf_cash"=>"50000", 
-    #     "bmf_savings_withdrawal"=>"5000", 
-    #     "bmf_balance"=>"23000",
-    #     "method"=>:post
-    #   }
-    
-    
+   
     @member = Member.find params[:member_id]
     @group_loan = GroupLoan.find params[:group_loan_id]
 
