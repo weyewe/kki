@@ -1466,6 +1466,7 @@ describe TransactionActivity do
       
       context "multiple backlog payments + structured" do
         before(:each) do
+          # so, we must  close the weekly_meeting.
           # for all the remaining weeks, do basic payment
           # if it is the selected member, just do savings
           # we need to have several weeks of backlog payment

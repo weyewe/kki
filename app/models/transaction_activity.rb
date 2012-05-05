@@ -326,6 +326,22 @@ class TransactionActivity < ActiveRecord::Base
       return true
     end
   end
+  
+  def TransactionActivity.is_number_of_weeks_valid_for_backlog_payment?(number_of_weeks, group_loan, member)
+    #this one look wrong.. potential for double payment 
+    # ( group_loan.remaining_weekly_tasks_count_for_member(member) <= number_of_weeks )  and 
+    # ( number_of_weeks > 0   ) # and
+     #    ( number_of_weeks > ( group_loan.total_weeks - weekly_task.week_number+   1) ) # and 
+    #     ( not weekly_task.has_paid_weekly_payment?(member) )
+    # true
+    
+    if ( number_of_weeks > group_loan.unpaid_backlogs.count ) or
+      ( number_of_weeks <= 0 ) 
+      return false
+    else
+      return true
+    end
+  end
     # 
     # 
     # def TransactionActivity.is_number_of_weeks_for_structured_multiple_payment_valid?( group_loan, member, number_of_weeks )
@@ -459,6 +475,9 @@ class TransactionActivity < ActiveRecord::Base
    # 2. if the balance < 0  or  ( cash ==0 and savings_withdrawal == 0  ) , return nil 
    # 3. ? 
    
+   if savings_withdrawal > member.total_savings
+     return nil
+   end
    
    
    group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
@@ -472,8 +491,10 @@ class TransactionActivity < ActiveRecord::Base
    
    if (  not self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, 
                                     number_of_weeks, basic_weekly_payment, total_savings )  )and 
-      ( number_of_weeks > member.total_backlog_payments_for_group_loan(group_loan))
-     return false 
+      TransactionActivity.is_number_of_weeks_valid_for_backlog_payment?(number_of_weeks, group_loan, member)
+      
+      
+     return nil 
    end 
    
    new_hash = {}

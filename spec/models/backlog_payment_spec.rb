@@ -1,0 +1,737 @@
+require 'spec_helper'
+
+describe TransactionActivity do 
+  before(:each) do
+    # we create the member
+    # we create the weekly payments + transaction for all weeks # maybe 2 weeks is enough  
+    
+    @office = FactoryGirl.create(:cilincing_office)
+    @branch_manager_role = FactoryGirl.create(:branch_manager_role)
+    @loan_officer_role = FactoryGirl.create(:loan_officer_role)
+    @cashier_role = FactoryGirl.create(:cashier_role)
+    @field_worker_role = FactoryGirl.create(:field_worker_role)
+    @branch_manager = @office.create_user( [@branch_manager_role],
+      :email => 'branch_manager@gmail.com',
+      :password => 'willy1234',
+      :password_confirmation => 'willy1234'
+    )
+    @loan_officer = @office.create_user( [@loan_officer_role], 
+      :email => 'loan_officer@gmail.com',
+      :password => 'willy1234',
+      :password_confirmation => 'willy1234'
+    )
+    @cashier = @office.create_user( [@cashier_role], 
+      :email => 'cashier@gmail.com',
+      :password => 'willy1234',
+      :password_confirmation => 'willy1234' 
+    )
+    @field_worker = @office.create_user( [@field_worker_role], 
+      :email => 'field_worker@gmail.com',
+      :password => 'willy1234',
+      :password_confirmation => 'willy1234' 
+    )
+    
+    @group_loan_commune = FactoryGirl.create(:group_loan_commune)
+    #this shit will trigger the creation of kalibaru village, cilincing subdistrict 
+    
+    @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
+            :commune_id => @group_loan_commune }, @branch_manager)
+    
+    # we need several members in a given commune   DONE 
+    @members = FactoryGirl.create_list(:member_of_first_rw_office_cilincing, 8, creator_id: @loan_officer.id,
+     commune_id: @group_loan_commune.id )
+    # we need these members hooked to the group loan (group_loan_memberships)
+    @members.each do |member|
+      GroupLoanMembership.create_membership( @loan_oficer, member, @group_loan)
+    end
+    
+    @total_number_of_weeks  = 2 
+    # we need group_loan_product x 3 , just for variations
+    @group_loan_product_a = FactoryGirl.create(:group_loan_product_a, total_weeks: @total_number_of_weeks)
+    @group_loan_product_b = FactoryGirl.create(:group_loan_product_b, total_weeks: @total_number_of_weeks)
+    @group_loan_product_c = FactoryGirl.create(:group_loan_product_c, total_weeks: @total_number_of_weeks)
+    
+    #assign the group_loan_product subcription 
+    group_loan_products_array  = [@group_loan_product_a, @group_loan_product_b, @group_loan_product_c]
+    @members.each do |member|
+       # randomized
+      glm = GroupLoanMembership.find(:first, :conditions => {
+        :member_id => member.id,
+        :group_loan_id => @group_loan.id 
+      })
+      GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
+    end
+    
+    #start the group loan (the approval cycle)
+    @group_loan.execute_propose_finalization( @loan_officer )
+    @group_loan.start_group_loan( @branch_manager )
+    
+    puts "At the end of the highest before block"
+    
+    puts "total villages : #{Village.count}"
+    puts "total subdistricts: #{Subdistrict.count}"
+    puts "total regencies: #{Regency.count}"
+    puts "total provinces: #{Province.count}"
+    puts "total island: #{Island.count}"
+    
+    
+    # do the setup payment, finalize.. let the weekly payment begin
+    @members.each do |member|
+      glm = GroupLoanMembership.find(:first, :conditions => {
+        :member_id => member.id,
+        :group_loan_id => @group_loan.id 
+      })
+      glm.declare_setup_payment_by_loan_deduction
+    end
+    
+    @group_loan.execute_finalize_setup_fee_collection( @field_worker )
+    @group_loan.approve_setup_fee_collection( @cashier )
+    
+    
+    # do the loan disbursement
+    
+    @group_loan.group_loan_memberships.each do |glm|
+      TransactionActivity.execute_loan_disbursement( glm , @cashier )
+    end
+    
+    @group_loan.execute_finalize_loan_disbursement( @cashier )
+    
+    
+    
+    puts "Total weekly Tasks: #{@group_loan.weekly_tasks.count}"
+    
+    # gonna finalize the week
+    (1..(@group_loan.total_weeks )).each do |week|
+      puts "week number: #{week}"
+      weekly_task = @group_loan.currently_executed_weekly_task 
+      @members.each do |member|
+        value = rand(3)
+        if value == 0
+          weekly_task.mark_attendance_as_late(member, @field_worker )
+        elsif value ==1 
+          weekly_task.mark_attendance_as_present(member, @field_worker  )
+        elsif value == 2 
+          weekly_task.mark_attendance_as_absent(member, @field_worker  )
+        end
+      end
+      weekly_task.close_weekly_meeting( @field_worker ) #line 350
+
+      # create all transaction as no savings
+      @savings_amount = BigDecimal("10000")
+      @members.each do |member|
+        transaction_activity = TransactionActivity.create_savings_only_weekly_payment(
+          member,
+          weekly_task,
+          @savings_amount,
+          @field_worker
+        )
+      end
+
+      # cashier approve
+      weekly_task.approve_weekly_payment_collection( @cashier )
+    end
+  end # end of before(:each)
+  
+  context "checking the setup data" do
+    it "should have number_of_members * number_of_weeks backlog payments" do 
+      @group_loan.should have(@total_number_of_weeks * @members.count).backlog_payments 
+    end
+    
+    it " should produce member savings of number_of_weeks * savings amount" do
+      member = @members[rand(8)]
+      member.total_savings.should == ( @total_number_of_weeks *@savings_amount )
+    end
+  end
+  
+  context "testing the backlog payment, single week" do
+    before(:each) do 
+      @member_under_test = @members[rand(8)]
+      glm = @group_loan.group_loan_memberships.where(:member_id => @member_under_test.id ).first
+      @group_loan_product = glm.group_loan_product
+    end
+    
+    it "won't accept payment if the money (cash + savings withdrawal) is less than number_of_weeks*weekly_payment"  do
+      number_of_weeks = 1 
+      cash = (0.5)*@group_loan_product.total_weekly_payment
+      savings_withdrawal = (0.3)*@group_loan_product.total_weekly_payment
+      
+      backlog_payment_activity = TransactionActivity.create_backlog_payments(
+        @member_under_test,
+        @group_loan,
+        @field_worker, # field_worker
+        cash, # 
+        savings_withdrawal, 
+        number_of_weeks
+      )
+      
+      backlog_payment_activity.should be_nil 
+      
+    end
+    
+    
+    it "won't accept payment if the number of weeks exceeds the total backlog payments" do
+      number_of_weeks = 5
+      cash = (0.5)*@group_loan_product.total_weekly_payment
+      savings_withdrawal = (0.5)*@group_loan_product.total_weekly_payment
+      
+      backlog_payment_activity = TransactionActivity.create_backlog_payments(
+        @member_under_test,
+        @group_loan,
+        @field_worker, # field_worker
+        cash, # 
+        savings_withdrawal, 
+        number_of_weeks
+      )
+      
+      backlog_payment_activity.should be_nil 
+    end
+    
+    
+    it "won't accept negative cash or negative savings withdrawal"  do
+      number_of_weeks = 1
+      cash = (1.5)*@group_loan_product.total_weekly_payment
+      savings_withdrawal = (-0.5)*@group_loan_product.total_weekly_payment
+      
+      backlog_payment_activity = TransactionActivity.create_backlog_payments(
+        @member_under_test,
+        @group_loan,
+        @field_worker, # field_worker
+        cash, # 
+        savings_withdrawal, 
+        number_of_weeks
+      )
+      
+      backlog_payment_activity.should be_nil
+      
+      cash = (-0.1)*@group_loan_product.total_weekly_payment
+      savings_withdrawal = (2)*@group_loan_product.total_weekly_payment
+      
+      backlog_payment_activity = TransactionActivity.create_backlog_payments(
+        @member_under_test,
+        @group_loan,
+        @field_worker, # field_worker
+        cash, # 
+        savings_withdrawal, 
+        number_of_weeks
+      )
+      
+      backlog_payment_activity.should be_nil
+    end
+    
+    it "should produce backlog payment if cash+  savings_withdrawal >= number_of_weeks * total_weekly_payment" do
+      cash = (1)*@group_loan_product.total_weekly_payment
+      savings_withdrawal = (0)*@group_loan_product.total_weekly_payment
+      number_of_weeks = 1 
+      backlog_payment_activity = TransactionActivity.create_backlog_payments(
+        @member_under_test,
+        @group_loan,
+        @field_worker, # field_worker
+        cash, # 
+        savings_withdrawal, 
+        number_of_weeks
+      )
+      
+      backlog_payment_activity.should be_valid
+    end
+    
+    context "after successful single_week payment, no savings withdrawal, no extra savings" do 
+      before(:each) do 
+        @number_of_weeks = 1 
+        @cash = (1)*@group_loan_product.total_weekly_payment
+        @savings_withdrawal = (0)*@group_loan_product.total_weekly_payment
+        
+        @initial_backlog_payments_count_for_member = @member_under_test.backlog_payments_for_group_loan(@group_loan).count
+        @initial_group_loan_unpaid_backlog_payments = @group_loan.unpaid_backlogs.count 
+        @backlog_payment_activity = TransactionActivity.create_backlog_payments(
+          @member_under_test,
+          @group_loan,
+          @field_worker, # field_worker
+          @cash, # 
+          @savings_withdrawal, 
+          @number_of_weeks
+        )
+      end
+      
+      it "should produce transaction case of the single week backlog payment " do 
+        @backlog_payment_activity.transaction_case.should == TRANSACTION_CASE[:single_backlog_payment_exact_amount]
+      end
+      
+      it "will count as weekly payment: principal, interest and savings" do
+        
+        @backlog_payment_activity.should have(3).transaction_entries
+        principal_entry_count = 0 
+        min_savings_entry_count = 0
+        interest_entry_count = 0 
+        principal_entry = ''
+        
+        @backlog_payment_activity.transaction_entries.each do |te|
+          if te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_principal] 
+            principal_entry_count += 1 
+            principal_entry = te
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_saving] 
+            min_savings_entry_count +=1 
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_interest] 
+            interest_entry_count += 1
+          end
+        end
+        
+        principal_entry_count.should == @number_of_weeks
+        min_savings_entry_count.should == @number_of_weeks 
+        interest_entry_count.should == @number_of_weeks
+    
+        @group_loan.unpaid_backlogs.count.should == (@initial_group_loan_unpaid_backlog_payments -@number_of_weeks )
+      end
+      
+      
+      
+      
+      # how can we extract the backlog payment from backlog payment transcation activity? 
+      # backlog_payment =  backlog_payment_activity.
+    end
+    
+    context "after successful single_week payment,  no saving withdrawal, cash > number_of_weeks * total_Weekly_payment" do
+      before(:each) do
+        @initial_total_savings = @member_under_test.total_savings
+        @number_of_weeks = 1 
+        @cash = (2)*@group_loan_product.total_weekly_payment
+        @savings_withdrawal = (0)*@group_loan_product.total_weekly_payment
+        
+        @initial_backlog_payments_count_for_member = @member_under_test.backlog_payments_for_group_loan(@group_loan).count
+        @initial_group_loan_unpaid_backlog_payments = @group_loan.unpaid_backlogs.count 
+        @backlog_payment_activity = TransactionActivity.create_backlog_payments(
+          @member_under_test,
+          @group_loan,
+          @field_worker, # field_worker
+          @cash, # 
+          @savings_withdrawal, 
+          @number_of_weeks
+        )
+      end
+      
+      it "should produce transaction case of the single week backlog payment extra savings " do
+        @backlog_payment_activity.transaction_case.should == TRANSACTION_CASE[:single_backlog_payment_extra_savings]
+      end
+      
+      
+      it "will save excess (cash + savings wthdrawal) as extra savings: 4 transaction entries"  do
+        @backlog_payment_activity.should have(4).transaction_entries
+        principal_entry_count = 0 
+        min_savings_entry_count = 0
+        interest_entry_count = 0 
+        extra_savings_entry_count = 0 
+        extra_savings_entry = ''
+        principal_entry = ''
+        
+        @backlog_payment_activity.transaction_entries.each do |te|
+          if te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_principal] 
+            principal_entry_count += 1 
+            principal_entry = te
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_saving] 
+            min_savings_entry_count +=1 
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_interest] 
+            interest_entry_count += 1
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:extra_weekly_saving] 
+            extra_savings_entry_count += 1
+            extra_savings_entry = te
+          end
+        end
+        
+        principal_entry_count.should == @number_of_weeks
+        min_savings_entry_count.should == @number_of_weeks 
+        interest_entry_count.should == @number_of_weeks
+        extra_savings_entry_count.should == @number_of_weeks
+    
+        @group_loan.unpaid_backlogs.count.should == (@initial_group_loan_unpaid_backlog_payments -@number_of_weeks )
+        extra_savings_entry.amount.should == (@cash  - @number_of_weeks*@group_loan_product.total_weekly_payment)
+        
+      end
+      
+      
+      it "should produce difference in member savings for cash - total_weekly_payment  + min_savings" do
+        (@member_under_test.total_savings - @initial_total_savings).should == (@cash - 
+                 @number_of_weeks*@group_loan_product.total_weekly_payment  + @group_loan_product.min_savings)
+      end
+    end # context "single week, no savings withdrawal, cash  > total_weekly_payment"
+    
+    context "single_week, savings_withdrawal, no cash extra" do
+      it "should not create payment if savings_withdrawal is > total_savings " do
+        # create savings only .. as seed data 
+        @seed_savings_amount = 0.1*@group_loan_product.total_weekly_payment
+        TransactionActivity.create_independent_savings( @member_under_test, @seed_savings_amount, @field_worker )
+        @initial_total_savings = @member_under_test.total_savings
+        @number_of_weeks = 1 
+        @cash =  BigDecimal("0")# (2)*@group_loan_product.total_weekly_payment
+        @savings_withdrawal = (1)*@group_loan_product.total_weekly_payment
+        
+        @initial_backlog_payments_count_for_member = @member_under_test.backlog_payments_for_group_loan(@group_loan).count
+        @initial_group_loan_unpaid_backlog_payments = @group_loan.unpaid_backlogs.count 
+        @backlog_payment_activity = TransactionActivity.create_backlog_payments(
+          @member_under_test,
+          @group_loan,
+          @field_worker, # field_worker
+          BigDecimal("0"), # 
+          @savings_withdrawal, 
+          @number_of_weeks
+        )
+        
+        @backlog_payment_activity.should be_nil
+      end
+      
+      it "should not create payment if savings_withdrawal + cash < weekly_payment*number_of weeks, savings_withdrawal < total_savings " do
+        # create savings only .. as seed data 
+        @seed_savings_amount = 0.5*@group_loan_product.total_weekly_payment
+        TransactionActivity.create_independent_savings( @member_under_test, @seed_savings_amount, @field_worker )
+        @initial_total_savings = @member_under_test.total_savings
+        @number_of_weeks = 1 
+        @cash =  (0.6)*@group_loan_product.total_weekly_payment
+        @savings_withdrawal = (0.3)*@group_loan_product.total_weekly_payment
+        
+        @initial_backlog_payments_count_for_member = @member_under_test.backlog_payments_for_group_loan(@group_loan).count
+        @initial_group_loan_unpaid_backlog_payments = @group_loan.unpaid_backlogs.count 
+        @backlog_payment_activity = TransactionActivity.create_backlog_payments(
+          @member_under_test,
+          @group_loan,
+          @field_worker, # field_worker
+          @cash, # 
+          @savings_withdrawal, 
+          @number_of_weeks
+        )
+        
+        @backlog_payment_activity.should be_nil
+      end
+      
+      it "should create payment if savings_withdrawal + cash >= weekly_payment *number_of_weeks, savings_withdrawal < total_savings" do 
+        @seed_savings_amount = 0.5*@group_loan_product.total_weekly_payment
+        TransactionActivity.create_independent_savings( @member_under_test, @seed_savings_amount, @field_worker )
+        @initial_total_savings = @member_under_test.total_savings
+        @number_of_weeks = 1 
+        @cash =  (0.7)*@group_loan_product.total_weekly_payment
+        @savings_withdrawal = (0.3)*@group_loan_product.total_weekly_payment
+        
+        @initial_backlog_payments_count_for_member = @member_under_test.backlog_payments_for_group_loan(@group_loan).count
+        @initial_group_loan_unpaid_backlog_payments = @group_loan.unpaid_backlogs.count 
+        @backlog_payment_activity = TransactionActivity.create_backlog_payments(
+          @member_under_test,
+          @group_loan,
+          @field_worker, # field_worker
+          @cash, # 
+          @savings_withdrawal, 
+          @number_of_weeks
+        )
+        
+        @backlog_payment_activity.should be_valid
+      end
+    end
+      
+    context "cash, extra savings, savings withdrawal" do
+      before(:each) do 
+        @seed_savings_amount = 0.5*@group_loan_product.total_weekly_payment
+        TransactionActivity.create_independent_savings( @member_under_test, @seed_savings_amount, @field_worker )
+        @initial_total_savings = @member_under_test.total_savings
+        @number_of_weeks = 1 
+        @cash =  (0.8)*@group_loan_product.total_weekly_payment
+        @savings_withdrawal = (0.3)*@group_loan_product.total_weekly_payment
+  
+        @initial_backlog_payments_count_for_member = @member_under_test.backlog_payments_for_group_loan(@group_loan).count
+        @initial_group_loan_unpaid_backlog_payments = @group_loan.unpaid_backlogs.count 
+        @backlog_payment_activity = TransactionActivity.create_backlog_payments(
+          @member_under_test,
+          @group_loan,
+          @field_worker, # field_worker
+          @cash, # 
+          @savings_withdrawal, 
+          @number_of_weeks
+        )
+      end
+      
+      it "should create 3*number_of_weeks + 2 transaction entries " do
+        @backlog_payment_activity.should have(3*@number_of_weeks + 2 ).transaction_entries 
+        
+        principal_entry_count = 0 
+        min_savings_entry_count = 0
+        interest_entry_count = 0 
+        extra_savings_entry_count = 0 
+        savings_withdrawal_entry_count =0 
+        extra_savings_entry = ''
+        principal_entry = ''
+        savings_withdrawal_entry = '' 
+  
+        @backlog_payment_activity.transaction_entries.each do |te|
+          if te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_principal] 
+            principal_entry_count += 1 
+            principal_entry = te
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_saving] 
+            min_savings_entry_count +=1 
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_interest] 
+            interest_entry_count += 1
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:extra_weekly_saving] 
+            extra_savings_entry_count += 1
+            extra_savings_entry = te
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal] 
+            savings_withdrawal_entry_count += 1
+            savings_withdrawal_entry = te 
+          end
+        end
+  
+        principal_entry_count.should == @number_of_weeks
+        min_savings_entry_count.should == @number_of_weeks 
+        interest_entry_count.should == @number_of_weeks
+        extra_savings_entry_count.should == @number_of_weeks
+        savings_withdrawal_entry_count.should == @number_of_weeks
+      end
+      
+      it "should produce extra_savings == cash + savings_withdrawal - number_of_weeks * weekly_payment" do 
+        principal_entry_count = 0 
+        min_savings_entry_count = 0
+        interest_entry_count = 0 
+        extra_savings_entry_count = 0 
+        savings_withdrawal_entry_count =0 
+        extra_savings_entry = ''
+        principal_entry = ''
+        savings_withdrawal_entry = ''
+  
+        @backlog_payment_activity.transaction_entries.each do |te|
+          if te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_principal] 
+            principal_entry_count += 1 
+            principal_entry = te
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_saving] 
+            min_savings_entry_count +=1 
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_interest] 
+            interest_entry_count += 1
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:extra_weekly_saving] 
+            extra_savings_entry_count += 1
+            extra_savings_entry = te
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal] 
+            savings_withdrawal_entry_count += 1
+            savings_withdrawal_entry = te 
+          end
+        end
+        
+        expected_extra_savings = @cash + @savings_withdrawal - @number_of_weeks*@group_loan_product.total_weekly_payment 
+      end
+      
+      it "should produce difference in total savings : extra_savings + number_of_weeks*min_savings - savings_withdrawal" do 
+        principal_entry_count = 0 
+        min_savings_entry_count = 0
+        interest_entry_count = 0 
+        extra_savings_entry_count = 0 
+        savings_withdrawal_entry_count =0 
+        extra_savings_entry = ''
+        principal_entry = ''
+        savings_withdrawal_entry = ''
+  
+        @backlog_payment_activity.transaction_entries.each do |te|
+          if te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_principal] 
+            principal_entry_count += 1 
+            principal_entry = te
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_saving] 
+            min_savings_entry_count +=1 
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_interest] 
+            interest_entry_count += 1
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:extra_weekly_saving] 
+            extra_savings_entry_count += 1
+            extra_savings_entry = te
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal] 
+            savings_withdrawal_entry_count += 1
+            savings_withdrawal_entry = te 
+          end
+        end
+        
+        
+        actual_savings_difference = @member_under_test.total_savings - @initial_total_savings 
+        expected_savings_difference = extra_savings_entry.amount + @number_of_weeks*@group_loan_product.min_savings - @savings_withdrawal
+        actual_savings_difference.should == expected_savings_difference
+      end
+    end #context "cash, extra savings, savings withdrawal"
+  end # context "testing the backlog payment, single week"
+  
+  context "testing backlog payment, multiple weeks" do 
+    before(:each) do 
+      @member_under_test = @members[rand(8)]
+      glm = @group_loan.group_loan_memberships.where(:member_id => @member_under_test.id ).first
+      @group_loan_product = glm.group_loan_product
+    end
+    
+    
+    
+    context "exact amount "  do
+      
+      it "won't accept payment if the money (cash + savings withdrawal) is less than number_of_weeks*weekly_payment"  do
+        number_of_weeks = 2 
+        cash = (1)*@group_loan_product.total_weekly_payment
+        savings_withdrawal = (0.5)*@group_loan_product.total_weekly_payment
+        @seed_savings_amount = 0.5*@group_loan_product.total_weekly_payment
+        TransactionActivity.create_independent_savings( @member_under_test, @seed_savings_amount, @field_worker )
+        
+        
+        backlog_payment_activity = TransactionActivity.create_backlog_payments(
+          @member_under_test,
+          @group_loan,
+          @field_worker, # field_worker
+          cash, # 
+          savings_withdrawal, 
+          number_of_weeks
+        )
+
+        backlog_payment_activity.should be_nil  # only enough payment for 1 week + extra 0.5 savings 
+      end
+      
+      it "should produce backlog payment if cash+  savings_withdrawal >= number_of_weeks * total_weekly_payment" do
+        cash = (2)*@group_loan_product.total_weekly_payment
+        savings_withdrawal = (0)*@group_loan_product.total_weekly_payment
+        @seed_savings_amount = 1*@group_loan_product.total_weekly_payment
+        TransactionActivity.create_independent_savings( @member_under_test, @seed_savings_amount, @field_worker )
+        
+        
+        number_of_weeks =2 
+        backlog_payment_activity = TransactionActivity.create_backlog_payments(
+          @member_under_test,
+          @group_loan,
+          @field_worker, # field_worker
+          cash, # 
+          savings_withdrawal, 
+          number_of_weeks
+        )
+
+        backlog_payment_activity.should be_valid
+        backlog_payment_activity.transaction_case.should == TRANSACTION_CASE[:multiple_backlog_payment_exact_amount]
+      end
+      
+     
+      
+      context "post - transaction, multiple weeks payment, exact" do
+        before(:each) do 
+          @seed_savings_amount = 0.5*@group_loan_product.total_weekly_payment
+          TransactionActivity.create_independent_savings( @member_under_test, @seed_savings_amount, @field_worker )
+          @initial_total_savings = @member_under_test.total_savings
+          @number_of_weeks = 2
+          @cash =  (2)*@group_loan_product.total_weekly_payment
+          @savings_withdrawal = (0)*@group_loan_product.total_weekly_payment
+
+          @initial_backlog_payments_count_for_member = @member_under_test.backlog_payments_for_group_loan(@group_loan).count
+          @initial_group_loan_unpaid_backlog_payments = @group_loan.unpaid_backlogs.count 
+          @backlog_payment_activity = TransactionActivity.create_backlog_payments(
+            @member_under_test,
+            @group_loan,
+            @field_worker, # field_worker
+            @cash, # 
+            @savings_withdrawal, 
+            @number_of_weeks
+          )
+        end
+        
+        it "should have number_of_weeks*3 transaction_entries" do
+          @backlog_payment_activity.should have(@number_of_weeks*3).transaction_entries 
+        end
+        it "should produce difference in member's savings by number_of_weeks*min_savingss" do
+          difference= @member_under_test.total_savings - @initial_total_savings 
+          difference.should == ( @group_loan_product.min_savings * @number_of_weeks )
+        end
+      end #context "post - transaction, multiple weeks payment, exact"
+    end #context "multiple weeks, exact"
+    
+    
+    context "multiple_weeks, cash + extra savings" do 
+      
+      before(:each) do 
+        # @seed_savings_amount = 0.5*@group_loan_product.total_weekly_payment
+        #     TransactionActivity.create_independent_savings( @member_under_test, @seed_savings_amount, @field_worker )
+        @initial_total_savings = @member_under_test.total_savings
+        @number_of_weeks = 2
+        @cash =  (2.5)*@group_loan_product.total_weekly_payment
+        @savings_withdrawal = (0)*@group_loan_product.total_weekly_payment
+
+        @initial_backlog_payments_count_for_member = @member_under_test.backlog_payments_for_group_loan(@group_loan).count
+        @initial_group_loan_unpaid_backlog_payments = @group_loan.unpaid_backlogs.count 
+        @backlog_payment_activity = TransactionActivity.create_backlog_payments(
+          @member_under_test,
+          @group_loan,
+          @field_worker, # field_worker
+          @cash, # 
+          @savings_withdrawal, 
+          @number_of_weeks
+        )
+      end
+      it " should create number_of_weeks*3 + 1 transaction_entries " do
+        @backlog_payment_activity.should have(@number_of_weeks*3 +1 ).transaction_entries
+      end
+      
+      it "should produce difference in member's savings by number_of_weeks*min_savings + extra_savings" do
+        expected_difference = @number_of_weeks*@group_loan_product.min_savings +  @cash - @number_of_weeks*@group_loan_product.total_weekly_payment
+        actual_difference=  @member_under_test.total_savings - @initial_total_savings
+        actual_difference.should == expected_difference
+      end
+      
+      it "should produce difference in  unpaid backlog payments  by number_of_weeks" do
+        final_unpaid_count = @group_loan.unpaid_backlogs.count 
+        final_unpaid_count.should == @initial_group_loan_unpaid_backlog_payments - @number_of_weeks
+      end
+    end
+    
+    
+    context "cash + extra savings + savings withdrawal" do
+      before(:each) do 
+        @seed_savings_amount = 0.5*@group_loan_product.total_weekly_payment
+        TransactionActivity.create_independent_savings( @member_under_test, @seed_savings_amount, @field_worker )
+        @initial_total_savings = @member_under_test.total_savings
+        @number_of_weeks = 2
+        @cash =  (2)*@group_loan_product.total_weekly_payment
+        @savings_withdrawal = (0.5)*@group_loan_product.total_weekly_payment
+
+        @initial_backlog_payments_count_for_member = @member_under_test.backlog_payments_for_group_loan(@group_loan).count
+        @initial_group_loan_unpaid_backlog_payments = @group_loan.unpaid_backlogs.count 
+        @backlog_payment_activity = TransactionActivity.create_backlog_payments(
+          @member_under_test,
+          @group_loan,
+          @field_worker, # field_worker
+          @cash, # 
+          @savings_withdrawal, 
+          @number_of_weeks
+        )
+      end
+      
+      it "should be valid if cash+savings_withdrawal, creating 3*number_of_weeks  + 2 transaction entries"  do
+        @backlog_payment_activity.should have(@number_of_weeks*3 + 2 ).transaction_entries
+      end
+      it "should produce extra savings: cash + savings_withdrawal - number_of_weeks * weekly_payment " do
+        principal_entry_count = 0 
+        min_savings_entry_count = 0
+        interest_entry_count = 0 
+        extra_savings_entry_count = 0 
+        savings_withdrawal_entry_count =0 
+        extra_savings_entry = ''
+        principal_entry = ''
+        savings_withdrawal_entry = ''
+  
+        @backlog_payment_activity.transaction_entries.each do |te|
+          if te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_principal] 
+            principal_entry_count += 1 
+            principal_entry = te
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_saving] 
+            min_savings_entry_count +=1 
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:weekly_interest] 
+            interest_entry_count += 1
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:extra_weekly_saving] 
+            extra_savings_entry_count += 1
+            extra_savings_entry = te
+          elsif te.transaction_entry_code == TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal] 
+            savings_withdrawal_entry_count += 1
+            savings_withdrawal_entry = te 
+          end
+        end
+        
+        expected_extra_savings = @cash + @savings_withdrawal - @number_of_weeks*@group_loan_product.total_weekly_payment
+        extra_savings_entry.amount.should == expected_extra_savings
+      end
+      
+      it "should produce difference in member savings : number_of_weeks*min_savings +  extra savins - savings withdrawal" do
+        
+        
+        expected_extra_savings = @cash + @savings_withdrawal - @number_of_weeks*@group_loan_product.total_weekly_payment
+        total_savings_difference = @member_under_test.total_savings - @initial_total_savings
+        total_savings_difference.should == (expected_extra_savings - @savings_withdrawal + @number_of_weeks*@group_loan_product.min_savings)
+      end
+      
+    end
+  end
+end 
