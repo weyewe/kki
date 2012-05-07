@@ -136,15 +136,9 @@ class SubGroup < ActiveRecord::Base
   
   
   def generate_default_payments(list_of_non_default_member_id)
-    list_of_sub_group_member_id = self.group_loan_memberships.map{|x| x.member_id }
+    non_default_sub_group_member_id  = self.extract_non_default_member_id
     
-    default_sub_group_member_id = list_of_sub_group_member_id - list_of_non_default_member_id
-    non_default_sub_group_member_id = list_of_sub_group_member_id - default_sub_group_member_id 
-    
-    
-    if non_default_sub_group_member_id == 0
-      # set all share of the default == 0 , that is by default
-    
+    if non_default_sub_group_member_id.length == 0
       return nil
     end
     
@@ -155,7 +149,7 @@ class SubGroup < ActiveRecord::Base
       glm  = self.group_loan_memberships.where(:member_id => member_id).first
       default_payment = glm.default_payment 
       default_payment.set_amount_sub_group_share(  sub_group_amount_share )
-      # default_payment.set_default_payment_status_true # done in the group loan level
+      default_payment.set_default_payment_status_true # done in the group loan level
     end
     
     
@@ -195,20 +189,43 @@ class SubGroup < ActiveRecord::Base
     end
     self.sub_group_total_default_payment_amount = total_sum
     self.save 
-    total_sum 
+    return total_sum 
   end
   
   
+  def sub_group_member_id_list
+    self.group_loan_memberships.map{|x| x.member_id}
+  end
+  
+  def default_payments
+    # return all default payment account 
+    glm_id_list= self.group_loan_memberships.map{|x| x.id }
+    
+    DefaultPayment.find(:all, :conditions => {
+      :group_loan_membership_id => glm_id_list
+    })
+  end
   
   def extract_default_member_id
     #inspired from group_loan.extract_default_member_id
+    # default_member_id = self.group_loan.extract_default_member_id
+    # 
+    # sub_group_member_id_list = self.group_loan_memberships.map{|x| x.member_id}
+    # 
+    # non_default_sub_group_member_id_list = sub_group_member_id_list - default_member_id
+    # 
+    # default_sub_group_member_id_list = sub_group_member_id_list - non_default_sub_group_member_id_list
+    
+    sub_group_member_id_list  - self.extract_non_default_member_id 
+  end
+  
+  def extract_non_default_member_id
+    #inspired from group_loan.extract_default_member_id
     default_member_id = self.group_loan.extract_default_member_id
     
-    sub_group_member_id_list = self.group_loan_memberships.map{|x| x.member_id}
+    # sub_group_member_id_list = self.group_loan_memberships.map{|x| x.member_id}
     
-    non_default_sub_group_member_id_list = sub_group_member_id_list - default_member_id
-    
-    default_sub_group_member_id_list = sub_group_member_id_list - non_default_sub_group_member_id_list
+    non_default_sub_group_member_id_list = self.sub_group_member_id_list - default_member_id
   end
   
 

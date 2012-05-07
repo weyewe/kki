@@ -92,13 +92,13 @@ describe DefaultPayment do
       @group_loan.execute_propose_finalization( @loan_officer )
       @group_loan.start_group_loan( @branch_manager )
 
-      puts "At the end of the highest before block"
+      # puts  "At the end of the highest before block"
 
-      puts "total villages : #{Village.count}"
-      puts "total subdistricts: #{Subdistrict.count}"
-      puts "total regencies: #{Regency.count}"
-      puts "total provinces: #{Province.count}"
-      puts "total island: #{Island.count}"
+      # puts  "total villages : #{Village.count}"
+      # puts  "total subdistricts: #{Subdistrict.count}"
+      # puts  "total regencies: #{Regency.count}"
+      # puts  "total provinces: #{Province.count}"
+      # puts  "total island: #{Island.count}"
 
 
       # do the setup payment, finalize.. let the weekly payment begin
@@ -124,11 +124,11 @@ describe DefaultPayment do
 
 
 
-      puts "Total weekly Tasks: #{@group_loan.weekly_tasks.count}"
+      # puts  "Total weekly Tasks: #{@group_loan.weekly_tasks.count}"
 
       # gonna finalize the week
       (1..(@group_loan.total_weeks )).each do |week|
-        puts "week number: #{week}"
+        # puts  "week number: #{week}"
         weekly_task = @group_loan.currently_executed_weekly_task 
         @members.each do |member|
           value = rand(3)
@@ -162,7 +162,7 @@ describe DefaultPayment do
           end
 
         end
-
+        weekly_task.close_weekly_payment( @field_worker )
         # cashier approve
         weekly_task.approve_weekly_payment_collection( @cashier )
       end
@@ -195,12 +195,17 @@ describe DefaultPayment do
 
     context "post conditions of default payment creation" do 
       before(:each) do
-        # branch manager create the default payment
-        # @sub_group_1_selected_member 
-        # @sub_group_2_selected_member_1 
-        # @sub_group_2_selected_member_2
+        
         @group_loan.declare_default(@branch_manager) 
         
+      end
+      
+      it "Should have is_group_loan_default == true " do
+        @group_loan.is_group_loan_default.should == true 
+      end
+      
+      it 'should have branch manager id as the default creator id' do
+        @group_loan.default_creator_id.should == @branch_manager.id
       end
       
       
@@ -211,13 +216,16 @@ describe DefaultPayment do
           @second_sub_group.total_default_member.should == 2 
         end
         
-        it "should extract the correct total default value in subgroup" do 
+        it "should extract the correct total default value in subgroup, and the total group" do 
+          total_group_loan_default = BigDecimal("0")
           actual_total_default = @first_sub_group.extract_total_unpaid_backlogs
           
           group_loan_product = @group_loan.get_membership_for_member( @sub_group_1_selected_member ) .group_loan_product
           expected_total_default  = @total_number_of_weeks*group_loan_product.total_weekly_payment
           actual_total_default.should == expected_total_default
-          
+          # puts  "Actual first group default:#{actual_total_default} "
+          # puts  "Expected first group default: #{expected_total_default}"
+          total_group_loan_default += actual_total_default
           # for the 2nd group
           actual_total_default_2 = @second_sub_group.extract_total_unpaid_backlogs
           expected_total_default_2 = BigDecimal("0")
@@ -226,27 +234,79 @@ describe DefaultPayment do
           group_loan_product = @group_loan.get_membership_for_member( @sub_group_2_selected_member_2 ) .group_loan_product
           expected_total_default_2  += @total_number_of_weeks*group_loan_product.total_weekly_payment
           actual_total_default_2.should == expected_total_default_2
+          # puts  "Actual second group default:#{actual_total_default_2} "
+          # puts  "Expected second group default: #{expected_total_default_2}"
+          total_group_loan_default += actual_total_default_2
           
-          
-          
-          
+          # puts  "Actual default group_loan :#{@group_loan.extract_total_default_amount}"
+          puts  "The TOTAL default amount group_loan :#{@group_loan.total_default_amount}"
+          @group_loan.total_default_amount.should == total_group_loan_default
         end
         
         it "should produce group total default == total default from sub groups" do
-          actual_group_loan_total_default = @group_loan.total_default_amount
+          actual_group_loan_total_default = @group_loan.extract_total_default_amount
           expected_total = BigDecimal("0")
-          @group_loan.sub_groups do |sub_group|
-            expected_total += sub_group.extract_total_unpaid_backlogs
+          @group_loan.sub_groups.each do |sub_group|
+            puts "subgroup #{sub_group.number}: sub_group_total_default_payment_amount: #{sub_group.sub_group_total_default_payment_amount}"
+            expected_total += sub_group.sub_group_total_default_payment_amount
           end
+          
+          # puts  "Actual Group Default = #{actual_group_loan_total_default}"
           actual_group_loan_total_default.should == expected_total 
         end
         
-     
-        
-        it "should produces ( total_sub_group_default/subgroup.non_default_member * 0.5 ) of sub_group_default share per non-defaultee in the same subgroup" do
-          # testing sub_group_default share 
+        it "sould have 8-3 non-default member id " do
+          @group_loan.extract_non_default_member_id.length.should == 5 
+          # puts  "---!!!!!!!!!! #{@group_loan.extract_non_default_member_id}"
+        end
+         
+        it "should produce default payment, as many as the number of group members" do
+          # puts  "0000000 total default payment : #{DefaultPayment.count}"
+          glm_id = @group_loan.group_loan_memberships.map {|x| x.id }
+          # puts  "THE GLM ID: #{glm_id}"
           
-        end 
+          # list_of_non_default_member_id = @group_loan.extract_non_default_member_id
+          #       @group_loan.group_loan_memberships.each do |glm|
+          #         # puts  "@@@ current glm.member_id = #{glm.member_id}"
+          #         if list_of_non_default_member_id.include?(glm.member_id)
+          #           DefaultPayment.create :group_loan_membership_id => glm.id , :is_defaultee => false # by default 
+          #         else
+          #           DefaultPayment.create :group_loan_membership_id => glm.id , :is_defaultee => true 
+          #         end
+          #       end
+          #       
+          # puts  "========= total default_Paymnet = #{DefaultPayment.count}"
+          
+          
+          # DefaultPayment.find(:all, :conditions => {
+          #   :group_loan_membership_id => glm_id
+          # }).count.should == @group_loan.group_loan_memberships.count 
+          # puts  "============ the group_loan status : #{@group_loan.is_group_loan_default}}"
+          DefaultPayment.count.should == @group_loan.group_loan_memberships.count 
+          
+          
+        end
+        
+        it "should produce total of sub_group share of non defaultee == 50% total sub_group default"  do
+          # puts  "Total subgroups : #{@group_loan.sub_groups.count}"
+          # puts  "Total DefaultPayment: #{DefaultPayment.count}"
+          @group_loan.sub_groups.each do |sub_group|
+            total_sub_group = BigDecimal("0")
+            # puts  "For #{sub_group.number}, total_default_payments: #{sub_group.default_payments.count}"
+            sub_group.default_payments.each do |default_payment_sub_group_member|
+              
+              total_sub_group += default_payment_sub_group_member.amount_sub_group_share
+              # puts  "The subgroup_share amount of default_payment: #{default_payment_sub_group_member.amount_sub_group_share}"
+            end
+            
+            actual_total_sub_group_default_payment = sub_group.sub_group_total_default_payment_amount
+            # puts  "Actual SubGroup Default  = #{ actual_total_sub_group_default_payment}"
+            tolerance = (10/100) * actual_total_sub_group_default_payment # 10% tolerance
+            # ( actual_total_sub_group_default_payment/2) .should  be_within(tolerance).of(total_sub_group)
+          end
+        end
+        
+        it "should produce total of group_share of non_defaultee == 50% total group default"
         
         it "should not store the after decimal point value (no floating point)" do
         end
@@ -261,7 +321,7 @@ describe DefaultPayment do
       end
       
       context "in the group as a whole" do
-        it "should produces (total_group_default/group.non_default_member*0.5) of group_default_share per non-group_defaultee"
+        
       end
       
       context "total default_contribution, rounded up to the nearest 500 rupiah"

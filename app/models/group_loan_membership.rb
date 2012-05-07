@@ -17,7 +17,13 @@ class GroupLoanMembership < ActiveRecord::Base
   
   before_destroy :destroy_group_loan_subcription
   
+  def create_default_payment_for_the_default_member
+    DefaultPayment.create(:group_loan_membership_id => self.id , :is_defaultee => true )
+  end
   
+  def create_default_payment_for_the_non_default_member
+    DefaultPayment.create(:group_loan_membership_id => self.id , :is_defaultee => false )
+  end
   
   def add_deposit(field_worker, amount ) 
     # loan_product = self.group.group_loan 

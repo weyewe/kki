@@ -17,7 +17,7 @@ class DefaultPayment < ActiveRecord::Base
   
   def set_default_payment_status_true
     self.is_defaultee = true 
-    self.saves
+    self.save
   end
   
 end
