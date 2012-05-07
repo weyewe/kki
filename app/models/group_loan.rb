@@ -437,7 +437,11 @@ class GroupLoan < ActiveRecord::Base
   #   end
   
   def declare_default( current_user )
-    if not current_user.has_role?(:branch_manager)
+    if not current_user.has_role?(:branch_manager, current_user.get_active_job_attachment)
+      return nil
+    end
+    
+    if self.completed_weekly_tasks.count != self.total_weeks
       return nil
     end
     
@@ -450,11 +454,25 @@ class GroupLoan < ActiveRecord::Base
   end
   
   
+  # def extract_total_default_amount
+  #   total_default = BigDecimal("0")
+  #   
+  #   self.unpaid_backlogs.each do |backlog|
+  #     total_default += backlog.amount
+  #   end
+  #   
+  #   self.total_default_amount  =  total_default
+  #   self.save 
+  #   
+  #   return total_default
+  # end
+  
   def extract_total_default_amount
+    
     total_default = BigDecimal("0")
     
-    self.unpaid_backlogs.each do |backlog|
-      total_default += backlog.amount
+    self.sub_groups.each do |sub_group|
+      total_default += sub_group.extract_total_unpaid_backlogs
     end
     
     self.total_default_amount  =  total_default
@@ -478,6 +496,10 @@ class GroupLoan < ActiveRecord::Base
     list_of_default_member_id = BacklogPayment.list_member_id_with_default_in_group_loan( self ) 
   end
   
+  def total_default_member
+    self.extract_default_member_id.length 
+  end
+  
   def extract_non_default_member_id
     list_of_default_member_id = self.extract_default_member_id
     all_member_id = []
@@ -496,59 +518,74 @@ class GroupLoan < ActiveRecord::Base
   
   def generate_default_payments_per_group_loan_membership
     total_default = self.total_default_amount
+    
+    list_of_non_default_member_id = self.extract_non_default_member_id
+    
+    
     self.group_loan_memberships.each do |glm|
-      DefaultPayment.create :group_loan_membership_id => glm.id 
+      if list_of_non_default_member_id.include?(glm.member_id)
+        DefaultPayment.create :group_loan_membership_id => glm.id 
+      else
+        DefaultPayment.create :group_loan_membership_id => glm.id , :is_defaultee => true 
+      end
     end
     
     # get all member without default 
     
     
-    list_of_non_default_member_id = self.extract_non_default_member_id
+    
     if list_of_non_default_member_id.length == 0 
-      #  set the amount of KKI has to pay
-      self.total_default_amount = total_default
-      self.save 
-      return nil # fuck.. everyone is defaulting who should pay? KKI? 
+      # set the default payment for group share and sub group share == 0 
+      # by default 
+      return nil 
+    else
+      
+      group_share_amount =  ( total_default* 0.5 ) / list_of_non_default_member_id.length 
+
+
+      list_of_non_default_member_id.each do |non_default_member_id|
+        glm = GroupLoanMembership.find(:first, :conditions => {
+          :member_id => non_default_member_id,
+          :group_loan_id => self.id 
+        })
+        default_payment = glm.default_payment
+        default_payment.set_amount_group_share( group_share_amount ) 
+      end
+
+      self.sub_groups.each do |sub_group|
+        sub_group.generate_default_payments( list_of_non_default_member_id )
+      end
+
+
+      # we want the sum of total sub_group_share + group_share default payment, so that we will know the 
+      # amount absorbed by kki  << important
+
+      # group_loan_membership_id_list = self.extract_group_loan_membership_id_list
+      total_amount_subgroup_share = DefaultPayment.find(:all, :conditions => {
+        :group_loan_membership_id => self.group_loan_membership_id_list
+      }).sum("amount_subgroup_share")
+
+      total_amount_group_share = DefaultPayment.find(:all, :conditions => {
+        :group_loan_membership_id => self.group_loan_membership_id_list
+      }).sum("amount_group_share")
+
+      total_amount_absorbed_by_office = total_default - total_amount_subgroup_share - total_amount_group_share
+      self.total_calculated_default_absorbed_by_office= total_amount_absorbed_by_office
+      self.save
+      
+      
     end
     
-    group_share_amount =  ( total_default/2 ) / list_of_non_default_member_id.length 
     
-    
-    list_of_non_default_member_id.each do |non_default_member_id|
-      glm = GroupLoanMembership.find(:first, :conditions => {
-        :member_id => non_default_member_id,
-        :group_loan_id => self.id 
-      })
-      default_payment = glm.default_payment
-      default_payment.set_amount_group_share( group_share_amount ) 
-    end
-    
-    self.sub_groups.each do |sub_group|
-      sub_group.generate_default_payments( list_of_non_default_member_id )
-    end
-    
-    
-    # we want the sum of total sub_group_share + group_share default payment, so that we will know the 
-    # amount absorbed by kki  << important
-    
-    # group_loan_membership_id_list = self.extract_group_loan_membership_id_list
-    total_amount_subgroup_share = DefaultPayment.find(:all, :conditions => {
-      :group_loan_membership_id => self.group_loan_membership_id_list
-    }).sum("amount_subgroup_share")
-    
-    total_amount_group_share = DefaultPayment.find(:all, :conditions => {
-      :group_loan_membership_id => self.group_loan_membership_id_list
-    }).sum("amount_group_share")
-    
-    total_amount_absorbed_by_office = total_default - total_amount_subgroup_share - total_amount_group_share
-    self.total_calculated_default_absorbed_by_office= total_amount_absorbed_by_office
-    self.save 
   end
   
   def generate_default_payments
     self.extract_total_default_amount
-    self.generate_default_payments_per_group_loan_membership 
-    self.declare_backlog_payments_as_default
+    # by now, we know the default amount for each subgroup
+    # total default amount for the group == sum of default amount from all subgroups
+   
+    self.generate_default_payments_per_group_loan_membership  # sub_group_share and group_share
+    self.declare_backlog_payments_as_default #but not cleared. that is the basis for future data
   end
   
   
