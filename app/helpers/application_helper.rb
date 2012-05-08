@@ -390,6 +390,14 @@ module ApplicationHelper
         ]
       },
       {
+        :title => "Monitor Default Loan Resolution",
+        :destination_link => "select_group_loan_monitor_default_loan_resolution_url",
+        :conditions => [
+          :controller => "group_loans",
+          :action => 'select_group_loan_monitor_default_loan_resolution'
+        ]
+      },
+      {
         :title => "Close Group Loan",
         :destination_link => "root_url",
         :conditions => [
@@ -584,6 +592,10 @@ module ApplicationHelper
           {
             :controller => 'group_loans',
             :action => 'select_group_loan_for_backlog_payment_approval'
+          },
+          {
+            :controller => "backlog_payments", 
+            :action => "select_pending_backlog_to_be_approved"
           }
         ]
       }
@@ -668,11 +680,15 @@ module ApplicationHelper
       },
       {
         :title => "Loan Default Resolution",
-        :destination_link => 'root_url',
+        :destination_link => 'select_group_loan_for_loan_default_resolution_url',
         :conditions => [
           {
-            :action => '',
-            :conditions => ''
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_loan_default_resolution'
+          },
+          {
+            :controller => "default_payments",
+            :action => 'list_default_payment_for_clearance'
           }
         ]
       }

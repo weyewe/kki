@@ -471,6 +471,32 @@ special_default_member_id_list = [first_membership.member_id, third_membership.m
   # cashier approve
   weekly_task.approve_weekly_payment_collection( cashier )
 end
+
+puts "create some backlog payments"
+
+first_group_loan_product = first_membership.group_loan_product
+TransactionActivity.create_backlog_payments(
+  first_membership.member,
+  group_loan,
+  field_worker,
+  1.8*first_group_loan_product.total_weekly_payment,
+  0.2*first_group_loan_product.total_weekly_payment,
+  1
+)
+
+third_group_loan_product = third_membership.group_loan_product
+TransactionActivity.create_backlog_payments(
+  third_membership.member,
+  group_loan,
+  field_worker,
+  2*third_group_loan_product.total_weekly_payment,
+  third_membership.member.total_savings*0.5,
+  2
+)
+
+
+
+ 
  
 puts "done... can we close the group loan now, nyaan? << we need to do the UI"
 puts "over here,, this is the last chance for member to pay backlog payment, before being declared as default."
@@ -478,7 +504,7 @@ puts "maybe some intimidation will do :)"
 
 puts "we need a special page to approve the backlog payment amount , by cashier"
 
-group_loan.declare_default(branch_manager) 
+# group_loan.declare_default(branch_manager) # backlog payment is closed 
 
 
 puts "group loan is declared as default"

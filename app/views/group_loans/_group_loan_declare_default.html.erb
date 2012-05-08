@@ -1,17 +1,30 @@
+<!-- <th>Nama Group</th>
+<th>Lokasi RW</th>
+<th>Total Member</th>
+<th>Unpaid Backlog</th>
+<th>Pending Approval Backlog</th> -->
+
 <tr id="declare_default_group_loan-<%= group_loan.id %>">
   <td><%= link_to group_loan.name, new_group_loan_group_loan_subcription_url(group_loan) %></td>
   <td><%= group_loan.get_commune %></td>
   <td><%= group_loan.members.count %></td>
-
   
-  <td> 5 </td>
+  <td><%= group_loan.unpaid_backlogs.count %></td>
+  <td> <%= group_loan.pending_approval_backlogs.count%> </td>
+  
   
  
   <%# if group_loan.is_started == false && group_loan.is_proposed == true %>
+  <% if group_loan.pending_approval_backlogs.count == 0  %>
     <td style="text-align:center;">
       <a href="#" class="btn approve action true_check"
           id="finalize-<%= group_loan.id %>">Declare Default</a>
     </td>
+  <% else %>
+    <td style="text-align:center;">
+      <span class="label label-important">Pending Backlog Approval</span>
+    </td>
+  <% end %>
   
  
   <%# end %>

@@ -557,6 +557,60 @@ class TransactionActivity < ActiveRecord::Base
         
   end
   
+  
+  def TransactionActivity.extract_transaction_pending_backlogs_pair(group_loan)
+    pending_backlogs_transaction_id_list = group_loan.pending_approval_backlogs.
+                                                    map{|x| x.transaction_activity_id_for_backlog_clearance }.uniq
+                                                    
+    pair = []
+    pending_backlogs_transaction_id_list.each do |transaction_activity_id|
+      transaction_activity = TransactionActivity.find_by_id transaction_activity_id
+      # backlog_payments = BacklogPayment.find(:all, :conditions => {
+      #       :transaction_activity_id_for_backlog_clearance => transaction_activity.id 
+      #     }) 
+      backlog_payments = transaction_activity.backlog_payments
+      member = backlog_payments.first.member 
+      pair << {
+        :cash_exchanging_hands_amount => transaction_activity.total_transaction_amount,
+        :field_worker_id => transaction_activity.creator_id, 
+        :backlog_payments => backlog_payments,
+        :member => member,
+        :savings_withdrawal => transaction_activity.savings_withdrawal_amount,
+        :transaction_activity_id =>transaction_activity_id,
+        :number_of_weeks_paid => backlog_payments.count
+      }
+    end
+    
+    return pair
+  end
+  
+  def backlog_payments
+    BacklogPayment.find(:all, :conditions => {
+      :transaction_activity_id_for_backlog_clearance => self.id 
+    })
+  end
+  
+  def approve_backlog_payments(current_user)
+    if  not current_user.has_role?(:cashier, current_user.get_active_job_attachment)
+      return nil
+    end
+    
+    self.backlog_payments.each do |backlog_payment|
+      backlog_payment.create_cashier_cash_approval(current_user)
+    end
+    
+    
+  end
+  
+  def savings_withdrawal_amount
+    savings_withdrawal_entry = self.transaction_entries.
+                            where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal])
+    if savings_withdrawal_entry.length != 0 
+      return savings_withdrawal_entry.first.amount
+    else
+      return BigDecimal("0")
+    end
+  end
 =begin
   For the default loan resolution
 =end

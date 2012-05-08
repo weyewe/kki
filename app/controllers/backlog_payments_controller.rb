@@ -26,11 +26,18 @@ class BacklogPaymentsController < ApplicationController
   def select_pending_backlog_to_be_approved
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @office = @group_loan.office
-    @pending_approval_backlogs = @group_loan.pending_approval_backlogs
+    @transaction_activity_backlogs_pairs  = TransactionActivity.extract_transaction_pending_backlogs_pair(@group_loan) 
+    # @group_loan.pending_approval_backlogs
   end
   
   
   def execute_backlog_payment_approval_by_cashier
+    @transaction= TransactionActivity.find_by_id params[:entity_id]
+    @action = params[:action_value].to_i
+    
+    if @action == TRUE_CHECK
+      @transaction.approve_backlog_payments(current_user) 
+    end
     
   end
   

@@ -508,6 +508,48 @@ class GroupLoan < ActiveRecord::Base
     self.extract_default_member_id.length 
   end
   
+  def members_paid_default_payment
+    list_of_non_defaultee_member_id = self.extract_non_default_member_id 
+    
+    non_defaultee_glm_id=  GroupLoanMembership.find(:all, :conditions => {
+        :member_id => list_of_non_defaultee_member_id,
+        :group_loan_id => self.id 
+      }).map{|x| x.id }
+      
+    DefaultPayment.where(
+      :group_loan_membership_id => non_defaultee_glm_id,
+      :is_paid => true 
+    )
+  end
+  
+  def default_payments
+    list_of_non_defaultee_member_id = self.extract_non_default_member_id 
+    
+    non_defaultee_glm_id=  GroupLoanMembership.find(:all, :conditions => {
+        :member_id => list_of_non_defaultee_member_id,
+        :group_loan_id => self.id 
+      }).map{|x| x.id }
+      
+    DefaultPayment.where(
+      :group_loan_membership_id => non_defaultee_glm_id,
+      :is_defaultee => false 
+    )
+  end
+  
+  
+  def pending_approval_default_payments
+    members_paid_default_payment.where(:is_cashier_approved => false)
+  end
+  
+  def total_paid_default_payment
+    members_paid_default_payment.sum("total_amount")
+  end
+  
+  def total_members_paid_default_payment
+    self.members_paid_default_payment.count
+  end
+  
+  
   def extract_non_default_member_id
     list_of_default_member_id = self.extract_default_member_id
     all_member_id = []

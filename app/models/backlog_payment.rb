@@ -34,4 +34,12 @@ class BacklogPayment < ActiveRecord::Base
       :is_cleared => false 
     }).collect {|x| x.member_id }.uniq
   end
+  
+  
+  def create_cashier_cash_approval(current_user)
+    # :is_cashier_approved => false
+    self.is_cashier_approved = true 
+    self.backlog_payment_approver_id = current_user.id 
+    self.save
+  end
 end

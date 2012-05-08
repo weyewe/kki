@@ -101,10 +101,22 @@ class Office < ActiveRecord::Base
                 :is_group_loan_default => false   )
   end
   
+  def default_declared_group_loans
+    self.group_loans.where(:is_closed => false , 
+                :is_proposed => true , 
+                :is_started => true,
+                :is_setup_fee_collection_finalized => true , 
+                :is_setup_fee_collection_approved => true , 
+                :is_loan_disbursement_done => true, 
+                :is_closed => false,
+                :is_group_loan_default => true   )
+  end
+  
   
   
   
   def default_declarable_group_loans
+    
     valid_running_group_loans = self.running_group_loans
     group_loans_array = []
     valid_running_group_loans.each do |group_loan|
@@ -114,6 +126,8 @@ class Office < ActiveRecord::Base
     end
     return group_loans_array 
   end
+  
+  
   
   
   

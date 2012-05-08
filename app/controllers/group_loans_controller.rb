@@ -65,9 +65,14 @@ class GroupLoansController < ApplicationController
   
   def execute_declare_default_group_loan
     @group_loan = GroupLoan.find_by_id params[:entity_id]
-    if current_user.has_role?(:branch_manager)
+    if current_user.has_role?(:branch_manager, current_user.active_job_attachment )
       @group_loan.declare_default(current_user) 
     end
+  end
+  
+  def select_group_loan_monitor_default_loan_resolution
+    @office = current_user.active_job_attachment.office
+    @default_declared_group_loans  = @office.default_declared_group_loans
   end
   
   
@@ -135,6 +140,11 @@ class GroupLoansController < ApplicationController
   def select_group_loan_for_backlog_weekly_payment
     @office = current_user.active_job_attachment.office
     @running_group_loans = @office.running_group_loans
+  end
+  
+  def select_group_loan_for_loan_default_resolution
+    @office = current_user.active_job_attachment.office
+    @default_declared_group_loans  = @office.default_declared_group_loans
   end
   
 =begin

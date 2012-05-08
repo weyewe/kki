@@ -73,6 +73,9 @@ Debita46::Application.routes.draw do
   
   match 'select_group_loan_to_be_declared_as_default' => "group_loans#select_group_loan_to_be_declared_as_default", :as => :select_group_loan_to_be_declared_as_default
   match 'execute_declare_default_group_loan' => "group_loans#execute_declare_default_group_loan", :as => :execute_declare_default_group_loan, :method => :post 
+  
+  #default payment resolution progress
+  match "select_group_loan_monitor_default_loan_resolution" => "group_loans#select_group_loan_monitor_default_loan_resolution", :as => :select_group_loan_monitor_default_loan_resolution
 =begin
   Field Worker Routes
 =end
@@ -105,6 +108,9 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_backlog_weekly_payment' => "group_loans#select_group_loan_for_backlog_weekly_payment", :as => :select_group_loan_for_backlog_weekly_payment
   match 'pay_backlog_for_group_loan/:group_loan_id/member/:member_id' => "backlog_payments#pay_backlog_for_group_loan", :as => :pay_backlog_for_group_loan
   
+  #loan default resolution
+  match 'select_group_loan_for_loan_default_resolution' =>"group_loans#select_group_loan_for_loan_default_resolution", :as => :select_group_loan_for_loan_default_resolution
+  match 'list_default_payment_for_clearance/:group_loan_id' =>"default_payments#list_default_payment_for_clearance", :as => :list_default_payment_for_clearance
 =begin
   Cashier Routes 
 =end
