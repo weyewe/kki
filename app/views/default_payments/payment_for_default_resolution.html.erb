@@ -1,0 +1,57 @@
+<div class="span9 content">
+  <%= create_guide("Backlog Payment", 
+        "Backlog Payment for : <b>#{@member.name}</b>" + "<br />" + 
+        "Number of backlogs weeks-payable: <b>#{@uncleared_backlog_payments.count}</b>" + "<br />" ).html_safe %>
+        
+  
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <% if flash[:notice] %>
+    <div class="alert alert-success">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Well done!</strong> <%= flash[:notice].html_safe %>
+    </div>
+  <% end %>
+  
+  <% if flash[:error] %>
+    <div class="alert alert-error">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Create Failure!</strong> Please fill in all required (*) fields.
+    </div>
+  <% end %>
+  
+  
+  
+  
+  
+
+  <div class="tab-content" id="myTabContent">
+    <%#= render :partial => "weekly_tasks/special_payments/only_savings_payment" %>
+    
+    <%= render :partial => "backlog_payments/structured_backlog_payment", :locals => {
+      :member => @member,
+      :group_loan_product => @group_loan_product,
+      :group_loan => @group_loan ,
+      :uncleared_backlog_payments => @uncleared_backlog_payments
+    } %>
+    <%#= render :partial => "weekly_tasks/special_payments/structured_multiple_payment" %>
+    <%#= render :partial => "weekly_tasks/special_payments/no_payment" %>
+  </div>
+  
+  
+  <div class="modal" id="myModal" style="display:none;">
+     <div class="modal-header">
+       <a class="close" data-dismiss="modal">×</a>
+       <h3>Modal header</h3>
+     </div>
+     <div class="modal-body">
+       <p>One fine body…</p>
+     </div>
+     <div class="modal-footer">
+       <a href="#" class="btn modal-closer">Close</a>
+       <%#= link_to "Close", make_member_payment_url(@weekly_task.group_loan, @weekly_task), :class => "btn"%>
+     </div>
+   </div>
+  
+  
+   <hr />
+</div><!--/span-->

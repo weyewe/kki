@@ -111,6 +111,8 @@ Debita46::Application.routes.draw do
   #loan default resolution
   match 'select_group_loan_for_loan_default_resolution' =>"group_loans#select_group_loan_for_loan_default_resolution", :as => :select_group_loan_for_loan_default_resolution
   match 'list_default_payment_for_clearance/:group_loan_id' =>"default_payments#list_default_payment_for_clearance", :as => :list_default_payment_for_clearance
+  
+  match 'payment_for_default_resolution/:default_payment_id' =>"default_payments#payment_for_default_resolution", :as => :payment_for_default_resolution
 =begin
   Cashier Routes 
 =end

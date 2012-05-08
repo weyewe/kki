@@ -13,6 +13,9 @@ class CreateDefaultPayments < ActiveRecord::Migration
       t.boolean :is_paid , :default => false 
       t.boolean :is_declare_no_payment, :default => false
       t.integer :transaction_id  #to record the default payment resolution 
+      
+      t.integer :is_assumed_by_office, :default => false # only when member.total_savings < default_payment.total_amount
+      
       # if the member is non_default, is_defaultee => false
       # if the member defaulted the weekly -payment, is_defaultee = true 
       t.boolean :is_defaultee, :default => false 

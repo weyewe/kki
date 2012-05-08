@@ -646,6 +646,8 @@ class GroupLoan < ActiveRecord::Base
    
     self.generate_default_payments_per_group_loan_membership  # sub_group_share and group_share
     self.declare_backlog_payments_as_default #but not cleared. that is the basis for future data
+    
+    self.auto_deduct_default_payments_from_savings
   end
   
   

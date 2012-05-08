@@ -689,6 +689,10 @@ module ApplicationHelper
           {
             :controller => "default_payments",
             :action => 'list_default_payment_for_clearance'
+          },
+          {
+            :controller => "default_payments",
+            :action => 'payment_for_default_resolution'
           }
         ]
       }
