@@ -25,12 +25,13 @@ ActiveRecord::Schema.define(:version => 20120430151312) do
     t.integer  "weekly_task_id"
     t.integer  "member_payment_id"
     t.integer  "member_id"
-    t.boolean  "is_cleared",                        :default => false
+    t.boolean  "is_cleared",                                    :default => false
     t.integer  "backlog_cleared_declarator_id"
-    t.boolean  "is_group_loan_declared_as_default", :default => false
+    t.integer  "transaction_activity_id_for_backlog_clearance"
+    t.boolean  "is_group_loan_declared_as_default",             :default => false
     t.integer  "backlog_type"
     t.integer  "backlog_payment_approver_id"
-    t.integer  "is_cashier_approved?"
+    t.boolean  "is_cashier_approved",                           :default => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

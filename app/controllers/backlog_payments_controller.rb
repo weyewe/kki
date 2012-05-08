@@ -22,4 +22,16 @@ class BacklogPaymentsController < ApplicationController
    
   end
   
+  
+  def select_pending_backlog_to_be_approved
+    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+    @office = @group_loan.office
+    @pending_approval_backlogs = @group_loan.pending_approval_backlogs
+  end
+  
+  
+  def execute_backlog_payment_approval_by_cashier
+    
+  end
+  
 end

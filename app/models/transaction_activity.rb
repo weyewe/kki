@@ -548,6 +548,7 @@ class TransactionActivity < ActiveRecord::Base
    member.backlog_payments_for_group_loan(group_loan).order("created_at ASC").limit( number_of_weeks ).each do |x|
      x.is_cleared  = true 
      x.backlog_cleared_declarator_id = current_user.id 
+     x.transaction_activity_id_for_backlog_clearance = transaction_activity.id
      x.save
    end
    

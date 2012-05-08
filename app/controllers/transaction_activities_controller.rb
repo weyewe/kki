@@ -101,7 +101,7 @@ class TransactionActivitiesController < ApplicationController
 =begin
   Default loan resolution 
 =end
-  def pay_default_loan_resolution_by_savings
+  def pay_default_loan_resolution_by_structured_payment
     @default_payment = DefaultPayment.find_by_id(params[:default_payment_id])
     
     @transaction_activity = TransactionActivity.create_default_loan_resolution_payment(   @default_payment,
@@ -112,10 +112,7 @@ class TransactionActivitiesController < ApplicationController
     
     
   end
-  
-  def pay_default_loan_resolution_by_structured_payment
-  end
-  
+ 
   
   
 end

@@ -122,6 +122,10 @@ Debita46::Application.routes.draw do
   match 'list_pending_weekly_collection_approval' => "weekly_tasks#list_pending_weekly_collection_approval", :as => :list_pending_weekly_collection_approval
   match 'execute_weekly_collection_approval' => "weekly_tasks#execute_weekly_collection_approval", :as => :execute_weekly_collection_approval, :method => :post
 
+  # approve backlog payment , received by the field worker 
+  match 'select_group_loan_for_backlog_payment_approval' => "group_loans#select_group_loan_for_backlog_payment_approval", :as => :select_group_loan_for_backlog_payment_approval
+  match 'select_pending_backlog_to_be_approved/:group_loan_id' => "backlog_payments#select_pending_backlog_to_be_approved", :as => :select_pending_backlog_to_be_approved
+  match 'execute_backlog_payment_approval_by_cashier' => "backlog_payments#execute_backlog_payment_approval_by_cashier", :as => :execute_backlog_payment_approval_by_cashier, :method => :post
 =begin
   Transaction routes 
 =end

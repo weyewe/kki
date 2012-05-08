@@ -1,0 +1,27 @@
+<!-- <th>Nama Member</th>
+<th>Field Worker ID</th>
+<th>Transaction Amount</th>
+<th colspan="2">Action</th> -->
+
+<tr id="backlog_payment_pending_approval-<%= backlog_payment.id %>">
+  <td>Jimmy Rocket<%#= member.name   %></td>
+  <td>33<%#= backlog_payment.backlog_cleared_declarator_id %></td>
+  <td>100,000<%#=  backlog_payment.total_transaction_amount %></td>
+  <!-- expected cash -->
+  
+  <td><%=  print_money( weekly_task.total_cash_received ) %></td>
+  
+ <!-- action button -->
+  <%# if group_loan.is_started == false && group_loan.is_proposed == true %>
+    <td style="text-align:center;">
+      <a href="#" class="btn approve action true_check"
+          id="finalize-<%= weekly_task.id %>">Approve</a>
+    </td>
+  
+    <td style="text-align:center;">
+      <a href="#" class="btn approve action"
+          id="reject-<%= weekly_task.id %>">Reject</a>
+    </td>
+  <%# end %>
+  
+</tr>

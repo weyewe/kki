@@ -251,6 +251,15 @@ class GroupLoansController < ApplicationController
   end
   
   
+  
+=begin
+  Approval of the backlog payment 
+=end
+  def select_group_loan_for_backlog_payment_approval
+    @office = current_user.active_job_attachment.office
+    @active_group_loans = @office.active_group_loans
+  end
+
 =begin
   LOAN DEFAULT RESOLUTION
 =end

@@ -579,11 +579,11 @@ module ApplicationHelper
       },
       {
         :title => "Approve Backlog Payment",
-        :destination_link => 'root_url',
+        :destination_link => 'select_group_loan_for_backlog_payment_approval_url',
         :conditions => [
           {
-            :controller => 'loan_product',
-            :action => 'banzai'
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_backlog_payment_approval'
           }
         ]
       }

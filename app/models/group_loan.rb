@@ -493,7 +493,11 @@ class GroupLoan < ActiveRecord::Base
   end
   
   def unpaid_backlogs
-    self.backlog_payments.where(:is_cleared => false )
+    self.backlog_payments.where(:is_cleared => false , :is_cashier_approved => false)
+  end
+  
+  def pending_approval_backlogs
+    self.backlog_payments.where(:is_cleared => true , :is_cashier_approved => false)
   end
   
   def extract_default_member_id
