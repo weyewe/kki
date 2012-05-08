@@ -563,19 +563,24 @@ class TransactionActivity < ActiveRecord::Base
                                                         current_user,
                                                         cash, 
                                                         savings_withdrawal)
-        
+    group_loan_membership = default_payment.group_loan_membership
+    member = group_loan_membership.member
+    group_loan = group_loan_membership.group_loan
+    
     zero_value = BigDecimal("0")
     if savings_withdrawal > member.total_savings or
       savings_withdrawal < zero_value or
       cash < zero_value or
-      (cash + savings_withdrawal < default_payment.total_amount)
+      (cash + savings_withdrawal < default_payment.total_amount) or 
+      (default_payment.is_defaultee == true ) or 
+      (group_loan.is_closed == true) #if the group loan is closed, no more transactions 
       return nil
     end
     
     result_resolve= TransactionActivity.resolve_transaction_case_for_default_payment(cash,  savings_withdrawal,  default_payment )
     
-    group_loan_membership = default_payment.group_loan_membership
-   
+    
+    new_hash = {}
     new_hash[:total_transaction_amount] = result_resolve[:total_transaction_amount]
     new_hash[:transaction_case]  = result_resolve[:transaction_case]
     new_hash[:creator_id] = current_user.id 
@@ -586,12 +591,18 @@ class TransactionActivity < ActiveRecord::Base
 
     transaction_activity = TransactionActivity.create new_hash
     
+    default_payment.transaction_activity_id = transaction_activity.id
+    default_payment.is_paid = true
+    default_payment.save 
+    
     transaction_activity.create_default_resolution_payment_entries(
                cash,
                savings_withdrawal,
-               default_payment
+               default_payment,
+               member
              )
     
+    return transaction_activity
     
   end
   
@@ -599,7 +610,7 @@ class TransactionActivity < ActiveRecord::Base
   Group Loan, default loan resolution
 =end
 
-  def create_default_resolution_payment_entries( cash, savings_withdrawal, default_payment)
+  def create_default_resolution_payment_entries( cash, savings_withdrawal, default_payment, member)
     # :default_payment_resolution_only_cash => 70,
     #   :default_payment_resolution_only_savings_withdrawal => 71,
     # 
@@ -610,27 +621,30 @@ class TransactionActivity < ActiveRecord::Base
     #   :default_payment_resolution_cash_and_savings_withdrawal_extra_savings => 75,
     #   
     #   
+    extra_savings = cash + savings_withdrawal - default_payment.total_amount
+    # will create what the money is used for. 
+    create_default_payment_transaction_entry(default_payment.total_amount ) 
+    
+    # listing the methods to get the $$$ 
     if self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_cash]
-        # create transaction entry, entry code = default_payment_cash
-      create_default_payment_transaction_entry
-    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal]
-      create_default_payment_transaction_entry
-      create_soft_savings_withdrawal_transaction_entry
-        
-    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_cash_extra_savings]
-      create_default_payment_transaction_entry
-      create_extra_savings_from_default_payment_transaction_entry
-    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal_extra_savings]
       
-      create_default_payment_soft_withdrawal
-      create_extra_savings_from_default_payment_transaction_entry
+    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal]
+      create_default_payment_savings_withdrawal_transaction_entry(savings_withdrawal, member)
+      
+    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_cash_extra_savings]
+      create_extra_savings_from_default_payment_entry( extra_savings , member)
+      
+    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal_extra_savings]
+      create_default_payment_savings_withdrawal_transaction_entry(savings_withdrawal, member)
+      create_extra_savings_from_default_payment_entry( extra_savings  ,member)
+      
     elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_cash_and_savings_withdrawal]
-      create_default_payment_transaction_entry
-      create_default_payment_savings_withdrawal_entry
+      create_default_payment_savings_withdrawal_transaction_entry(savings_withdrawal, member)
+      
     elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_cash_and_savings_withdrawal_extra_savings]
-      create_default_payment_transaction_entry
-      create_soft_savings_withdrawal_entry
-      create_extra_savings_from_default_payment_transaction_entry
+      create_default_payment_savings_withdrawal_transaction_entry(savings_withdrawal, member )
+      create_extra_savings_from_default_payment_entry( extra_savings, member )
+      
     end
       
   end
@@ -639,6 +653,33 @@ class TransactionActivity < ActiveRecord::Base
 =begin
   create transaction entry for default loan resolution payment
 =end
+
+  def create_default_payment_transaction_entry(default_payment_amount)
+    self.transaction_entries.create( 
+                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:default_loan_resolution_payment], 
+                      :amount => default_payment_amount  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+                      )
+  end
+  
+  def create_default_payment_savings_withdrawal_transaction_entry(savings_withdrawal_amount, member)
+    transaction_entry  = self.transaction_entries.create( 
+                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal], 
+                      :amount => savings_withdrawal_amount  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
+                      )
+    # member.add_savings(savings_amount, SAVING_ENTRY_CODE[:no_weekly_payment_only_savings], savings_only_transaction_entry) 
+    member.deduct_savings( savings_withdrawal_amount, SAVING_ENTRY_CODE[:soft_withdraw_for_default_payment] , transaction_entry )
+  end
+  
+  def create_extra_savings_from_default_payment_entry( extra_savings, member )
+    transaction_entry  = self.transaction_entries.create( 
+                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:extra_savings_from_default_loan_resolution_payment], 
+                      :amount => extra_savings  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+                      )
+    member.add_savings( extra_savings, SAVING_ENTRY_CODE[:weekly_saving_extra_from_default_payment] ,transaction_entry )
+  end
   
 =begin
   Creating the transaction_entries associated with the transaction_activity 

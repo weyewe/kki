@@ -350,20 +350,59 @@ describe DefaultPayment do
     
     context "paying for the default_payment" do
       before(:each) do
-        
+       @group_loan.declare_default(@branch_manager) 
       end
       
-      it "should not accept default_payment from defaultee == true , only accepts from non default"
-      
-      # They are transaction activities, aren't they?
-      it "should accept payment by savings withdrawal, if there are enough savings" do
+      it "should prodce @sub_group_1_selected_member as is_defaultee == true " do
+        glm = @group_loan.get_membership_for_member(@sub_group_1_selected_member)  # defaultee
+        default_payment = glm.default_payment
         
+        default_payment.is_defaultee.should be_true
       end
       
+      it "should not accept default_payment from defaultee == true , only accepts from non default" do
+        # @sub_group_1_selected_member
+        glm = @group_loan.get_membership_for_member(@sub_group_1_selected_member)  # defaultee
+        default_payment = glm.default_payment
+        cash = default_payment.total_amount 
+        savings_withdrawal = BigDecimal("0")
+        
+        
+        transaction_activity = TransactionActivity.create_default_loan_resolution_payment(   default_payment,
+                                                              @field_worker,
+                                                              cash, 
+                                                              savings_withdrawal)
+                                                              
+        transaction_activity.should be_nil 
+      end
       
-      it "should accept payment by structured methods"
+      it "should accept default_paymetn from defaultee == false " do
+        sub_group = @group_loan.sub_groups.first 
+        non_default_member_id = sub_group.extract_non_default_member_id.first 
+        
+        
+        glm = @group_loan.get_membership_for_member(Member.find_by_id non_default_member_id)  # defaultee
+        default_payment = glm.default_payment
+        cash = default_payment.total_amount 
+        savings_withdrawal = BigDecimal("0")
+        
+        
+        transaction_activity = TransactionActivity.create_default_loan_resolution_payment(   default_payment,
+                                                              @field_worker,
+                                                              cash, 
+                                                              savings_withdrawal)
+                                                              
+        transaction_activity.should be_valid
+        transaction_activity.total_transaction_amount.should == cash
+      end
+      
+   
     end
-    context "closing the default payments: office absorbs lost? "
+    
+    
+    context "closing the default payments: office absorbs lost? " do
+      # on close: record total payment, total money made, total money lost
+    end
   end # end of context "generic case"
   
   context "a subgroup with all default members" 

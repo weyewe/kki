@@ -149,8 +149,14 @@ class SubGroup < ActiveRecord::Base
       glm  = self.group_loan_memberships.where(:member_id => member_id).first
       default_payment = glm.default_payment 
       default_payment.set_amount_sub_group_share(  sub_group_amount_share )
+    end
+    
+    self.extract_default_member_id.each do |member_id|
+      glm  = self.group_loan_memberships.where(:member_id => member_id).first
+      default_payment = glm.default_payment 
       default_payment.set_default_payment_status_true # done in the group loan level
     end
+   
     
     
     

@@ -136,7 +136,12 @@ TRANSACTION_ENTRY_CODE = {
   :independent_savings_deposit => 250,  ## awesome, member starts  to save!
   :loan_disbursement => 300,
   :total_loan_disbursement_amount => 301,
-  :setup_fee_deduction_from_disbursement_amount => 310
+  :setup_fee_deduction_from_disbursement_amount => 310,
+  
+  
+  # default_payment
+  :default_loan_resolution_payment => 500,
+  :extra_savings_from_default_loan_resolution_payment => 510
   
 }
 
@@ -151,7 +156,10 @@ SAVING_ENTRY_CODE = {
   :no_weekly_payment_only_savings => 5 ,
   
   :soft_withdraw_to_pay_basic_weekly_payment => 100, 
-  :hard_withdrawal => 101
+  :hard_withdrawal => 101,
+  
+  :soft_withdraw_for_default_payment => 200,
+  :weekly_saving_extra_from_default_payment => 250
   
  
   

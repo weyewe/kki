@@ -29,6 +29,8 @@ ActiveRecord::Schema.define(:version => 20120430151312) do
     t.integer  "backlog_cleared_declarator_id"
     t.boolean  "is_group_loan_declared_as_default", :default => false
     t.integer  "backlog_type"
+    t.integer  "backlog_payment_approver_id"
+    t.integer  "is_cashier_approved?"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

@@ -385,25 +385,6 @@ group_loan.execute_propose_finalization( loan_officer )
 puts "Branch manager approves the finalization"
 group_loan.start_group_loan( branch_manager )
 
-# assign sub_group 
-SubGroup.set_sub_groups( group_loan, 2  )
-first_sub_group = group_loan.sub_groups.first
-last_sub_group = group_loan.sub_groups.last 
-
-first_membership.sub_group_id = first_sub_group.id 
-second_membership.sub_group_id = first_sub_group.id 
-third_membership.sub_group_id = last_sub_group.id 
-fourth_membership.sub_group_id = last_sub_group.id 
-
-first_membership    .save
-second_membership   .save
-third_membership    .save
-fourth_membership   .save
-
-# first membership and third membership will always only pay saving
-# the others pay basic payment
-
-
 
 puts "Field Worker collect the setup payment"
 first_membership.declare_setup_payment_by_loan_deduction
@@ -425,62 +406,28 @@ TransactionActivity.execute_loan_disbursement( fourth_membership  , cashier)
 
 group_loan.execute_finalize_loan_disbursement( cashier )
 
-# the weekly meeting
-puts "gonna do the weekly meeting"
-special_default_member_id_list = [first_membership.member_id, third_membership.member_id ]
 
 
-(1..group_loan.total_weeks).each do |week|
-  puts "get the currently executed weekly task"
-  weekly_task = group_loan.currently_executed_weekly_task 
-  group_loan.members.each do |member|
-    value = rand(3)
-    if value == 0
-      weekly_task.mark_attendance_as_late(member, field_worker )
-    elsif value ==1 
-      weekly_task.mark_attendance_as_present(member, field_worker  )
-    elsif value == 2 
-      weekly_task.mark_attendance_as_absent(member, field_worker  )
-    end
-  end
-  puts "close weekly meeting"
-  weekly_task.close_weekly_meeting( field_worker ) #line 350
-  # close the weekly meeting. time for weekly payment 
-  
-  savings_amount = BigDecimal("10000")
-  puts "start doing transaction activity"
-  group_loan.members.each do |member|
-    if special_default_member_id_list.include?(member.id)
-      TransactionActivity.create_savings_only_weekly_payment(
-        member,
-        weekly_task,
-        savings_amount,
-        field_worker
-      )
-    else
-      # create basic payment 
-      TransactionActivity.create_basic_weekly_payment(
-        member,
-        weekly_task,
-        field_worker
-      )
-    end
+puts "--  field worker taking weekly meeting attendance"
+# mark the meeting for each member , randomize the attendance 
+# mark finalize the meeting button 
 
-  end # end the transactionactivity for all group members
-  weekly_task.close_weekly_payment( field_worker )
-  # cashier approve
-  weekly_task.approve_weekly_payment_collection( cashier )
-end
- 
-puts "done... can we close the group loan now, nyaan? << we need to do the UI"
-puts "over here,, this is the last chance for member to pay backlog payment, before being declared as default."
-puts "maybe some intimidation will do :)"
+puts "-- field worker taking weekly payment"
+# mark the pay, special payment  + no payment 
 
-puts "we need a special page to approve the backlog payment amount , by cashier"
+puts "-- cashier approve the collection amount"
+# just mark the approval by default 
 
-group_loan.declare_default(branch_manager) 
+puts "-- do this till the end--- repeat"
 
 
-puts "group loan is declared as default"
-puts "now, all default_payment slot is open. Go and pay! pay to the default payment"
-puts "field worker will take the default payment, bring it to the office. Cashier will approve the sum"
+puts "-- pay backlog_payment, leave 1 member not paying , to simulate default loan "
+
+
+
+
+
+
+
+
+

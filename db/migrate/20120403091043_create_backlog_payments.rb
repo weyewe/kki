@@ -7,10 +7,15 @@ class CreateBacklogPayments < ActiveRecord::Migration
       t.integer :member_id 
       t.boolean :is_cleared , :default => false 
       t.integer :backlog_cleared_declarator_id 
+      # should be the field_worker 
       
       t.boolean :is_group_loan_declared_as_default, :default => false 
       
       t.integer :backlog_type, :nil => false # is that penalty payment? is that weekly payment?
+      
+      # cashier needs to approve this
+      t.integer :backlog_payment_approver_id 
+      t.integer :is_cashier_approved? 
       t.timestamps
     end
   end
