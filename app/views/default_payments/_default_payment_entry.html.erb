@@ -1,0 +1,27 @@
+<!-- <<th>Nama Member</th>
+<th>SubGroup Share</th>
+<th>Group Share</th>
+<th>Total</th> -->
+
+<tr id="default_payment-<%= default_payment.id  %>">
+  <td><%= default_payment.group_loan_membership.member.name %></td>
+  <td><%= default_payment.amount_sub_group_share %></td>
+  <td><%=  default_payment.amount_group_share  %></td>
+  <td><%=  default_payment.total_amount  %></td>
+  <!-- expected cash -->
+  
+
+ <!-- action button -->
+  <%# if group_loan.is_started == false && group_loan.is_proposed == true %>
+    <td style="text-align:center;" colspan="1">
+      <a href="#" class="btn"
+          >Pay Default</a>
+    </td>
+  
+    <!-- <td style="text-align:center;">
+        <a href="#" class="btn approve action"
+            id="reject-<%#= weekly_task.id %>">Reject</a>
+      </td> -->
+  <%# end %>
+  
+</tr>

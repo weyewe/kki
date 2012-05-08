@@ -1,0 +1,486 @@
+=begin
+  We need office. 
+  Every employee is locked to an office
+  Every member and group is locked to an office as well
+  
+  One regency (kabupaten) can have many offices
+  One office handles at least 1 subdistrict (kecamatan)
+=end
+
+
+
+=begin
+  We need to create the geoscope of cilincing_office
+=end
+
+java_island = Island.create :name => "Java"
+jakarta_province = Province.create :name => "Jakarta", :island_id => java_island.id
+north_jakarta_regency = Regency.create :name => "Jakarta Utara", :province_id => jakarta_province.id
+cilincing_subdistrict = Subdistrict.create :name => "Cilincing", :regency_id => north_jakarta_regency.id
+cilincing_office = Office.create :name => "Cilincing", :regency_id => north_jakarta_regency.id 
+=begin
+  One office handles at least one subdistrict
+  Office has_many :subdistricts through :geo_scopes
+=end
+
+cilincing_office.subdistricts << cilincing_subdistrict
+cilincing_office.save
+
+
+=begin
+  creating all villages in Cilincing subdistrict
+
+  Kali Baru, Cilincing dengan kode pos 14110
+  Cilincing, Cilincing dengan kode pos 14120
+  Semper Barat, Cilincing dengan kode pos 14130
+  Semper Timur, Cilincing dengan kode pos 14130
+  Sukapura, Cilincing dengan kode pos 14140
+  Rorotan, Cilincing dengan kode pos 14140
+  Marunda, Cilincing dengan kode pos 14150
+  
+  http://www.jakarta.go.id/jakv1/encyclopedia/detail/202
+=end
+
+cilincing_villages = [
+  {
+    :postal_code => 14110,
+    :name => "Kali Baru", 
+    :total_communes => 14 
+  },
+  {
+    :postal_code => 14120,
+    :name => "Cilincing", 
+    :total_communes => 10
+  },
+  {
+    :postal_code => 14130,
+    :name => "Semper Barat", 
+    :total_communes => 17
+  },
+  {
+    :postal_code => 14130,
+    :name => "Semper Timur", 
+    :total_communes => 10
+  },
+  {
+    :postal_code => 14140,
+    :name => "Sukapura", 
+    :total_communes => 10
+  },
+  {
+    :postal_code => 14140,
+    :name => "Rorotan", 
+    :total_communes => 11
+  },
+  {
+    :postal_code => 14150,
+    :name => "Marunda", 
+    :total_communes => 9
+  }
+]
+
+
+
+cilincing_villages.each do |village|
+  new_village = Village.create :name => village[:name], :postal_code => village[:postal_code], 
+      :subdistrict_id => cilincing_subdistrict.id
+
+  (1..village[:total_communes]).each do |x|
+    Commune.create :village_id => new_village.id , :number => x 
+  end
+end
+
+first_village = Village.first
+# first_village.communes.create :number => 1
+
+
+puts "Done creating regional master data"
+=begin
+Role creation
+What are the roles in typical branch? 
+1. Branch Manager
+  -> Approve Group Creation
+  -> Approve GroupLoan Disbursement 
+  -> Approve Member Creation
+  -> Closing Group Loan 
+    - approve that everyone has paid
+  -> Create Loan Product 
+  -> Updating, cancelling all these informations 
+  
+  -> Add employee
+    -> add role 
+  -> Add greographical work scope (Kecamatan)
+  
+  
+  Branch manager only acts as controller. Making sure that everyone is doing the right thing,
+  and making the critical decision
+  
+2. Loan Officer
+  -> Registering approved member
+  -> Create group    
+    -> Assign member to a group -> Pick a group leader 
+    
+  -> Create subgroup    
+    -> Assign group member to the subgroup   -> Pick the subgroup leader
+  
+    
+  
+3. Field Worker 
+  -> Add Payment
+    Group Creation Payment:
+    -> Admin Fee 
+    -> Initial Savings
+    
+    Weekly Payment:
+    -> Savings
+    -> Principal
+  
+  -> Add Weekly Meeting 
+    -> Meeting attendance
+    
+4. Cashier 
+  -> Approve weekly payment 
+  -> Unapprove weekly payment 
+    -> resolve with the responsible field worker 
+=end
+
+Role.all.each { |role| role.destroy }
+
+branch_manager_role = Role.create :name => USER_ROLE[:branch_manager]
+loan_officer_role   = Role.create :name => USER_ROLE[:loan_officer]
+field_worker_role   = Role.create :name => USER_ROLE[:field_worker]
+cashier_role         = Role.create :name => USER_ROLE[:cashier]
+
+=begin
+  Create the blank slate user 
+=end
+puts "Gonna create user "
+branch_manager = User.create :email => "branch_manager@gmail.com", :password => "willy1234",
+                  :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+                  
+puts "Branch manager id is #{branch_manager.id}"
+
+loan_officer = User.create :email => "loan_officer@gmail.com", :password => "willy1234",
+                  :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+                  
+cashier = User.create :email => "cashier@gmail.com", :password => "willy1234",
+                  :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+
+field_worker = User.create :email => "field_worker@gmail.com", :password => "willy1234",
+                  :password_confirmation => "willy1234"# , :office_id => cilincing_office.id
+      
+puts "Done creating user. Gonna create job_attachment"            
+=begin
+  assign job_attachment to each of this user 
+=end
+
+# cilincing_office.users << branch_manager 
+branch_manager_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+              :user_id => branch_manager.id, :is_active => true )
+# cilincing_office.users << loan_officer 
+loan_officer_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+              :user_id => loan_officer.id, :is_active => true )
+# cilincing_office.users << cashier 
+cashier_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+              :user_id => cashier.id, :is_active => true )
+# cilincing_office.users << field_worker 
+field_worker_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+              :user_id => field_worker.id, :is_active => true )
+
+
+
+puts "Done creating the blank slate user  user and the job attachment "
+
+
+=begin
+  Gonna add roles to the job attachment 
+=end
+
+branch_manager_job_attachment.roles << branch_manager_role
+branch_manager_job_attachment.save
+
+loan_officer_job_attachment.roles << loan_officer_role
+loan_officer_job_attachment.save
+
+cashier_job_attachment.roles << cashier_role
+cashier_job_attachment.save
+
+field_worker_job_attachment.roles << field_worker_role
+field_worker_job_attachment.save
+
+puts "Done adding roles to the JobAttachment"
+
+
+=begin  
+  The whole business process is started by the branch manager creating 
+    group loan product 
+=end
+puts "the first"
+group_loan_product_a = GroupLoanProduct.create :principal => 20000, 
+                                  :interest => 10000, 
+                                  :min_savings => 8000, :total_weeks => 2 ,
+                                  :admin_fee => 25000, :initial_savings => 1000,
+                                  :creator_id => branch_manager.id ,
+                                  :office_id => cilincing_office.id
+puts "the second"
+group_loan_product_b = GroupLoanProduct.create :principal => 50000, 
+                                  :interest => 25000, 
+                                  :min_savings => 8000, :total_weeks => 2 ,
+                                  :admin_fee => 25000, :initial_savings => 2000,
+                                  :creator_id => branch_manager.id,
+                                  :office_id => cilincing_office.id 
+                                  
+puts "The third"
+group_loan_product_c = GroupLoanProduct.create :principal => 80000, 
+                                   :interest => 20000, 
+                                   :min_savings => 8000, :total_weeks => 2 ,
+                                   :admin_fee => 25000, :initial_savings => 5000,
+                                   :creator_id => branch_manager.id ,
+                                   :office_id => cilincing_office.id
+                                  
+                                
+puts "done creating loan product" 
+
+
+=begin
+  Then, after the loan product has been created, the next role is to get member. (registering member) 
+  In this scheme, the members registered by loan officer are the qualified member, 
+  has been processsed offline, interviewed as well. 
+  Now, someone has to create a group
+  Commune == RW 
+  Only people from the same commune that can borrow (group loan membership)
+=end
+
+first_village = Village.first
+commune       = first_village.communes.first
+
+# puts "create the group loan"
+# first_group_loan = GroupLoan.create  :commune_id => commune.id, 
+#               :creator_id => loan_officer.id
+# 
+# puts "create 2 sub groups "
+# SubGroup.set_sub_groups( first_group_loan , 2)
+#   # auto create group name 
+# puts "create the member"
+
+
+first_member = Member.create :name => "Tuti Astuti", 
+              :id_card_no => "1233435253",  :village_id => first_village.id,
+              :commune_id => commune.id, :neighborhood_no => 33,
+              :address => "Jalan Tikus Gang 33252 no 55",
+              :creator_id => loan_officer.id,
+              :office_id => cilincing_office.id
+
+second_member = Member.create :name => "Jimmy Nastar", 
+              :id_card_no => "77484",  :village_id => first_village.id,
+              :commune_id => commune.id, :neighborhood_no => 23,
+              :address => "Jalan Tikus Gang 33252 no 55",
+              :creator_id => loan_officer.id,
+              :office_id => cilincing_office.id
+              
+third_member = Member.create :name => "Astari Widayanti", 
+              :id_card_no => "66343",  :village_id => first_village.id,
+              :commune_id => commune.id, :neighborhood_no => 11,
+              :address => "Jalan Tikus Gang 33252 no 55",
+              :creator_id => loan_officer.id,
+              :office_id => cilincing_office.id
+              
+fourth_member = Member.create :name => "Jimmy Wales", 
+              :id_card_no => "6634343",  :village_id => first_village.id,
+              :commune_id => commune.id, :neighborhood_no => 17,
+              :address => "Jalan Tikus Gang 33252 no 59",
+              :creator_id => loan_officer.id,
+              :office_id => cilincing_office.id
+              
+puts "DONe creating the member"
+
+=begin
+  After the members are created, we need to assign them into the group,
+  in which they share the same Commune ID, 
+  in which they will be applying for loans together 
+=end
+              
+# => assume that they are residing in the same RW
+# first_group_loan.members << first_member
+# first_group_loan.members << second_member
+# first_group_loan.members << third_member
+# first_group_loan.save
+
+puts "Done assigning member to the group"
+
+# => now the first_group has 3 members
+
+=begin
+  After the group has been created, loan product has to be created.
+  What is the relation between branch manager and the group_loan? 
+  branch manager has_many :group_loans ? 
+  one group loan only belongs to one branch manager. nobody eles 
+  
+  THIS IS THE FUCKING GROUP LOAN
+=end
+# 
+=begin
+  After assigning member to the group, 
+  we should assign the loan product to each member in the group
+=end
+
+
+
+puts "Gonna assign loan product to the group_loan_membership"
+group_loan_product_1 = GroupLoanProduct.find 1
+group_loan_product_2 = GroupLoanProduct.find 2
+
+first_member = Member.find 1
+second_member = Member.find 2
+third_member = Member.find 3 
+fourth_member = Member.find 4
+
+puts "Gonna create the first group_loan"
+
+group_loan = GroupLoan.create :commune_id => first_member.commune_id , :name => "Group1", 
+      :creator_id => branch_manager.id ,
+      :office_id => cilincing_office.id
+
+puts "Gonna create the  2 sub_groups from group_loan"
+SubGroup.set_sub_groups( group_loan,  2 )
+sub_group_first = SubGroup.first
+sub_group_second = SubGroup.last 
+
+puts "Gonna create the GroupLoanMembership"
+first_membership = GroupLoanMembership.create_membership( loan_officer, first_member, group_loan)
+puts "The first Membership #{first_membership}"
+first_membership.sub_group_id = sub_group_first.id
+first_membership.save 
+second_membership = GroupLoanMembership.create_membership( loan_officer, second_member, group_loan)
+second_membership.sub_group_id = sub_group_first.id
+second_membership.save
+
+
+third_membership = GroupLoanMembership.create_membership( loan_officer, third_member, group_loan)
+third_membership.sub_group_id = sub_group_second.id
+third_membership.save
+
+fourth_membership = GroupLoanMembership.create_membership( loan_officer, fourth_member, group_loan)
+fourth_membership.sub_group_id = sub_group_second.id
+fourth_membership.save
+
+puts " Gonna create the group_loan_subcription "
+first_subcription = GroupLoanSubcription.create_or_change( group_loan_product_1.id,  first_membership.id )
+second_subcription = GroupLoanSubcription.create_or_change( group_loan_product_1.id, second_membership.id )
+third_subcription = GroupLoanSubcription.create_or_change( group_loan_product_2.id, third_membership.id )
+ # we leave the fourth membership's group loan as empty 
+ # loan oficer has to assign it
+ # then, finalize the loan proposal 
+ 
+
+# 
+# 
+# 
+# puts "Phase 2 : for the Weekly Payment ITSELF"#
+fourth_subcription = GroupLoanSubcription.create_or_change( group_loan_product_2.id, fourth_membership.id )
+
+puts "loan officer propose group_loan finalization"
+group_loan.execute_propose_finalization( loan_officer )
+
+puts "Branch manager approves the finalization"
+group_loan.start_group_loan( branch_manager )
+
+# assign sub_group 
+SubGroup.set_sub_groups( group_loan, 2  )
+first_sub_group = group_loan.sub_groups.first
+last_sub_group = group_loan.sub_groups.last 
+
+first_membership.sub_group_id = first_sub_group.id 
+second_membership.sub_group_id = first_sub_group.id 
+third_membership.sub_group_id = last_sub_group.id 
+fourth_membership.sub_group_id = last_sub_group.id 
+
+first_membership    .save
+second_membership   .save
+third_membership    .save
+fourth_membership   .save
+
+# first membership and third membership will always only pay saving
+# the others pay basic payment
+
+
+
+puts "Field Worker collect the setup payment"
+first_membership.declare_setup_payment_by_loan_deduction
+second_membership.declare_setup_payment_by_loan_deduction
+third_membership.declare_setup_payment_by_loan_deduction
+fourth_membership.declare_setup_payment_by_loan_deduction
+group_loan.execute_finalize_setup_fee_collection( field_worker )
+
+
+puts "cashier approves the setup payment"
+group_loan.approve_setup_fee_collection( cashier )
+
+
+puts "cashier disburses the loan"
+TransactionActivity.execute_loan_disbursement( first_membership  , cashier)
+TransactionActivity.execute_loan_disbursement( second_membership  , cashier)
+TransactionActivity.execute_loan_disbursement( third_membership  , cashier)
+TransactionActivity.execute_loan_disbursement( fourth_membership  , cashier)
+
+group_loan.execute_finalize_loan_disbursement( cashier )
+
+# the weekly meeting
+puts "gonna do the weekly meeting"
+special_default_member_id_list = [first_membership.member_id, third_membership.member_id ]
+
+
+(1..group_loan.total_weeks).each do |week|
+  puts "get the currently executed weekly task"
+  weekly_task = group_loan.currently_executed_weekly_task 
+  group_loan.members.each do |member|
+    value = rand(3)
+    if value == 0
+      weekly_task.mark_attendance_as_late(member, field_worker )
+    elsif value ==1 
+      weekly_task.mark_attendance_as_present(member, field_worker  )
+    elsif value == 2 
+      weekly_task.mark_attendance_as_absent(member, field_worker  )
+    end
+  end
+  puts "close weekly meeting"
+  weekly_task.close_weekly_meeting( field_worker ) #line 350
+  # close the weekly meeting. time for weekly payment 
+  
+  savings_amount = BigDecimal("10000")
+  puts "start doing transaction activity"
+  group_loan.members.each do |member|
+    if special_default_member_id_list.include?(member.id)
+      TransactionActivity.create_savings_only_weekly_payment(
+        member,
+        weekly_task,
+        savings_amount,
+        field_worker
+      )
+    else
+      # create basic payment 
+      TransactionActivity.create_basic_weekly_payment(
+        member,
+        weekly_task,
+        field_worker
+      )
+    end
+
+  end # end the transactionactivity for all group members
+  weekly_task.close_weekly_payment( field_worker )
+  # cashier approve
+  weekly_task.approve_weekly_payment_collection( cashier )
+end
+ 
+puts "done... can we close the group loan now, nyaan? << we need to do the UI"
+puts "over here,, this is the last chance for member to pay backlog payment, before being declared as default."
+puts "maybe some intimidation will do :)"
+
+puts "we need a special page to approve the backlog payment amount , by cashier"
+
+group_loan.declare_default(branch_manager) # backlog payment is closed 
+
+
+puts "group loan is declared as default"
+puts "now, all default_payment slot is open. Go and pay! pay to the default payment"
+puts "field worker will take the default payment, bring it to the office. Cashier will approve the sum"

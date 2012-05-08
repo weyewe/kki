@@ -1,0 +1,2 @@
+module DefaultPaymentsHelper
+end

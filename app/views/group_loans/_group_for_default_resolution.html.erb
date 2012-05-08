@@ -1,0 +1,21 @@
+<!-- <th>Nama Group</th>
+<th>Lokasi RW</th>
+<th>Total Member</th>
+<th>Total Default Member</th>
+<th>Default Amount</th>
+<th>Paid Member</th>
+<th>Paid Amount</th> -->
+
+<tr id="declare_default_group_loan-<%= group_loan.id %>">
+  <td><%= link_to group_loan.name, list_default_payment_for_clearance_url(group_loan) %></td>
+  <td><%= group_loan.get_commune %></td>
+  <td><%= group_loan.members.count %></td>
+  
+  <td><%= group_loan.total_default_member %></td> <!-- Total default mamber -->
+  <td><%= group_loan.total_default_amount %></td> <!-- total default amount -->
+  <td> <%= group_loan.total_members_paid_default_payment %> </td> <!-- paid_member -->
+  <td> <%= group_loan.total_paid_default_payment %> </td>  <!-- paid amount -->
+  
+ 
+  
+</tr>
