@@ -20,4 +20,19 @@ class DefaultPayment < ActiveRecord::Base
     self.save
   end
   
+  def round_up_to( nearest_amount )
+    total = amount_group_share + amount_sub_group_share
+    # total_amount
+    if self.is_defaultee == true 
+      multiplication_of_500 = ( total.to_i/nearest_amount.to_i ) .to_i
+      remnant = (total.to_i%nearest_amount.to_i)
+      if remnant > 0  
+        self.total_amount =  nearest_amount *( multiplication_of_500 + 1 )
+        self.save
+      end
+    else
+      return nil
+    end
+  end
+  
 end

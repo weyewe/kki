@@ -60,7 +60,10 @@ ActiveRecord::Schema.define(:version => 20120430151312) do
     t.integer  "group_loan_membership_id"
     t.decimal  "amount_sub_group_share",   :precision => 10, :scale => 2, :default => 0.0
     t.decimal  "amount_group_share",       :precision => 10, :scale => 2, :default => 0.0
+    t.decimal  "total_amount",             :precision => 10, :scale => 2, :default => 0.0
     t.decimal  "amount_paid",              :precision => 10, :scale => 2, :default => 0.0
+    t.boolean  "is_paid",                                                 :default => false
+    t.integer  "transaction_id"
     t.boolean  "is_defaultee",                                            :default => false
     t.datetime "created_at"
     t.datetime "updated_at"

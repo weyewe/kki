@@ -567,6 +567,7 @@ class GroupLoan < ActiveRecord::Base
 
       self.sub_groups.each do |sub_group|
         sub_group.generate_default_payments( list_of_non_default_member_id )
+        sub_group.round_up_total_default_payment
       end
 
 

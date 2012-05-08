@@ -94,8 +94,18 @@ TRANSACTION_CASE = {
   :multiple_backlog_payment_soft_savings_withdrawal => 57, 
   :multiple_backlog_payment_soft_savings_withdrawal_extra_savings => 58, 
   
-  :default_loan_payment_as_sub_group_member => 70,
-  :default_loan_payment_as_group_member => 71, 
+  # :default_loan_payment_as_sub_group_member => 70,
+  # :default_loan_payment_as_group_member => 71, 
+  
+  # 4 cases for default payment 
+  :default_payment_resolution_only_cash => 70,
+  :default_payment_resolution_only_savings_withdrawal => 71,
+  
+  :default_payment_resolution_only_cash_extra_savings => 72,
+  :default_payment_resolution_only_savings_withdrawal_extra_savings => 73,
+  
+  :default_payment_resolution_cash_and_savings_withdrawal => 74,
+  :default_payment_resolution_cash_and_savings_withdrawal_extra_savings => 75,
   
   # all transaction from the company to the member
   :loan_disbursement_no_setup_payment_deduction => 100,
@@ -171,7 +181,7 @@ BACKLOG_TYPE = {
 
 LOAN_TYPE = {
   :group_loan => 1 ,
-  :personal_loan => 2 
+  :personal_loan => 100
 }
 
 
@@ -181,3 +191,5 @@ ATTENDANCE_STATUS = {
   :present_late => 2 , 
   :absent => 3 
 }
+
+DEFAULT_PAYMENT_ROUND_UP_VALUE = BigDecimal("500")

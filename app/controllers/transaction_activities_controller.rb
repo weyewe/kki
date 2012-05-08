@@ -81,8 +81,6 @@ class TransactionActivitiesController < ApplicationController
   end
   
   def create_backlog_payment
-    
-   
     @member = Member.find params[:member_id]
     @group_loan = GroupLoan.find params[:group_loan_id]
 
@@ -98,11 +96,24 @@ class TransactionActivitiesController < ApplicationController
       savings_withdrawal,
       number_of_weeks
     )
-    # 
+  end
+  
+=begin
+  Default loan resolution 
+=end
+  def pay_default_loan_resolution_by_savings
+    @default_payment = DefaultPayment.find_by_id(params[:default_payment_id])
     
- 
+    @transaction_activity = TransactionActivity.create_default_loan_resolution_payment(   @default_payment,
+                                                          current_user,
+                                                          cash, 
+                                                          savings_withdrawal)
     
     
+    
+  end
+  
+  def pay_default_loan_resolution_by_structured_payment
   end
   
   

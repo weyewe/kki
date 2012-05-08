@@ -299,39 +299,70 @@ describe DefaultPayment do
               # puts  "The subgroup_share amount of default_payment: #{default_payment_sub_group_member.amount_sub_group_share}"
             end
             
+            
             actual_total_sub_group_default_payment = sub_group.sub_group_total_default_payment_amount
             # puts  "Actual SubGroup Default  = #{ actual_total_sub_group_default_payment}"
-            tolerance = (10/100) * actual_total_sub_group_default_payment # 10% tolerance
-            # ( actual_total_sub_group_default_payment/2) .should  be_within(tolerance).of(total_sub_group)
+            tolerance = (1/100.0) * ( actual_total_sub_group_default_payment/2) # 10% tolerance
+            ( actual_total_sub_group_default_payment/2) .should  be_within(tolerance).of(total_sub_group)
+            puts "========== summary"
+            puts "50% actual total sub group default = #{actual_total_sub_group_default_payment/2}"
+            puts "total sub_group = #{total_sub_group}"
+            puts "the tolerance: #{tolerance}"
           end
         end
         
-        it "should produce total of group_share of non_defaultee == 50% total group default"
-        
-        it "should not store the after decimal point value (no floating point)" do
+        it "should produce total of group_share of non_defaultee == 50% total group default" do
+          total_group_loan_default = @group_loan.extract_total_default_amount
+          total_sum_of_group_share = BigDecimal("0")
+          @group_loan.group_loan_memberships.each do |glm|
+            total_sum_of_group_share += glm.default_payment.amount_group_share
+          end
+          
+          
+          tolerance = (1/100.0) * (total_group_loan_default /2)# 10% tolerance
+          (total_group_loan_default /2).should  be_within(tolerance).of(total_sum_of_group_share)
+          puts "******* summary: 50% total group loan default == #{total_group_loan_default /2}"
+          puts "******* summary: tolerance = #{tolerance}"
+          puts "******* summary: total sum = #{total_sum_of_group_share}"
         end
         
         
-      end
-      
-      context "in the subgroup 1 (1 default)" do
-      end
-      
-      context "in the subgroup 2 (2 defaults)" do
-      end
-      
-      context "in the group as a whole" do
+        # it "should not store the after decimal point value (no floating point)" do
+        # end
+        # 
         
       end
       
-      context "total default_contribution, rounded up to the nearest 500 rupiah"
+    
+      
+      it "should round up total contribution, rounded up to the nearest 500 rupiah" do
+        @group_loan.group_loan_memberships.each do |glm|
+          default_payment = glm.default_payment
+          puts "the total amount for #{default_payment.id} : #{default_payment.total_amount}"
+          (  default_payment.total_amount.to_i % DEFAULT_PAYMENT_ROUND_UP_VALUE.to_i   ).should == 0 
+        end
+      end
       
       
     end
     
     
     
-    context "paying for the default_payment"
+    context "paying for the default_payment" do
+      before(:each) do
+        
+      end
+      
+      it "should not accept default_payment from defaultee == true , only accepts from non default"
+      
+      # They are transaction activities, aren't they?
+      it "should accept payment by savings withdrawal, if there are enough savings" do
+        
+      end
+      
+      
+      it "should accept payment by structured methods"
+    end
     context "closing the default payments: office absorbs lost? "
   end # end of context "generic case"
   

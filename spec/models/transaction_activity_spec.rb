@@ -1485,8 +1485,7 @@ describe TransactionActivity do
   
   
   describe "Group Loan Default Resolution Transaction Activity" do
-    # this default payment doesn't translate to principal, savings, and interest payment. pure profit!
-    it 'records the payment from all member, the minimum denomination is 500 rupiah (up rounded)'
-    it "records the excess due to rounding as rounding payment"
+    # paying for default payment 
+    # we do this in the default_payment_spec
   end
 end

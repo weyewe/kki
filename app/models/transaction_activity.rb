@@ -1,5 +1,6 @@
 =begin
   TransactionActivity is responsible to record the flow of $$$, from and to the member
+  total amount represents the HARD CASH, moving from employee to member, vice versa
   Flow from the member to company: in the form of 
     1. Payment
       - Setup Payment ( admin fee, deposit, initial savings )
@@ -554,9 +555,90 @@ class TransactionActivity < ActiveRecord::Base
         
         
   end
+  
+=begin
+  For the default loan resolution
+=end
+  def TransactionActivity.create_default_loan_resolution_payment(   default_payment,
+                                                        current_user,
+                                                        cash, 
+                                                        savings_withdrawal)
+        
+    zero_value = BigDecimal("0")
+    if savings_withdrawal > member.total_savings or
+      savings_withdrawal < zero_value or
+      cash < zero_value or
+      (cash + savings_withdrawal < default_payment.total_amount)
+      return nil
+    end
+    
+    result_resolve= TransactionActivity.resolve_transaction_case_for_default_payment(cash,  savings_withdrawal,  default_payment )
+    
+    group_loan_membership = default_payment.group_loan_membership
+   
+    new_hash[:total_transaction_amount] = result_resolve[:total_transaction_amount]
+    new_hash[:transaction_case]  = result_resolve[:transaction_case]
+    new_hash[:creator_id] = current_user.id 
+    new_hash[:office_id] = current_user.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
 
+    transaction_activity = TransactionActivity.create new_hash
+    
+    transaction_activity.create_default_resolution_payment_entries(
+               cash,
+               savings_withdrawal,
+               default_payment
+             )
+    
+    
+  end
+  
+=begin
+  Group Loan, default loan resolution
+=end
+
+  def create_default_resolution_payment_entries( cash, savings_withdrawal, default_payment)
+    # :default_payment_resolution_only_cash => 70,
+    #   :default_payment_resolution_only_savings_withdrawal => 71,
+    # 
+    #   :default_payment_resolution_only_cash_extra_savings => 72,
+    #   :default_payment_resolution_only_savings_withdrawal_extra_savings => 73,
+    # 
+    #   :default_payment_resolution_cash_and_savings_withdrawal => 74,
+    #   :default_payment_resolution_cash_and_savings_withdrawal_extra_savings => 75,
+    #   
+    #   
+    if self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_cash]
+        # create transaction entry, entry code = default_payment_cash
+      create_default_payment_transaction_entry
+    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal]
+      create_default_payment_transaction_entry
+      create_soft_savings_withdrawal_transaction_entry
+        
+    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_cash_extra_savings]
+      create_default_payment_transaction_entry
+      create_extra_savings_from_default_payment_transaction_entry
+    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal_extra_savings]
+      
+      create_default_payment_soft_withdrawal
+      create_extra_savings_from_default_payment_transaction_entry
+    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_cash_and_savings_withdrawal]
+      create_default_payment_transaction_entry
+      create_default_payment_savings_withdrawal_entry
+    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_cash_and_savings_withdrawal_extra_savings]
+      create_default_payment_transaction_entry
+      create_soft_savings_withdrawal_entry
+      create_extra_savings_from_default_payment_transaction_entry
+    end
+      
+  end
   
   
+=begin
+  create transaction entry for default loan resolution payment
+=end
   
 =begin
   Creating the transaction_entries associated with the transaction_activity 
@@ -851,8 +933,8 @@ class TransactionActivity < ActiveRecord::Base
       #  (cash < total_fee ) and #independent of cash value 
                   
                   
-      transaction_amount  = cash + savings_withdrawal
-      
+      # transaction_amount  = cash + savings_withdrawal
+      transaction_amount  = cash 
       if number_of_weeks == 1 
         if is_backlog_payment == false 
           transaction_case = TRANSACTION_CASE[:weekly_payment_single_week_structured_with_soft_savings_withdrawal]
@@ -874,8 +956,8 @@ class TransactionActivity < ActiveRecord::Base
       # (  or (cash < total_fee )  )and # doesn't depend on cash value
                  
                   
-      transaction_amount  = cash + savings_withdrawal
-      
+      # transaction_amount  = cash + savings_withdrawal
+      transaction_amount  = cash 
       if number_of_weeks == 1 
         if is_backlog_payment == false 
           transaction_case = TRANSACTION_CASE[:weekly_payment_single_week_structured_with_soft_savings_withdrawal_extra_savings]  
@@ -904,6 +986,51 @@ class TransactionActivity < ActiveRecord::Base
         :transaction_case  => transaction_case
       }
     end
+  end
+  
+  def self.resolve_transaction_case_for_default_payment(cash,  savings_withdrawal,  default_payment )
+     #    6 cases
+     # :default_payment_resolution_only_cash => 70,
+     # :default_payment_resolution_only_savings_withdrawal => 71,
+     # 
+     # :default_payment_resolution_only_cash_extra_saving => 72,
+     # :default_payment_resolution_only_savings_withdrawal_extra_savings => 73,
+     # 
+     # :default_payment_resolution_cash_and_savings_withdrawal => 74,
+     # :default_payment_resolution_cash_and_savings_withdrawal_extra_savings => 75
+    result_resolve = {}
+    result_resolve[:total_transaction_amount] = cash
+    zero_value = BigDecimal("0")
+    if savings_withdrawal == zero_value
+      if cash  ==  default_payment.total_amount
+        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_only_cash]
+      elsif cash > default_payment.total_amount
+        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_only_cash_extra_savings]
+      end
+    end
+    
+    if cash == zero_value
+      if savings_withdrawal  ==  default_payment.total_amount
+        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal]
+      elsif cash > default_payment.total_amount
+        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal_extra_savings]
+      end
+    end
+    
+    if cash != zero_value && savings_withdrawal != zero_value
+      if (cash+ savings_withdrawal) == default_payment.total_amount
+        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_cash_and_savings_withdrawal]
+      elsif (cash+ savings_withdrawal) > default_payment.total_amount
+        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_cash_and_savings_withdrawal_extra_savings]
+      end
+    end
+    
+    
+     # result_resolve[:total_transaction_amount]
+     #     new_hash[:transaction_case]  = result_resolve[:transaction_case]
+     
+     return result_resolve
+     
   end
   
   def self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, number_of_weeks, 

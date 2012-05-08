@@ -159,6 +159,14 @@ class SubGroup < ActiveRecord::Base
     # self.save
   end
   
+  def round_up_total_default_payment
+    self.group_loan_memberships.includes(:default_payment).each do |glm|
+      default_payment = glm.default_payment
+      
+      default_payment.round_up_to( DEFAULT_PAYMENT_ROUND_UP_VALUE )
+    end
+  end
+  
   # 
   # def set_sub_group_default_payment_contribution_amount
   #   total_amount_subgroup_share = DefaultPayment.find(:all, :conditions => {
