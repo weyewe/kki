@@ -611,9 +611,43 @@ class TransactionActivity < ActiveRecord::Base
       return BigDecimal("0")
     end
   end
+  
+  
+  
 =begin
   For the default loan resolution
 =end
+
+  def TransactionActivity.execute_default_payment_deduction_from_savings(group_loan,default_payment,glm, current_user)
+    member = glm.member
+    
+    
+    new_hash = {}
+    new_hash[:total_transaction_amount] = BigDecimal("0") #no hard money flowing 
+    new_hash[:transaction_case]  = TRANSACTION_CASE[:default_payment_automatic_deduction]
+    new_hash[:creator_id] = current_user.id 
+    new_hash[:office_id] = current_user.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = glm.group_loan_id
+
+    transaction_activity = TransactionActivity.create new_hash
+    
+    
+    if default_payment.total_amount > member.total_savings
+      default_payment.set_default_amount_deducted(transaction_activity, member, true)
+    else
+      default_payment.set_default_amount_deducted(transaction_activity, member, false)
+    end
+    
+    # transaction_activity.create_auto_default_payment_resolution_entries( default_payment) 
+    transaction_activity.create_default_payment_savings_withdrawal_transaction_entry(default_payment.amount_paid , member)
+    return transaction_activity
+  end
+  
+  
+  # the old scheme where member can choose to pay by cash
+  #the new scheme: deduct automatically from savings. The excess is covered by KKI
   def TransactionActivity.create_default_loan_resolution_payment(   default_payment,
                                                         current_user,
                                                         cash, 
@@ -646,7 +680,7 @@ class TransactionActivity < ActiveRecord::Base
 
     transaction_activity = TransactionActivity.create new_hash
     
-    default_payment.transaction_activity_id = transaction_activity.id
+    default_payment.transaction_id = transaction_activity.id
     default_payment.is_paid = true
     default_payment.save 
     

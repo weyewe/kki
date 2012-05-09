@@ -35,4 +35,23 @@ class DefaultPayment < ActiveRecord::Base
     end
   end
   
+  
+  def set_default_amount_deducted(transaction_activity, member, any_amount_assumed_by_kki )
+    if any_amount_assumed_by_kki == true 
+      amount_assumed_by_kki = self.total_amount - member.total_savings 
+      amount_paid = self.total_amount - amount_assumed_by_kki
+      self.amount_paid = amount_paid
+      self.is_paid = true 
+      self.amount_assumed_by_office = amount_assumed_by_kki
+      self.is_assumed_by_office = true 
+  
+    elsif any_amount_assumed_by_kki==false
+      self.amount_paid = self.total_amount
+      self.is_paid = true 
+      
+    end
+    
+    self.transaction_id = transaction_activity.id 
+    self.save
+  end
 end

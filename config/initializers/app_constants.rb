@@ -94,10 +94,15 @@ TRANSACTION_CASE = {
   :multiple_backlog_payment_soft_savings_withdrawal => 57, 
   :multiple_backlog_payment_soft_savings_withdrawal_extra_savings => 58, 
   
+  
+  
+  
+  :default_payment_automatic_deduction => 80, 
   # :default_loan_payment_as_sub_group_member => 70,
   # :default_loan_payment_as_group_member => 71, 
   
-  # 4 cases for default payment 
+  # 4 cases for default payment , old scheme where member can deduct on their own
+  # chose:cash, savings withdrawal etc 
   :default_payment_resolution_only_cash => 70,
   :default_payment_resolution_only_savings_withdrawal => 71,
   

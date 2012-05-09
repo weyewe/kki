@@ -451,7 +451,7 @@ class GroupLoan < ActiveRecord::Base
     self.save 
     
     
-    self.generate_default_payments
+    self.generate_default_payments(current_user)
     
   end
   
@@ -639,7 +639,15 @@ class GroupLoan < ActiveRecord::Base
     
   end
   
-  def generate_default_payments
+  def auto_deduct_default_payments_from_savings(current_user)
+    self.group_loan_memberships.includes(:default_payment).each do |glm|
+      default_payment = glm.default_payment
+      TransactionActivity.execute_default_payment_deduction_from_savings(self,default_payment,glm, current_user)
+    end
+    
+  end
+  
+  def generate_default_payments(current_user)
     self.extract_total_default_amount
     # by now, we know the default amount for each subgroup
     # total default amount for the group == sum of default amount from all subgroups
@@ -647,7 +655,7 @@ class GroupLoan < ActiveRecord::Base
     self.generate_default_payments_per_group_loan_membership  # sub_group_share and group_share
     self.declare_backlog_payments_as_default #but not cleared. that is the basis for future data
     
-    self.auto_deduct_default_payments_from_savings
+    self.auto_deduct_default_payments_from_savings(current_user)
   end
   
   
