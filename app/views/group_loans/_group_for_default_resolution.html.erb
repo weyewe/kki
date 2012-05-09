@@ -12,9 +12,10 @@
   <td><%= group_loan.members.count %></td>
   
   <td><%= group_loan.total_default_member %></td> <!-- Total default mamber -->
-  <td><%= group_loan.total_default_amount %></td> <!-- total default amount -->
-  <td> <%= group_loan.total_members_paid_default_payment %> </td> <!-- paid_member -->
-  <td> <%= group_loan.total_paid_default_payment %> </td>  <!-- paid amount -->
+  <td><%= print_money( group_loan.total_default_amount ) %></td> <!-- total default amount -->
+  <td> <%= group_loan.total_members_paid_default_payment %> </td> <!-- paid_member count -->
+  <td> <%= print_money( group_loan.total_paid_default_payment ) %> </td>  <!-- paid amount -->
+  <td><%= print_money( group_loan.total_default_payment_paid_by_office )%></td>
   
  
   

@@ -227,37 +227,45 @@ describe TransactionActivity do
         @transaction_1_executed.total_transaction_amount.should  ==  total_money_received_by_member 
       end
 
-      it "will create 2 transaction entries: giving the full amount to the member, 
-          and the member will return the one equal with setup amount " do
+      it "will create 3 transaction entries: giving the full amount to the member, 
+          and the member will return the one equal with setup amount: 1 admin fee and 1 saving entry " do
         @transaction_1_executed.transaction_case.should ==TRANSACTION_CASE[:loan_disbursement_with_setup_payment_deduction]             
-        @transaction_1_executed.should have(2).transaction_entries 
+        @transaction_1_executed.should have(3).transaction_entries 
       
       
         group_loan_product = @glm.group_loan_product 
         full_loan_amount  = group_loan_product.loan_amount
-        setup_fee = group_loan_product.setup_payment_amount
-      
-        total_money_exchanging_hands = full_loan_amount - setup_fee
+        setup_fee = group_loan_product.setup_payment_amount - group_loan_product.initial_savings
+        paid_initial_savings = group_loan_product.initial_savings
+        total_money_exchanging_hands = full_loan_amount - setup_fee - paid_initial_savings
         
         
         # check the transaction entries case 
-        deducted_loan_disbursement_count = 0 
-        deduction_of_loan_disbursement_count = 0
+        deduction_loan_disbursement_for_admin_count = 0 
+        deducted_loan_disbursement_for_initial_savings_count = 0
+        deducted_loan_disbursement_count = 0
         amount_of_deducted_loan_disbursement = BigDecimal("0")
         amount_of_loan_disbursement_deduction = BigDecimal('0')
+        
         @transaction_1_executed.transaction_entries.each do  |t_entry|
           if t_entry.transaction_entry_code == TRANSACTION_ENTRY_CODE[:total_loan_disbursement_amount]
             deducted_loan_disbursement_count += 1 
-            ( total_money_exchanging_hands + setup_fee).should == t_entry.amount
+            ( total_money_exchanging_hands + setup_fee+ paid_initial_savings).should == t_entry.amount
           end
           if t_entry.transaction_entry_code == TRANSACTION_ENTRY_CODE[:setup_fee_deduction_from_disbursement_amount]
-            deduction_of_loan_disbursement_count += 1 
+            deduction_loan_disbursement_for_admin_count += 1 
             setup_fee.should == t_entry.amount
+          end
+          
+          if t_entry.transaction_entry_code == TRANSACTION_ENTRY_CODE[:initial_savings]
+            deducted_loan_disbursement_for_initial_savings_count += 1 
+            paid_initial_savings.should == t_entry.amount
           end
         end
       
         deducted_loan_disbursement_count.should ==  1 
-        deduction_of_loan_disbursement_count.should  == 1 
+        deduction_loan_disbursement_for_admin_count.should  == 1 
+        deducted_loan_disbursement_for_initial_savings_count.should == 1 
         @transaction_1_executed.total_transaction_amount.should  ==  total_money_exchanging_hands 
       end  # end of the it block
       

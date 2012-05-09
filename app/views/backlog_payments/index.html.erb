@@ -5,7 +5,7 @@
         "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
         "Total member with backlogs: <b>#{@member_with_backlog_payments.count}</b> ").html_safe %>
   
-  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
   
    
@@ -28,7 +28,7 @@
           <% if backlog_payments_for_member.count > 0  %>
             <%= render :partial => "backlog_payments/backlog_index_entry", :locals => {
               :member  => member, 
-              :total_backlog_payments_for_member => member.backlog_payments_for_group_loan(@group_loan).count , 
+              :total_backlog_payments_for_member => member.uncleared_backlog_payments_for_group_loan(@group_loan).count , 
               :total_cleared_backlog_payments_for_member => member.cleared_backlog_payments_for_group_loan(@group_loan).count ,
               :group_loan => @group_loan  
               }  %>

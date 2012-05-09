@@ -5,6 +5,11 @@ class BacklogPaymentsController < ApplicationController
     # @backlog_payments = @group_loan.backlog_payments
 
     @member_with_backlog_payments = @group_loan.members.includes(:backlog_payments)
+    
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_backlog_weekly_payment_path'
+    set_breadcrumb_for @group_loan, 'group_loan_backlog_payments_url' + "(#{@group_loan.id})", 
+                "Select Backlog"
   end
   
   
@@ -20,6 +25,14 @@ class BacklogPaymentsController < ApplicationController
     
     @group_loan_product = @group_loan_membership.group_loan_product
    
+   
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_backlog_weekly_payment_path'
+    set_breadcrumb_for @group_loan, 'group_loan_backlog_payments_url' + "(#{@group_loan.id})", 
+                "Select Backlog"
+                
+    set_breadcrumb_for @group_loan, 'pay_backlog_for_group_loan_url' + "(#{@group_loan.id}, #{@member.id})", 
+                "Create Payment"           
+                
   end
   
   

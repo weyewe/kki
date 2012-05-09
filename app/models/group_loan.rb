@@ -542,7 +542,11 @@ class GroupLoan < ActiveRecord::Base
   end
   
   def total_paid_default_payment
-    members_paid_default_payment.sum("total_amount")
+    members_paid_default_payment.sum("amount_paid")
+  end
+  
+  def total_default_payment_paid_by_office
+    members_paid_default_payment.sum("amount_assumed_by_office")
   end
   
   def total_members_paid_default_payment

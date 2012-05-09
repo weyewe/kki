@@ -130,6 +130,8 @@ class TransactionActivity < ActiveRecord::Base
     group_loan_product = group_loan_membership.group_loan_product
     member = group_loan_membership.member
     
+    initial_savings = group_loan_product.initial_savings
+    
     # can't be executed if there is previous loan disbursement for the same entry
     
     # past_transaction_activity = TransactionActivity.previous_transaction_activity( weekly_task, member )
@@ -177,8 +179,10 @@ class TransactionActivity < ActiveRecord::Base
     
     
     transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , 
+                      group_loan_product.admin_fee, 
+                      group_loan_product.initial_savings,
                       cashier, 
-                      group_loan_membership.deduct_setup_payment_from_loan  ) 
+                      group_loan_membership.deduct_setup_payment_from_loan , member ) 
     
     group_loan_membership.has_received_loan_disbursement = true
     group_loan_membership.loan_disbursement_transaction_id = transaction_activity.id 
@@ -640,6 +644,8 @@ class TransactionActivity < ActiveRecord::Base
       default_payment.set_default_amount_deducted(transaction_activity, member, false)
     end
     
+    # member.deduct_savings( default_payment.amount_paid, SAVING_ENTRY_CODE[:soft_withdraw_for_default_payment] , transaction_entry )
+    # the savings deduction is done in the transaction entry
     # transaction_activity.create_auto_default_payment_resolution_entries( default_payment) 
     transaction_activity.create_default_payment_savings_withdrawal_transaction_entry(default_payment.amount_paid , member)
     return transaction_activity
@@ -655,6 +661,10 @@ class TransactionActivity < ActiveRecord::Base
     group_loan_membership = default_payment.group_loan_membership
     member = group_loan_membership.member
     group_loan = group_loan_membership.group_loan
+    
+    if default_payment.is_defaultee == true 
+      return nil
+    end
     
     zero_value = BigDecimal("0")
     if savings_withdrawal > member.total_savings or
@@ -828,7 +838,15 @@ class TransactionActivity < ActiveRecord::Base
             
   end
   
-  def create_loan_disbursement_entries( amount , cashier , deduct_setup_payment_from_loan ) 
+  
+  # transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , 
+  #                     group_loan_product.admin_fee, 
+  #                     group_loan_product.initial_savings,
+  #                     cashier, 
+  #                     group_loan_membership.deduct_setup_payment_from_loan  )
+                    
+                    
+  def create_loan_disbursement_entries( amount , admin_fee, initial_savings, cashier , deduct_setup_payment_from_loan, member ) 
     cashflow_book = cashier.active_job_attachment.office.cashflow_book
     
    
@@ -842,9 +860,16 @@ class TransactionActivity < ActiveRecord::Base
                           )
        self.transaction_entries.create( 
                           :transaction_entry_code => TRANSACTION_ENTRY_CODE[:setup_fee_deduction_from_disbursement_amount], 
-                          :amount => deduction_amount  ,
+                          :amount => admin_fee  ,
                           :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                           )
+       saving_transaction_entry = self.transaction_entries.create( 
+                          :transaction_entry_code => TRANSACTION_ENTRY_CODE[:initial_savings], 
+                          :amount => initial_savings  ,
+                          :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+                          )
+                          
+       member.add_savings( initial_savings , SAVING_ENTRY_CODE[:initial_setup_saving], saving_transaction_entry) 
       
     else
       self.transaction_entries.create( 

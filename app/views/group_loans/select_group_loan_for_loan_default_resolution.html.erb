@@ -4,7 +4,7 @@
         "Default group loan for office: <b>#{@office.name}</b>" + "<br />" + 
         "Total Default Group Loan: <b>#{@default_declared_group_loans.count}</b> "  ).html_safe %>
   
-  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
   
    
@@ -19,8 +19,9 @@
             <th>Total Member</th>
             <th>Total Default Member</th>
             <th>Default Amount</th>
-            <th>Paid Member</th>
-            <th>Paid Amount</th>
+            <th>Default Payment</th>
+            <th>Total Savings Deduction</th>
+            <th>Office Paid</th>
             <!--  to pay the default payment, gonna be another transaction_activity -->
        
           </tr>

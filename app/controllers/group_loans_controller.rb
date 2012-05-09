@@ -17,7 +17,7 @@ class GroupLoansController < ApplicationController
     #GroupLoan.create_group_loan( params[:group_loan], current_user)
     
     if @new_group_loan.save
-      flash[:notice] = "The new member has been created." + 
+      flash[:notice] = "The new group loan has been created." + 
                     " To see the list, click <a href='#data_list'>here</a>."
       redirect_to new_group_loan_url 
     else
@@ -120,6 +120,9 @@ class GroupLoansController < ApplicationController
   def select_group_loan_for_setup_payment
     @office = current_user.active_job_attachment.office
     @started_group_loans = @office.started_group_loans
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_setup_payment_url'
+    
   end
   
   def execute_setup_fee_collection_finalization
@@ -140,11 +143,16 @@ class GroupLoansController < ApplicationController
   def select_group_loan_for_backlog_weekly_payment
     @office = current_user.active_job_attachment.office
     @running_group_loans = @office.running_group_loans
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_backlog_weekly_payment_path'
+    
   end
   
   def select_group_loan_for_loan_default_resolution
     @office = current_user.active_job_attachment.office
-    @default_declared_group_loans  = @office.default_declared_group_loans
+    @default_declared_group_loans  = @office.closed_group_loans
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_default_resolution_path'
   end
   
   

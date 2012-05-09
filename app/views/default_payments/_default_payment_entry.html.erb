@@ -9,6 +9,9 @@
   <td><%=  print_money( default_payment.amount_group_share ) %></td>
   <td><%=  print_money( default_payment.total_amount ) %></td>
   <!-- expected cash -->
+  <td style="font-weight:bold;"><%= print_money(default_payment.amount_paid) %></td>
+  <td style="font-weight:bold;"><%= print_money(default_payment.amount_assumed_by_office) %></td>
+  
   
 
  <!-- action button -->

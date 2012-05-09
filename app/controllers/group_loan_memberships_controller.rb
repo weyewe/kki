@@ -41,6 +41,11 @@ class GroupLoanMembershipsController < ApplicationController
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id( params[:group_loan_id] )
     @group_loan_memberships = @group_loan.group_loan_memberships.order("created_at DESC")
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_setup_payment_url'
+    set_breadcrumb_for @group_loan, 'group_loan_memberships_for_setup_fee_url' + "(#{@group_loan.id})", 
+                "Select Backlog"
+                
   end
   
   # declare that the setup payment will be taken from the loan

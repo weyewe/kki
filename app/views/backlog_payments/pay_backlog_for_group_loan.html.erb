@@ -4,7 +4,7 @@
         "Number of backlogs weeks-payable: <b>#{@uncleared_backlog_payments.count}</b>" + "<br />" ).html_safe %>
         
   
-  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
   <% if flash[:notice] %>
     <div class="alert alert-success">
       <a data-dismiss="alert" class="close">×</a>
@@ -47,8 +47,9 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
+       <!-- <a href="#" class="btn modal-closer">Close</a> -->
        <%#= link_to "Close", make_member_payment_url(@weekly_task.group_loan, @weekly_task), :class => "btn"%>
+       <%= link_to "Close", group_loan_backlog_payments_url(@group_loan), :class => "btn"%>
      </div>
    </div>
   

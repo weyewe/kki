@@ -4,7 +4,7 @@
         "Total Default Payment: <b>#{@default_payments.count}</b> " + "<br />" + 
         "Paid Default Payment: <b>#{@group_loan.members_paid_default_payment.count}</b> "  ).html_safe %>
   
-  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
   
    
@@ -18,6 +18,9 @@
             <th>SubGroup Share</th>
             <th>Group Share</th>
             <th>Total Rounded</th>
+            <th>Savings Deduction</th>
+            <th>Office Paid</th>
+            
             
             <th style="text-align:center;">Total Savings Post Default Deduction</th>
             
