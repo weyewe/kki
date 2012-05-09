@@ -647,6 +647,12 @@ class GroupLoan < ActiveRecord::Base
     
   end
   
+  def close_group_loan(current_user)
+    self.is_closed = true 
+    self.group_loan_closer_id = current_user.id
+    self.save
+  end
+  
   def generate_default_payments(current_user)
     self.extract_total_default_amount
     # by now, we know the default amount for each subgroup
@@ -656,6 +662,7 @@ class GroupLoan < ActiveRecord::Base
     self.declare_backlog_payments_as_default #but not cleared. that is the basis for future data
     
     self.auto_deduct_default_payments_from_savings(current_user)
+    self.close_group_loan(current_user)
   end
   
   

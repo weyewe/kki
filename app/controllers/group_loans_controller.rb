@@ -147,6 +147,12 @@ class GroupLoansController < ApplicationController
     @default_declared_group_loans  = @office.default_declared_group_loans
   end
   
+  
+  def select_closed_group_loan_for_history
+    @office = current_user.active_job_attachment.office
+    @closed_group_loans  = @office.closed_group_loans
+  end
+  
 =begin
   Role == Cashier 
 =end

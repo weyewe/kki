@@ -13,6 +13,7 @@
       
       <% if current_user.has_role?(:cashier, current_user.active_job_attachment) %>
         <%= get_process_nav( :cashier , params ).html_safe %> 
+        <%= get_process_nav( :savings , params ).html_safe %> 
       <% end %>
       
       <% if current_user.has_role?(:field_worker, current_user.active_job_attachment) %>

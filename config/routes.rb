@@ -76,6 +76,9 @@ Debita46::Application.routes.draw do
   
   #default payment resolution progress
   match "select_group_loan_monitor_default_loan_resolution" => "group_loans#select_group_loan_monitor_default_loan_resolution", :as => :select_group_loan_monitor_default_loan_resolution
+
+  # preview the past group loans
+  match 'select_closed_group_loan_for_history' => 'group_loans#select_closed_group_loan_for_history', :as => :select_closed_group_loan_for_history
 =begin
   Field Worker Routes
 =end

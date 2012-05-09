@@ -267,6 +267,10 @@ module ApplicationHelper
       return create_process_nav(CASHIER_PROCESS_LIST, params )
     end
     
+    if symbol == :savings
+      return create_process_nav(SAVINGS_PROCESS_LIST, params )
+    end
+    
     if symbol == :field_worker 
       return create_process_nav( FIELD_WORKER_PROCESS_LIST, params )
     end
@@ -389,21 +393,21 @@ module ApplicationHelper
           }
         ]
       },
+      # {
+      #         :title => "Monitor Default Loan Resolution",
+      #         :destination_link => "select_group_loan_monitor_default_loan_resolution_url",
+      #         :conditions => [
+      #           :controller => "group_loans",
+      #           :action => 'select_group_loan_monitor_default_loan_resolution'
+      #         ]
+      #       },
       {
-        :title => "Monitor Default Loan Resolution",
-        :destination_link => "select_group_loan_monitor_default_loan_resolution_url",
-        :conditions => [
-          :controller => "group_loans",
-          :action => 'select_group_loan_monitor_default_loan_resolution'
-        ]
-      },
-      {
-        :title => "Close Group Loan",
-        :destination_link => "root_url",
+        :title => "Closed Group Loan",
+        :destination_link => "select_closed_group_loan_for_history_url",
         :conditions => [
           {
-            :controller => '',
-            :action => ''
+            :controller => 'group_loans',
+            :action => 'select_closed_group_loan_for_history'
           }
         ]
       }
@@ -596,6 +600,22 @@ module ApplicationHelper
           {
             :controller => "backlog_payments", 
             :action => "select_pending_backlog_to_be_approved"
+          }
+        ]
+      }
+    ]
+  }
+  
+  SAVINGS_PROCESS_LIST ={
+    :header_title => "Savings",
+    :processes => [
+      {
+        :title => "Savings withdrawal",
+        :destination_link => "root_url",
+        :conditions => [
+          {
+            :controller => '',
+            :action => ''
           }
         ]
       }

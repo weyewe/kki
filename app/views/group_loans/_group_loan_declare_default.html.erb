@@ -18,7 +18,7 @@
   <% if group_loan.pending_approval_backlogs.count == 0  %>
     <td style="text-align:center;">
       <a href="#" class="btn approve action true_check"
-          id="finalize-<%= group_loan.id %>">Declare Default</a>
+          id="finalize-<%= group_loan.id %>">Declare Default and Close</a>
     </td>
   <% else %>
     <td style="text-align:center;">
