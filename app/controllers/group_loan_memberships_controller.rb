@@ -3,7 +3,12 @@ class GroupLoanMembershipsController < ApplicationController
   def new
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id( params[:group_loan_id])
-    @commune_members = @group_loan.commune.members
+    @commune_members = @group_loan.commune.members.order("created_at ASC")
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_member_url'
+    set_breadcrumb_for @group_loan, 'new_group_loan_group_loan_membership_url' + "(#{@group_loan.id})", 
+                "Assign Group Loan"
+                
   end
   
   

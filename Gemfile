@@ -20,6 +20,17 @@ gem 'acts_as_commentable_with_threading',
 gem "squeel" 
 gem 'acts_as_decimal'
 gem 'simple_form'
+
+gem 'exceptional'
+gem 'heroku'
+
+gem 'roadie' # for sending email 
+
+gem "delayed_job_active_record", "~> 0.2.1" # delayed_job 
+gem 'hirefireapp'
+gem "daemons"
+
+
 # gem "factory_girl_rails", "~> 3.0"
 
 # gonna use this https://github.com/codegram/acts_as_decimal

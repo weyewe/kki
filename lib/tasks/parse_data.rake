@@ -14,7 +14,7 @@ task :parse_member => :environment do
     7            => "Marunda"
   }
   
-  filename = "group_45.csv"
+  filename = "group_24.csv"
   # filename = "eka_ruby_data.csv"
   loan_officer = User.find_by_email "loan_officer@gmail.com"
   cilincing_office = Office.first 

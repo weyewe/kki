@@ -5,7 +5,7 @@
         "Total Members: <b>#{@group_loan.members.count}</b>"   + "<br />" + 
         "Total Subgroups: <b>#{@group_loan.sub_groups.count}</b>" ).html_safe %>
   
-  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
   <% if flash[:notice] %>
     <div class="alert alert-success">
       <a data-dismiss="alert" class="close">×</a>

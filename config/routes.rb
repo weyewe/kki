@@ -3,6 +3,8 @@ Debita46::Application.routes.draw do
   
   resources :users 
   
+  match 'raise_exception' => 'home#raise_exception', :as => :raise_exception 
+  
   match 'create_new_employee' => "users#create_employee", :as => :create_new_employee
   match 'new_employee'        => "users#new_employee", :as => :new_employee
   match 'all_employees'       => "users#all_employees", :as => :all_employees

@@ -83,10 +83,13 @@ class GroupLoansController < ApplicationController
   
   def select_group_loan_to_assign_member
     setup_select_group_loan
+    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_member_url'
   end
   
   def select_group_loan_to_group_loan_product
     setup_select_group_loan
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_to_group_loan_product_url'
   end
   
   
@@ -229,6 +232,7 @@ class GroupLoansController < ApplicationController
 =end
   def select_group_loan_to_select_group_leader
     setup_group_loan
+    add_breadcrumb "Select GroupLoan", 'select_group_loan_to_select_group_leader_url'
   end
   
   # @office = current_user.active_job_attachment.office
@@ -246,6 +250,10 @@ class GroupLoansController < ApplicationController
       @group_leader_name = @group_loan.group_leader.name 
     end
     # @group_leader_name = nil if @group_leader_id.nil? else @group_loan.group_leader.name 
+    
+    add_breadcrumb "Select GroupLoan", 'select_group_loan_to_select_group_leader_url'
+    set_breadcrumb_for @group_loan, 'select_group_leader_from_member_url' + "(#{@group_loan.id})", 
+                "Assign Group Leader"
   end
   
   
@@ -264,14 +272,17 @@ class GroupLoansController < ApplicationController
   
   def select_group_loan_to_create_sub_group
     setup_group_loan
+    add_breadcrumb "Select Group Loan", 'select_group_loan_to_create_sub_group_url'
   end
   
   def select_group_loan_to_assign_member_to_sub_group
     setup_group_loan
+    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_member_to_sub_group_url'
   end
   
   def select_group_loan_to_select_sub_group_leader
     setup_group_loan
+    add_breadcrumb "Select Group Loan", 'select_group_loan_to_select_sub_group_leader_url'
   end
   
   
