@@ -21,7 +21,7 @@ gem "squeel"
 gem 'acts_as_decimal'
 gem 'simple_form'
 
-gem 'exceptional'
+gem 'exceptional'  # added exceptional.. but, it is not shown to be working
 gem 'heroku'
 
 gem 'roadie' # for sending email 
