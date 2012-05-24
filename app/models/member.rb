@@ -73,15 +73,31 @@ class Member < ActiveRecord::Base
     end
   end
   
-  def add_savings(saving_amount, saving_entry_code, saving_transaction_entry )
-    self.create_saving( saving_amount, saving_entry_code, SAVING_ACTION_TYPE[:debit] ,saving_transaction_entry)
+  # def add_savings(saving_amount, saving_entry_code, saving_transaction_entry )
+  #    self.create_saving( saving_amount, saving_entry_code, SAVING_ACTION_TYPE[:debit] ,saving_transaction_entry)
+  #  end
+  
+  def add_extra_savings(saving_amount, saving_entry_code, saving_transaction_entry )
+    self.create_saving( saving_amount, saving_entry_code, SAVING_ACTION_TYPE[:debit] ,saving_transaction_entry, true)
   end
   
-  def deduct_savings( saving_amount, saving_entry_code, saving_transaction_entry)
-    self.create_saving( saving_amount, saving_entry_code, SAVING_ACTION_TYPE[:credit], saving_transaction_entry )
+  def add_compulsory_savings(saving_amount, saving_entry_code, saving_transaction_entry )
+    self.create_saving( saving_amount, saving_entry_code, SAVING_ACTION_TYPE[:debit] ,saving_transaction_entry, false)
   end
   
-  def create_saving( saving_amount, saving_entry_code, saving_action_type, saving_transaction_entry)
+  # def deduct_savings( saving_amount, saving_entry_code, saving_transaction_entry)
+  #   self.create_saving( saving_amount, saving_entry_code, SAVING_ACTION_TYPE[:credit], saving_transaction_entry )
+  # end
+  
+  def deduct_extra_savings( saving_amount, saving_entry_code, saving_transaction_entry )
+    self.create_saving( saving_amount, saving_entry_code, SAVING_ACTION_TYPE[:credit], saving_transaction_entry , true )
+  end
+  
+  def deduct_compulsory_savings( saving_amount, saving_entry_code, saving_transaction_entry )
+    self.create_saving( saving_amount, saving_entry_code, SAVING_ACTION_TYPE[:credit], saving_transaction_entry , false )
+  end
+  
+  def create_saving( saving_amount, saving_entry_code, saving_action_type, saving_transaction_entry, is_extra_savings)
     saving_entry =  SavingEntry.create(
       :saving_book_id => self.saving_book.id , 
       :saving_entry_code => saving_entry_code,
@@ -90,7 +106,8 @@ class Member < ActiveRecord::Base
       :transaction_entry_id => saving_transaction_entry.id
     )
     
-    self.saving_book.update_total( saving_entry )
+    
+    self.saving_book.update_total( saving_entry ,is_extra_savings)
     return saving_entry
   end
   

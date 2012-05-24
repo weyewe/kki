@@ -154,7 +154,7 @@ class TransactionActivity < ActiveRecord::Base
     end
 
     new_hash = {}
-    if group_loan_membership.deduct_setup_payment_from_loan ==true 
+    if group_loan_membership.deduct_setup_payment_from_loan == true 
       #  create another transaction 
       new_hash[:total_transaction_amount]  = group_loan_product.loan_amount - group_loan_membership.min_setup_payment
       new_hash[:transaction_case] = TRANSACTION_CASE[:loan_disbursement_with_setup_payment_deduction]
@@ -393,13 +393,13 @@ class TransactionActivity < ActiveRecord::Base
     # check the validity, savings > savings withdrawal
     # balance >= 0 
     balance = cash + savings_withdrawal - ( basic_weekly_payment*number_of_weeks )
-    total_savings = member.total_savings
+    total_extra_savings = member.total_extra_savings
     
     # if( member.total_savings < savings_withdrawal)
     #       return nil
     #     end
     
-    if ( not self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, number_of_weeks, basic_weekly_payment, total_savings ) ) or 
+    if ( not self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, number_of_weeks, basic_weekly_payment, total_extra_savings ) ) or 
         not TransactionActivity.is_number_of_weeks_valid?(number_of_weeks, group_loan, weekly_task, member)
        
       return nil 
@@ -491,11 +491,11 @@ class TransactionActivity < ActiveRecord::Base
    })
    group_loan_product = group_loan_membership.group_loan_product
    basic_weekly_payment = group_loan_product.total_weekly_payment
-   total_savings = member.total_savings 
+   total_extra_savings = member.total_extra_savings 
    # if (savings_withdrawal >)
    
    if (  not self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, 
-                                    number_of_weeks, basic_weekly_payment, total_savings )  )and 
+                                    number_of_weeks, basic_weekly_payment, total_extra_savings )  )and 
       TransactionActivity.is_number_of_weeks_valid_for_backlog_payment?(number_of_weeks, group_loan, member)
       
       
@@ -777,7 +777,7 @@ class TransactionActivity < ActiveRecord::Base
                       :amount => extra_savings  ,
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
-    member.add_savings( extra_savings, SAVING_ENTRY_CODE[:weekly_saving_extra_from_default_payment] ,transaction_entry )
+    member.add_extra_savings( extra_savings, SAVING_ENTRY_CODE[:weekly_saving_extra_from_default_payment] ,transaction_entry )
   end
   
 =begin
@@ -793,7 +793,7 @@ class TransactionActivity < ActiveRecord::Base
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                     
-    member.add_savings(savings_amount, SAVING_ENTRY_CODE[:independent_savings_deposit], savings_only_transaction_entry) 
+    member.add_extra_savings(savings_amount, SAVING_ENTRY_CODE[:independent_savings_deposit], savings_only_transaction_entry) 
 
   end
 
@@ -805,7 +805,7 @@ class TransactionActivity < ActiveRecord::Base
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                       
-    member.add_savings(savings_amount, SAVING_ENTRY_CODE[:no_weekly_payment_only_savings], savings_only_transaction_entry) 
+    member.add_extra_savings(savings_amount, SAVING_ENTRY_CODE[:no_weekly_payment_only_savings], savings_only_transaction_entry) 
 
   end
   
@@ -834,7 +834,7 @@ class TransactionActivity < ActiveRecord::Base
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                       
-    member.add_savings(initial_savings, SAVING_ENTRY_CODE[:initial_setup_saving]) 
+    member.add_compulsory_savings(initial_savings, SAVING_ENTRY_CODE[:initial_setup_saving]) 
             
   end
   
@@ -869,7 +869,7 @@ class TransactionActivity < ActiveRecord::Base
                           :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                           )
                           
-       member.add_savings( initial_savings , SAVING_ENTRY_CODE[:initial_setup_saving], saving_transaction_entry) 
+       member.add_compulsory_savings( initial_savings , SAVING_ENTRY_CODE[:initial_setup_saving], saving_transaction_entry) 
       
     else
       self.transaction_entries.create( 
@@ -904,7 +904,7 @@ class TransactionActivity < ActiveRecord::Base
                       )
     
     # each saving should be able to be traced to the transaction_entry -> transaction_activity 
-    member.add_savings(group_loan_product.min_savings, SAVING_ENTRY_CODE[:weekly_saving_from_basic_payment], saving_transaction_entry) 
+    member.add_compulsory_savings(group_loan_product.min_savings, SAVING_ENTRY_CODE[:weekly_saving_from_basic_payment], saving_transaction_entry) 
   end
   
   def create_extra_savings_entries( balance , current_user , member)
@@ -915,7 +915,7 @@ class TransactionActivity < ActiveRecord::Base
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                       
-    member.add_savings(balance, SAVING_ENTRY_CODE[:weekly_saving_extra_from_basic_payment], saving_entry) 
+    member.add_extra_savings(balance, SAVING_ENTRY_CODE[:weekly_saving_extra_from_basic_payment], saving_entry) 
   end
   
   def create_soft_savings_withdrawal_entries( savings_withdrawal, current_user , member)
@@ -927,7 +927,7 @@ class TransactionActivity < ActiveRecord::Base
                       )
                       
     # update member savings , add saving entries 
-    member.deduct_savings( savings_withdrawal, SAVING_ENTRY_CODE[:soft_withdraw_to_pay_basic_weekly_payment],saving_entry )
+    member.deduct_extra_savings( savings_withdrawal, SAVING_ENTRY_CODE[:soft_withdraw_to_pay_basic_weekly_payment],saving_entry )
     
   end
   

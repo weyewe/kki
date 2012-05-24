@@ -7,7 +7,7 @@ FactoryGirl.define do
   
   factory :cilincing_subdistrict , parent: :subdistrict do
     name "Cilincing"
-    after_create do |x|
+    after(:create) do |x|
       x.regency = ( Regency.find_by_name("Jakarta Utara") || FactoryGirl.create(:north_jakarta_regency) )
       x.save
     end

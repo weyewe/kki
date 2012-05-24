@@ -226,7 +226,9 @@ ActiveRecord::Schema.define(:version => 20120430151312) do
   end
 
   create_table "saving_books", :force => true do |t|
-    t.decimal  "total",      :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "total",                    :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "total_compulsory_savings", :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "total_extra_savings",      :precision => 11, :scale => 2, :default => 0.0
     t.integer  "member_id"
     t.datetime "created_at"
     t.datetime "updated_at"

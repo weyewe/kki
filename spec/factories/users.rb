@@ -7,8 +7,8 @@ FactoryGirl.define do
   
   factory :branch_manager, parent: :user do 
     email "branch_manager@gmail.com"
-    # created_user.after_create { |u| FactoryGirl(:branch_manager_role_assignment) }
-    after_create do |x|  
+    # created_user.after(:create) { |u| FactoryGirl(:branch_manager_role_assignment) }
+    after(:create) do |x|  
       # cilincing_office = Office.find_by_name("Cilincing Office")
       x.offices << FactoryGirl.create(:cilincing_office)  
       x.save
@@ -23,7 +23,7 @@ FactoryGirl.define do
   
   factory :loan_officer, parent: :user do  
     email "loan_officer@gmail.com"
-    after_create do |x|  
+    after(:create) do |x|  
       x.offices << FactoryGirl.create(:cilincing_office)  
       x.save
       job_attachment = x.get_active_job_attachment 
@@ -37,7 +37,7 @@ FactoryGirl.define do
   
   factory :cashier, parent: :user do  
     email "cashier@gmail.com"
-    after_create do |x|  
+    after(:create) do |x|  
       x.offices << FactoryGirl.create(:cilincing_office)  
       x.save
       job_attachment = x.get_active_job_attachment 
@@ -51,7 +51,7 @@ FactoryGirl.define do
   
   factory :field_worker, parent: :user do  
     email "field_worker@gmail.com"
-    after_create do |x|  
+    after(:create) do |x|  
       x.offices << FactoryGirl.create(:cilincing_office)  
       x.save
       job_attachment = x.get_active_job_attachment 

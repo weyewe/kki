@@ -6,7 +6,7 @@ FactoryGirl.define do
   factory :cilincing_office , parent: :office do
     name "Cilincing Office"
     
-    after_create do |x|
+    after(:create) do |x|
       x.regency_id =  ( Regency.find_by_name("Jakarta Utara") || FactoryGirl.create(:north_jakarta_regency) ).id
       x.subdistricts  << ( Subdistrict.find_by_name("Cilincing")  || FactoryGirl.create(:cilincing_subdistrict)  )
       x.save
