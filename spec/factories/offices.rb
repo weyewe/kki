@@ -12,5 +12,15 @@ FactoryGirl.define do
       x.save
     end
   end
+  
+  factory :koja_office , parent: :office do
+    name "Koja Office"
+    
+    after(:create) do |x|
+      x.regency_id =  ( Regency.find_by_name("Jakarta Utara") || FactoryGirl.create(:north_jakarta_regency) ).id
+      x.subdistricts  << ( Subdistrict.find_by_name("Koja")  || FactoryGirl.create(:koja_subdistrict)  )
+      x.save
+    end
+  end
 end
 

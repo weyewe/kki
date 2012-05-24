@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120430151312) do
+ActiveRecord::Schema.define(:version => 20120524084402) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
@@ -83,19 +83,31 @@ ActiveRecord::Schema.define(:version => 20120430151312) do
     t.datetime "updated_at"
   end
 
+  create_table "group_loan_assignments", :force => true do |t|
+    t.integer  "user_id"
+    t.integer  "group_loan_id"
+    t.integer  "assignment_type", :default => 0
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "group_loan_memberships", :force => true do |t|
     t.integer  "group_loan_id"
     t.integer  "member_id"
-    t.decimal  "deposit",                          :precision => 9, :scale => 2, :default => 0.0
-    t.decimal  "initial_savings",                  :precision => 9, :scale => 2, :default => 0.0
-    t.decimal  "admin_fee",                        :precision => 9, :scale => 2, :default => 0.0
-    t.boolean  "has_paid_setup_fee",                                             :default => false
+    t.decimal  "deposit",                                :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "initial_savings",                        :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "admin_fee",                              :precision => 9, :scale => 2, :default => 0.0
+    t.boolean  "has_paid_setup_fee",                                                   :default => false
     t.integer  "setup_fee_transaction_id"
     t.integer  "loan_disbursement_transaction_id"
-    t.boolean  "has_received_loan_disbursement",                                 :default => false
+    t.boolean  "has_received_loan_disbursement",                                       :default => false
     t.integer  "loan_disburser_id"
-    t.boolean  "deduct_setup_payment_from_loan",                                 :default => false
+    t.boolean  "deduct_setup_payment_from_loan",                                       :default => false
     t.integer  "sub_group_id"
+    t.boolean  "is_attending_financial_lecture"
+    t.integer  "financial_lecture_attendance_marker_id"
+    t.boolean  "is_attending_loan_disbursement"
+    t.integer  "loan_disbursement_attendance_marker_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -146,6 +158,8 @@ ActiveRecord::Schema.define(:version => 20120430151312) do
     t.integer  "total_weeks",                                                                :default => 0
     t.integer  "group_leader_id"
     t.integer  "commune_id"
+    t.boolean  "is_financial_education_done",                                                :default => false
+    t.integer  "financial_education_inspector_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

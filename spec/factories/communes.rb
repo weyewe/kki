@@ -21,6 +21,15 @@ FactoryGirl.define do
       x.save
     end
   end
+  
+  
+  factory :different_subdistrict_commune , parent: :commune do 
+    number "1"
+    after(:create) do |x|
+      x.village =  (Village.find_by_name("Koja Utara") || FactoryGirl.create(:north_koja_village))
+      x.save
+    end
+  end
  
   
 end

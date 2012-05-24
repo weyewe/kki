@@ -13,4 +13,14 @@ FactoryGirl.define do
     end
     # association :regency, factory: :north_jakarta_regency
   end
+  
+  
+  factory :koja_subdistrict , parent: :subdistrict do
+    name "Koja"
+    after(:create) do |x|
+      x.regency = ( Regency.find_by_name("Jakarta Utara") || FactoryGirl.create(:north_jakarta_regency) )
+      x.save
+    end
+    # association :regency, factory: :north_jakarta_regency
+  end
 end

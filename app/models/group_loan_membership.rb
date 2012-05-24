@@ -70,6 +70,15 @@ class GroupLoanMembership < ActiveRecord::Base
 =end
   def self.create_membership( creator, member, group_loan)
     
+    if member.office_id != group_loan.office_id
+      return nil
+    end
+    
+    if creator.active_job_attachment.office_id != group_loan.office_id
+      return nil
+    end
+    
+    
     group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
       :member_id => member.id,
       :group_loan_id => group_loan.id

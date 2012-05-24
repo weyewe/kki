@@ -29,6 +29,13 @@ class CreateGroupLoanMemberships < ActiveRecord::Migration
       t.integer :sub_group_id 
       
       
+      t.boolean :is_attending_financial_lecture
+      t.integer :financial_lecture_attendance_marker_id
+      
+      t.boolean :is_attending_loan_disbursement
+      t.integer :loan_disbursement_attendance_marker_id  
+      
+      
       # if the member has no sufficient $$ to pay for weekly payment
       # and, doesn't intend to use the saving || the saving is not enough to cover for the remnant
       # t.boolean :backlog_payment , :default => false 

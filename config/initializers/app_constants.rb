@@ -206,3 +206,14 @@ ATTENDANCE_STATUS = {
 }
 
 DEFAULT_PAYMENT_ROUND_UP_VALUE = BigDecimal("500")
+
+GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE = {
+  :group_loan_lecture_absent => 0,
+  :group_loan_disbursement_absent => 0 
+}
+
+# To monitor the group loan 
+GROUP_LOAN_ASSIGNMENT= {
+  :field_worker => 0 , 
+  :loan_inspector  => 1 
+}

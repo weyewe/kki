@@ -23,9 +23,16 @@ class GroupLoan < ActiveRecord::Base
                   :is_loan_disbursement_done, :loan_disburser_id,
                   :aggregated_principal_amount, :aggregated_interest_amount,
                   :total_default, :default_creator_id ,
-                  :group_leader_id
+                  :group_leader_id,
                   
-  
+                  
+=begin
+  Referencing User 
+=end
+
+  def creator
+    User.find_by_id(self.creator_id)
+  end
   
   
   
@@ -37,6 +44,7 @@ class GroupLoan < ActiveRecord::Base
     new_group_loan = GroupLoan.new group_loan_params
     new_group_loan.creator_id = creator.id 
     new_group_loan.office_id = creator.get_active_job_attachment.office.id 
+    
     
     if new_group_loan.save
       return new_group_loan
@@ -165,13 +173,22 @@ class GroupLoan < ActiveRecord::Base
     array.uniq.length == 1 
   end
 
+  def has_assigned_field_worker_and_loan_inspector?
+    field_worker_assignment_count =  GroupLoanAssignment.get_field_workers_for(self).count
+    loan_inspector_assignment_count = GroupLoanAssignment.get_loan_inspectors_for(self).count 
+    
+    field_worker_assignment_count > 0   && loan_inspector_assignment_count > 0
+  end
+
   def execute_propose_finalization( current_user )
-    if self.unassigned_members.count != 0  or self.equal_loan_duration == false 
+    if self.unassigned_members.count != 0  or self.equal_loan_duration == false  or 
+       not  self.has_assigned_field_worker_and_loan_inspector?
       return nil
     else
       self.is_proposed = true 
       self.group_loan_proposer_id = current_user.id 
       self.save 
+      return self 
     end
   end
   
@@ -181,6 +198,13 @@ class GroupLoan < ActiveRecord::Base
     
   def start_group_loan( current_user )
    
+    if not current_user.has_role?(:branch_manager, current_user.active_job_attachment )
+      return nil
+    end
+    
+    if not self.is_proposed == true
+      return nil
+    end
     
     if all_members_have_equal_loan_duration?
       self.is_started = true 
@@ -213,6 +237,24 @@ class GroupLoan < ActiveRecord::Base
     self.save
     
     # maybe, in the operational_activity timeline, it is gonna be much better. Tracability
+  end
+  
+=begin
+  Financial Education and Group Loan Disbursement Attendance
+=end
+  
+  def loan_inspectors
+    GroupLoanAssignment.find(:all,:conditions => {
+      :group_loan_id => self.id, 
+      :assignment_type => GROUP_LOAN_ASSIGNMENT[:loan_inspector]
+    })
+  end
+  
+  def field_workers
+    GroupLoanAssignment.find(:all,:conditions => {
+      :group_loan_id => self.id, 
+      :assignment_type => GROUP_LOAN_ASSIGNMENT[:field_worker]
+    })
   end
   
 =begin

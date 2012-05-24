@@ -24,6 +24,15 @@ FactoryGirl.define do
       # t.integer  "creator_id" # loan_officer   -> we need to check.. will this scumbag regenerate the new loan_officer?
       
       # t.integer  "office_id"  # office -> DITTO like creator_id .. if it will, better to generate it from somewhere else 
-      association :office, factory: :cilincing_office
+      # association :office, factory: :cilincing_office
   end
+  
+  factory :non_cilincing_member, class: Member do 
+    name "Member DragonBall"
+    id_card_no "1116666"
+    neighborhood_no 666
+    address "Gang Dragon"
+    # association :office, factory: :koja_office
+  end
+  
 end

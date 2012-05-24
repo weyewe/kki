@@ -28,4 +28,14 @@ FactoryGirl.define do
     total_weeks 5
     # :principal, :interest, :min_savings, :admin_fee, :initial_savings, :total_weeks
   end
+  
+  factory :group_loan_product_d, class: GroupLoanProduct do
+    principal 40000
+    interest 10000
+    min_savings 8000
+    admin_fee  5000
+    initial_savings 15000
+    total_weeks 10
+    # :principal, :interest, :min_savings, :admin_fee, :initial_savings, :total_weeks
+  end
 end
