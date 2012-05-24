@@ -69,6 +69,9 @@ class GroupLoanMembership < ActiveRecord::Base
   Related with the group_loan_membership creation
 =end
   def self.create_membership( creator, member, group_loan)
+    if creator.nil? or member.nil? or group_loan.nil?
+      return nil 
+    end
     
     if member.office_id != group_loan.office_id
       return nil
@@ -131,6 +134,33 @@ class GroupLoanMembership < ActiveRecord::Base
     # put the user activity list on who the destroyer is 
   end
   
+=begin
+  Attendance Marking for group loan: financial education and group loan disbursement
+  By loan inspector
+=end
+
+  def mark_financial_education_attendance( loan_inspector, attendance , group_loan)
+    # if that loan inspector has assignment_type :loan_inspector, proceed, else return nil 
+    if attendance.nil?  or group_loan.nil? or loan_inspector.nil?
+      return nil
+    end
+    
+    if not GroupLoanAssignment.has_assignment_role?(loan_inspector, :loan_inspector, group_loan) 
+      puts "no assignment role"
+      return nil
+    end
+    
+    if group_loan.is_started == false
+      puts "not started"
+      return nil
+    end
+    
+    
+    self.financial_lecture_attendance_marker_id = loan_inspector.id 
+    self.is_attending_financial_lecture = attendance
+    self.save 
+    return self  
+  end
   
 =begin
   Declaring that the setup payment will be deducted from Loan Disbursement 

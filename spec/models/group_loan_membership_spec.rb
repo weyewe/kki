@@ -9,6 +9,7 @@ describe GroupLoanMembership do
     @loan_officer_role = FactoryGirl.create(:loan_officer_role)
     @cashier_role = FactoryGirl.create(:cashier_role)
     @field_worker_role = FactoryGirl.create(:field_worker_role)
+    
     @branch_manager = @office.create_user( [@branch_manager_role],
       :email => 'branch_manager@gmail.com',
       :password => 'willy1234',
@@ -159,37 +160,52 @@ describe GroupLoanMembership do
   context "marking compulsory attendance for financial education and loan disbursement" do
     
     before(:each) do 
-       # run the first group loan (started) 
-       # assign all member
-       @members.each do |member|
-         GroupLoanMembership.create_membership( @loan_oficer, member, @cilincing_group_loan)
-       end
-       # assign the group_loan_assignment 
-       GroupLoanAssignment.add_new_assignment(:field_worker, @cilincing_group_loan, @field_worker)
-       GroupLoanAssignment.add_new_assignment(:loan_inspector, @cilincing_group_loan, @branch_manager)
-       
-       # assign the group loan product
-       @group_loan_product_a = FactoryGirl.create(:group_loan_product_a)
-       @group_loan_product_b = FactoryGirl.create(:group_loan_product_b)
-       @group_loan_product_c = FactoryGirl.create(:group_loan_product_c)
-    
-       #assign the group_loan_product subcription 
-       group_loan_products_array  = [@group_loan_product_a, @group_loan_product_b, @group_loan_product_c]
-       @cilincing_group_loan.group_loan_memberships.each do |glm|
-         GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
-       end
-       
-       @cilincing_group_loan.execute_propose_finalization( @loan_officer )
-       # @cilincing_group_loan.start_group_loan( @branch_manager )
-       # @cilincing
-       # propose the group loan
-       # start the group loan 
+   
+      
+      @members.each do |member|
+        GroupLoanMembership.create_membership( @loan_officer, member, @cilincing_group_loan)
+      end
+      # assign the group_loan_assignment 
+      
+      GroupLoanAssignment.add_new_assignment(:field_worker, @cilincing_group_loan, @field_worker)
+      GroupLoanAssignment.add_new_assignment(:loan_inspector, @cilincing_group_loan, @branch_manager)
+
+      # assign the group loan product
+      @group_loan_product_a = FactoryGirl.create(:group_loan_product_a)
+      @group_loan_product_b = FactoryGirl.create(:group_loan_product_b)
+      @group_loan_product_c = FactoryGirl.create(:group_loan_product_c)
+      # 
+      # #assign the group_loan_product subcription 
+      group_loan_products_array  = [@group_loan_product_a, @group_loan_product_b, @group_loan_product_c]
+      @cilincing_group_loan.group_loan_memberships.each do |glm|
+        GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
+      end
+      # 
+      @cilincing_group_loan.execute_propose_finalization( @loan_officer )
+      
+      # @cilincing_group_loan.start_group_loan( @branch_manager )
+      # @cilincing
+      # propose the group loan
+      # start the group loan 
     end
     
     
     it "should not mark financial education attendance if the group loan has not been started" do
+      puts "We have added the GroupLoanAssignment"
+      # GroupLoanAssignment.add_new_assignment(:field_worker, @cilincing_group_loan, @field_worker)
+      # GroupLoanAssignment.add_new_assignment(:loan_inspector, @cilincing_group_loan, @branch_manager)
+      puts "Total GroupLoanAssignment created: #{GroupLoanAssignment.count}"
+      
+        
       first_glm = @cilincing_group_loan.group_loan_memberships.first 
-      first_glm.mark_financial_education_attendance( @cilincing_group_loan.loan_inspectors.first )
+      first_glm.mark_financial_education_attendance(@branch_manager, true, @cilincing_group_loan  )
+      first_glm.is_attending_financial_lecture.should be_nil
+
+      @cilincing_group_loan.start_group_loan( @branch_manager )
+
+      # first_glm.mark_financial_education_attendance( @branch_manager, true, @cilincing_group_loan  )
+      #  first_glm.is_attending_financial_lecture.should be_true
+      
     end
     
     it " should not mark loan disbursement attendance if the member were absent during the financial education"
