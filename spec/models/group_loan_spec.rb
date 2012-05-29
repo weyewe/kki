@@ -68,8 +68,21 @@ describe GroupLoan do
     end
     
     it "should create membership through group loan memberships" do
+      
+      if @group_loan.nil?
+        puts "------------------The group loan is nil"
+      else
+        puts "------------------Hahaha, the group loan is not nil"
+      end
+      
+      if @loan_officer.nil?
+        puts "------------------The loan officer is nil"
+      else
+        puts "------------------Hahaha, the loan officer is not nil"
+      end
+      
       @members.each do |member|
-        GroupLoanMembership.create_membership( @loan_oficer, member, @group_loan)
+        GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
       end
       
       @group_loan.should have(@members.count).members
@@ -89,8 +102,10 @@ describe GroupLoan do
     end
     
     it "can only be proposed if all member has been assigned group loan product" do
-      GroupLoanAssignment.add_new_assignment(:field_worker, @group_loan, @field_worker)
-      GroupLoanAssignment.add_new_assignment(:loan_inspector, @group_loan, @branch_manager)
+ 
+      
+      @group_loan.add_assignment(:field_worker, @field_worker)
+      @group_loan.add_assignment(:loan_inspector, @branch_manager)
       @group_loan.execute_propose_finalization( @loan_officer )
       @group_loan.is_proposed.should be_false 
       
@@ -115,8 +130,9 @@ describe GroupLoan do
     end
     
     it "can only be proposed if all group loan product has equal duration" do
-      GroupLoanAssignment.add_new_assignment(:field_worker, @group_loan, @field_worker)
-      GroupLoanAssignment.add_new_assignment(:loan_inspector, @group_loan, @branch_manager)
+
+      @group_loan.add_assignment(:field_worker, @field_worker)
+      @group_loan.add_assignment(:loan_inspector, @branch_manager)
       @group_loan_product_a = FactoryGirl.create(:group_loan_product_a)  # 5 weeks
       @group_loan_product_b = FactoryGirl.create(:group_loan_product_b)  # 5 weeks
       @group_loan_product_c = FactoryGirl.create(:group_loan_product_c)  # 5 weeks
@@ -169,9 +185,10 @@ describe GroupLoan do
         GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
       end
       
-      GroupLoanAssignment.add_new_assignment(:field_worker, @group_loan, @field_worker)
-      GroupLoanAssignment.add_new_assignment(:loan_inspector, @group_loan, @branch_manager)
+  
       
+      @group_loan.add_assignment(:field_worker, @field_worker)
+      @group_loan.add_assignment(:loan_inspector, @branch_manager)
       # @group_loan.execute_propose_finalization( @loan_officer )
     end
     

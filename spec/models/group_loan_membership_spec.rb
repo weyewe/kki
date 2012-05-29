@@ -167,8 +167,10 @@ describe GroupLoanMembership do
       end
       # assign the group_loan_assignment 
       
-      GroupLoanAssignment.add_new_assignment(:field_worker, @cilincing_group_loan, @field_worker)
-      GroupLoanAssignment.add_new_assignment(:loan_inspector, @cilincing_group_loan, @branch_manager)
+      @cilincing_group_loan.add_assignment(:field_worker, @field_worker )
+      @cilincing_group_loan.add_assignment(:loan_inspector, @branch_manager )
+      # GroupLoanAssignment.add_new_assignment(:field_worker, @cilincing_group_loan, @field_worker)
+      #  GroupLoanAssignment.add_new_assignment(:loan_inspector, @cilincing_group_loan, @branch_manager)
 
       # assign the group loan product
       @group_loan_product_a = FactoryGirl.create(:group_loan_product_a)
@@ -203,12 +205,32 @@ describe GroupLoanMembership do
 
       @cilincing_group_loan.start_group_loan( @branch_manager )
 
-      # first_glm.mark_financial_education_attendance( @branch_manager, true, @cilincing_group_loan  )
-      #  first_glm.is_attending_financial_lecture.should be_true
+      first_glm.mark_financial_education_attendance( @branch_manager, true, @cilincing_group_loan  )
+      first_glm.is_attending_financial_lecture.should be_true
       
     end
     
-    it " should not mark loan disbursement attendance if the member were absent during the financial education"
+    it " should not allow marking of  loan disbursement attendance if the member were absent during the financial education" do
+      first_glm = @cilincing_group_loan.group_loan_memberships.first 
+      @cilincing_group_loan.start_group_loan( @branch_manager )
+      first_glm.mark_financial_education_attendance( @branch_manager, false, @cilincing_group_loan  )
+      
+      loan_disbursement_marking_result = first_glm.mark_loan_disbursement_attendance( @branch_manager, true, @cilincing_group_loan  )
+      loan_disbursement_marking_result.should be_nil
+      
+      
+      first_glm.is_attending_loan_disbursement.should be_nil
+    end
+    
+    it "should  allow marking of  loan disbursement attendance if the member were present during the financial education" do
+      first_glm = @cilincing_group_loan.group_loan_memberships.first 
+      @cilincing_group_loan.start_group_loan( @branch_manager )
+      first_glm.mark_financial_education_attendance( @branch_manager, true, @cilincing_group_loan  )
+      
+      first_glm.mark_loan_disbursement_attendance( @branch_manager, true, @cilincing_group_loan  )
+      first_glm.is_attending_loan_disbursement.should be_true
+    end
+    
   end
   
 

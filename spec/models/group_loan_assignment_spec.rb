@@ -49,22 +49,33 @@ describe GroupLoanAssignment do
     
     #assign the group_loan_product subcription 
     group_loan_products_array  = [@group_loan_product_a, @group_loan_product_b, @group_loan_product_c]
-    @members.each do |member|
-       # randomized
-      glm = GroupLoanMembership.find(:first, :conditions => {
-        :member_id => member.id,
-        :group_loan_id => @group_loan.id 
-      })
+    @group_loan.group_loan_memberships.each do |glm|
       GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
     end
   end
   
   
   context "creation of group_loan_assignment" do
-    it "should prevents double assignment with the same role"
+    it "should prevents double assignment with the same role" do
+      initial_group_loan_assignment_count = GroupLoanAssignment.count 
+      @group_loan.add_assignment(:loan_inspector, @branch_manager )
+      final_group_loan_assignment_count = GroupLoanAssignment.count
+      (final_group_loan_assignment_count - initial_group_loan_assignment_count).should == 1
+      
+      @group_loan.add_assignment(:loan_inspector, @branch_manager )
+      latest_final_group_loan_assignment_count = GroupLoanAssignment.count
+      (latest_final_group_loan_assignment_count - initial_group_loan_assignment_count).should == 1
+    end
   end
   
   context "extracting previous information" do
-    it "should extract the role previously assigned"
+    before(:each) do
+      @group_loan.add_assignment(:loan_inspector, @branch_manager )
+    end
+    
+    it "should extract the role previously assigned" do
+      @group_loan.has_assigned_role?(:loan_inspector, @branch_manager).should be_true 
+    end
+    
   end
 end

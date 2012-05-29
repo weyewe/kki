@@ -70,14 +70,17 @@ class GroupLoanMembership < ActiveRecord::Base
 =end
   def self.create_membership( creator, member, group_loan)
     if creator.nil? or member.nil? or group_loan.nil?
+      puts "Some are nil"
       return nil 
     end
     
     if member.office_id != group_loan.office_id
+      puts "Different member office_id"
       return nil
     end
     
     if creator.active_job_attachment.office_id != group_loan.office_id
+      puts "creator is not in the same office"
       return nil
     end
     
@@ -145,7 +148,8 @@ class GroupLoanMembership < ActiveRecord::Base
       return nil
     end
     
-    if not GroupLoanAssignment.has_assignment_role?(loan_inspector, :loan_inspector, group_loan) 
+    
+    if not group_loan.has_assigned_role?(:loan_inspector, loan_inspector)
       puts "no assignment role"
       return nil
     end
@@ -160,6 +164,36 @@ class GroupLoanMembership < ActiveRecord::Base
     self.is_attending_financial_lecture = attendance
     self.save 
     return self  
+  end
+  
+  # attendance marking for loan disbursement
+  def mark_loan_disbursement_attendance( loan_inspector, attendance , group_loan)
+    if attendance.nil?  or group_loan.nil? or loan_inspector.nil?
+      return nil
+    end
+    
+    
+    if not group_loan.has_assigned_role?(:loan_inspector, loan_inspector)
+      puts "no assignment role"
+      return nil
+    end
+    
+    if group_loan.is_started == false
+      puts "not started"
+      return nil
+    end
+    
+    if self.is_attending_financial_lecture == false or 
+      self.is_attending_financial_lecture.nil?
+      return nil
+    end
+    
+    
+    
+    self.loan_disbursement_attendance_marker_id = loan_inspector.id 
+    self.is_attending_loan_disbursement = attendance
+    self.save 
+    return self
   end
   
 =begin

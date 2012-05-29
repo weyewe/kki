@@ -242,6 +242,39 @@ class GroupLoan < ActiveRecord::Base
 =begin
   Financial Education and Group Loan Disbursement Attendance
 =end
+
+  def add_assignment(assignment_symbol, user)
+    past_assignments = GroupLoanAssignment.find(:all, :conditions => {
+      :group_loan_id => self.id,
+      :assignment_type =>  GROUP_LOAN_ASSIGNMENT[assignment_symbol],
+      :user_id => user.id 
+    })
+    
+    if past_assignments.count > 0 
+      return nil
+    else
+      return GroupLoanAssignment.create(
+        :group_loan_id => self.id,
+        :assignment_type =>  GROUP_LOAN_ASSIGNMENT[assignment_symbol],
+        :user_id => user.id
+      )
+    end
+  end
+  
+  def has_assigned_role?(assignment_symbol, user)
+    past_assignments = GroupLoanAssignment.find(:all, :conditions => {
+      :group_loan_id => self.id,
+      :assignment_type =>  GROUP_LOAN_ASSIGNMENT[assignment_symbol],
+      :user_id => user.id 
+    })
+    
+    if past_assignments.count > 0 
+      return true
+    else
+      return false 
+    end
+    
+  end
   
   def loan_inspectors
     GroupLoanAssignment.find(:all,:conditions => {
