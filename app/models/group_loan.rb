@@ -243,6 +243,7 @@ class GroupLoan < ActiveRecord::Base
   Financial Education and Group Loan Disbursement Attendance
 =end
 
+# adding the employee responsible
   def add_assignment(assignment_symbol, user)
     past_assignments = GroupLoanAssignment.find(:all, :conditions => {
       :group_loan_id => self.id,
@@ -289,7 +290,81 @@ class GroupLoan < ActiveRecord::Base
       :assignment_type => GROUP_LOAN_ASSIGNMENT[:field_worker]
     })
   end
+
+=begin
+  Get member who are presents for financial education, loan disbursement and both
+=end
+
+  # present in both of the financial education and loan disbursement
+  def active_group_loan_memberships
+    self.group_loan_memberships.where(:is_active => true )
+  end
   
+  def membership_attending_financial_education
+    self.group_loan_membership.where(:is_attending_financial_lecture => true)
+  end
+  
+  def membership_attending_financial_education_and_loan_disbursement
+    self.group_loan_membership.where(:is_attending_financial_lecture => true, :is_attending_loan_disbursement => true )
+  end
+  
+  
+=begin
+  Finalize financial education attendance_summary 
+=end
+
+  def marked_group_loan_memberships_attendance_for_financial_education
+    self.group_loan_memberships.where(:is_attending_financial_lecture => [true, false] )
+  end
+  
+  def marked_group_loan_memberships_attendance_for_loan_disbursement
+    self.group_loan_memberships.where(:is_attending_financial_lecture => [true, false] , 
+      :is_attending_loan_disbursement => [true,false])
+  end
+  
+  def finalize_financial_attendance_summary(employee)
+    if employee.nil? or not self.has_assigned_role?(:loan_inspector, employee) 
+      puts "--------in the group loan, no assigned role"
+      return nil
+    end
+    
+    
+    
+    if self.group_loan_memberships.count == self.marked_group_loan_memberships_attendance_for_financial_education.count
+      self.is_financial_education_attendance_done = true 
+      self.financial_education_inspector_id = employee.id
+      self.save
+      return self
+    else
+      puts "FINALIZING THE FINANCIAL_EDUCATION"
+      puts "*********** group loan memberships: #{self.group_loan_memberships.count}"
+      puts "*********** The count:#{self.marked_group_loan_memberships_attendance_for_financial_education.count} "
+      puts "not all group membership's financial attendance has been marked"
+      return nil
+    end
+  end
+  
+  def finalize_loan_disbursement_attendance_summary(employee)
+    if employee.nil? or not self.has_assigned_role?(:loan_inspector, employee) 
+      puts "--------in the group loan, no assigned role"
+      return nil
+    end
+    
+    if self.group_loan_memberships.count == self.marked_group_loan_memberships_attendance_for_loan_disbursement.count
+      self.is_loan_disbursement_attendance_done = true 
+      self.loan_disbursement_inspector_id = employee.id
+      self.save
+      return self
+    else
+      puts "not all group membership's financial attendance has been marked"
+      return nil
+    end
+  end
+    
+    
+
+  
+
 =begin
   finalize setup fee collection 
 =end

@@ -35,6 +35,10 @@ class CreateGroupLoanMemberships < ActiveRecord::Migration
       t.boolean :is_attending_loan_disbursement
       t.integer :loan_disbursement_attendance_marker_id  
       
+      t.boolean :is_active , :default => true 
+      t.integer :deactivation_case , :default => nil # GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE, deactivation reason
+    
+      
       
       # if the member has no sufficient $$ to pay for weekly payment
       # and, doesn't intend to use the saving || the saving is not enough to cover for the remnant

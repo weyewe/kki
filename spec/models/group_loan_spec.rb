@@ -97,7 +97,7 @@ describe GroupLoan do
       @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune }, @branch_manager)
 
       @members.each do |member|
-        GroupLoanMembership.create_membership( @loan_oficer, member, @group_loan)
+        GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
       end
     end
     
@@ -110,18 +110,29 @@ describe GroupLoan do
       @group_loan.is_proposed.should be_false 
       
       
-      
-      
-      
       @group_loan_product_a = FactoryGirl.create(:group_loan_product_a)
       @group_loan_product_b = FactoryGirl.create(:group_loan_product_b)
       @group_loan_product_c = FactoryGirl.create(:group_loan_product_c)
 
+      
       #assign the group_loan_product subcription 
       group_loan_products_array  = [@group_loan_product_a, @group_loan_product_b, @group_loan_product_c]
       @group_loan.group_loan_memberships.each do |glm|
         GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
       end
+      
+      puts "--------- unassigneed member : #{@group_loan.unassigned_members.count}"
+      puts "--------equal loan duration: #{@group_loan.equal_loan_duration}"
+      puts "product_a duration = #{@group_loan_product_a.total_weeks}"
+      puts "group_loan_product_b duration = #{@group_loan_product_b.total_weeks}"
+      puts "group_loan_product_c duration = #{@group_loan_product_c.total_weeks}"
+      
+      puts "all group loan product used: #{@group_loan.all_group_loan_products_used.count}"
+      
+      puts "group_loan_membership1 : #{@group_loan.group_loan_memberships.first.group_loan_subcription}}"
+      @group_loan.add_assignment(:field_worker, @field_worker)
+      @group_loan.add_assignment(:loan_inspector, @branch_manager)
+      
       
       @group_loan.execute_propose_finalization( @loan_officer )
       @group_loan.is_proposed.should be_true
@@ -172,7 +183,7 @@ describe GroupLoan do
       @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune }, @branch_manager)
 
       @members.each do |member|
-        GroupLoanMembership.create_membership( @loan_oficer, member, @group_loan)
+        GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
       end
       
       @group_loan_product_a = FactoryGirl.create(:group_loan_product_a)  # 5 weeks
@@ -212,7 +223,7 @@ describe GroupLoan do
       @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune }, @branch_manager)
 
       @members.each do |member|
-        GroupLoanMembership.create_membership( @loan_oficer, member, @group_loan)
+        GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
       end
       
       @group_loan_product_a = FactoryGirl.create(:group_loan_product_a)  # 5 weeks
@@ -224,25 +235,89 @@ describe GroupLoan do
       @group_loan.group_loan_memberships.each do |glm|
         GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
       end
+      @group_loan.add_assignment(:field_worker, @field_worker)
+      @group_loan.add_assignment(:loan_inspector, @branch_manager)
       
       @group_loan.execute_propose_finalization( @loan_officer )
       @group_loan.start_group_loan( @branch_manager )
     end
     
-    it "should only allow financial_education attendance finalization if the group_loan has been started " + 
-      " all group loan membership's financial education attendance has been marked" do
+    
+    it "should only allow loan disbursement attendance finalization if the financial education is finalized and " +   
+          " all group loan membership's loan disbursement attendance are marked " do
       
-      # @group_loan.finalize_attendance_marking_in_financial_education( @loan_officer )
+      @group_loan.finalize_financial_attendance_summary(@branch_manager)
+      @group_loan.is_financial_education_attendance_done.should be_false 
+      
+      @group_loan.group_loan_memberships.each do |glm|
+        glm.mark_financial_education_attendance( @field_worker, true, @group_loan  )
+      end
+      
+      @group_loan.finalize_financial_attendance_summary(@branch_manager)
+      @group_loan.is_financial_education_attendance_done.should be_true
     end
-    
-    
-    it "can only be approved by loan inspector"
-    
+  
   end
   
   context "group loan disbursement attendance finalization" do
-    it "should only allow group loan attendance finalization if the the financial lecture attendance has been finalized"
-    it "can only be finalized if all member's attendance has been marked :present or absent.. no late"
+    # it "should only allow group loan attendance finalization if the the financial lecture attendance has been finalized"
+    # done in the group loan membership
+    before(:each) do
+      @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune }, @branch_manager)
+
+      @members.each do |member|
+        GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
+      end
+      
+      @group_loan_product_a = FactoryGirl.create(:group_loan_product_a)  # 5 weeks
+      @group_loan_product_b = FactoryGirl.create(:group_loan_product_b)  # 5 weeks
+      @group_loan_product_c = FactoryGirl.create(:group_loan_product_c)  # 5 weeks
+      group_loan_products_array  = [@group_loan_product_a, @group_loan_product_b,
+          @group_loan_product_c] 
+          
+      @group_loan.group_loan_memberships.each do |glm|
+        GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
+      end
+      @group_loan.add_assignment(:field_worker, @field_worker)
+      @group_loan.add_assignment(:loan_inspector, @branch_manager)
+      
+      @group_loan.execute_propose_finalization( @loan_officer )
+      @group_loan.start_group_loan( @branch_manager )
+      
+      count = 1
+      @group_loan.group_loan_memberships.each do |glm|
+        attendance = false
+        if count%2 != 0 
+          attendance = true 
+        end
+        count += 1 
+        glm.mark_financial_education_attendance( @field_worker, attendance, @group_loan  )
+      end
+      
+      @group_loan.finalize_financial_attendance_summary(@branch_manager)
+    end
+    
+    it "can only be finalized if all the active member loan disbursement attendance has been marked" do
+      @group_loan.finalize_loan_disbursement_attendance_summary(@branch_manager)
+      @group_loan.is_loan_disbursement_attendance_done.should be_false
+      
+      
+      count = 1
+      
+      @group_loan.active_group_loan_memberships.each do |glm|
+        attendance = false
+        if count%2 != 0 
+          attendance = true 
+        end
+        count += 1 
+        glm.mark_loan_disbursement_attendance( @field_worker, attendance, @group_loan  )
+        glm.is_attending_loan_disbursement.should == attendance
+      end
+      
+      
+      @group_loan.finalize_loan_disbursement_attendance_summary(@branch_manager)
+      @group_loan.is_loan_disbursement_attendance_done.should be_true 
+    end
   end
   
   context "group loan disbursement approval" do 

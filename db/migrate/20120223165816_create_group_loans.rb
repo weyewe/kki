@@ -18,6 +18,12 @@ class CreateGroupLoans < ActiveRecord::Migration
       # cashier is authorized to take $$$ 
       
       
+      t.boolean :is_financial_education_attendance_done, :default=> false
+      t.integer :financial_education_inspector_id  
+    
+      t.boolean :is_loan_disbursement_attendance_done, :default => false 
+      t.integer :loan_disbursement_inspector_id
+    
       t.boolean :is_loan_disbursement_done, :default => false 
       t.integer :loan_disburser_id 
       # when loan is started, loan officer is authorized to take setup fee from member
@@ -75,9 +81,6 @@ class CreateGroupLoans < ActiveRecord::Migration
             # t.boolean :is_active, :default => true 
             # t.integer :deactivation_case , :default => nil # GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE, deactivation reason
             # 
-      t.boolean :is_financial_education_done, :default=> false
-      t.integer :financial_education_inspector_id  
-    
       
       
 

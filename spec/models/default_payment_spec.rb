@@ -49,7 +49,7 @@ describe DefaultPayment do
       counter = 0  # for subgroup assignment
       @members.each do |member|
         counter += 1 
-        glm = GroupLoanMembership.create_membership( @loan_oficer, member, @group_loan)
+        glm = GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
         ############### this code is used to assign subgroup
         if( counter%2 == 0 )
           glm.sub_group_id = @first_sub_group.id

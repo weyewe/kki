@@ -209,7 +209,7 @@ DEFAULT_PAYMENT_ROUND_UP_VALUE = BigDecimal("500")
 
 GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE = {
   :group_loan_lecture_absent => 0,
-  :group_loan_disbursement_absent => 0 
+  :group_loan_disbursement_absent => 1
 }
 
 # To monitor the group loan 

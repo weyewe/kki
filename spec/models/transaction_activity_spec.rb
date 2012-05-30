@@ -70,7 +70,7 @@ describe TransactionActivity do
      commune_id: @group_loan_commune.id )
     # we need these members hooked to the group loan (group_loan_memberships)
     @members.each do |member|
-      GroupLoanMembership.create_membership( @loan_oficer, member, @group_loan)
+      GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
     end
     
     # we need group_loan_product x 3 , just for variations
