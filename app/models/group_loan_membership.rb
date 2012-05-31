@@ -190,7 +190,7 @@ class GroupLoanMembership < ActiveRecord::Base
     
     if self.is_attending_financial_lecture == false or 
       self.is_attending_financial_lecture.nil?
-      puts "no financial lecture attendance"
+      # puts "no financial lecture attendance"
       return nil
     end
     
@@ -207,6 +207,8 @@ class GroupLoanMembership < ActiveRecord::Base
       self.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]
     end
     self.is_attending_loan_disbursement = attendance
+     #auto create auto-deduct from loan disbursement 
+    self.deduct_setup_payment_from_loan = true 
     self.save 
     return self
   end

@@ -1,5 +1,8 @@
 require 'spec_helper'
 
+
+# the right spec: loan_disbursement_spec
+#                 complex_weekly_payment_spec
 describe TransactionActivity do 
   before(:each) do 
     
