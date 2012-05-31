@@ -18,9 +18,21 @@ class CreateGroupLoans < ActiveRecord::Migration
       # cashier is authorized to take $$$ 
       
       
+      # our scenario: loan inspector marked the attendance (this loan inspector is supposed to be the branch manager)
+      # then, it finalize the financial education attendance
+      # => based on the finalization, the cashier should withdraw appropriate amount of cash, 
+      # => and pass it to the field worker
       t.boolean :is_financial_education_attendance_done, :default=> false
       t.integer :financial_education_inspector_id  
+
     
+    
+      # on the loan disbursement day, the field worker has received the $$ from the cashier
+      # bring that $$ to the member's house. distribute the $$$. 
+      # =>  loan inspector mark the people attending the disbursement. 
+      # later on the day, he will finalize the loan disbursement attendance. Cashier will be notified of the 
+      # cash must be returned by the field worker
+      # handle this cash offline. we are only recording the member transaction, not the internals
       t.boolean :is_loan_disbursement_attendance_done, :default => false 
       t.integer :loan_disbursement_inspector_id
     

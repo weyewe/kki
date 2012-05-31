@@ -118,14 +118,23 @@ class TransactionActivity < ActiveRecord::Base
   end
   
   
-  def self.execute_loan_disbursement( group_loan_membership , cashier)
-    # can only be executed by cashier 
-    if not cashier.has_role?(:cashier, cashier.get_active_job_attachment)
+  def self.execute_loan_disbursement( group_loan_membership , employee)
+    # can only be executed by cashier  # wrong. latest update -> By field worker.
+    # cashier passed the $$$ to the field worker. 
+    # field worker give it to the member. pass the remaining to the cashier
+    # if there is member absent during the disbursement 
+    if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
       return nil
     end
     
   
+   if group_loan_membership.is_active == false
+     return nil
+   end
    
+   if group_loan_membership.is_active == true && group_loan_membership.is_attending_loan_disbursement.nil?
+     return nil
+   end
     
     group_loan_product = group_loan_membership.group_loan_product
     member = group_loan_membership.member
@@ -168,8 +177,8 @@ class TransactionActivity < ActiveRecord::Base
 
     # new_hash[:total_transaction_amount]  = group_loan_product.loan_amount
     # new_hash[:transaction_case] = TRANSACTION_CASE[:loan_disbursement]
-    new_hash[:creator_id] = cashier.id 
-    new_hash[:office_id] = cashier.active_job_attachment.office.id
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
     new_hash[:member_id] = member.id
     new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:outward]
     new_hash[:loan_type] = LOAN_TYPE[:group_loan]
@@ -181,7 +190,7 @@ class TransactionActivity < ActiveRecord::Base
     transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , 
                       group_loan_product.admin_fee, 
                       group_loan_product.initial_savings,
-                      cashier, 
+                      employee, 
                       group_loan_membership.deduct_setup_payment_from_loan , member ) 
     
     group_loan_membership.has_received_loan_disbursement = true
