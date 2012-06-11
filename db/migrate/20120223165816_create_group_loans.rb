@@ -25,6 +25,9 @@ class CreateGroupLoans < ActiveRecord::Migration
       t.boolean :is_financial_education_attendance_done, :default=> false
       t.integer :financial_education_inspector_id  
 
+
+      t.boolean :financial_education_finalization_proposed, :default => false 
+      t.integer :financial_education_finalization_proposer_id 
     
     
       # on the loan disbursement day, the field worker has received the $$ from the cashier
@@ -36,10 +39,64 @@ class CreateGroupLoans < ActiveRecord::Migration
       t.boolean :is_loan_disbursement_attendance_done, :default => false 
       t.integer :loan_disbursement_inspector_id
     
-      t.boolean :is_loan_disbursement_done, :default => false 
-      t.integer :loan_disburser_id 
+    
+      # OLD WAY
       # when loan is started, loan officer is authorized to take setup fee from member
       # cashier is authorized to take $$$
+      t.boolean :is_loan_disbursement_done, :default => false 
+      t.integer :loan_disburser_id 
+      
+      # NEW WAY
+      # the field worker disbursed the loan 
+      # then, matched with the loan attendance record, the appropriate amount of money should be returned to the cashier
+      t.boolean :is_loan_disbursement_approved, :default => false 
+      t.integer :loan_disbursement_approver_id 
+      
+      # START FROM LINE 246 group loan spec 
+      
+      # how does the flow look like?
+      # 1. selected member attend the financial education
+      #   those that are not present, the glm will be set to false 
+          # => field worker marks attendance
+                 # we need a column in glm -> field_worker_member_financial_education_attendance_status 
+          # => loan inspector (usually branch manager) marks attendance 
+                 # we need a column in glm -> final_member_financial_education_attendance_status 
+            
+            # for the group loan, we need 2 columns
+                 # 1. propose_financial_education_finalization  -> field worker proposes
+                 # 2. financial_education_attendance_approval    -> loan inspector decide, and approves 
+                 # if no changes, follow the data entered by the field worker 
+                 
+            # after loan disbursement 
+            # 1. propose_loan_disbursement_finalization -> will only notify the loan inspector -> finalization of attendance
+                  # and disbursement  
+            # 2. loan_disbursement_approval  # after loan inspector
+            # if no changes, follow the data entered by field worker ( duplicate the data to final_member_loan_disbursement_attendance_status )
+            
+          # => loan inspector compares &&  approves the number of member attending financial education
+            # => Loan inspector compares the result, negotiate, and make the final call 
+            # => approve the loan. Notification is sent to cashier -> Amount of $$ to be passed to field worker 
+          # => cashier withdraws $$$ equal with the amount to be disbursed to the members attending financial education 
+      # 2. those attending financial education will attend loan disbursement 
+      # => those that are not present will not receive the loan disbursement
+      
+          # => field worker marks attendance
+                 # we need a column in glm -> field_worker_member_loan_disbursement_attendance_status 
+          # => loan inspector (usually branch manager) marks attendance 
+                 # we need a column in glm -> final_member_loan_disbursement_attendance_status   # absent or present? 
+      # => loan inspector marks attendance
+      # => loan inspector compares && approves the number of member attending loan disbursement (cross checked with the )
+      # => account from field worker -> Out put == money needs to be returned to the cashier 
+      
+      
+      
+      # 3.  Cashier approves the loan disbursement 
+        # ensuring that the cash is returned by field worker , 
+        # => if the cash has not been approved, weekly collection can't be done
+        
+      # => Then, the weekly collection can take place .. tadaaa, really nice 
+      
+      
       
       
       t.boolean :is_setup_fee_collection_finalized, :default => false 

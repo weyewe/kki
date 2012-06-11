@@ -209,6 +209,27 @@ describe GroupLoanMembership do
       first_glm.is_attending_financial_lecture.should be_true
     end
     
+    it "should use the final value of financial education attendance set by loan inspector" do
+      
+      @cilincing_group_loan.start_group_loan( @branch_manager )
+      first_glm = @cilincing_group_loan.group_loan_memberships.first 
+      
+      @cilincing_group_loan.group_loan_memberships.each do |glm|
+        if glm.id == first_glm.id 
+          glm.mark_financial_education_attendance( @field_worker, false, @cilincing_group_loan  )
+        end
+        glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
+      end
+      
+      @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
+      first_glm.mark_final_financial_education_attendance( @branch_manager, true , @group_loan)
+      
+      @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
+      
+      first_glm.final_financial_lecture_attendance.should be_true  
+    end
+    
+    
     it "should set loan_disbursement attendance to be false, if the financial education is false" do
       first_glm = @cilincing_group_loan.group_loan_memberships.first 
       @cilincing_group_loan.start_group_loan( @branch_manager )
@@ -220,8 +241,9 @@ describe GroupLoanMembership do
         glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
       end
 
+      @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
       @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
-
+      
       first_glm.is_active.should be_false 
       first_glm.deactivation_case.should == GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_lecture_absent]
     end
@@ -230,68 +252,109 @@ describe GroupLoanMembership do
   Marking the loan disbursement attendance
 =end
     
-    it 'should not allow marking of loan disbursement attendance if the financial attendance  summary has not been approved by loan inspector' do
+    it 'should not allow marking of loan disbursement attendance if the financial attendance   has not been finalized by loan inspector' do
       @cilincing_group_loan.start_group_loan( @branch_manager )
       
       @cilincing_group_loan.group_loan_memberships.each do |glm|
         glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
       end
+      
+      @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
+      
+      
       
       # @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
       first_glm = @cilincing_group_loan.group_loan_memberships.first 
       disbursement_attendance_result = first_glm.mark_loan_disbursement_attendance( @field_worker, true, @cilincing_group_loan  )
       disbursement_attendance_result.should be_nil
       
+      first_glm.is_attending_loan_disbursement.should be_nil
+     
+      
       @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
       puts "The financial education attendance status: #{@cilincing_group_loan.is_financial_education_attendance_done}"
       disbursement_attendance_result = first_glm.mark_loan_disbursement_attendance( @field_worker, true, @cilincing_group_loan  )
       disbursement_attendance_result.should be_valid
+      
+      first_glm.is_attending_loan_disbursement.should == true 
     end
     
-    it " should not allow marking of  loan disbursement attendance if the member is absent during the financial education" do
-      first_glm = @cilincing_group_loan.group_loan_memberships.first 
-      @cilincing_group_loan.start_group_loan( @branch_manager )
-      first_glm.mark_financial_education_attendance( @field_worker, false, @cilincing_group_loan  )
-      
-      loan_disbursement_marking_result = first_glm.mark_loan_disbursement_attendance( @field_worker, true, @cilincing_group_loan  )
-      loan_disbursement_marking_result.should be_nil
-      
-      
-      first_glm.is_attending_loan_disbursement.should be_nil
-    end
     
-    it "should  allow marking of  loan disbursement attendance if the member is present during the financial education" do
-      first_glm = @cilincing_group_loan.group_loan_memberships.first 
-      @cilincing_group_loan.start_group_loan( @branch_manager )
+    
       
+    it "should not allow marking the loan disbursement attendance if the member is absent during financial education" do
+      @cilincing_group_loan.start_group_loan( @branch_manager )
+      first_glm = @cilincing_group_loan.group_loan_memberships.first 
       @cilincing_group_loan.group_loan_memberships.each do |glm|
+        if glm.id == first_glm.id 
+          glm.mark_financial_education_attendance( @field_worker, false, @cilincing_group_loan  )
+          next
+        end
+          
         glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
       end
-      
+
+      @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
       @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
+    
+      loan_disbursement_marking_result = first_glm.mark_loan_disbursement_attendance( @field_worker, true, @cilincing_group_loan  )
+      loan_disbursement_marking_result.should be_nil
+
+      first_glm.is_attending_loan_disbursement.should be_false # yeah, because the shit from being absent @ education propagates
+    end
       
-      
-      disbursement_attendance_result = first_glm.mark_loan_disbursement_attendance( @branch_manager, true, @cilincing_group_loan  )
-      disbursement_attendance_result.should be_nil 
-      
-      first_glm.mark_loan_disbursement_attendance( @field_worker, true, @cilincing_group_loan  )
-      first_glm.is_attending_loan_disbursement.should be_true
+    # context "marking the loan disbursement" do 
+    #   before(:each) do
+    #     @cilincing_group_loan.start_group_loan( @branch_manager )
+    # 
+    #     @cilincing_group_loan.group_loan_memberships.each do |glm|
+    #       glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
+    #     end
+    # 
+    #     @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
+    #     @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
+    #   end
+    # end
+    
+    it "should  allow marking of  loan disbursement attendance if the member is present during the financial education" do
+      @cilincing_group_loan.start_group_loan( @branch_manager )
+      first_glm = @cilincing_group_loan.group_loan_memberships.first 
+      @cilincing_group_loan.group_loan_memberships.each do |glm|
+        if glm.id == first_glm.id 
+          glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
+          next
+        end
+          
+        glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
+      end
+
+      @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
+      @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
+    
+      loan_disbursement_marking_result = first_glm.mark_loan_disbursement_attendance( @field_worker, true, @cilincing_group_loan  )
+      loan_disbursement_marking_result.should be_valid
+
+      first_glm.is_attending_loan_disbursement.should be_true 
     end
     
     
     it "should  set is_active false for being absent in loan disbursement" do
-      first_glm = @cilincing_group_loan.group_loan_memberships.first 
-      @cilincing_group_loan.start_group_loan( @branch_manager )
       
+      @cilincing_group_loan.start_group_loan( @branch_manager )
+      first_glm = @cilincing_group_loan.group_loan_memberships.first 
       @cilincing_group_loan.group_loan_memberships.each do |glm|
         glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
       end
-      
+
+      @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
       @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
-      
-      
-      first_glm.mark_loan_disbursement_attendance( @field_worker, false, @cilincing_group_loan  )
+    
+      loan_disbursement_marking_result = first_glm.mark_loan_disbursement_attendance( @field_worker, false, @cilincing_group_loan  )
+      loan_disbursement_marking_result.should be_valid
+
       first_glm.is_attending_loan_disbursement.should be_false
+      
+      
       
       first_glm.is_active.should be_false
       first_glm.deactivation_case.should ==GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]

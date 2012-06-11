@@ -32,6 +32,9 @@ class CreateGroupLoanMemberships < ActiveRecord::Migration
       t.boolean :is_attending_financial_lecture
       t.integer :financial_lecture_attendance_marker_id
       
+      t.boolean :final_financial_lecture_attendance
+      t.integer :final_financial_lecture_attendance_marker_id 
+      
       t.boolean :is_attending_loan_disbursement
       t.integer :loan_disbursement_attendance_marker_id  
       

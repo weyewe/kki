@@ -171,14 +171,15 @@ class GroupLoanMembership < ActiveRecord::Base
     return self  
   end
   
-  # attendance marking for loan disbursement
-  def mark_loan_disbursement_attendance( employee, attendance , group_loan)
+  # the loan_inspector version version
+  def mark_final_financial_education_attendance( employee, attendance , group_loan)
+    # if that loan inspector has assignment_type :loan_inspector, proceed, else return nil 
     if attendance.nil?  or group_loan.nil? or employee.nil?
       return nil
     end
     
     
-    if not group_loan.has_assigned_role?(:field_worker, employee)
+    if not group_loan.has_assigned_role?(:loan_inspector, employee)
       puts "no assignment role"
       return nil
     end
@@ -188,8 +189,37 @@ class GroupLoanMembership < ActiveRecord::Base
       return nil
     end
     
-    if self.is_attending_financial_lecture == false or 
-      self.is_attending_financial_lecture.nil?
+    
+    self.final_financial_lecture_attendance_marker_id = employee.id 
+    self.final_financial_lecture_attendance = attendance
+    if attendance == false 
+      self.is_attending_loan_disbursement = false 
+      self.is_active = false
+      self.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_lecture_absent]
+    end
+    self.save 
+    return self  
+  end
+  
+  # attendance marking for loan disbursement
+  def mark_loan_disbursement_attendance( employee, attendance , group_loan)
+    if attendance.nil?  or group_loan.nil? or employee.nil?
+      return nil
+    end
+    
+    
+    if not group_loan.has_assigned_role?(:field_worker, employee)
+      puts "=++++++++++++=====no assignment role"
+      return nil
+    end
+    
+    if group_loan.is_started == false
+      puts "not started"
+      return nil
+    end
+    
+    if self.final_financial_lecture_attendance == false or 
+      self.final_financial_lecture_attendance.nil?
       # puts "no financial lecture attendance"
       return nil
     end

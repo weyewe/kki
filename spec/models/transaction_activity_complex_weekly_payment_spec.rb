@@ -72,8 +72,29 @@ describe TransactionActivity do
     @group_loan.finalize_financial_attendance_summary(@branch_manager)
   end
   
-  it "should only allow weekly payment if the loan disbursement has been done + approved by cashier"
+  it "should only allow weekly payment if the loan disbursement has been done + approved by cashier" do 
+    
+    # for all the members 
+    # first_transaction = TransactionActivity.execute_loan_disbursement( first_glm , @field_worker)
+    glm = @group_loan.group_loan_memberships.first 
+    
+    
+    transaction =  TransactionActivity.create_generic_weekly_payment(
+            glm,
+            @field_worker,
+            BigDecimal("50000"),
+            BigDecimal("0"), 
+            1,
+            0
+    )
+    
+    
+    transaction.should be_nil 
+  end
+  
+  
   it "can do weekly payment without being limited by the weekly meeting attendance finalization"
+  
   
   context "pre condition for all kind of payment" do 
     # TransactionActivity.create_generic_weekly_payment(
@@ -99,7 +120,31 @@ describe TransactionActivity do
   
   
   context "post create" do 
+    # variable:
+=begin 
+  multiple / single week   
+  cash  -> present ? zero? 
+  savings withdrawal -> present? zero?
+  exact_amount / excess
+  multiple_backlog/single backlog / no backlog
+  
+  2 * 2 * 2 * 2 * 3  == 48 cases. fuck
+=end
     # test for each the cases 
+    # should we be that stupid? 
+    # how to programmatically test each cases?  T_T
+    # we need a smart way to solve this. shite!
+    # case weekly_payment_cash_exact_amount
+    # case weekly_payment_cash_excess_amount
+    #       weekly_payment_cash_savings_withdrawal_exact_amount
+    # =>    weekly_payment_cash_savings_withdrawal_excess_amount
+    #       multiple_weekly_payment_cash_
+    
+    
+    # case only cash, exact amount
+    # case only cash, excess amount
+    # case cash_savings_withdrawal_exact
+    #case cash_savings_ 
   end
   
 end

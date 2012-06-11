@@ -267,6 +267,23 @@ class TransactionActivity < ActiveRecord::Base
   
   
   
+  def TransactionActivity.create_generic_weekly_payment(
+          group_loan_membership,
+          employee,
+          cash,
+          savings_withdrawal, 
+          number_of_weeks,
+          number_of_backlogs)
+          
+    group_loan = group_loan_membership.group_loan
+    
+    if not ( group_loan.is_loan_disbursement_done?  )  # && Excess money is returned to the cashier
+      return nil 
+    end
+    
+  end 
+  
+  
   def TransactionActivity.create_basic_weekly_payment(member,weekly_task, current_user )
     if not self.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, current_user )
       return nil

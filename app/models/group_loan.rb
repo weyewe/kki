@@ -322,6 +322,24 @@ class GroupLoan < ActiveRecord::Base
       :is_attending_loan_disbursement => [true,false])
   end
   
+  def propose_financial_education_attendance_finalization(employee)
+    if employee.nil? or not self.has_assigned_role?(:field_worker, employee) 
+      puts "--------in the group loan, no assigned role"
+      return nil
+    end
+    
+    
+    puts "\n*********Total glm = #{self.group_loan_memberships.count}"
+    puts "\n*********total active glm = #{self.group_loan_memberships.where(:is_attending_financial_lecture => [true,false]).count}"
+    if self.marked_group_loan_memberships_attendance_for_financial_education.count == self.group_loan_memberships.count 
+      self.financial_education_finalization_proposed = true 
+      self.financial_education_finalization_proposer_id = employee.id 
+      self.save
+    else
+      return nil
+    end
+  end
+  
   def finalize_financial_attendance_summary(employee)
     if employee.nil? or not self.has_assigned_role?(:loan_inspector, employee) 
       puts "--------in the group loan, no assigned role"
@@ -330,16 +348,18 @@ class GroupLoan < ActiveRecord::Base
     
     
     
-    if self.group_loan_memberships.count == self.marked_group_loan_memberships_attendance_for_financial_education.count
+    if self.financial_education_finalization_proposed == true 
+      self.group_loan_memberships.each do |glm|
+        if glm.final_financial_lecture_attendance.nil?
+          glm.final_financial_lecture_attendance = glm.is_attending_financial_lecture
+          glm.save
+        end
+      end
+      
       self.is_financial_education_attendance_done = true 
-      self.financial_education_inspector_id = employee.id
-      self.save
-      return self
+      self.financial_education_inspector_id = employee.id 
+      self.save 
     else
-      puts "FINALIZING THE FINANCIAL_EDUCATION"
-      puts "*********** group loan memberships: #{self.group_loan_memberships.count}"
-      puts "*********** The count:#{self.marked_group_loan_memberships_attendance_for_financial_education.count} "
-      puts "not all group membership's financial attendance has been marked"
       return nil
     end
   end

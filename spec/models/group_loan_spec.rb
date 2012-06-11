@@ -243,19 +243,106 @@ describe GroupLoan do
     end
     
     
-    it "should only allow loan disbursement attendance finalization if the financial education is finalized and " +   
-          " all group loan membership's loan disbursement attendance are marked " do
+    it " can only be proposed if all financial education attendance has truth value ( true or false )" do
       
-      @group_loan.finalize_financial_attendance_summary(@branch_manager)
-      @group_loan.is_financial_education_attendance_done.should be_false 
+      first_group_loan_membership = @group_loan.group_loan_memberships.first 
+      
+      @group_loan.group_loan_memberships.each do |glm|
+        if first_group_loan_membership.id == glm.id 
+          next 
+        end
+        
+        glm.mark_financial_education_attendance( @field_worker, true, @group_loan  )
+      end
+      
+      
+      # # it has to be proposed by the field worker. if it is not proposed, should be false 
+      #      @group_loan.finalize_financial_attendance_summary(@branch_manager)
+      #      @group_loan.is_financial_education_attendance_done.should be_false 
+      
+      @group_loan.propose_financial_education_attendance_finalization( @field_worker) 
+      puts "The first_glm attendance = #{first_group_loan_membership.is_attending_financial_lecture} "
+      @group_loan.financial_education_finalization_proposed.should be_false 
+      
+      first_group_loan_membership.mark_financial_education_attendance( @field_worker, true, @group_loan  )
+      
+      @group_loan.propose_financial_education_attendance_finalization( @field_worker) 
+      @group_loan.financial_education_finalization_proposed.should be_true 
+
+           #  
+           # @group_loan.propose_financial_education_attendance_finalization( @field_worker) 
+           # @group_loan.finalize_financial_attendance_summary(@branch_manager)
+           # 
+           # @group_loan.is_financial_education_attendance_done.should be_true
+    end
+    
+    it "can only be proposed by field worker (financial_education_attendance finalization)" do 
       
       @group_loan.group_loan_memberships.each do |glm|
         glm.mark_financial_education_attendance( @field_worker, true, @group_loan  )
       end
       
-      @group_loan.finalize_financial_attendance_summary(@branch_manager)
-      @group_loan.is_financial_education_attendance_done.should be_true
+      
+      @group_loan.propose_financial_education_attendance_finalization( @branch_manager) 
+      @group_loan.financial_education_finalization_proposed.should be_false 
+      
+      @group_loan.propose_financial_education_attendance_finalization( @field_worker) 
+      @group_loan.financial_education_finalization_proposed.should be_true
+      
     end
+    
+    
+    context "after financial education attendance proposal" do
+      
+     
+     it "can only be finalized by loan inspector"  do
+       @group_loan.group_loan_memberships.each do |glm|
+         glm.mark_financial_education_attendance( @field_worker, true, @group_loan  )
+       end
+       
+       @group_loan.propose_financial_education_attendance_finalization( @field_worker) 
+       
+       @group_loan.finalize_financial_attendance_summary(@field_worker)
+       @group_loan.is_financial_education_attendance_done.should be_false 
+       
+       @group_loan.finalize_financial_attendance_summary(@branch_manager)
+       @group_loan.is_financial_education_attendance_done.should be_true 
+     end
+     
+     
+     # shouldn't this be tested in group loan membership? yes, it should be located over there
+     it "can be edited by the loan inspector, the final financial education attendance is the loan-inspector's version" do
+       count  = 1
+       @group_loan.group_loan_memberships.order("created_at ASC").each do |glm|
+         attendance = true 
+         if count%2 == 0 
+           attendance = false
+         end
+         glm.mark_final_financial_education_attendance( @branch_manager, attendance , @group_loan)
+         count = count + 1 
+       end
+       
+       @group_loan.finalize_financial_attendance_summary(@branch_manager)
+       count = 1
+       
+       @group_loan.group_loan_memberships.order("created_at ASC").each do |glm|
+         attendance = true 
+          if count%2 == 0 
+            attendance = false
+          end
+          glm.final_financial_lecture_attendance.should == attendance
+          count = count + 1
+       end
+     end
+     
+     it "will propagate the field worker's version if the loan inspector version is left nil"
+     
+     # how about the calculation of $$ to be disbursed? 
+      
+    end
+    
+    
+    
   
   end
   
@@ -297,27 +384,27 @@ describe GroupLoan do
       @group_loan.finalize_financial_attendance_summary(@branch_manager)
     end
     
-    it "can only be finalized if all the active member loan disbursement attendance has been marked" do
-      @group_loan.finalize_loan_disbursement_attendance_summary(@branch_manager)
-      @group_loan.is_loan_disbursement_attendance_done.should be_false
-      
-      
-      count = 1
-      
-      @group_loan.active_group_loan_memberships.each do |glm|
-        attendance = false
-        if count%2 != 0 
-          attendance = true 
-        end
-        count += 1 
-        glm.mark_loan_disbursement_attendance( @field_worker, attendance, @group_loan  )
-        glm.is_attending_loan_disbursement.should == attendance
-      end
-      
-      
-      @group_loan.finalize_loan_disbursement_attendance_summary(@branch_manager)
-      @group_loan.is_loan_disbursement_attendance_done.should be_true 
-    end
+    # it "can only be finalized if all the active member loan disbursement attendance has been marked" do
+    #   @group_loan.finalize_loan_disbursement_attendance_summary(@branch_manager)
+    #   @group_loan.is_loan_disbursement_attendance_done.should be_false
+    #   
+    #   
+    #   count = 1
+    #   
+    #   @group_loan.active_group_loan_memberships.each do |glm|
+    #     attendance = false
+    #     if count%2 != 0 
+    #       attendance = true 
+    #     end
+    #     count += 1 
+    #     glm.mark_loan_disbursement_attendance( @field_worker, attendance, @group_loan  )
+    #     glm.is_attending_loan_disbursement.should == attendance
+    #   end
+    #   
+    #   
+    #   @group_loan.finalize_loan_disbursement_attendance_summary(@branch_manager)
+    #   @group_loan.is_loan_disbursement_attendance_done.should be_true 
+    # end
   end
   
   context "group loan disbursement approval" do 

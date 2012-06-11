@@ -108,9 +108,6 @@ class TransactionActivitiesController < ApplicationController
                                                           current_user,
                                                           cash, 
                                                           savings_withdrawal)
-    
-    
-    
   end
  
   

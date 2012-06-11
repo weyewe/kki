@@ -94,21 +94,23 @@ ActiveRecord::Schema.define(:version => 20120524084402) do
   create_table "group_loan_memberships", :force => true do |t|
     t.integer  "group_loan_id"
     t.integer  "member_id"
-    t.decimal  "deposit",                                :precision => 9, :scale => 2, :default => 0.0
-    t.decimal  "initial_savings",                        :precision => 9, :scale => 2, :default => 0.0
-    t.decimal  "admin_fee",                              :precision => 9, :scale => 2, :default => 0.0
-    t.boolean  "has_paid_setup_fee",                                                   :default => false
+    t.decimal  "deposit",                                      :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "initial_savings",                              :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "admin_fee",                                    :precision => 9, :scale => 2, :default => 0.0
+    t.boolean  "has_paid_setup_fee",                                                         :default => false
     t.integer  "setup_fee_transaction_id"
     t.integer  "loan_disbursement_transaction_id"
-    t.boolean  "has_received_loan_disbursement",                                       :default => false
+    t.boolean  "has_received_loan_disbursement",                                             :default => false
     t.integer  "loan_disburser_id"
-    t.boolean  "deduct_setup_payment_from_loan",                                       :default => false
+    t.boolean  "deduct_setup_payment_from_loan",                                             :default => false
     t.integer  "sub_group_id"
     t.boolean  "is_attending_financial_lecture"
     t.integer  "financial_lecture_attendance_marker_id"
+    t.boolean  "final_financial_lecture_attendance"
+    t.integer  "final_financial_lecture_attendance_marker_id"
     t.boolean  "is_attending_loan_disbursement"
     t.integer  "loan_disbursement_attendance_marker_id"
-    t.boolean  "is_active",                                                            :default => true
+    t.boolean  "is_active",                                                                  :default => true
     t.integer  "deactivation_case"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -136,32 +138,36 @@ ActiveRecord::Schema.define(:version => 20120524084402) do
 
   create_table "group_loans", :force => true do |t|
     t.string   "name"
-    t.integer  "creator_id",                                                                                    :null => false
+    t.integer  "creator_id",                                                                                     :null => false
     t.integer  "office_id"
-    t.boolean  "is_closed",                                                                  :default => false
+    t.boolean  "is_closed",                                                                   :default => false
     t.integer  "group_loan_closer_id"
-    t.boolean  "is_started",                                                                 :default => false
+    t.boolean  "is_started",                                                                  :default => false
     t.integer  "group_loan_starter_id"
-    t.boolean  "is_financial_education_attendance_done",                                     :default => false
+    t.boolean  "is_financial_education_attendance_done",                                      :default => false
     t.integer  "financial_education_inspector_id"
-    t.boolean  "is_loan_disbursement_attendance_done",                                       :default => false
+    t.boolean  "financial_education_finalization_proposed",                                   :default => false
+    t.integer  "financial_education_finalization_proposer_id"
+    t.boolean  "is_loan_disbursement_attendance_done",                                        :default => false
     t.integer  "loan_disbursement_inspector_id"
-    t.boolean  "is_loan_disbursement_done",                                                  :default => false
+    t.boolean  "is_loan_disbursement_done",                                                   :default => false
     t.integer  "loan_disburser_id"
-    t.boolean  "is_setup_fee_collection_finalized",                                          :default => false
+    t.boolean  "is_loan_disbursement_approved",                                               :default => false
+    t.integer  "loan_disbursement_approver_id"
+    t.boolean  "is_setup_fee_collection_finalized",                                           :default => false
     t.integer  "setup_fee_collection_finalizer_id"
-    t.boolean  "is_setup_fee_collection_approved",                                           :default => false
+    t.boolean  "is_setup_fee_collection_approved",                                            :default => false
     t.integer  "setup_fee_collection_approver_id"
-    t.boolean  "is_proposed",                                                                :default => false
+    t.boolean  "is_proposed",                                                                 :default => false
     t.integer  "group_loan_proposer_id"
-    t.decimal  "total_default_amount",                        :precision => 11, :scale => 2, :default => 0.0
-    t.decimal  "total_calculated_default_absorbed_by_office", :precision => 11, :scale => 2, :default => 0.0
-    t.decimal  "total_actual_default_absorbed_by_office",     :precision => 11, :scale => 2, :default => 0.0
-    t.boolean  "is_group_loan_default",                                                      :default => false
+    t.decimal  "total_default_amount",                         :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "total_calculated_default_absorbed_by_office",  :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "total_actual_default_absorbed_by_office",      :precision => 11, :scale => 2, :default => 0.0
+    t.boolean  "is_group_loan_default",                                                       :default => false
     t.integer  "default_creator_id"
-    t.decimal  "aggregated_principal_amount",                 :precision => 11, :scale => 2, :default => 0.0
-    t.decimal  "aggregated_interest_amount",                  :precision => 10, :scale => 2, :default => 0.0
-    t.integer  "total_weeks",                                                                :default => 0
+    t.decimal  "aggregated_principal_amount",                  :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "aggregated_interest_amount",                   :precision => 10, :scale => 2, :default => 0.0
+    t.integer  "total_weeks",                                                                 :default => 0
     t.integer  "group_leader_id"
     t.integer  "commune_id"
     t.datetime "created_at"
