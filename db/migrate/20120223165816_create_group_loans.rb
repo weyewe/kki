@@ -54,6 +54,7 @@ class CreateGroupLoans < ActiveRecord::Migration
       # NEW WAY
       # the field worker disbursed the loan 
       # then, matched with the loan attendance record, the appropriate amount of money should be returned to the cashier
+      # NO FUCKING idea. go. have a look at the code. 
       t.boolean :is_loan_disbursement_approved, :default => false 
       t.integer :loan_disbursement_approver_id 
       

@@ -298,21 +298,27 @@ class TransactionActivity < ActiveRecord::Base
       return nil
     end      
           
+    if not group_loan.      
+          
     if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
       return nil
     end
     
-    #  is there such method #total_unpaid_weeks 
-    if group_loan.total_unpaid_weeks < number_of_weeks
+
+    weekly_task = WeeklyTask.first_unpaid_weekly_task(group_loan, member)
+    
+    #  is number of weeks valid for weekly payment 
+    if ( group_loan.remaining_weekly_tasks_count_for_member(member) < number_of_weeks )  or 
+        (number_of_weeks > group_loan.total_weeks)
       return nil
     end
     
-    # is there such method #total_unpaid_backlogs
-    if group_loan.total_unpaid_backlogs < number_of_backlogs
+    # is number of backlogs valid for backlog payment 
+    if group_loan.unpaid_backlogs.count < number_of_backlogs
       return nil 
     end
     
-    if savings_withdrawal > member.savings_book.extra_savings
+    if savings_withdrawal > member.saving_book.total_extra_savings
       return nil
     end
     
@@ -373,7 +379,7 @@ class TransactionActivity < ActiveRecord::Base
     
     transaction_activity = TransactionActivity.create new_hash 
     
-    weekly_task = WeeklyTask.first_unpaid_weekly_task(group_loan, member)
+    
     
     #  creating the single or multiple weeks payment 
     if number_of_weeks > 0 

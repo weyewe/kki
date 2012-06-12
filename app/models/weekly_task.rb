@@ -243,6 +243,9 @@ class WeeklyTask < ActiveRecord::Base
     }).map {|x| x.weekly_task.week_number }
     
     last_paid_week_number = paid_week_number_list.sort.last # by default, sort is ascending
+    if last_paid_week_number.nil?
+      last_paid_week_number  = 0 
+    end
     if last_paid_week_number != group_loan.total_weeks
       return group_loan.weekly_tasks.where(:week_number => last_paid_week_number + 1 ).first 
     else

@@ -184,43 +184,43 @@ describe GroupLoan do
       end
       total_disbursement_returned.should == @group_loan.total_amount_to_be_returned_to_cashier
     end
-  end
+  end # end of "testing the post conditions"  context 
   
   context "start doing the weekly transaction. basic payment all the way" do 
-    # mark the weekly attendance 
-    # create transaction, if the weekly attendance has been marked ( non absent ) -> if it is only 1 week 
-    # what if do multiple weeks payment? . ok. no requirement on the backend to do multiple weeks 
-    
-    # in the UI => savings with interest, basic payment, etc
-    # how can create generic weekly payment is wrapped inside all the methods
-    # methods only provides the underlying logic 
-    
-    
-    
-    # not linked to weekly meeting.. 2 different thing 
-    @group_loan.active_group_loan_memberships.each do |glm|
-      #  mark member attendance  # the order doesn't matter 
+    it "should do generic transaction as normal" do 
       
-      # do payment 
-      member = glm.member 
-      weekly_task = @group_loan.currently_executed_weekly_task
-      # TransactionActivity.create_basic_weekly_payment(member,weekly_task, @field_worker )
-      cash_payment = glm.group_loan_product.total_weekly_payment
-      savings_withdrawal = BigDecimal("0")
-      number_of_weeks = 1 
-      number_of_backlogs = 0 
-      TransactionActivity.create_generic_weekly_payment(
-              glm,
-              @field_worker,
-              cash_payment,
-              savings_withdrawal, 
-              number_of_weeks,
-              number_of_backlogs
-      )
-    end
-    
-    
+      if @group_loan.nil?
+        puts "The group loan is nil"
+      else
+        puts "The group loan is not nil"
+      end
 
+      @group_loan.weekly_tasks.each do |weekly_task| 
+        @group_loan.active_group_loan_memberships.each do |glm|
+          #  mark member attendance  # the order doesn't matter 
+
+          # do payment 
+          member = glm.member 
+          weekly_task = @group_loan.currently_executed_weekly_task
+          # TransactionActivity.create_basic_weekly_payment(member,weekly_task, @field_worker )
+          cash_payment = glm.group_loan_product.total_weekly_payment
+          savings_withdrawal = BigDecimal("0")
+          number_of_weeks = 1 
+          number_of_backlogs = 0 
+          a = TransactionActivity.create_generic_weekly_payment(
+                  glm,
+                  @field_worker,
+                  cash_payment,
+                  savings_withdrawal, 
+                  number_of_weeks,
+                  number_of_backlogs
+          )
+          a.should be_valid 
+        end
+      end
+      
+      
+    end
     
   end
   
