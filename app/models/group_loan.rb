@@ -517,11 +517,11 @@ class GroupLoan < ActiveRecord::Base
   
   # Loan Disbursement 
   def disbursed_members
-    self.group_loan_memberships.where(:has_received_loan_disbursement => true )
+    self.group_loan_memberships.where(:has_received_loan_disbursement => true, :is_active => true  )
   end
   
   def undisbursed_members
-    self.group_loan_memberships.where(:has_received_loan_disbursement => false )
+    self.group_loan_memberships.where(:has_received_loan_disbursement => false , :is_active => true )
   end
   
   def total_disbursement_amount
@@ -533,6 +533,9 @@ class GroupLoan < ActiveRecord::Base
   
   def execute_finalize_loan_disbursement( current_user )
     
+    if not current_user.has_role?(:cashier, current_user.active_job_attachment)
+      return nil
+    end
     
     if self.undisbursed_members.count != 0 
       return false

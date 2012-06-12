@@ -289,12 +289,157 @@ class TransactionActivity < ActiveRecord::Base
           number_of_backlogs)
           
     group_loan = group_loan_membership.group_loan
+    group_loan_product = group_loan_membership.group_loan_product
+    member = group_loan_membership.member 
+          
+    if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
+      return nil
+    end
     
-    if not ( group_loan.is_loan_disbursement_done?  )  # && Excess money is returned to the cashier
+    #  is there such method #total_unpaid_weeks 
+    if group_loan.total_unpaid_weeks < number_of_weeks
+      return nil
+    end
+    
+    # is there such method #total_unpaid_backlogs
+    if group_loan.total_unpaid_backlogs < number_of_backlogs
       return nil 
     end
     
+    if savings_withdrawal > member.savings_book.extra_savings
+      return nil
+    end
+    
+    if (number_of_weeks < 0) or (number_of_backlogs < 0 ) 
+      return nil
+    end
+    
+    if (number_of_weeks == 0 ) and (number_of_backlogs == 0)
+      return nil
+    end
+     
+    total_amount_paid = cash + savings_withdrawal
+    
+    total_payable = ( number_of_weeks + number_of_backlogs)  * group_loan_product.total_weekly_payment  
+    
+    if total_amount_paid <  total_payable
+      return nil
+    end
+    
+    extra_savings = total_amount_paid - total_payable 
+    
+    #  create the transaction 
+    # what if there is duplicate payment? can't be... we are keeping track of total unpaid  weekly  + total backlogs
+    # the followings are bullshit 
+    
+    #STEPS TO BE DONE
+    # => 1. Create the transaction activity
+    # => 2. Create the transaction entries 
+    # => 3. mark the weekly task fulfilment or backlog payment fulfilment accordingly 
+      # 
+    # DONE! return the transaction activity 
+        
+    new_hash = {}
+    
+  
+    result_resolve = self.resolve_transaction_case(
+      cash, 
+      savings_withdrawal, 
+      extra_savings, 
+      number_of_weeks,
+      number_of_backlogs
+    )
+    
+    if result_resolve.nil?
+      puts "result resolve is nil\n"*10
+      return nil
+    end
+    
+    # transaction_amount  == money exchanging hands 
+    # make it easier for the cashier to count the $$$, given from the fieldworker
+    new_hash[:total_transaction_amount] = cash 
+    new_hash[:transaction_case]  = result_resolve
+    
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
+    
+    # then, create the entries
+    # 
+    
+    transaction_activity = TransactionActivity.create new_hash 
+    transaction_activity.create_structured_multi_payment_entries(
+              cash,
+              savings_withdrawal,
+              number_of_weeks, 
+              group_loan_product,
+              weekly_task ,
+              current_user,
+              member
+            )
+        # 
+        # if weekly_task.has_paid_weekly_payment?(member)  
+        #   weekly_task = WeeklyTask.first_unpaid_weekly_task(group_loan, member)
+        #   if weekly_task.nil? 
+        #     return nil
+        #   end
+        # end
+        # 
+        # if number_of_weeks == 1 
+        #   weekly_task.create_basic_weekly_payment( member, transaction_activity, cash)
+        # elsif number_of_weeks > 1 
+        #   weekly_task.create_multiple_weeks_payment( member, transaction_activity, number_of_weeks, cash)
+        # end
+   
+    
+    return transaction_activity
+  
   end 
+  
+  def TransactionActivity.resolve_transaction_case( cash, savings_withdrawal, extra_savings,
+                          number_of_weeks, number_of_backlogs)
+                          
+    prependix= "777"
+    content = "" 
+    
+    if cash > 0 
+      content << 1
+    else
+      content << 0 
+    end
+    
+    if savings_withdrawal > 0 
+      content << 1
+    else
+      content << 0 
+    end
+    
+    if extra_savings > 0 
+      content << 1 
+    else
+      content << 0 
+    end
+    
+    if number_of_weeks == 0 
+      content << 0 
+    elsif number_of_weeks == 1 
+      content << 1 
+    elsif number_of_weeks >  1 
+      content << 2 
+    end
+    
+    if number_of_backlogs == 0 
+      content << 0 
+    elsif number_of_backlogs == 1
+      content << 1 
+    elsif number_of_backlogs > 1 
+      content << 2 
+    end
+    
+    return ( prependix + content ) .to_i 
+  end
   
   
   def TransactionActivity.create_basic_weekly_payment(member,weekly_task, current_user )
