@@ -36,6 +36,11 @@ class CreateGroupLoans < ActiveRecord::Migration
       # later on the day, he will finalize the loan disbursement attendance. Cashier will be notified of the 
       # cash must be returned by the field worker
       # handle this cash offline. we are only recording the member transaction, not the internals
+      
+      t.boolean :loan_disbursement_finalization_proposed, :default=> false
+      t.integer :loan_disbursement_finalization_proposer_id 
+      
+      
       t.boolean :is_loan_disbursement_attendance_done, :default => false 
       t.integer :loan_disbursement_inspector_id
     

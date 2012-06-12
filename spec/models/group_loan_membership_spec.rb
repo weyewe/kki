@@ -209,7 +209,7 @@ describe GroupLoanMembership do
       first_glm.is_attending_financial_lecture.should be_true
     end
     
-    it "should use the final value of financial education attendance set by loan inspector" do
+    it "should use the final value of financial education attendance set by loan inspector: case true" do
       
       @cilincing_group_loan.start_group_loan( @branch_manager )
       first_glm = @cilincing_group_loan.group_loan_memberships.first 
@@ -222,11 +222,36 @@ describe GroupLoanMembership do
       end
       
       @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
-      first_glm.mark_final_financial_education_attendance( @branch_manager, true , @group_loan)
+      first_glm.mark_final_financial_education_attendance( @branch_manager, true , @cilincing_group_loan)
       
       @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
       
       first_glm.final_financial_lecture_attendance.should be_true  
+      first_glm.is_active.should be_true
+      first_glm.deactivation_case.should be_nil
+      first_glm.is_attending_loan_disbursement.should be_nil 
+      first_glm.final_loan_disbursement_attendance.should be_nil 
+    end
+    
+    it "should use the final value of financial education attendance set by loan inspector: case false" do
+      
+      @cilincing_group_loan.start_group_loan( @branch_manager )
+      first_glm = @cilincing_group_loan.group_loan_memberships.first 
+      
+      @cilincing_group_loan.group_loan_memberships.each do |glm|
+        glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
+      end
+      
+      @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
+      first_glm.mark_final_financial_education_attendance( @branch_manager, false , @cilincing_group_loan)
+      
+      @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
+      
+      first_glm.final_financial_lecture_attendance.should be_false  
+      first_glm.is_active.should be_false
+      first_glm.deactivation_case.should == GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_lecture_absent]
+      first_glm.is_attending_loan_disbursement.should be_false 
+      first_glm.final_loan_disbursement_attendance.should be_nil 
     end
     
     
@@ -357,12 +382,166 @@ describe GroupLoanMembership do
       
       
       first_glm.is_active.should be_false
-      first_glm.deactivation_case.should ==GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]
+      first_glm.deactivation_case.should == GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]
     end
     
     
+   #  now, the final marking by loan inspector (create adjustment)
    
+   it "set the loan disbursement attedance to false by default, if it were absent during financial education" do
+     @cilincing_group_loan.start_group_loan( @branch_manager )
+     first_glm = @cilincing_group_loan.group_loan_memberships.first 
+     @cilincing_group_loan.group_loan_memberships.each do |glm|
+       if glm.id == first_glm.id 
+         glm.mark_financial_education_attendance( @field_worker, false, @cilincing_group_loan  )
+         next
+       end
+         
+       glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
+     end
+
+     @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
+     @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
+   
+     loan_disbursement_marking_result = first_glm.mark_loan_disbursement_attendance( @field_worker, true, @cilincing_group_loan  )
+     loan_disbursement_marking_result.should be_nil
+
+     first_glm.is_attending_loan_disbursement.should be_false
+   end
+   
+   it "can't change the loan disbursement attendance to true, even if it is done by loan inspector, if it were absent during financial education" do
+
+     @cilincing_group_loan.start_group_loan( @branch_manager )
+     first_glm = @cilincing_group_loan.group_loan_memberships.first 
+     @cilincing_group_loan.group_loan_memberships.each do |glm|
+       if glm.id == first_glm.id 
+         glm.mark_financial_education_attendance( @field_worker, false, @cilincing_group_loan  )
+         next
+       end
+
+       glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
+     end
+
+     @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
+     @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
+
+     @cilincing_group_loan.group_loan_memberships.each do |glm|
+       glm.mark_loan_disbursement_attendance( @field_worker, true, @cilincing_group_loan  )
+     end
+
+     @cilincing_group_loan.propose_loan_disbursement_attendance_finalization(@field_worker)
+     @cilincing_group_loan.finalize_loan_disbursement_attendance_summary(@branch_manager)
+
+     first_glm.is_attending_loan_disbursement.should be_false
+     first_glm.final_loan_disbursement_attendance.should be_false 
+
+   end
+
+   it "should use the final value of loan disbursement attendance set by loan inspector: case true" do
+     @cilincing_group_loan.start_group_loan( @branch_manager )
+     first_glm = @cilincing_group_loan.group_loan_memberships[0]
+     second_glm =   @cilincing_group_loan.group_loan_memberships[2]
+     @cilincing_group_loan.group_loan_memberships.each do |glm|
+
+       glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
+     end
+
+     @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
+     @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
+
+     @cilincing_group_loan.group_loan_memberships.each do |glm|
+       
+       if glm.id == first_glm.id 
+         glm.mark_loan_disbursement_attendance( @field_worker, false, @cilincing_group_loan  )
+         next
+       end
+       glm.mark_loan_disbursement_attendance( @field_worker, true, @cilincing_group_loan  )
+     end
+
+     @cilincing_group_loan.propose_loan_disbursement_attendance_finalization(@field_worker)
+     
+     first_glm_result = first_glm.mark_final_loan_disbursement_attendance( @branch_manager, true  , @cilincing_group_loan )
+     first_glm_result.should be_valid 
+     
+     
+     first_glm.is_active.should be_true 
+     first_glm.deactivation_case.should be_nil 
+     first_glm.final_loan_disbursement_attendance.should be_true  
+   end
+   
+   
+   it "should use the final value of loan disbursement attendance set by loan inspector: case false" do
+     @cilincing_group_loan.start_group_loan( @branch_manager )
+     first_glm = @cilincing_group_loan.group_loan_memberships[0]
+     second_glm =   @cilincing_group_loan.group_loan_memberships[2]
+     @cilincing_group_loan.group_loan_memberships.each do |glm|
+
+       glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
+     end
+
+     @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
+     @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
+
+     @cilincing_group_loan.group_loan_memberships.each do |glm|
+
+       glm.mark_loan_disbursement_attendance( @field_worker, true, @cilincing_group_loan  )
+     end
+
+     @cilincing_group_loan.propose_loan_disbursement_attendance_finalization(@field_worker)
+
+     first_glm_result = first_glm.mark_final_loan_disbursement_attendance( @branch_manager, false  , @cilincing_group_loan )
+     first_glm_result.should be_valid 
+
+
+     first_glm.is_active.should be_false  
+     first_glm.deactivation_case.should == GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent] 
+     first_glm.final_loan_disbursement_attendance.should be_false 
+     
+   end
     
+   it "should propagate the value of the field worker's loan disbursement, if no changes made " do
+      @cilincing_group_loan.start_group_loan( @branch_manager )
+      first_glm = @cilincing_group_loan.group_loan_memberships[0]
+      second_glm =   @cilincing_group_loan.group_loan_memberships[2]
+      @cilincing_group_loan.group_loan_memberships.each do |glm|
+
+        glm.mark_financial_education_attendance( @field_worker, true, @cilincing_group_loan  )
+      end
+
+      @cilincing_group_loan.propose_financial_education_attendance_finalization(@field_worker)
+      @cilincing_group_loan.finalize_financial_attendance_summary(@branch_manager)
+
+      count = 1 
+      @cilincing_group_loan.group_loan_memberships.each do |glm|
+        if count %2 == 0 
+          glm.mark_loan_disbursement_attendance( @field_worker, false, @cilincing_group_loan  )
+        else
+          glm.mark_loan_disbursement_attendance( @field_worker, true, @cilincing_group_loan  )
+        end
+        
+        count = count + 1 
+      end
+
+      @cilincing_group_loan.propose_loan_disbursement_attendance_finalization(@field_worker)
+
+      @cilincing_group_loan.finalize_loan_disbursement_attendance_summary(@branch_manager )
+      
+      
+      count = 1 
+      @cilincing_group_loan.group_loan_memberships.each do |glm|
+        if count %2 == 0 
+          glm.final_loan_disbursement_attendance.should be_false 
+          glm.deactivation_case.should == GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]
+        else
+          glm.final_loan_disbursement_attendance.should be_true  
+          glm.deactivation_case.should  be_nil
+        end
+        
+        count = count + 1 
+      end
+      
+      
+    end
 
  
     

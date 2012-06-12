@@ -164,10 +164,18 @@ class GroupLoanMembership < ActiveRecord::Base
     self.is_attending_financial_lecture = attendance
     if attendance == false 
       self.is_attending_loan_disbursement = false 
+      self.final_loan_disbursement_attendance = false
+      self.final_loan_disbursement_attendance_marker_id = employee.id  
       self.is_active = false
       self.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_lecture_absent]
     end
     self.save 
+    if self.save
+      puts "THIS shit is saved"
+    else
+      puts "NANOOOO THIS SHIT IS NOT SAVED"
+      puts "#{self.errors}"
+    end
     return self  
   end
   
@@ -196,6 +204,13 @@ class GroupLoanMembership < ActiveRecord::Base
       self.is_attending_loan_disbursement = false 
       self.is_active = false
       self.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_lecture_absent]
+    elsif attendance == true 
+      self.is_attending_loan_disbursement = nil 
+      self.final_loan_disbursement_attendance = nil
+      self.final_loan_disbursement_attendance_marker_id = nil
+      
+      self.is_active = true
+      self.deactivation_case = nil
     end
     self.save 
     return self  
@@ -237,11 +252,46 @@ class GroupLoanMembership < ActiveRecord::Base
       self.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]
     end
     self.is_attending_loan_disbursement = attendance
-     #auto create auto-deduct from loan disbursement 
-    self.deduct_setup_payment_from_loan = true 
     self.save 
     return self
   end
+  
+  def mark_final_loan_disbursement_attendance( employee, attendance , group_loan)
+    # if that loan inspector has assignment_type :loan_inspector, proceed, else return nil 
+    if attendance.nil?  or group_loan.nil? or employee.nil?
+      return nil
+    end
+    
+    
+    if not group_loan.has_assigned_role?(:loan_inspector, employee)
+      puts "no assignment role"
+      return nil
+    end
+    
+    if group_loan.is_started == false
+      puts "not started"
+      return nil
+    end
+    
+    if self.final_financial_lecture_attendance == false
+      return nil
+    end
+    
+    
+    self.final_loan_disbursement_attendance_marker_id = employee.id 
+    self.final_loan_disbursement_attendance = attendance
+    if attendance == false 
+      self.is_active = false
+      self.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]
+    elsif attendance == true 
+      self.is_active = true
+      self.deactivation_case = nil
+    end
+    self.save 
+    return self  
+  end
+  
+  
   
 =begin
   Declaring that the setup payment will be deducted from Loan Disbursement 

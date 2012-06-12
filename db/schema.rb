@@ -110,6 +110,8 @@ ActiveRecord::Schema.define(:version => 20120524084402) do
     t.integer  "final_financial_lecture_attendance_marker_id"
     t.boolean  "is_attending_loan_disbursement"
     t.integer  "loan_disbursement_attendance_marker_id"
+    t.boolean  "final_loan_disbursement_attendance"
+    t.integer  "final_loan_disbursement_attendance_marker_id"
     t.boolean  "is_active",                                                                  :default => true
     t.integer  "deactivation_case"
     t.datetime "created_at"
@@ -148,6 +150,8 @@ ActiveRecord::Schema.define(:version => 20120524084402) do
     t.integer  "financial_education_inspector_id"
     t.boolean  "financial_education_finalization_proposed",                                   :default => false
     t.integer  "financial_education_finalization_proposer_id"
+    t.boolean  "loan_disbursement_finalization_proposed",                                     :default => false
+    t.integer  "loan_disbursement_finalization_proposer_id"
     t.boolean  "is_loan_disbursement_attendance_done",                                        :default => false
     t.integer  "loan_disbursement_inspector_id"
     t.boolean  "is_loan_disbursement_done",                                                   :default => false

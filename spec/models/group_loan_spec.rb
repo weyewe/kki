@@ -312,41 +312,72 @@ describe GroupLoan do
      
      # shouldn't this be tested in group loan membership? yes, it should be located over there
      it "can be edited by the loan inspector, the final financial education attendance is the loan-inspector's version" do
-       count  = 1
-       @group_loan.group_loan_memberships.order("created_at ASC").each do |glm|
-         attendance = true 
-         if count%2 == 0 
-           attendance = false
-         end
-         glm.mark_final_financial_education_attendance( @branch_manager, attendance , @group_loan)
-         count = count + 1 
+       @group_loan.group_loan_memberships.each do |glm|
+         glm.mark_financial_education_attendance( @field_worker, true, @group_loan  )
+       end
+
+       @group_loan.propose_financial_education_attendance_finalization( @field_worker) 
+       
+       @group_loan.group_loan_memberships.each do |glm|
+         glm.mark_final_financial_education_attendance(@branch_manager, false, @group_loan)
        end
        
        @group_loan.finalize_financial_attendance_summary(@branch_manager)
-       count = 1
        
-       @group_loan.group_loan_memberships.order("created_at ASC").each do |glm|
-         attendance = true 
-          if count%2 == 0 
-            attendance = false
-          end
-          glm.final_financial_lecture_attendance.should == attendance
-          count = count + 1
+       @group_loan.group_loan_memberships.each do |glm|
+         glm.final_financial_lecture_attendance.should == false 
        end
      end
      
-     it "will propagate the field worker's version if the loan inspector version is left nil"
-     
-     # how about the calculation of $$ to be disbursed? 
+     it "can be edited by the loan inspector, the final financial education attendance is the loan-inspector's version" do
+        @group_loan.group_loan_memberships.each do |glm|
+          glm.mark_financial_education_attendance( @field_worker, true, @group_loan  )
+        end
+
+        @group_loan.propose_financial_education_attendance_finalization( @field_worker) 
+
+        @group_loan.group_loan_memberships[0..4].each do |glm|
+          glm.mark_final_financial_education_attendance(@branch_manager, false, @group_loan)
+        end
+
+        @group_loan.finalize_financial_attendance_summary(@branch_manager)
+
+        @group_loan.group_loan_memberships[0..4].each do |glm|
+          glm.final_financial_lecture_attendance.should be_false
+          glm.is_active.should be_false 
+          glm.deactivation_case.should == GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_lecture_absent]
+        end
+        
+        @group_loan.group_loan_memberships[5..7].each do |glm|
+          glm.final_financial_lecture_attendance.should be_true
+          glm.is_active.should be_true 
+          glm.deactivation_case.should be_nil
+        end
+      end
       
+      
+      it "should produce the list of all member attending the financial education to the cashier, to prepare loan disbursement money" do
+        @group_loan.group_loan_memberships.each do |glm|
+          glm.mark_financial_education_attendance( @field_worker, true, @group_loan  )
+        end
+
+        @group_loan.propose_financial_education_attendance_finalization( @field_worker) 
+
+        @group_loan.group_loan_memberships[0..4].each do |glm|
+          glm.mark_final_financial_education_attendance(@branch_manager, false, @group_loan)
+        end
+
+        @group_loan.finalize_financial_attendance_summary(@branch_manager)
+        
+        @group_loan.membership_to_receive_loan_disbursement.count.should == 3 
+        
+        
+        # @group_loan.list_of_membership_attending_the_financial_education == count 
+      end
     end
-    
-    
-    
-  
   end
   
-  context "group loan disbursement attendance finalization" do
+  context "group loan disbursement attendance finalization, 1 member absent in education, 2 members are absent on loan disbursement" do
     # it "should only allow group loan attendance finalization if the the financial lecture attendance has been finalized"
     # done in the group loan membership
     before(:each) do
@@ -372,17 +403,82 @@ describe GroupLoan do
       @group_loan.start_group_loan( @branch_manager )
       
       count = 1
+      @first_glm = @group_loan.group_loan_memberships[0]
+      @second_glm = @group_loan.group_loan_memberships[1]
+      @third_glm = @group_loan.group_loan_memberships[2]
+      
       @group_loan.group_loan_memberships.each do |glm|
-        attendance = false
-        if count%2 != 0 
-          attendance = true 
+        if glm.id == @first_glm.id 
+          glm.mark_financial_education_attendance( @field_worker, false , @group_loan  )
+        else
+          glm.mark_financial_education_attendance( @field_worker, true, @group_loan  )
         end
-        count += 1 
-        glm.mark_financial_education_attendance( @field_worker, attendance, @group_loan  )
       end
       
+      @group_loan.propose_financial_education_attendance_finalization( @field_worker) 
       @group_loan.finalize_financial_attendance_summary(@branch_manager)
     end
+    
+    it " should give appropriate cash to field worker. assumption: loan amount deduction" do 
+      total_amount_passed_to_field_worker = BigDecimal("0")
+      
+      @group_loan.membership_to_receive_loan_disbursement.each do |glm|
+        glp = glm.group_loan_product
+        total_amount_passed_to_field_worker += glp.loan_amount - glp.setup_payment_amount
+      end
+      
+      total_amount_passed_to_field_worker.should == @group_loan.total_amount_passed_to_field_worker 
+    end
+    
+    # then, do the loan disbursement attendance marking 
+    # the logic is tested in the group_loan_membership_spec
+    
+    it "should return the appropriate cash to the cashier, depending on the attendance in loan disbursement" do
+      
+      @second_glm.mark_loan_disbursement_attendance( @field_worker, false, @group_loan  )
+      @third_glm.mark_loan_disbursement_attendance( @field_worker, false, @group_loan  )
+      
+      puts "First glm id : #{@first_glm.id}"
+      puts "Second glm id : #{@second_glm.id}"
+      puts "Third glm id : #{@third_glm.id}"
+      
+      @group_loan.membership_to_receive_loan_disbursement.each do |glm|
+        if glm.id == @second_glm.id or glm.id == @third_glm.id or @first_glm.id == glm.id 
+          next
+        end
+        
+        glm.mark_loan_disbursement_attendance( @field_worker, true, @group_loan  )
+        puts "marking disbursement attendance. glm id : #{glm.id}, attendance: #{glm.is_attending_loan_disbursement}"
+      end
+      
+      @group_loan.propose_loan_disbursement_attendance_finalization(@field_worker)
+      
+      # FUCK, OBJECT MUST BE RELOADED! to by pass the buffered version
+      @group_loan.reload 
+      # do the actual transaction 
+      @group_loan.group_loan_memberships.each do |glm|
+        TransactionActivity.execute_loan_disbursement( glm , @field_worker )
+        # the column has_received_disbursement is checked 
+      end
+      
+      
+      
+      # will be finalized later,... that finalization will determine the money to be returned to the cashier 
+      # what if the member rejected, cancel? no idea.. mark as absent ? corner cases, one in a million. can't be solved for now
+      @group_loan.finalize_loan_disbursement_attendance_summary(@branch_manager )
+      
+      total_amount_to_be_returned = BigDecimal("0")
+      total_amount_to_be_returned += @second_glm.group_loan_product.loan_amount -   @second_glm.group_loan_product.setup_payment_amount
+      total_amount_to_be_returned += @third_glm.group_loan_product.loan_amount -   @third_glm.group_loan_product.setup_payment_amount
+       
+      total_amount_to_be_returned.should == @group_loan.total_amount_to_be_returned_to_cashier 
+    end
+    
+    
+    # then, the weekly transaction takes place. take notice -> the cashier must approve loan disbursement + money returned
+    
+    
+    
     
     # it "can only be finalized if all the active member loan disbursement attendance has been marked" do
     #   @group_loan.finalize_loan_disbursement_attendance_summary(@branch_manager)

@@ -124,15 +124,27 @@ class TransactionActivity < ActiveRecord::Base
     # field worker give it to the member. pass the remaining to the cashier
     # if there is member absent during the disbursement 
     if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
+      puts "The employee doesn't have field_worker role "
       return nil
     end
     
   
    if group_loan_membership.is_active == false
+     puts "The glm is not active. glm id = #{group_loan_membership.id}"
      return nil
    end
    
+   # if attendance has not been marked 
    if group_loan_membership.is_active == true && group_loan_membership.is_attending_loan_disbursement.nil?
+     puts "The attendance has not been marked, glm id = #{group_loan_membership.id}"
+     puts "#{group_loan_membership.id} is active: #{group_loan_membership.is_active}"
+     puts "#{group_loan_membership.id} attendance : #{group_loan_membership.is_attending_loan_disbursement}"
+     return nil
+   end
+   
+   
+   if group_loan_membership.is_attending_loan_disbursement == false && ( not   ( group_loan_membership.final_loan_disbursement_attendance.nil?  or   group_loan_membership.final_loan_disbursement_attendance==false) )
+     
      return nil
    end
     
@@ -193,6 +205,7 @@ class TransactionActivity < ActiveRecord::Base
                       employee, 
                       group_loan_membership.deduct_setup_payment_from_loan , member ) 
     
+    puts "received loan disbursement"
     group_loan_membership.has_received_loan_disbursement = true
     group_loan_membership.loan_disbursement_transaction_id = transaction_activity.id 
     group_loan_membership.save 

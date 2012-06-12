@@ -301,12 +301,30 @@ class GroupLoan < ActiveRecord::Base
   end
   
   def membership_attending_financial_education
-    self.group_loan_membership.where(:is_attending_financial_lecture => true)
+    self.group_loan_memberships.where(:final_financial_lecture_attendance => true)
+  end
+  
+  def membership_to_receive_loan_disbursement
+    self.membership_attending_financial_education
+  end
+  
+  def membership_reported_receiving_loan_disbursement
+    self.group_loan_memberships.where(:has_received_loan_disbursement => true )
   end
   
   def membership_attending_financial_education_and_loan_disbursement
-    self.group_loan_membership.where(:is_attending_financial_lecture => true, :is_attending_loan_disbursement => true )
+    self.group_loan_memberships.where(:final_financial_lecture_attendance => true, :final_loan_disbursement_attendance => true )
   end
+  
+  
+  def legitimate_membership_not_receiving_loan_disbursement
+    self.membership_attending_financial_education_and_loan_disbursement - self.membership_reported_receiving_loan_disbursement
+  end
+  
+  def membership_whose_loan_disbursement_must_be_returned_to_cashier
+    self.membership_to_receive_loan_disbursement - self.membership_reported_receiving_loan_disbursement
+  end
+  
   
   
 =begin
@@ -328,9 +346,6 @@ class GroupLoan < ActiveRecord::Base
       return nil
     end
     
-    
-    puts "\n*********Total glm = #{self.group_loan_memberships.count}"
-    puts "\n*********total active glm = #{self.group_loan_memberships.where(:is_attending_financial_lecture => [true,false]).count}"
     if self.marked_group_loan_memberships_attendance_for_financial_education.count == self.group_loan_memberships.count 
       self.financial_education_finalization_proposed = true 
       self.financial_education_finalization_proposer_id = employee.id 
@@ -349,9 +364,12 @@ class GroupLoan < ActiveRecord::Base
     
     
     if self.financial_education_finalization_proposed == true 
+      puts "HEHEHE, with proposal"
       self.group_loan_memberships.each do |glm|
         if glm.final_financial_lecture_attendance.nil?
+          puts "#{glm.id} is_attending_financial_lecture: #{glm.is_attending_financial_lecture}"
           glm.final_financial_lecture_attendance = glm.is_attending_financial_lecture
+          glm.final_financial_lecture_attendance_marker_id = employee.id 
           glm.save
         end
       end
@@ -360,9 +378,30 @@ class GroupLoan < ActiveRecord::Base
       self.financial_education_inspector_id = employee.id 
       self.save 
     else
+      puts "SHITE, no proposal "
       return nil
     end
   end
+  
+  def propose_loan_disbursement_attendance_finalization(employee)
+    if employee.nil? or not self.has_assigned_role?(:field_worker, employee) 
+      puts "--------in the group loan, no assigned role"
+      return nil
+    end
+    
+    if self.is_financial_education_attendance_done == false
+      return nil
+    end
+    
+    if self.marked_group_loan_memberships_attendance_for_loan_disbursement.count == self.group_loan_memberships.count 
+      self.loan_disbursement_finalization_proposed = true 
+      self.loan_disbursement_finalization_proposer_id = employee.id 
+      self.save
+    else
+      return nil
+    end
+  end
+  
   
   def finalize_loan_disbursement_attendance_summary(employee)
     if employee.nil? or not self.has_assigned_role?(:loan_inspector, employee) 
@@ -370,21 +409,57 @@ class GroupLoan < ActiveRecord::Base
       return nil
     end
     
-    if self.group_loan_memberships.count == self.marked_group_loan_memberships_attendance_for_loan_disbursement.count
+    if  self.loan_disbursement_finalization_proposed == true 
+      self.group_loan_memberships.each do |glm|
+        if glm.final_loan_disbursement_attendance.nil?
+          glm.final_loan_disbursement_attendance = glm.is_attending_loan_disbursement
+          glm.save
+        end
+      end
+      
+      
       self.is_loan_disbursement_attendance_done = true 
       self.loan_disbursement_inspector_id = employee.id
       self.save
       return self
+      
     else
-      puts "not all group membership's financial attendance has been marked"
       return nil
     end
+    
+      
   end
     
     
 
-  
+=begin
+  Passing the cash to field worker 
+=end
 
+  def total_amount_passed_to_field_worker
+    # it is assumed that the setup fee is deducted from loan disbursement 
+    total_amount_passed = BigDecimal("0")
+    self.membership_to_receive_loan_disbursement.each do |glm|
+      glp = glm.group_loan_product  
+      total_amount_passed += glp.loan_amount - glp.setup_payment_amount
+    end
+    
+    return total_amount_passed
+  end
+  
+  def total_amount_to_be_returned_to_cashier
+    total_amount = BigDecimal("0")
+    puts "~~~~~~~~~~ the count is #{self.membership_whose_loan_disbursement_must_be_returned_to_cashier.count}"
+    # membership_whose_loan_disbursement_must_be_returned_to_cashier
+    self.membership_whose_loan_disbursement_must_be_returned_to_cashier.each do |glm|
+      glp = glm.group_loan_product 
+      total_amount += glp.loan_amount - glp.setup_payment_amount
+    end
+    
+    return total_amount 
+  end
+  
+  
 =begin
   finalize setup fee collection 
 =end

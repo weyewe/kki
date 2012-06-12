@@ -73,6 +73,10 @@ describe TransactionActivity do
   end
   
   it "should only allow weekly payment if the loan disbursement has been done + approved by cashier" do 
+    # BANZAI, here we are!! 
+    # and on disbursement approval, we have to generate the default loan payment 
+    # which will go to 0 as the member is paying the debt
+    
     
     # for all the members 
     # first_transaction = TransactionActivity.execute_loan_disbursement( first_glm , @field_worker)
