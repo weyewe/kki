@@ -235,6 +235,7 @@ class WeeklyTask < ActiveRecord::Base
   end
   
   
+  # not backlog... if not paid, will be promoted to backlog
   def WeeklyTask.first_unpaid_weekly_task(group_loan, member)
     paid_week_number_list = MemberPayment.find(:all, :conditions => {
       :weekly_task_id => group_loan.weekly_tasks.map {|x| x.id } , 

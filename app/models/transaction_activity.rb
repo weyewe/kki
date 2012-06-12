@@ -291,6 +291,12 @@ class TransactionActivity < ActiveRecord::Base
     group_loan = group_loan_membership.group_loan
     group_loan_product = group_loan_membership.group_loan_product
     member = group_loan_membership.member 
+    
+    zero_value = BigDecimal("0")
+          
+    if group_loan_membership.nil? or employee.nil? or cash.nil? or savings_withdrawal.nil? or number_of_weeks.nil? or number_of_backlogs.nil?
+      return nil
+    end      
           
     if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
       return nil
@@ -334,8 +340,8 @@ class TransactionActivity < ActiveRecord::Base
     
     #STEPS TO BE DONE
     # => 1. Create the transaction activity
-    # => 2. Create the transaction entries 
-    # => 3. mark the weekly task fulfilment or backlog payment fulfilment accordingly 
+    # => 2. mark the weekly task fulfilment or backlog payment fulfilment accordingly  
+    # => 3. Create the transaction entries 
       # 
     # DONE! return the transaction activity 
         
@@ -350,10 +356,6 @@ class TransactionActivity < ActiveRecord::Base
       number_of_backlogs
     )
     
-    if result_resolve.nil?
-      puts "result resolve is nil\n"*10
-      return nil
-    end
     
     # transaction_amount  == money exchanging hands 
     # make it easier for the cashier to count the $$$, given from the fieldworker
@@ -370,53 +372,80 @@ class TransactionActivity < ActiveRecord::Base
     # 
     
     transaction_activity = TransactionActivity.create new_hash 
-    transaction_activity.create_structured_multi_payment_entries(
-              cash,
-              savings_withdrawal,
-              number_of_weeks, 
-              group_loan_product,
-              weekly_task ,
-              current_user,
-              member
-            )
-        # 
-        # if weekly_task.has_paid_weekly_payment?(member)  
-        #   weekly_task = WeeklyTask.first_unpaid_weekly_task(group_loan, member)
-        #   if weekly_task.nil? 
-        #     return nil
-        #   end
-        # end
-        # 
-        # if number_of_weeks == 1 
-        #   weekly_task.create_basic_weekly_payment( member, transaction_activity, cash)
-        # elsif number_of_weeks > 1 
-        #   weekly_task.create_multiple_weeks_payment( member, transaction_activity, number_of_weeks, cash)
-        # end
-   
+    
+    weekly_task = WeeklyTask.first_unpaid_weekly_task(group_loan, member)
+    
+    #  creating the single or multiple weeks payment 
+    if number_of_weeks > 0 
+      if weekly_task.nil? 
+        return nil
+      end
+
+      if number_of_weeks == 1 
+        weekly_task.create_basic_weekly_payment( member, transaction_activity, cash)
+      elsif number_of_weeks > 1 
+        weekly_task.create_multiple_weeks_payment( member, transaction_activity, number_of_weeks, cash)
+      end
+    end
+    
+    
+    
+    
+    # creating the backlog payment 
+    if number_of_backlogs > 0
+      member.backlog_payments_for_group_loan(group_loan).order("created_at ASC").limit( number_of_backlogs ).each do |x|
+         x.is_cleared  = true 
+         x.backlog_cleared_declarator_id = employee.id 
+         x.transaction_activity_id_for_backlog_clearance = transaction_activity.id
+         x.save
+       end 
+    end
+    
+    # creating the transaction entries
+    # create transaction entries: basic entry, savings withdrawal, extra savings 
+    # or even the backlog entries 
+    # 1. according to the number_of_weeks, create basic weekly payment entries 
+    # 2 . according to the number of backlogs, create backlog payment
+    (number_of_weeks + number_of_backlogs).times do |x|
+      transaction_activity.create_basic_payment_entries(group_loan_product, employee, member) 
+    end
+    
+    # 3. according to the savings withdrawal, create savings withdrawal entry
+    if savings_withdrawal > zero_value 
+      transaction_activity.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
+    end
+    
+    # 4 . according to the extra savings, create extra savings
+    if extra_savings > zero_value
+      transaction_activity.create_only_savings_payment_entry(extra_savings, employee, member )
+    end
+    
     
     return transaction_activity
-  
   end 
+  
+  
   
   def TransactionActivity.resolve_transaction_case( cash, savings_withdrawal, extra_savings,
                           number_of_weeks, number_of_backlogs)
                           
     prependix= "777"
     content = "" 
+    zero_value = BigDecimal("0")
     
-    if cash > 0 
+    if cash > zero_value
       content << 1
     else
       content << 0 
     end
     
-    if savings_withdrawal > 0 
+    if savings_withdrawal > zero_value
       content << 1
     else
       content << 0 
     end
     
-    if extra_savings > 0 
+    if extra_savings > zero_value
       content << 1 
     else
       content << 0 
@@ -1219,113 +1248,113 @@ class TransactionActivity < ActiveRecord::Base
   { :transaction_amount, :transaction_case }
   Decoding the transaction_activity_code
 =end
-  def self.resolve_transaction_case( cash,  savings_withdrawal,  number_of_weeks, basic_weekly_payment, is_backlog_payment )
-    total_fee  = number_of_weeks * basic_weekly_payment 
-    balance = cash + savings_withdrawal -  total_fee
-    transaction_amount = nil
-    transaction_case = nil
-    zero_value = BigDecimal.new("0")
-   
- 
-    if (savings_withdrawal == zero_value) and (cash == total_fee ) and 
-                  ( balance == zero_value )
-                  
-      transaction_amount   = cash 
-      if number_of_weeks == 1 
-        if is_backlog_payment == false 
-          transaction_case  = TRANSACTION_CASE[:weekly_payment_basic]
-        else
-          transaction_case  = TRANSACTION_CASE[:single_backlog_payment_exact_amount]
-        end
-      else
-        
-        if is_backlog_payment == false 
-          transaction_case  = TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks]
-        else
-          transaction_case  = TRANSACTION_CASE[:multiple_backlog_payment_exact_amount]
-        end
-        
-      end
-      
-    elsif (savings_withdrawal ==  zero_value ) and (cash > total_fee ) and
-                  (balance > zero_value)
-                  
-      transaction_amount = cash 
-      
-      if number_of_weeks == 1 
-        if is_backlog_payment == false 
-          transaction_case = TRANSACTION_CASE[:weekly_payment_single_week_extra_savings]
-        else
-          transaction_case  = TRANSACTION_CASE[:single_backlog_payment_extra_savings]
-        end
-        
-      else
-        if is_backlog_payment == false 
-          transaction_case = TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks_extra_savings]
-        else
-          transaction_case  = TRANSACTION_CASE[:multiple_backlog_payment_extra_savings]
-        end
-        
-      end
-      
-    elsif (savings_withdrawal > zero_value ) and ( balance == zero_value )
-      #  (cash < total_fee ) and #independent of cash value 
-                  
-                  
-      # transaction_amount  = cash + savings_withdrawal
-      transaction_amount  = cash 
-      if number_of_weeks == 1 
-        if is_backlog_payment == false 
-          transaction_case = TRANSACTION_CASE[:weekly_payment_single_week_structured_with_soft_savings_withdrawal]
-        else
-          transaction_case  = TRANSACTION_CASE[:single_backlog_payment_soft_savings_withdrawal]
-        end
-        
-        
-      else
-        if is_backlog_payment == false 
-          transaction_case = TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal]
-        else
-          transaction_case  = TRANSACTION_CASE[:multiple_backlog_payment_soft_savings_withdrawal]
-        end
-        
-      end
-      
-    elsif (savings_withdrawal > zero_value ) and  ( balance > zero_value )
-      # (  or (cash < total_fee )  )and # doesn't depend on cash value
-                 
-                  
-      # transaction_amount  = cash + savings_withdrawal
-      transaction_amount  = cash 
-      if number_of_weeks == 1 
-        if is_backlog_payment == false 
-          transaction_case = TRANSACTION_CASE[:weekly_payment_single_week_structured_with_soft_savings_withdrawal_extra_savings]  
-        else
-          transaction_case  = TRANSACTION_CASE[:single_backlog_payment_soft_savings_withdrawal_extra_savings]
-        end
-        
-      else
-        if is_backlog_payment == false 
-          transaction_case = TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal_extra_savings]  
-        else
-          transaction_case  = TRANSACTION_CASE[:multiple_backlog_payment_soft_savings_withdrawal_extra_savings]
-        end
-         
-      end
-      
-    end
- 
-    
-  
-    if transaction_amount.nil? and transaction_case.nil?
-      return nil
-    else
-      return  {
-        :total_transaction_amount => transaction_amount , 
-        :transaction_case  => transaction_case
-      }
-    end
-  end
+  # def self.resolve_transaction_case( cash,  savings_withdrawal,  number_of_weeks, basic_weekly_payment, is_backlog_payment )
+  #   total_fee  = number_of_weeks * basic_weekly_payment 
+  #   balance = cash + savings_withdrawal -  total_fee
+  #   transaction_amount = nil
+  #   transaction_case = nil
+  #   zero_value = BigDecimal.new("0")
+  #  
+  #  
+  #   if (savings_withdrawal == zero_value) and (cash == total_fee ) and 
+  #                 ( balance == zero_value )
+  #                 
+  #     transaction_amount   = cash 
+  #     if number_of_weeks == 1 
+  #       if is_backlog_payment == false 
+  #         transaction_case  = TRANSACTION_CASE[:weekly_payment_basic]
+  #       else
+  #         transaction_case  = TRANSACTION_CASE[:single_backlog_payment_exact_amount]
+  #       end
+  #     else
+  #       
+  #       if is_backlog_payment == false 
+  #         transaction_case  = TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks]
+  #       else
+  #         transaction_case  = TRANSACTION_CASE[:multiple_backlog_payment_exact_amount]
+  #       end
+  #       
+  #     end
+  #     
+  #   elsif (savings_withdrawal ==  zero_value ) and (cash > total_fee ) and
+  #                 (balance > zero_value)
+  #                 
+  #     transaction_amount = cash 
+  #     
+  #     if number_of_weeks == 1 
+  #       if is_backlog_payment == false 
+  #         transaction_case = TRANSACTION_CASE[:weekly_payment_single_week_extra_savings]
+  #       else
+  #         transaction_case  = TRANSACTION_CASE[:single_backlog_payment_extra_savings]
+  #       end
+  #       
+  #     else
+  #       if is_backlog_payment == false 
+  #         transaction_case = TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks_extra_savings]
+  #       else
+  #         transaction_case  = TRANSACTION_CASE[:multiple_backlog_payment_extra_savings]
+  #       end
+  #       
+  #     end
+  #     
+  #   elsif (savings_withdrawal > zero_value ) and ( balance == zero_value )
+  #     #  (cash < total_fee ) and #independent of cash value 
+  #                 
+  #                 
+  #     # transaction_amount  = cash + savings_withdrawal
+  #     transaction_amount  = cash 
+  #     if number_of_weeks == 1 
+  #       if is_backlog_payment == false 
+  #         transaction_case = TRANSACTION_CASE[:weekly_payment_single_week_structured_with_soft_savings_withdrawal]
+  #       else
+  #         transaction_case  = TRANSACTION_CASE[:single_backlog_payment_soft_savings_withdrawal]
+  #       end
+  #       
+  #       
+  #     else
+  #       if is_backlog_payment == false 
+  #         transaction_case = TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal]
+  #       else
+  #         transaction_case  = TRANSACTION_CASE[:multiple_backlog_payment_soft_savings_withdrawal]
+  #       end
+  #       
+  #     end
+  #     
+  #   elsif (savings_withdrawal > zero_value ) and  ( balance > zero_value )
+  #     # (  or (cash < total_fee )  )and # doesn't depend on cash value
+  #                
+  #                 
+  #     # transaction_amount  = cash + savings_withdrawal
+  #     transaction_amount  = cash 
+  #     if number_of_weeks == 1 
+  #       if is_backlog_payment == false 
+  #         transaction_case = TRANSACTION_CASE[:weekly_payment_single_week_structured_with_soft_savings_withdrawal_extra_savings]  
+  #       else
+  #         transaction_case  = TRANSACTION_CASE[:single_backlog_payment_soft_savings_withdrawal_extra_savings]
+  #       end
+  #       
+  #     else
+  #       if is_backlog_payment == false 
+  #         transaction_case = TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal_extra_savings]  
+  #       else
+  #         transaction_case  = TRANSACTION_CASE[:multiple_backlog_payment_soft_savings_withdrawal_extra_savings]
+  #       end
+  #        
+  #     end
+  #     
+  #   end
+  #  
+  #   
+  # 
+  #   if transaction_amount.nil? and transaction_case.nil?
+  #     return nil
+  #   else
+  #     return  {
+  #       :total_transaction_amount => transaction_amount , 
+  #       :transaction_case  => transaction_case
+  #     }
+  #   end
+  # end
   
   def self.resolve_transaction_case_for_default_payment(cash,  savings_withdrawal,  default_payment )
      #    6 cases
