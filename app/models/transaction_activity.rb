@@ -298,7 +298,6 @@ class TransactionActivity < ActiveRecord::Base
       return nil
     end      
           
-    if not group_loan.      
           
     if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
       return nil
@@ -404,7 +403,7 @@ class TransactionActivity < ActiveRecord::Base
          x.backlog_cleared_declarator_id = employee.id 
          x.transaction_activity_id_for_backlog_clearance = transaction_activity.id
          x.save
-       end 
+      end 
     end
     
     # creating the transaction entries
@@ -987,7 +986,7 @@ class TransactionActivity < ActiveRecord::Base
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
                       )
     # member.add_savings(savings_amount, SAVING_ENTRY_CODE[:no_weekly_payment_only_savings], savings_only_transaction_entry) 
-    member.deduct_savings( savings_withdrawal_amount, SAVING_ENTRY_CODE[:soft_withdraw_for_default_payment] , transaction_entry )
+    member.deduct_compulsory_savings( savings_withdrawal_amount, SAVING_ENTRY_CODE[:soft_withdraw_for_default_payment] , transaction_entry )
   end
   
   def create_extra_savings_from_default_payment_entry( extra_savings, member )
@@ -1124,6 +1123,11 @@ class TransactionActivity < ActiveRecord::Base
     
     # each saving should be able to be traced to the transaction_entry -> transaction_activity 
     member.add_compulsory_savings(group_loan_product.min_savings, SAVING_ENTRY_CODE[:weekly_saving_from_basic_payment], saving_transaction_entry) 
+    puts "in the transaction activity: group_loan_product.min_savings = #{group_loan_product.min_savings} "
+    saving_book = member.saving_book
+    saving_book.reload
+    puts "data in transaction activity: total_compulsory savings: #{member.saving_book.total_compulsory_savings}"
+    puts "added compulsory savings for member #{member.id}"
   end
   
   def create_extra_savings_entries( balance , current_user , member)

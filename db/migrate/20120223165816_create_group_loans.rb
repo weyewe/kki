@@ -152,10 +152,11 @@ class CreateGroupLoans < ActiveRecord::Migration
       # the business logic => group members has to be in the same commune id 
       t.integer :commune_id
       
-            # 
-            # t.boolean :is_active, :default => true 
-            # t.integer :deactivation_case , :default => nil # GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE, deactivation reason
-            # 
+      
+      # default payment
+      t.decimal :default_payment_value_before_defaultee_savings_deduction , :precision => 11, :scale => 2, :default => 0
+      t.decimal :default_payment_to_be_shared_among_non_defaultee , :precision => 11, :scale => 2, :default => 0
+      t.decimal :group_loan_loss , :precision => 11, :scale => 2, :default => 0
       
       
 

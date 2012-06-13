@@ -189,21 +189,58 @@ describe GroupLoan do
   context "start doing the weekly transaction. basic payment all the way" do 
     it "should do generic transaction as normal" do 
       
-      if @group_loan.nil?
-        puts "The group loan is nil"
-      else
-        puts "The group loan is not nil"
-      end
+      # on loan disbursement finalization:
+      # 1. create default payment for all active members 
+      # 2. deduct the default payment on all transactions ( paying backlog or paying weekly payment)
+      # 3. 
 
-      @group_loan.weekly_tasks.each do |weekly_task| 
-        @group_loan.active_group_loan_memberships.each do |glm|
+      # @weekly_task.close_weekly_meeting( current_user )
+      # @weekly_task.close_weekly_payment( current_user )
+      # where can we mark member attendnace?
+      # 
+      # for each member
+      #   @weekly_task.mark_attendance_as_present( @member, current_user )
+      #   @weekly_task.mark_attendance_as_late( @member, current_user )
+      
+      # if everyone is marked, or the unmarked will be declared as absent 
+      #   @weekly_task.close_weekly_meeting( current_user )
+      
+      # if everyone has paid, or declared no payment, 
+      # => @weekly_task.close_weekly_payment( current_user )
+      
+      # Then the cashier approves weekly payment
+      # =>  @weekly_task.approve_weekly_payment_collection( current_user )
+      
+      # done? hahaha
+      
+      @group_loan.weekly_tasks.order("week_number ASC").each do |weekly_task| 
+        puts "======================\n"*2
+        puts "\n\nin week: #{weekly_task.week_number}"
+        @group_loan.active_group_loan_memberships.includes(:member).each do |glm|
+          # setup 
+          
+          member =  glm.member 
+          saving_book = member.saving_book
+          initial_total_savings                = saving_book.total 
+          initial_extra_savings                = saving_book.total_extra_savings
+          initial_compulsory_savings           = saving_book.total_compulsory_savings
+
+          glp = glm.group_loan_product
+          
+          
+          
           #  mark member attendance  # the order doesn't matter 
-
+          weekly_task.mark_attendance_as_present( glm.member, @field_worker )
           # do payment 
-          member = glm.member 
           weekly_task = @group_loan.currently_executed_weekly_task
+          
+          puts "\n++++++++++ pre condition"
+          puts "member_id : #{member.id}"
+          
+          puts "initial compulsory_savings: #{initial_compulsory_savings}"
+          puts "the currently_executed_weekly_task : #{weekly_task.week_number}"
           # TransactionActivity.create_basic_weekly_payment(member,weekly_task, @field_worker )
-          cash_payment = glm.group_loan_product.total_weekly_payment
+          cash_payment = glp.total_weekly_payment
           savings_withdrawal = BigDecimal("0")
           number_of_weeks = 1 
           number_of_backlogs = 0 
@@ -215,12 +252,66 @@ describe GroupLoan do
                   number_of_weeks,
                   number_of_backlogs
           )
+          
+          
+          saving_book.reload
+          
+          final_total_savings      = saving_book.total 
+          final_extra_savings      = saving_book.total_extra_savings
+          final_compulsory_savings = saving_book.total_compulsory_savings
+          diff = final_total_savings - initial_total_savings
+          diff_extra_savings = final_extra_savings - initial_extra_savings
+          diff_compulsory_savings = final_compulsory_savings - initial_compulsory_savings
+          
+          
+          puts "final compulsory_savings: #{final_compulsory_savings}"
+          puts "\n******THE ANALYTICS"
+          puts "glp min_savings : #{glp.min_savings}"
+          puts "diff compulsory_savings: #{diff_compulsory_savings.to_i}"
+          puts "diff extra_savings: #{diff_extra_savings.to_i}"
+          puts "The amount of diff for member #{member.id}: #{diff}"
+          
+          
+          puts "transaction validity"
           a.should be_valid 
+          a.transaction_entries.each do |te|
+            puts "#{te.inspect}"
+            puts "#{te.amount.to_i}"
+          end
+          
+          
+          puts "~~~~~ the assertion"
+          diff.should == glp.min_savings
+          diff_compulsory_savings.to_i.should == glp.min_savings.to_i
+          diff_extra_savings.should == BigDecimal("0")
+          
+          
+          
         end
+        weekly_task.close_weekly_meeting(@field_worker)
+        weekly_task.close_weekly_payment( @field_worker )
+        weekly_task.approve_weekly_payment_collection( @cashier )
+        
+        weekly_task.is_weekly_attendance_marking_done.should be_true 
+        weekly_task.is_weekly_payment_collection_finalized.should be_true 
+        weekly_task.is_weekly_payment_approved_by_cashier.should be_true 
       end
       
+      # now is the time to close the group loan
+      # close by branch manager -> if all weekly payments has been approved by cashier 
+      # on close: execute the default payment.. if there is unpaid loan, will be deducted from compulsory savings by the responsible member
+      # if there is remaining loan, deduct 50% from the non default member in the sub group, 50% from all non default member in the group 
+      # then, after this deduction, migrate compulsory savings to extra savings 
       
-    end
+      
+      @group_loan.generate_default_payments(@branch_manager) 
+      
+      @group_loan.is_closed.should be_true 
+      # test: it doesn't deduct any $$$ from member 
+      # test: no transaction takes place -> no default 
+      # test: all default payments end up with 0 amount 
+      
+    end # example case 'it should do transaction as normal'
     
   end
   

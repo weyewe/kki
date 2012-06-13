@@ -805,7 +805,7 @@ class GroupLoan < ActiveRecord::Base
   def extract_non_default_member_id
     list_of_default_member_id = self.extract_default_member_id
     all_member_id = []
-    self.group_loan_memberships.each do |glm|
+    self.active_group_loan_memberships.each do |glm|
       all_member_id << glm.member_id
     end
     
@@ -900,12 +900,34 @@ class GroupLoan < ActiveRecord::Base
   end
   
   def close_group_loan(current_user)
+    
+    if not current_user.has_role?(:branch_manager, current_user.active_job_attachment)
+      return nil
+    end
     self.is_closed = true 
     self.group_loan_closer_id = current_user.id
     self.save
   end
   
+  
+  def finalized_weekly_tasks
+    self.weekly_tasks.where(:is_weekly_payment_approved_by_cashier => true ) 
+  end
+  
+  def has_finalized_all_weekly_tasks?
+    self.finalized_weekly_tasks.count == self.total_weeks 
+  end
+  
   def generate_default_payments(current_user)
+    
+    if not current_user.has_role?(:branch_manager, current_user.active_job_attachment) 
+      return nil
+    end
+    
+    if not self.has_finalized_all_weekly_tasks?
+      return nil
+    end
+    
     self.extract_total_default_amount
     # by now, we know the default amount for each subgroup
     # total default amount for the group == sum of default amount from all subgroups
@@ -918,6 +940,94 @@ class GroupLoan < ActiveRecord::Base
   end
   
   
+  def deduct_defaultee_compulsory_savings(employee)
+    if not employee.has_role?(:branch_manager, employee.active_job_attachment ) 
+      return nil 
+    end
+    
+    @group_loan.group_loan_defaultees.each do |default_glm|
+      TransactionActivity.create_default_payment_savings_deduction( default_glm, employee )
+    end
+    
+    # we will have arrays of default payment, containing the amount deducted, default payment type == defaultee_savings_deduction
+    
+  end
+  
+  
+  def legitimate_custom_default_payment_input?(  non_defaultee_and_payment_amount_pair )
+    total_contribution = BigDecimal("0")
+    
+    list_of_non_defaultee_id = self.list_of_non_defaultee_id 
+    input_list_of_non_defaultee_id = [] 
+    amount_to_be_deducted_list = []
+    zero_value = BigDecimal("0")
+    
+    # no negative value 
+    non_defaultee_and_payment_amount_pair.each do |key,value|
+      input_list_of_non_defaultee_id << key 
+      
+      parsed_value = BigDecimal(value.to_s)
+      if parsed_value < zero_value 
+        return false
+      end
+      amount_to_be_deducted_list << parsed_value 
+    end
+    
+    # encompassing all non defaultee 
+    if (input_list_of_non_defaultee_id - list_of_non_defaultee_id).length != 0  or 
+        (list_of_non_defaultee_id - input_list_of_non_defaultee_id).length != 0  
+      return false
+    end
+    
+    
+    
+    non_defaultee_and_payment_amount_pair.each do |key,value|
+      parsed_value = BigDecimal(value.to_s)
+      total_contribution += parsed_value 
+    end
+    
+    if total_contribution < self.default_payment_to_be_shared_among_non_defaultee
+      return false
+    end
+  end
+  
+  def execute_custom_default_payment_for_non_defaultee( non_defaultee_and_payment_amount_pair, employee )
+    if not employee.has_role?(:branch_manager, employee.active_job_attachment) 
+      return nil 
+    end
+    
+    total_contribution = BigDecimal("0")
+    if self.legitimate_custom_default_payment_input?(  non_defaultee_and_payment_amount_pair ) == true 
+      non_defaultee_and_payment_amount_pair.each do |key,value|
+        non_defaultee_glm = GroupLoanMembership.find_by_id( key ) 
+        payment_amount = BigDecimal(value.to_s ) 
+        TransactionActivity.create_custom_default_payment_savings_deduction_for_non_defaultee( non_defaultee_glm,
+                                          payment_amount, employee)
+      end
+    else
+      return nil 
+    end
+  end
+  
+  def execute_basic_default_payment_for_non_defaultee(employee)
+    if not employee.has_role?(:branch_manager, employee.active_job_attachment) 
+      return nil 
+    end
+    
+    #  extract the sub_group amount
+    #  extract the group_amount 
+    #  kill it in one go 
+    
+    self.extract_sub_group_payment_contribution_for_non_defaultee
+    self.extract_group_payment_contribution_for_non_defaultee
+    
+    self.non_defaultee_group_loan_memberships.each do |glm|
+      TransactionActivity.create_basic_default_payment_savings_deduction_for_non_defaultee( non_defaultee_glm ,
+                  employee)
+    end
+    
+    
+  end
   
   
 end

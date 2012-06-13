@@ -4,14 +4,14 @@ class SavingBook < ActiveRecord::Base
   
   def update_total(saving_entry, is_extra_savings)
     total_amount = self.total
-    total_compulsory_savings = self.total_extra_savings
+    total_compulsory_savings = self.total_compulsory_savings
     total_extra_savings = self.total_extra_savings
     
     if saving_entry.saving_action_type == SAVING_ACTION_TYPE[:debit]
       total_amount += saving_entry.amount 
-      if is_extra_savings
+      if is_extra_savings == true
         total_extra_savings += saving_entry.amount
-      else
+      elsif is_extra_savings == false
         total_compulsory_savings += saving_entry.amount
       end
     elsif saving_entry.saving_action_type == SAVING_ACTION_TYPE[:credit]
