@@ -835,10 +835,70 @@ class TransactionActivity < ActiveRecord::Base
   end
   
   
+=begin
+  DEFAULT_PAYMENT_RESOLUTION
+  new method 
+=end 
+
+  def TransactionActivity.create_default_payment_resolution( default_payment,  employee  ) 
+    # flow: field worker propose default payment resolution : standard or custom (if custom, use the number as well ) 
+    
+    # then, the cashier approves
+    
+    if not employee.has_role?(:cashier, employee.active_job_attachment)
+      return nil 
+    end
+    
+    glm = default_payment.group_loan_membership 
+    member = glm.member 
+    
+    
+    
+
+    
+    # deduce transaction_case 
+    
+    if amount_to_be_paid > member.saving_book.total_compulsory_savings
+      return nil
+    end
+    
+    
+    
+    transaction_case = ""
+    
+    if default_payment.custom_amount.nil?   
+      transaction_case = TRANSACTION_CASE[:default_payment_resolution_compulsory_savings_deduction_standard_amount]
+    else
+      transaction_case = TRANSACTION_CASE[:default_payment_resolution_compulsory_savings_deduction_custom_amount]
+    end
+    
+    # through compulsory savings deduction. No cash payment 
+    new_hash = {}
+    new_hash[:total_transaction_amount] = BigDecimal("0") #no hard money flowing 
+    new_hash[:transaction_case]  = transaction_case #  TRANSACTION_CASE[:default_payment_resolution_compulsory_savings_deduction_standard_amount]
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = glm.group_loan_id
+
+    transaction_activity = TransactionActivity.create new_hash
+    
+    
+    default_payment.set_default_amount_deducted(amount_to_be_paid,  transaction_activity)
+    # member.deduct_savings( default_payment.amount_paid, SAVING_ENTRY_CODE[:soft_withdraw_for_default_payment] , transaction_entry )
+    # the savings deduction is done in the transaction entry
+    # transaction_activity.create_auto_default_payment_resolution_entries( default_payment) 
+    transaction_activity.create_default_payment_savings_withdrawal_transaction_entry(default_payment.amount_paid , member)
+    return transaction_activity
+  end
+  
+  
   
 =begin
   For the default loan resolution
 =end
+
 
   def TransactionActivity.execute_default_payment_deduction_from_savings(group_loan,default_payment,glm, current_user)
     member = glm.member

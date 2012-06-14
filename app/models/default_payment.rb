@@ -5,6 +5,11 @@ class DefaultPayment < ActiveRecord::Base
     
   attr_protected :amount_subgroup_share, :amount_group_share, :amount_paid
   
+  def mark_as_defaultee
+    self.is_defaultee = true 
+    self.save 
+  end
+  
   def set_amount_group_share( amount ) 
     self.amount_group_share = amount
     self.save 
@@ -36,20 +41,9 @@ class DefaultPayment < ActiveRecord::Base
   end
   
   
-  def set_default_amount_deducted(transaction_activity, member, any_amount_assumed_by_kki )
-    if any_amount_assumed_by_kki == true 
-      amount_assumed_by_kki = self.total_amount - member.total_savings 
-      amount_paid = self.total_amount - amount_assumed_by_kki
-      self.amount_paid = amount_paid
-      self.is_paid = true 
-      self.amount_assumed_by_office = amount_assumed_by_kki
-      self.is_assumed_by_office = true 
-  
-    elsif any_amount_assumed_by_kki==false
-      self.amount_paid = self.total_amount
-      self.is_paid = true 
-      
-    end
+  def set_default_amount_deducted(amount , transaction_activity  )
+    
+    self.amount_paid = amount 
     
     self.transaction_id = transaction_activity.id 
     self.save

@@ -438,10 +438,19 @@ class WeeklyTask < ActiveRecord::Base
   end
 
 
+  def last_week?
+    self.week_number == self.group_loan.total_weeks 
+  end
+
   def approve_weekly_payment_collection( current_user )
     self.is_weekly_payment_approved_by_cashier = true 
     self.weekly_payment_approver_id = current_user.id
     self.save
+    
+    if self.last_week?
+      self.group_loan.update_default_payment_status 
+      self.group_loan.calculate_default_payment_in_grace_period #only principal and interest
+    end
   end
   
   def reject_weekly_payment_collection( current_user )

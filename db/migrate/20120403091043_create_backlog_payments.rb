@@ -12,6 +12,8 @@ class CreateBacklogPayments < ActiveRecord::Migration
       t.integer :transaction_activity_id_for_backlog_clearance 
       t.boolean :is_group_loan_declared_as_default, :default => false 
       
+      t.integer :clearance_period , :default => nil #BACKLOG_CLEARANCE_PERIOD
+      
       t.integer :backlog_type, :nil => false # is that penalty payment? is that weekly payment?
       
       # cashier needs to approve this

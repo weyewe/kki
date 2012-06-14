@@ -153,6 +153,14 @@ class CreateGroupLoans < ActiveRecord::Migration
       t.integer :commune_id
       
       
+      t.boolean :is_default_payment_resolution_proposed, :default => false 
+      t.integer :default_payment_proposer_id 
+      
+      t.boolean :is_default_payment_resolution_approved, :default => false 
+      t.integer :default_payment_resolution_approver_id 
+      
+      t.boolean :is_custom_default_payment_resolution, :default => false 
+      
       # default payment
       t.decimal :default_payment_value_before_defaultee_savings_deduction , :precision => 11, :scale => 2, :default => 0
       t.decimal :default_payment_to_be_shared_among_non_defaultee , :precision => 11, :scale => 2, :default => 0

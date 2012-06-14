@@ -300,6 +300,10 @@ class GroupLoan < ActiveRecord::Base
     self.group_loan_memberships.where(:is_active => true )
   end
   
+  def non_active_group_loan_memberships
+    self.group_loan_memberships.where(:is_active => false  )
+  end
+  
   def membership_attending_financial_education
     self.group_loan_memberships.where(:final_financial_lecture_attendance => true)
   end
@@ -531,6 +535,15 @@ class GroupLoan < ActiveRecord::Base
     return value
   end
   
+  
+  # create default_payment object for each active glm 
+  def create_default_payments
+    self.active_group_loan_memberships.each do |glm|
+      # positive thinking, assuming that every active member is non defaultee
+      glm.create_default_payment_for_the_non_default_member 
+    end
+  end
+  
   def execute_finalize_loan_disbursement( current_user )
     
     if not current_user.has_role?(:cashier, current_user.active_job_attachment)
@@ -546,6 +559,7 @@ class GroupLoan < ActiveRecord::Base
       
       
       self.initiate_weekly_tasks
+      self.create_default_payments 
       # group loan has these things
       # create the weekly_payment
         # weekly_payment has_many member_payments
@@ -887,9 +901,8 @@ class GroupLoan < ActiveRecord::Base
       
       
     end
-    
-    
   end
+  
   
   def auto_deduct_default_payments_from_savings(current_user)
     self.group_loan_memberships.includes(:default_payment).each do |glm|
@@ -1025,8 +1038,126 @@ class GroupLoan < ActiveRecord::Base
       TransactionActivity.create_basic_default_payment_savings_deduction_for_non_defaultee( non_defaultee_glm ,
                   employee)
     end
+  end
+  
+=begin
+  New DEFAULT PAYMENT RESOLUTION MECHANISM: just pay for the principal + interest 
+=end
+
+  def default_payment_amount_to_be_shared
+    active_glm_id_list  = self.active_group_loan_memberships.map {|x| x.id }
+
+    total_to_be_shared = BigDecimal("0")
     
+    DefaultPayment.find(:all, :conditions => {
+      :group_loan_membership_id => active_glm_id_list, 
+      :is_defaultee => true 
+      }).each do |dp| 
+        
+        total_to_be_shared += dp.amount_to_be_shared_with_non_defaultee
+        
+    end
+      
+    puts "*********************\n"*10
+    puts "Total to be shared is #{total_to_be_shared}"
+    puts "The class is #{total_to_be_shared.class}"
+    return total_to_be_shared
+
+  end
+  
+
+  def update_default_payment_status
+    self.active_group_loan_memberships.each do |glm|
+      if glm.unpaid_backlogs.count != 0 
+        glm.default_payment.mark_as_defaultee
+      end
+    end
+  end
+
+  def update_defaultee_default_payment_compulsory_savings_deduction
+    self.active_group_loan_memberships.each do |glm|
+      glm.update_defaultee_compulsory_savings_deduction
+      # we update the amount to be shared with groups (non defaultee)
+    end
+  end
+
+  def update_sub_group_non_defaultee_default_payment_contribution(total_to_be_shared)
+    self.sub_groups.each do |sub_group|
+      sub_group.update_sub_group_default_payment_contribution(total_to_be_shared)
+    end
+  end
+  
+  def update_group_non_defaultee_default_payment_contribution(total_to_be_shared)
+    group_contribution = total_to_be_shared  * ( 50/100 )
     
+    active_group_glm = self.active_group_loan_memberships.includes(:default_payment)
+    active_group_glm_id_list = active_group_glm.map {|x| x.id }
+    non_defaultee_default_payment = DefaultPayment.find(:all, :conditions => {
+      :group_loan_membership_id => active_group_glm_id_list, 
+      :is_defaultee => false 
+    })
+    number_of_non_defaultee_in_group = non_defaultee_default_payment.length
+    if number_of_non_defaultee_in_group >  0
+       group_non_defaultee_contribution = group_contribution / number_of_non_defaultee_in_group
+       
+       non_defaultee_default_payment.each do |default_payment|
+         default_payment.amount_group_share = group_non_defaultee_contribution
+         default_payment.save
+       end
+    end 
+  end
+  
+
+  def calculate_default_payment_in_grace_period
+    # this will be called on last weekly payment cashier approval
+    # and after all the backlog payments  approval made in grace period 
+    
+    self.update_defaultee_default_payment_compulsory_savings_deduction
+    total_to_be_shared = self.default_payment_amount_to_be_shared
+    self.update_sub_group_non_defaultee_default_payment_contribution(total_to_be_shared)
+    self.update_group_non_defaultee_default_payment_contribution(total_to_be_shared)
+    
+    # what if the non_defaultee's compulsory savings is not enough? will be handled by office
+    # this is corner case. but must be handled. or else, it is gonna be crashed 
+    # it will be handled in the transaction.. deduct all compulsory savings + paid by office 
+    # and sum it all in the group_loan -> default payment handled by office
+    ## it must be a really bad loan . the field_worker must be fired or severe disciplinary action 
+  end
+  
+  def update_default_payment_in_grace_period
+    calculate_default_payment_in_grace_period # just an alias
+  end
+  
+=begin
+  PROPOSE default payment resolution 
+=end
+  def propose_default_payment_execution(employee)
+    if not employee.has_role?(:field_worker, employee.active_job_attachment)
+      return nil
+    end
+    
+    # check whether it has the project assignment 
+    self.is_default_payment_resolution_proposed = true
+    self.default_payment_proposer_id = employee.id 
+    self.save 
+  end
+  
+  def execute_default_payment_execution( employee ) 
+    if not employee.has_role?(:cashier, employee.active_job_attachment)
+      return nil
+    end
+    
+    self.active_group_loan_memberships.includes(:default_payment).each do |glm|
+      default_payment = glm.default_payment 
+      transaction_activity = TransactionActivity.create_default_payment_resolution( default_payment,  employee  ) 
+      if not transaction_activity.nil?
+        self.is_active = false 
+        self.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
+    end
+    
+    self.is_default_payment_resolution_approved = true
+    self.default_payment_resolution_approver_id = employee.id 
+    self.save
   end
   
   

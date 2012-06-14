@@ -97,7 +97,7 @@ TRANSACTION_CASE = {
   
   
   
-  :default_payment_automatic_deduction => 80, 
+  
   # :default_loan_payment_as_sub_group_member => 70,
   # :default_loan_payment_as_group_member => 71, 
   
@@ -111,6 +111,11 @@ TRANSACTION_CASE = {
   
   :default_payment_resolution_cash_and_savings_withdrawal => 74,
   :default_payment_resolution_cash_and_savings_withdrawal_extra_savings => 75,
+  
+  
+  :default_payment_resolution_compulsory_savings_deduction_standard_amount => 80, 
+  :default_payment_resolution_compulsory_savings_deduction_custom_amount => 81 ,
+  
   
   # all transaction from the company to the member
   :loan_disbursement_no_setup_payment_deduction => 100,
@@ -209,11 +214,18 @@ DEFAULT_PAYMENT_ROUND_UP_VALUE = BigDecimal("500")
 
 GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE = {
   :group_loan_lecture_absent => 0,
-  :group_loan_disbursement_absent => 1
+  :group_loan_disbursement_absent => 1,
+  :group_loan_is_closed => 2 
 }
 
 # To monitor the group loan 
 GROUP_LOAN_ASSIGNMENT= {
   :field_worker => 0 , 
   :loan_inspector  => 1 
+}
+
+# to clear the backlog
+BACKLOG_CLEARANCE_PERIOD = {
+  :in_weekly_payment_cycle => 1 , 
+  :in_grace_period => 2 
 }

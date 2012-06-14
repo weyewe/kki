@@ -109,6 +109,41 @@ class SubGroup < ActiveRecord::Base
     self.save
   end
   
+  
+  def active_group_loan_memberships 
+    self.group_loan_memberships.where(:is_active => true )
+  end
+  
+  
+=begin
+  NEW DEFAULT_PAYMENT SCHEMA
+=end
+  def update_sub_group_default_payment_contribution(total_to_be_shared)
+    sub_group_contribution_amount = total_to_be_shared * ( 50/100 )
+    
+    active_subgroup_glm = self.active_group_loan_memberships.includes(:default_payment)
+    
+    # we need to know the number that is not defaultee 
+    active_subgroup_glm_id_list  = active_subgroup_glm.map { |x| x.id  }
+    
+    non_defaultee_default_payment = DefaultPayment.find(:all, :conditions => {
+      :group_loan_membership_id => active_subgroup_glm_id_list, 
+      :is_defaultee => false 
+    })
+    
+    number_of_non_defaultee_in_subgroup = non_defaultee_default_payment.count
+    if number_of_non_defaultee_in_subgroup  >  0 
+      sub_group_contribution_per_non_defaultee = sub_group_contribution_amount / number_of_non_defaultee_in_subgroup
+      
+      non_defaultee_default_payment.each do |default_payment|
+        default_payment.amount_sub_group_share = sub_group_contribution_per_non_defaultee
+        default_payment.save
+      end
+    end
+  end
+
+
+  
 =begin
   SubGroup Default Payment
 =end

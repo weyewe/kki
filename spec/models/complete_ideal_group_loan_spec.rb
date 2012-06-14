@@ -184,6 +184,20 @@ describe GroupLoan do
       end
       total_disbursement_returned.should == @group_loan.total_amount_to_be_returned_to_cashier
     end
+    
+    
+    it "should produce default payment for all active member, not produce default payment for non active" do 
+      @group_loan.active_group_loan_memberships.each do |glm|
+        glm.default_payment.should be_valid 
+      end
+      
+      @group_loan.non_active_group_loan_memberships.each do |glm|
+        glm.default_payment.should be_nil 
+      end
+      
+      
+    end
+    
   end # end of "testing the post conditions"  context 
   
   context "start doing the weekly transaction. basic payment all the way" do 
@@ -304,10 +318,37 @@ describe GroupLoan do
       # then, after this deduction, migrate compulsory savings to extra savings 
       
       
-      @group_loan.generate_default_payments(@branch_manager) 
+      # @group_loan.generate_default_payments(@branch_manager) 
+      # auto generated on loan disbursement finalization 
       
-      @group_loan.is_closed.should be_true 
+      @group_loan.is_closed.should be_false
+      # not closed yet 
+      
+      
+      # => DEFAULT PAYMENT RESOLUTION
+      # =>  1. Standard algorithm
+            # => deduct all backlogs (principal + interest, without compulsory savings) with member's compulsory savings
+              # => if the compulsory savings is not enough, distribute it to the sub group and group non defaultees-> 50% - 50% 
+      # =>  2. Custom value. Post deduction, non defaultee decide their contribution 
+              # => due to the nature of 50% subgroup, it might lead to big amount. 
+              #   solution -> non defaultee decide on their own about the concept of fairness 
+              # can't change the amount of the defaultee compulsory savings deduction. but, the non defaultee's contribution
+              # => can be changed
+      @group_loan.propose_default_payment_execution( @field_worker ) # cashier is notified
+      
+      @group_loan.execute_default_payment_execution( @cashier ) 
+      
+      # in the custom case 
+      # @group_loan.propose_custom_default_payment_execution( @field_worker, glm_and_custom_amount_pair ) 
+      # verify that the custom amount < member compulsory savings 
+      # @group_loan.execute_custom_default_payment_execution( @cashier ) 
+      
+      
       # test: it doesn't deduct any $$$ from member 
+      # => test: it doesn't produce the transaction 
+      
+      # test: paying unpaid backlogs in the grace period -> another transaction.. we haven't created it 
+      
       # test: no transaction takes place -> no default 
       # test: all default payments end up with 0 amount 
       

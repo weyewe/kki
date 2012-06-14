@@ -17,12 +17,37 @@ class GroupLoanMembership < ActiveRecord::Base
   
   before_destroy :destroy_group_loan_subcription
   
+  def update_defaultee_compulsory_savings_deduction
+    default_payment = self.default_payment 
+    total_compulsory_savings = self.member.saving_book.total_compulsory_savings
+    if default_payment.is_defaultee == true 
+      glp = self.group_loan_product 
+      total_amount = self.unpaid_backlogs.count*( glp.interest + glp.principal)
+      if total_amount <= total_compulsory_savings
+        default_payment.amount_of_compulsory_savings_deduction = total_amount 
+      else
+        # will be handled by group
+        default_payment.amount_of_compulsory_savings_deduction = total_compulsory_savings 
+        default_payment.amount_to_be_shared_with_non_defaultee = total_amount - total_compulsory_savings
+      end
+      default_payment.save 
+    end
+  end
+  
   def create_default_payment_for_the_default_member
     DefaultPayment.create(:group_loan_membership_id => self.id , :is_defaultee => true )
   end
   
   def create_default_payment_for_the_non_default_member
     DefaultPayment.create(:group_loan_membership_id => self.id , :is_defaultee => false )
+  end
+  
+  def unpaid_backlogs
+    BacklogPayment.find(:all, :conditions => {
+      :group_loan_id => self.group_loan_id,
+      :member_id => self.member_id,
+      :is_cleared => false 
+    })
   end
   
   def add_deposit(field_worker, amount ) 
