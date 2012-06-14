@@ -124,7 +124,9 @@ TRANSACTION_CASE = {
   :deposit_return_complete => 300, 
   :deposit_return_deduct_default => 301 ,
   
-  :independent_savings_deposit => 500
+  :independent_savings_deposit => 500,
+  
+  :port_compulsory_savings_during_group_loan_closing => 600
   
 }
 
@@ -151,7 +153,11 @@ TRANSACTION_ENTRY_CODE = {
   
   # default_payment
   :default_loan_resolution_payment => 500,
-  :extra_savings_from_default_loan_resolution_payment => 510
+  :extra_savings_from_default_loan_resolution_payment => 510,
+  
+  :default_loan_resolution_compulsory_savings_withdrawal => 600,
+  
+  :port_remaining_compulsory_savings_on_group_loan_close => 700
   
 }
 
@@ -169,7 +175,10 @@ SAVING_ENTRY_CODE = {
   :hard_withdrawal => 101,
   
   :soft_withdraw_for_default_payment => 200,
-  :weekly_saving_extra_from_default_payment => 250
+  :weekly_saving_extra_from_default_payment => 250,
+  
+  :deduct_compulsory_savings_to_be_ported_to_extra_savings => 300,
+  :add_extra_savings_from_compulsory_savings_deduction => 301 
   
  
   
@@ -229,3 +238,6 @@ BACKLOG_CLEARANCE_PERIOD = {
   :in_weekly_payment_cycle => 1 , 
   :in_grace_period => 2 
 }
+
+BASIC_WEEKLY_PAYMENT_START = 77700000
+BASIC_WEEKLY_PAYMENT_END = 77720000 # max = 777 11122

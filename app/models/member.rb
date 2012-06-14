@@ -97,6 +97,12 @@ class Member < ActiveRecord::Base
     self.create_saving( saving_amount, saving_entry_code, SAVING_ACTION_TYPE[:credit], saving_transaction_entry , false )
   end
   
+  def port_compulsory_savings_to_extra_savings( total_amount , group_loan ) 
+    self.create_saving( total_amount, SAVING_ENTRY_CODE[:deduct_compulsory_savings_to_be_ported_to_extra_savings], SAVING_ACTION_TYPE[:credit], saving_transaction_entry , false )
+    self.create_saving( total_amount, SAVING_ENTRY_CODE[:add_extra_savings_from_compulsory_savings_deduction], SAVING_ACTION_TYPE[:debit], saving_transaction_entry , false )
+  end
+  
+  
   def create_saving( saving_amount, saving_entry_code, saving_action_type, saving_transaction_entry, is_extra_savings)
     saving_entry =  SavingEntry.create(
       :saving_book_id => self.saving_book.id , 

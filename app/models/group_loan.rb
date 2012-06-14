@@ -914,12 +914,29 @@ class GroupLoan < ActiveRecord::Base
   
   def close_group_loan(current_user)
     
+    if self.is_closed == true 
+      return nil
+    end
+    
     if not current_user.has_role?(:branch_manager, current_user.active_job_attachment)
       return nil
     end
-    self.is_closed = true 
-    self.group_loan_closer_id = current_user.id
-    self.save
+    
+    if self.unpaid_backlogs.count > 0 and self.is_default_payment_resolution_approved == false 
+      return nil
+    elsif ( self.unpaid_backlogs.count > 0 and self.is_default_payment_resolution_approved == true   ) or
+          ( self.unpaid_backlogs.count == 0 )
+      
+      self.active_group_loan_memberships.each do |glm|
+        glm.migrate_compulsory_savings_to_extra_savings # find all transactions associated with this group loan
+        # move it over  -> from compulsory to extra 
+      end
+      
+      
+      self.is_closed = true 
+      self.group_loan_closer_id = current_user.id
+      self.save
+    end
   end
   
   
@@ -1107,7 +1124,26 @@ class GroupLoan < ActiveRecord::Base
     end 
   end
   
-
+  
+  def update_total_amount_in_default_payment
+    self.active_group_loan_memberships.includes(:default_payment).each do |glm|
+      default_payment = glm.default_payment 
+      total_amount = BigDecimal("0")
+      if default_payment.is_defaultee == true
+        total_amount = default_payment.amount_of_compulsory_savings_deduction
+        puts "******!!!!!!!!!!In the shit, total_amount = #{total_amount}"
+        default_payment.total_amount = total_amount
+        default_payment.save
+      elsif  default_payment.is_defaultee == false
+        default_payment.round_up_to( DEFAULT_PAYMENT_ROUND_UP_VALUE )
+      end
+      
+      puts "!!!!!!!!!!!!!!!!!In the shit, total_amount = #{default_payment.total_amount}"
+      
+      
+    end
+  end
+  
   def calculate_default_payment_in_grace_period
     # this will be called on last weekly payment cashier approval
     # and after all the backlog payments  approval made in grace period 
@@ -1116,6 +1152,9 @@ class GroupLoan < ActiveRecord::Base
     total_to_be_shared = self.default_payment_amount_to_be_shared
     self.update_sub_group_non_defaultee_default_payment_contribution(total_to_be_shared)
     self.update_group_non_defaultee_default_payment_contribution(total_to_be_shared)
+    
+    self.update_total_amount_in_default_payment 
+    
     
     # what if the non_defaultee's compulsory savings is not enough? will be handled by office
     # this is corner case. but must be handled. or else, it is gonna be crashed 
@@ -1147,17 +1186,28 @@ class GroupLoan < ActiveRecord::Base
       return nil
     end
     
-    self.active_group_loan_memberships.includes(:default_payment).each do |glm|
-      default_payment = glm.default_payment 
-      transaction_activity = TransactionActivity.create_default_payment_resolution( default_payment,  employee  ) 
-      if not transaction_activity.nil?
-        self.is_active = false 
-        self.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
+    
+    if self.unpaid_backlogs.count >  0 
+      self.active_group_loan_memberships.includes(:default_payment).each do |glm|
+        default_payment = glm.default_payment 
+        if default_payment.total_amount !=  BigDecimal("0")
+          transaction_activity = TransactionActivity.create_default_payment_resolution( default_payment,  employee  ) 
+          if not transaction_activity.nil?
+            glm.is_active = false 
+            glm.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
+          end
+        else 
+          glm.is_active = false 
+          glm.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
+        end
+      end
+      
+      self.is_default_payment_resolution_approved = true
+      self.default_payment_resolution_approver_id = employee.id 
+      self.save
     end
     
-    self.is_default_payment_resolution_approved = true
-    self.default_payment_resolution_approver_id = employee.id 
-    self.save
+    
   end
   
   

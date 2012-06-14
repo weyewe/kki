@@ -853,7 +853,7 @@ class TransactionActivity < ActiveRecord::Base
     member = glm.member 
     
     
-    
+    amount_to_be_paid = default_payment.amount_to_be_paid
 
     
     # deduce transaction_case 
@@ -898,7 +898,33 @@ class TransactionActivity < ActiveRecord::Base
 =begin
   For the default loan resolution
 =end
+  def TransactionActivity.port_compulsory_savings_to_extra_savings(glm, employee)
+    if not employee.has_role?(:branch_manager, employee.active_job_attachment) 
+      return nil
+    end
+    
+    member = glm.member
+    group_loan = glm.group_loan 
+    
+    
+    new_hash = {}
+    new_hash[:total_transaction_amount] = BigDecimal("0") #no hard money flowing 
+    new_hash[:transaction_case]  = TRANSACTION_CASE[:port_compulsory_savings_during_group_loan_closing]
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = glm.group_loan_id
 
+    transaction_activity = TransactionActivity.create new_hash
+    
+    
+    transaction_activity.create_default_payment_savings_withdrawal_transaction_entry(default_payment.amount_paid , member)
+    
+    transaction_activity.create_port_compulsory_savings_on_group_loan_closing_transaction_entry( member )
+    return transaction_activity
+  end
+  
 
   def TransactionActivity.execute_default_payment_deduction_from_savings(group_loan,default_payment,glm, current_user)
     member = glm.member
@@ -1039,9 +1065,26 @@ class TransactionActivity < ActiveRecord::Base
                       )
   end
   
+  
+  def create_port_compulsory_savings_on_group_loan_closing_transaction_entry(amount, member ) 
+    transaction_entry  = self.transaction_entries.create( 
+                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:port_remaining_compulsory_savings_on_group_loan_close], 
+                      :amount => amount  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
+                      )
+    member.deduct_compulsory_savings( amount, SAVING_ENTRY_CODE[:deduct_compulsory_savings_to_be_ported_to_extra_savings] , transaction_entry )
+    
+    transaction_entry  = self.transaction_entries.create( 
+                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:port_remaining_compulsory_savings_on_group_loan_close], 
+                      :amount => amount  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+                      )
+    member.add_extra_savings( amount, SAVING_ENTRY_CODE[:add_extra_savings_from_compulsory_savings_deduction] , transaction_entry )
+  end
+  
   def create_default_payment_savings_withdrawal_transaction_entry(savings_withdrawal_amount, member)
     transaction_entry  = self.transaction_entries.create( 
-                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal], 
+                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:default_loan_resolution_compulsory_savings_withdrawal], 
                       :amount => savings_withdrawal_amount  ,
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
                       )

@@ -36,15 +36,24 @@ class DefaultPayment < ActiveRecord::Base
         self.save
       end
     else
-      return nil
+      return BigDecimal('0')
     end
   end
   
   
+  def amount_to_be_paid
+    
+    if self.custom_amount.nil?
+      return self.total_amount 
+    else
+      return self.custom_amount 
+    end
+  end
+  
   def set_default_amount_deducted(amount , transaction_activity  )
     
     self.amount_paid = amount 
-    
+    self.is_paid = true 
     self.transaction_id = transaction_activity.id 
     self.save
   end

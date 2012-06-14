@@ -334,9 +334,30 @@ describe GroupLoan do
               #   solution -> non defaultee decide on their own about the concept of fairness 
               # can't change the amount of the defaultee compulsory savings deduction. but, the non defaultee's contribution
               # => can be changed
+      @group_loan.reload
       @group_loan.propose_default_payment_execution( @field_worker ) # cashier is notified
-      
+      @group_loan.reload
       @group_loan.execute_default_payment_execution( @cashier ) 
+      
+      @group_loan.active_group_loan_memberships.each do |glm|
+        puts "Checking member #{glm.member_id}"
+        
+        
+        default_payment = glm.default_payment
+        default_payment.amount_to_be_paid.should == BigDecimal("0")
+        default_payment.total_amount.should == BigDecimal("0")
+      end
+      
+      
+      @group_loan.close_group_loan(@branch_manager)
+      # before closing, no transfer from compulsory savings to extra savings 
+      @group_loan.is_closed.should be_true 
+      
+      @group_loan.active_group_loan_memberships.first.member.saving_book.total_compulsory_savings.should == BigDecimal("0")
+      
+      # test: it doesn't deduct any $$$ from member 
+      # => test: it doesn't produce the default payment transaction since there is no unpaid backlog
+      
       
       # in the custom case 
       # @group_loan.propose_custom_default_payment_execution( @field_worker, glm_and_custom_amount_pair ) 
@@ -344,10 +365,10 @@ describe GroupLoan do
       # @group_loan.execute_custom_default_payment_execution( @cashier ) 
       
       
-      # test: it doesn't deduct any $$$ from member 
-      # => test: it doesn't produce the transaction 
+      
       
       # test: paying unpaid backlogs in the grace period -> another transaction.. we haven't created it 
+      # another example 
       
       # test: no transaction takes place -> no default 
       # test: all default payments end up with 0 amount 
