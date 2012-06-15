@@ -448,7 +448,7 @@ class WeeklyTask < ActiveRecord::Base
     self.save
     
     if self.last_week?
-      puts "This is the last week.. commencing update default payment status and calculate default payment\n"*10
+      # puts "This is the last week.. commencing update default payment status and calculate default payment\n"*10
       self.group_loan.update_default_payment_status 
       self.group_loan.calculate_default_payment_in_grace_period #only principal and interest
     end

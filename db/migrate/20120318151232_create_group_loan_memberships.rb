@@ -43,6 +43,9 @@ class CreateGroupLoanMemberships < ActiveRecord::Migration
       
       t.boolean :is_active , :default => true 
       t.integer :deactivation_case , :default => nil # GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE, deactivation reason
+      
+      t.boolean :is_compulsory_savings_migrated, :default => false 
+      
     
       
       

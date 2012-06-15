@@ -917,6 +917,7 @@ class GroupLoan < ActiveRecord::Base
     if self.is_closed == true 
       return nil
     end
+    # prevent double submission? 
     
     if not current_user.has_role?(:branch_manager, current_user.active_job_attachment)
       return nil
@@ -928,7 +929,12 @@ class GroupLoan < ActiveRecord::Base
           ( self.unpaid_backlogs.count == 0 )
       
       self.active_group_loan_memberships.each do |glm|
-        glm.migrate_compulsory_savings_to_extra_savings # find all transactions associated with this group loan
+        if glm.is_compulsory_savings_migrated == false 
+          glm.migrate_compulsory_savings_to_extra_savings(current_user) # find all transactions associated with this group loan
+          glm.is_active = false
+          glm.deactivation_case =  GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
+          glm.save
+        end
         # move it over  -> from compulsory to extra 
       end
       
@@ -966,7 +972,7 @@ class GroupLoan < ActiveRecord::Base
     self.declare_backlog_payments_as_default #but not cleared. that is the basis for future data
     
     self.auto_deduct_default_payments_from_savings(current_user)
-    self.close_group_loan(current_user)
+    # self.close_group_loan(current_user)
   end
   
   
@@ -1058,6 +1064,14 @@ class GroupLoan < ActiveRecord::Base
   end
   
 =begin
+  Check grace period 
+=end
+
+  def is_grace_period?
+    self.weekly_tasks.where(:is_weekly_payment_approved_by_cashier => true ).count == self.total_weeks 
+  end
+  
+=begin
   New DEFAULT PAYMENT RESOLUTION MECHANISM: just pay for the principal + interest 
 =end
 
@@ -1131,14 +1145,14 @@ class GroupLoan < ActiveRecord::Base
       total_amount = BigDecimal("0")
       if default_payment.is_defaultee == true
         total_amount = default_payment.amount_of_compulsory_savings_deduction
-        puts "******!!!!!!!!!!In the shit, total_amount = #{total_amount}"
+        # puts "******!!!!!!!!!!In the shit, total_amount = #{total_amount}"
         default_payment.total_amount = total_amount
         default_payment.save
       elsif  default_payment.is_defaultee == false
         default_payment.round_up_to( DEFAULT_PAYMENT_ROUND_UP_VALUE )
       end
       
-      puts "!!!!!!!!!!!!!!!!!In the shit, total_amount = #{default_payment.total_amount}"
+      # puts "!!# !!!!!!!!!!!!!!!In the shit, total_amount = #{default_payment.total_amount}"
       
       
     end

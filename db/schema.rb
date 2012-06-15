@@ -118,6 +118,7 @@ ActiveRecord::Schema.define(:version => 20120524084402) do
     t.integer  "final_loan_disbursement_attendance_marker_id"
     t.boolean  "is_active",                                                                  :default => true
     t.integer  "deactivation_case"
+    t.boolean  "is_compulsory_savings_migrated",                                             :default => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
