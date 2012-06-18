@@ -429,6 +429,8 @@ class TransactionActivity < ActiveRecord::Base
     end
     
     
+    group_loan.calculate_default_payment_in_grace_period
+    
     return transaction_activity
     
     
@@ -596,6 +598,7 @@ class TransactionActivity < ActiveRecord::Base
     content = "" 
     zero_value = BigDecimal("0")
     
+    # 77710010
     if cash > zero_value
       content << 1.to_s
     else

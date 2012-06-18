@@ -16,7 +16,7 @@ class CreateDefaultPayments < ActiveRecord::Migration
       
       
       # non defaultee member proposes the amount -> for fairness 
-      t.decimal :custom_amount ,  :precision => 10, :scale => 2 , :default => 0 
+      t.decimal :custom_amount ,  :precision => 10, :scale => 2 , :default => nil 
       # then, during transaction, migrate this custom amount to amount paid. recorded ! 
       
       # actual compulsory savings deduction 

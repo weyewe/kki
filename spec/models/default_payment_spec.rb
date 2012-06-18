@@ -1,423 +1,558 @@
 require 'spec_helper'
 
 describe DefaultPayment do
-  
-  context "generic case: 2 subgroups, 4-4 .. in the first subgroup, 1 default. in the second subgroup , 2 defaults" do
-    before(:each) do
-      @office = FactoryGirl.create(:cilincing_office)
-      @branch_manager_role = FactoryGirl.create(:branch_manager_role)
-      @loan_officer_role = FactoryGirl.create(:loan_officer_role)
-      @cashier_role = FactoryGirl.create(:cashier_role)
-      @field_worker_role = FactoryGirl.create(:field_worker_role)
-      @branch_manager = @office.create_user( [@branch_manager_role],
-        :email => 'branch_manager@gmail.com',
-        :password => 'willy1234',
-        :password_confirmation => 'willy1234'
-      )
-      @loan_officer = @office.create_user( [@loan_officer_role], 
-        :email => 'loan_officer@gmail.com',
-        :password => 'willy1234',
-        :password_confirmation => 'willy1234'
-      )
-      @cashier = @office.create_user( [@cashier_role], 
-        :email => 'cashier@gmail.com',
-        :password => 'willy1234',
-        :password_confirmation => 'willy1234' 
-      )
-      @field_worker = @office.create_user( [@field_worker_role], 
-        :email => 'field_worker@gmail.com',
-        :password => 'willy1234',
-        :password_confirmation => 'willy1234' 
-      )
-
-      @group_loan_commune = FactoryGirl.create(:group_loan_commune)
-      #this shit will trigger the creation of kalibaru village, cilincing subdistrict 
-
-      @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
-              :commune_id => @group_loan_commune }, @branch_manager)
-
-      ############ subgroup creation
-      SubGroup.set_sub_groups( @group_loan, 2 ) # produce the 2 subgroups
-      @first_sub_group = @group_loan.sub_groups.first
-      @second_sub_group = @group_loan.sub_groups.last
-      ############# end of subgroup creation
-
-      # we need several members in a given commune   DONE 
-      @members = FactoryGirl.create_list(:member_of_first_rw_office_cilincing, 8, creator_id: @loan_officer.id,
-       commune_id: @group_loan_commune.id )
-      # we need these members hooked to the group loan (group_loan_memberships)
-      counter = 0  # for subgroup assignment
-      @members.each do |member|
-        counter += 1 
-        glm = GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
-        ############### this code is used to assign subgroup
-        if( counter%2 == 0 )
-          glm.sub_group_id = @first_sub_group.id
-          glm.save
-        else
-          glm.sub_group_id = @second_sub_group.id
-          glm.save
-        end
-        ############# end of subgroup asssignment.
-      end
-
-      ############## subgroup code
-      random_4 = rand(4)
-      @sub_group_1_selected_member = @first_sub_group.group_loan_memberships[ random_4 ].member
-      @sub_group_2_selected_member_1 = @second_sub_group.group_loan_memberships[ (random_4 +1 )%4].member
-      @sub_group_2_selected_member_2 = @second_sub_group.group_loan_memberships[ (random_4 +2 )%4 ].member
-      @special_default_member_id_list = [ @sub_group_1_selected_member.id ,
-          @sub_group_2_selected_member_1.id ,
-          @sub_group_2_selected_member_2.id ]
-      ############## subgroup code
-
-      @total_number_of_weeks  = 2 
-      # we need group_loan_product x 3 , just for variations
-      @group_loan_product_a = FactoryGirl.create(:group_loan_product_a, total_weeks: @total_number_of_weeks)
-      @group_loan_product_b = FactoryGirl.create(:group_loan_product_b, total_weeks: @total_number_of_weeks)
-      @group_loan_product_c = FactoryGirl.create(:group_loan_product_c, total_weeks: @total_number_of_weeks)
-
-      #assign the group_loan_product subcription 
-      group_loan_products_array  = [@group_loan_product_a, @group_loan_product_b, @group_loan_product_c]
-      @members.each do |member|
-         # randomized
-        glm = GroupLoanMembership.find(:first, :conditions => {
-          :member_id => member.id,
-          :group_loan_id => @group_loan.id 
-        })
-        GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
-      end
-
-      #start the group loan (the approval cycle)
-      @group_loan.execute_propose_finalization( @loan_officer )
-      @group_loan.start_group_loan( @branch_manager )
-
-      # puts  "At the end of the highest before block"
-
-      # puts  "total villages : #{Village.count}"
-      # puts  "total subdistricts: #{Subdistrict.count}"
-      # puts  "total regencies: #{Regency.count}"
-      # puts  "total provinces: #{Province.count}"
-      # puts  "total island: #{Island.count}"
-
-
-      # do the setup payment, finalize.. let the weekly payment begin
-      @members.each do |member|
-        glm = GroupLoanMembership.find(:first, :conditions => {
-          :member_id => member.id,
-          :group_loan_id => @group_loan.id 
-        })
-        glm.declare_setup_payment_by_loan_deduction
-      end
-
-      @group_loan.execute_finalize_setup_fee_collection( @field_worker )
-      @group_loan.approve_setup_fee_collection( @cashier )
-
-
-      # do the loan disbursement
-
-      @group_loan.group_loan_memberships.each do |glm|
-        TransactionActivity.execute_loan_disbursement( glm , @cashier )
-      end
-
-      @group_loan.execute_finalize_loan_disbursement( @cashier )
-
-
-
-      # puts  "Total weekly Tasks: #{@group_loan.weekly_tasks.count}"
-
-      # gonna finalize the week
-      (1..(@group_loan.total_weeks )).each do |week|
-        # puts  "week number: #{week}"
-        weekly_task = @group_loan.currently_executed_weekly_task 
-        @members.each do |member|
-          value = rand(3)
-          if value == 0
-            weekly_task.mark_attendance_as_late(member, @field_worker )
-          elsif value ==1 
-            weekly_task.mark_attendance_as_present(member, @field_worker  )
-          elsif value == 2 
-            weekly_task.mark_attendance_as_absent(member, @field_worker  )
-          end
-        end
-        weekly_task.close_weekly_meeting( @field_worker ) #line 350
-
-        # create all transaction as no savings
-        @savings_amount = BigDecimal("10000")
-        @members.each do |member|
-          if @special_default_member_id_list.include?(member.id)
-            TransactionActivity.create_savings_only_weekly_payment(
-              member,
-              weekly_task,
-              @savings_amount,
-              @field_worker
-            )
-          else
-            # create basic payment 
-            TransactionActivity.create_basic_weekly_payment(
-              member,
-              weekly_task,
-              @field_worker
-            )
-          end
-
-        end
-        weekly_task.close_weekly_payment( @field_worker )
-        # cashier approve
-        weekly_task.approve_weekly_payment_collection( @cashier )
-      end
-    end # end of the before(:each)
-
-    context "testing the setup code, whether it produces what we want" do
-      it "should produces 2 subgroups, each having 4 members" do
+  before(:each) do
+    @office = FactoryGirl.create(:cilincing_office)
+    @branch_manager_role = FactoryGirl.create(:branch_manager_role)
+    @loan_officer_role = FactoryGirl.create(:loan_officer_role)
+    @cashier_role = FactoryGirl.create(:cashier_role)
+    @field_worker_role = FactoryGirl.create(:field_worker_role)
+    @branch_manager = @office.create_user( [@branch_manager_role],
+      :email => 'branch_manager@gmail.com',
+      :password => 'willy1234',
+      :password_confirmation => 'willy1234'
+    )
+    @loan_officer = @office.create_user( [@loan_officer_role], 
+      :email => 'loan_officer@gmail.com',
+      :password => 'willy1234',
+      :password_confirmation => 'willy1234'
+    )
+    @cashier = @office.create_user( [@cashier_role], 
+      :email => 'cashier@gmail.com',
+      :password => 'willy1234',
+      :password_confirmation => 'willy1234' 
+    )
+    @field_worker = @office.create_user( [@field_worker_role], 
+      :email => 'field_worker@gmail.com',
+      :password => 'willy1234',
+      :password_confirmation => 'willy1234' 
+    )
+    
+    @group_loan_commune = FactoryGirl.create(:group_loan_commune)
+    #this shit will trigger the creation of kalibaru village, cilincing subdistrict 
+    
+    # @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
+    #          :commune_id => @group_loan_commune }, @branch_manager)
+    
+    # we need several members in a given commune   DONE 
+    @members = FactoryGirl.create_list(:member_of_first_rw_office_cilincing, 10, creator_id: @loan_officer.id,
+     commune_id: @group_loan_commune.id , office_id: @office.id )
+     
+    @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
+       :commune_id => @group_loan_commune }, @branch_manager)
+       
+       
+    @members.each do |member|
+      GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
+    end
+    
+    @group_loan.add_assignment(:field_worker, @field_worker)
+    @group_loan.add_assignment(:loan_inspector, @branch_manager)
+    @group_loan_product_a = FactoryGirl.create(:group_loan_product_a)  # 5 weeks
+    @group_loan_product_b = FactoryGirl.create(:group_loan_product_b)  # 5 weeks
+    @group_loan_product_c = FactoryGirl.create(:group_loan_product_c)  # 5 weeks
+    
+    group_loan_products_array  = [@group_loan_product_a, @group_loan_product_b,
+        @group_loan_product_c]
         
-        @group_loan.sub_groups.count.should == 2 
         
-        first_sub_group = @group_loan.sub_groups.first
-        last_sub_group = @group_loan.sub_groups.last 
-        
-        first_sub_group.group_loan_memberships.count.should ==  4
-        last_sub_group.group_loan_memberships.count.should == 4 
+    # create the subcription 
+    @group_loan.group_loan_memberships.each do |glm|
+      GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
+    end
+    
+    
+    # create the subgroup 
+    sub_group_count = 2 
+    SubGroup.set_sub_groups( @group_loan, sub_group_count )
+    @first_sub_group = @group_loan.sub_groups[0]
+    @second_sub_group =  @group_loan.sub_groups[1]
+    
+    # assign the member to the subgroup 
+    
+    count = 0 
+    @members.each do |member|
+      if count%2 == 0 
+        @first_sub_group.add_member( member )
+      elsif count%2 == 1 
+        @second_sub_group.add_member( member )
       end
-      
-      it "should have 3 * number of weeks backlog payment" do
-        @group_loan.unpaid_backlogs.count.should == 3*@group_loan.total_weeks
+      count = count + 1 
+    end
+    
+    
+    # propose group loan start
+    @group_loan.execute_propose_finalization( @loan_officer )
+    
+    # start group loan
+    @group_loan.start_group_loan( @branch_manager )
+    
+    # financial education attendance marking
+    
+    # => mark the financial education attendance 
+    @first_glm = @first_sub_group.group_loan_memberships.order("created_at ASC")[0]
+    @second_glm = @second_sub_group.group_loan_memberships.order("created_at ASC")[0]
+    @third_glm = @first_sub_group.group_loan_memberships.order("created_at ASC")[1]
+    
+    @group_loan.group_loan_memberships.each do |glm|
+      if glm.id == @first_glm.id 
+        glm.mark_financial_education_attendance( @field_worker, false , @group_loan  )
+      else
+        glm.mark_financial_education_attendance( @field_worker, true, @group_loan  )
       end
     end
     
-    context "creation of default payment, pre conditions" do 
+    
+    # => propose financial education finalization
+    @group_loan.propose_financial_education_attendance_finalization( @field_worker) 
+    
+    # => finalize financial education attendance
+    @group_loan.finalize_financial_attendance_summary(@branch_manager)
       
-      it "should not create default payment if not executed by branch_manager"
-      it "should not create default payment if not all weekly tasks are closed: payment and meeting"
-      # @group_loan.declare_default(current_user) 
+    @group_loan.reload   # refresh the data  from db
+    @first_glm.reload
+    @second_glm.reload
+    @third_glm.reload 
+    
+    # 1 member is disqualified from group 1  -> didn't attend financial education 
+    
+    # loan disbursement attendance marking
+    
+    # => marking the loan disbursement attendance 
+    @group_loan.membership_to_receive_loan_disbursement.each do |glm|
+      if glm.id == @second_glm.id or glm.id == @third_glm.id
+        glm.mark_loan_disbursement_attendance( @field_worker, false, @group_loan  ) 
+      end
+      
+      if glm.id == @first_glm.id 
+        next
+      end
+      
+      glm.mark_loan_disbursement_attendance( @field_worker, true, @group_loan  )
     end
-
-
-    context "post conditions of default payment creation" do 
-      before(:each) do
-        
-        @group_loan.declare_default(@branch_manager) 
-        
+    
+    # THIS IS THE LOGIC NOT CAPTURED  << no rule at all.. let it be. 
+    # glm.declare_setup_payment_by_loan_deduction
+    # @group_loan.execute_finalize_setup_fee_collection( @field_worker )
+    # @group_loan.approve_setup_fee_collection( @cashier )
+    
+    # => propose loan disbursement attendance finalization
+    @group_loan.propose_loan_disbursement_attendance_finalization(@field_worker)
+    
+    # do the actual disbursement 
+    @group_loan.reload 
+    # do the actual transaction 
+    @group_loan.group_loan_memberships.each do |glm|
+      # important.. by default, set it to deduct setup fee from laon disbursment 
+      glm.deduct_setup_payment_from_loan = true
+      glm.save 
+      TransactionActivity.execute_loan_disbursement( glm , @field_worker )
+      # the column has_received_disbursement is checked 
+    end
+    
+    # => finalize loan disbursement attendance (+ field worker returning the $$$ )
+    @group_loan.finalize_loan_disbursement_attendance_summary(@branch_manager )
+    
+    
+    
+    # 2 members are disqualified from group 2  -> didn't attend loan disbursement 
+    # returning the money from the 2 members weren't attending the disbursement 
+    
+    # cashier approves loan disbursement 
+    @group_loan.execute_finalize_loan_disbursement(@cashier)
+  end
+  
+  
+  context "new case" do
+    it "should produce default payment for all active member, not produce default payment for non active" do 
+      @group_loan.active_group_loan_memberships.each do |glm|
+        glm.default_payment.should be_valid 
       end
       
-      it "Should have is_group_loan_default == true " do
-        @group_loan.is_group_loan_default.should == true 
+      @group_loan.non_active_group_loan_memberships.each do |glm|
+        glm.default_payment.should be_nil 
       end
+    end
+  end
+  
+  
+  
+  context "recalculating default payment on the finalization of all weekly payments" do
+    # do all weekly payment + approval
+    # on last weekly payment, see the difference in the default_payment total amount value 
+    # check the default_payment.amount_to_be_paid method 
+    
+    it "should not recalculate default payment before entering grace period" do
+      defaultee_glm_list = @first_sub_group.active_group_loan_memberships[0..1] + @second_sub_group.active_group_loan_memberships[0..1]
+      defaultee_glm_id_list = defaultee_glm_list.collect {|x| x.id }
       
-      it 'should have branch manager id as the default creator id' do
-        @group_loan.default_creator_id.should == @branch_manager.id
-      end
-      
-      
-      context "subgroup, generic case" do
-        it "should produces default member: 1 for sub_group 1, and 2 for sub_group 2, 3 defaults for the whole group" do
-          @group_loan.total_default_member.should == 3 
-          @first_sub_group.total_default_member.should  == 1 
-          @second_sub_group.total_default_member.should == 2 
-        end
+      @group_loan.weekly_tasks.order("week_number ASC").each do |weekly_task| 
+        puts "======================\n"*2
+        puts "\n\nin week: #{weekly_task.week_number}"
         
-        it "should extract the correct total default value in subgroup, and the total group" do 
-          total_group_loan_default = BigDecimal("0")
-          actual_total_default = @first_sub_group.extract_total_unpaid_backlogs
+        
+        initial_amount_to_be_paid_hash = {}
+        @group_loan.active_group_loan_memberships.includes(:member).each do |glm|
+          # setup 
+          initial_amount_to_be_paid_hash[glm.id] = glm.default_payment.amount_to_be_paid
           
-          group_loan_product = @group_loan.get_membership_for_member( @sub_group_1_selected_member ) .group_loan_product
-          expected_total_default  = @total_number_of_weeks*group_loan_product.total_weekly_payment
-          actual_total_default.should == expected_total_default
-          # puts  "Actual first group default:#{actual_total_default} "
-          # puts  "Expected first group default: #{expected_total_default}"
-          total_group_loan_default += actual_total_default
-          # for the 2nd group
-          actual_total_default_2 = @second_sub_group.extract_total_unpaid_backlogs
-          expected_total_default_2 = BigDecimal("0")
-          group_loan_product = @group_loan.get_membership_for_member( @sub_group_2_selected_member_1 ) .group_loan_product
-          expected_total_default_2  += @total_number_of_weeks*group_loan_product.total_weekly_payment
-          group_loan_product = @group_loan.get_membership_for_member( @sub_group_2_selected_member_2 ) .group_loan_product
-          expected_total_default_2  += @total_number_of_weeks*group_loan_product.total_weekly_payment
-          actual_total_default_2.should == expected_total_default_2
-          # puts  "Actual second group default:#{actual_total_default_2} "
-          # puts  "Expected second group default: #{expected_total_default_2}"
-          total_group_loan_default += actual_total_default_2
-          
-          # puts  "Actual default group_loan :#{@group_loan.extract_total_default_amount}"
-          puts  "The TOTAL default amount group_loan :#{@group_loan.total_default_amount}"
-          @group_loan.total_default_amount.should == total_group_loan_default
-        end
-        
-        it "should produce group total default == total default from sub groups" do
-          actual_group_loan_total_default = @group_loan.extract_total_default_amount
-          expected_total = BigDecimal("0")
-          @group_loan.sub_groups.each do |sub_group|
-            puts "subgroup #{sub_group.number}: sub_group_total_default_payment_amount: #{sub_group.sub_group_total_default_payment_amount}"
-            expected_total += sub_group.sub_group_total_default_payment_amount
+          if defaultee_glm_id_list.include?(glm.id)  #   and [1,2,3].include?(weekly_task.week_number)
+            weekly_task.mark_attendance_as_present( glm.member, @field_worker )
+            weekly_task.create_weekly_payment_declared_as_no_payment( glm.member )
+            next
           end
           
-          # puts  "Actual Group Default = #{actual_group_loan_total_default}"
-          actual_group_loan_total_default.should == expected_total 
+          
+          
+          puts "Initial amount to be paid for glm id : #{glm.id} : #{glm.default_payment.amount_to_be_paid}"
+          
+          member =  glm.member 
+          saving_book = member.saving_book
+          initial_total_savings                = saving_book.total 
+          initial_extra_savings                = saving_book.total_extra_savings
+          initial_compulsory_savings           = saving_book.total_compulsory_savings
+
+          glp = glm.group_loan_product
+          
+          
+          
+          #  mark member attendance  # the order doesn't matter 
+          weekly_task.mark_attendance_as_present( glm.member, @field_worker )
+          # do payment 
+          weekly_task = @group_loan.currently_executed_weekly_task
+          
+          puts "\n++++++++++ pre condition"
+          puts "member_id : #{member.id}"
+          
+          puts "initial compulsory_savings: #{initial_compulsory_savings}"
+          puts "the currently_executed_weekly_task : #{weekly_task.week_number}"
+          # TransactionActivity.create_basic_weekly_payment(member,weekly_task, @field_worker )
+          cash_payment = glp.total_weekly_payment
+          savings_withdrawal = BigDecimal("0")
+          number_of_weeks = 1 
+          number_of_backlogs = 0 
+          a = TransactionActivity.create_generic_weekly_payment(
+                  glm,
+                  @field_worker,
+                  cash_payment,
+                  savings_withdrawal, 
+                  number_of_weeks,
+                  number_of_backlogs
+          )
+          
+          
+          saving_book.reload
+          
+          final_total_savings      = saving_book.total 
+          final_extra_savings      = saving_book.total_extra_savings
+          final_compulsory_savings = saving_book.total_compulsory_savings
+          diff = final_total_savings - initial_total_savings
+          diff_extra_savings = final_extra_savings - initial_extra_savings
+          diff_compulsory_savings = final_compulsory_savings - initial_compulsory_savings
+          
+           #          
+           # puts "final compulsory_savings: #{final_compulsory_savings}"
+           # puts "\n******THE ANALYTICS"
+           # puts "glp min_savings : #{glp.min_savings}"
+           # puts "diff compulsory_savings: #{diff_compulsory_savings.to_i}"
+           # puts "diff extra_savings: #{diff_extra_savings.to_i}"
+           # puts "The amount of diff for member #{member.id}: #{diff}"
+           # 
+           # 
+           # puts "transaction validity"
+          a.should be_valid           # 
+                    # a.transaction_entries.each do |te|
+                    #   puts "#{te.inspect}"
+                    #   puts "#{te.amount.to_i}"
+                    # end
+                    # 
+          
+          puts "~~~~~ the assertion"
+          diff.should == glp.min_savings
+          diff_compulsory_savings.to_i.should == glp.min_savings.to_i
+          diff_extra_savings.should == BigDecimal("0")
+          
+          
+          
         end
         
-        it "sould have 8-3 non-default member id " do
-          @group_loan.extract_non_default_member_id.length.should == 5 
-          # puts  "---!!!!!!!!!! #{@group_loan.extract_non_default_member_id}"
-        end
-         
-        it "should produce default payment, as many as the number of group members" do
-          # puts  "0000000 total default payment : #{DefaultPayment.count}"
-          glm_id = @group_loan.group_loan_memberships.map {|x| x.id }
-          # puts  "THE GLM ID: #{glm_id}"
-          
-          # list_of_non_default_member_id = @group_loan.extract_non_default_member_id
-          #       @group_loan.group_loan_memberships.each do |glm|
-          #         # puts  "@@@ current glm.member_id = #{glm.member_id}"
-          #         if list_of_non_default_member_id.include?(glm.member_id)
-          #           DefaultPayment.create :group_loan_membership_id => glm.id , :is_defaultee => false # by default 
-          #         else
-          #           DefaultPayment.create :group_loan_membership_id => glm.id , :is_defaultee => true 
-          #         end
-          #       end
-          #       
-          # puts  "========= total default_Paymnet = #{DefaultPayment.count}"
-          
-          
-          # DefaultPayment.find(:all, :conditions => {
-          #   :group_loan_membership_id => glm_id
-          # }).count.should == @group_loan.group_loan_memberships.count 
-          # puts  "============ the group_loan status : #{@group_loan.is_group_loan_default}}"
-          DefaultPayment.count.should == @group_loan.group_loan_memberships.count 
-          
-          
-        end
         
-        it "should produce total of sub_group share of non defaultee == 50% total sub_group default"  do
-          # puts  "Total subgroups : #{@group_loan.sub_groups.count}"
-          # puts  "Total DefaultPayment: #{DefaultPayment.count}"
-          @group_loan.sub_groups.each do |sub_group|
-            total_sub_group = BigDecimal("0")
-            # puts  "For #{sub_group.number}, total_default_payments: #{sub_group.default_payments.count}"
-            sub_group.default_payments.each do |default_payment_sub_group_member|
-              
-              total_sub_group += default_payment_sub_group_member.amount_sub_group_share
-              # puts  "The subgroup_share amount of default_payment: #{default_payment_sub_group_member.amount_sub_group_share}"
+        
+        
+        weekly_task.close_weekly_meeting(@field_worker)
+        weekly_task.close_weekly_payment( @field_worker )
+        weekly_task.approve_weekly_payment_collection( @cashier )
+        
+        weekly_task.is_weekly_attendance_marking_done.should be_true 
+        weekly_task.is_weekly_payment_collection_finalized.should be_true 
+        weekly_task.is_weekly_payment_approved_by_cashier.should be_true 
+        
+        
+        @group_loan.reload
+        if weekly_task.week_number != @group_loan.total_weeks 
+          @group_loan.active_group_loan_memberships.each do |glm|
+            puts "glm id = #{glm.id}"
+            puts "amount_to_be_paid: #{glm.default_payment.amount_to_be_paid}"
+            puts "initial_amount_to_be_paid: #{initial_amount_to_be_paid_hash[glm.id]}"
+            glm.default_payment.amount_to_be_paid.should == initial_amount_to_be_paid_hash[glm.id]
+            if glm.unpaid_backlogs.count > 0 
+              glm.default_payment.is_defaultee.should be_false
             end
             
-            
-            actual_total_sub_group_default_payment = sub_group.sub_group_total_default_payment_amount
-            # puts  "Actual SubGroup Default  = #{ actual_total_sub_group_default_payment}"
-            tolerance = (1/100.0) * ( actual_total_sub_group_default_payment/2) # 10% tolerance
-            ( actual_total_sub_group_default_payment/2) .should  be_within(tolerance).of(total_sub_group)
-            puts "========== summary"
-            puts "50% actual total sub group default = #{actual_total_sub_group_default_payment/2}"
-            puts "total sub_group = #{total_sub_group}"
-            puts "the tolerance: #{tolerance}"
+          end
+        else
+          
+          puts "*****************last week statistics\n"*5
+          @group_loan.active_group_loan_memberships.each do |glm|
+            puts "\n"
+            puts "glm id = #{glm.id}"
+            puts "unpaid backlogs: #{glm.unpaid_backlogs.count}"
+            puts "amount_to_be_paid: #{glm.default_payment.amount_to_be_paid}"
+            puts "initial_amount_to_be_paid: #{initial_amount_to_be_paid_hash[glm.id]}"
+            # not equal because of the recalculation of default payment resolution 
+            if glm.unpaid_backlogs.count > 0 
+              glm.default_payment.is_defaultee.should be_true
+            end
+            # glm.default_payment.amount_to_be_paid.should_not == initial_amount_to_be_paid_hash[glm.id]
           end
         end
         
-        it "should produce total of group_share of non_defaultee == 50% total group default" do
-          total_group_loan_default = @group_loan.extract_total_default_amount
-          total_sum_of_group_share = BigDecimal("0")
-          @group_loan.group_loan_memberships.each do |glm|
-            total_sum_of_group_share += glm.default_payment.amount_group_share
-          end
-          
-          
-          tolerance = (1/100.0) * (total_group_loan_default /2)# 10% tolerance
-          (total_group_loan_default /2).should  be_within(tolerance).of(total_sum_of_group_share)
-          puts "******* summary: 50% total group loan default == #{total_group_loan_default /2}"
-          puts "******* summary: tolerance = #{tolerance}"
-          puts "******* summary: total sum = #{total_sum_of_group_share}"
-        end
         
         
-        # it "should not store the after decimal point value (no floating point)" do
-        # end
-        # 
-        
-      end
-      
-    
-      
-      it "should round up total contribution, rounded up to the nearest 500 rupiah" do
-        @group_loan.group_loan_memberships.each do |glm|
+        total_default = BigDecimal("0")
+        @group_loan.active_group_loan_memberships.each do |glm|
           default_payment = glm.default_payment
-          puts "the total amount for #{default_payment.id} : #{default_payment.total_amount}"
-          (  default_payment.total_amount.to_i % DEFAULT_PAYMENT_ROUND_UP_VALUE.to_i   ).should == 0 
+          if default_payment.is_defaultee == false
+            next
+          end
+          
+          total_default += glm.group_loan_product.grace_period_weekly_payment * glm.unpaid_backlogs.count 
         end
-      end
-      
-      
-    end
-    
-    
-    
-    context "paying for the default_payment" do
-      before(:each) do
-       @group_loan.declare_default(@branch_manager) 
-      end
-      
-      it "should prodce @sub_group_1_selected_member as is_defaultee == true " do
-        glm = @group_loan.get_membership_for_member(@sub_group_1_selected_member)  # defaultee
-        default_payment = glm.default_payment
         
-        default_payment.is_defaultee.should be_true
-      end
-      
-      it "should not accept default_payment from defaultee == true , only accepts from non default" do
-        # @sub_group_1_selected_member
-        glm = @group_loan.get_membership_for_member(@sub_group_1_selected_member)  # defaultee
-        default_payment = glm.default_payment
-        cash = default_payment.total_amount 
-        savings_withdrawal = BigDecimal("0")
+        puts "\n****The default payment summary***"*5
+        puts "total default: #{total_default.to_i} "
+        puts "amount to be shared : #{@group_loan.default_payment_amount_to_be_shared}"
+        puts "\n\n"
+        @group_loan.active_group_loan_memberships.order("sub_group_id").each do |glm|
+          
+          puts "\n"
+          default_payment = glm.default_payment 
+          puts "glm id : #{glm.id}"
+          puts "sub_group_id : #{glm.sub_group_id}"
+          if glm.default_payment.is_defaultee == true 
+            puts "is defaultee -> YES"
+          else
+            puts "is defaultee -> NO"
+          end
+          
+          puts "self compulsory savings deduction: #{default_payment.amount_of_compulsory_savings_deduction.to_i}"
+          puts "to be shared with non-defaultee: #{default_payment.amount_to_be_shared_with_non_defaultee.to_i}"
+          
+          puts "sub_group_share amount: #{default_payment.amount_sub_group_share.to_i}"
+          puts "group_share_amount: #{default_payment.amount_group_share.to_i}"
+          
+          puts "total_amount : #{default_payment.total_amount.to_i}"
+          puts "amount to be paid: #{default_payment.amount_to_be_paid.to_i}"
+        end
         
-        
-        transaction_activity = TransactionActivity.create_default_loan_resolution_payment(   default_payment,
-                                                              @field_worker,
-                                                              cash, 
-                                                              savings_withdrawal)
-                                                              
-        transaction_activity.should be_nil 
-      end
-      
-      # it "should accept default_paymetn from defaultee == false " do
-      #       sub_group = @group_loan.sub_groups.first 
-      #       non_default_member_id = sub_group.extract_non_default_member_id.first 
-      #       
-      #       
-      #       glm = @group_loan.get_membership_for_member(Member.find_by_id non_default_member_id)  # defaultee
-      #       default_payment = glm.default_payment
-      #       cash = default_payment.total_amount 
-      #       savings_withdrawal = BigDecimal("0")
-      #       
-      #       
-      #       transaction_activity = TransactionActivity.create_default_loan_resolution_payment(   default_payment,
-      #                                                             @field_worker,
-      #                                                             cash, 
-      #                                                             savings_withdrawal)
-      #                                                             
-      #       transaction_activity.should be_valid
-      #       transaction_activity.total_transaction_amount.should == cash
-      #     end
-      # we don't use the structured payment for the default loan resolution. we will just deduct from savings
-      
-   
+      end # end of looping the weekly tasks 
     end
-    
-    
-    context "closing the default payments: office absorbs lost? " do
-      # on close: record total payment, total money made, total money lost
-    end
-  end # end of context "generic case"
+  end 
   
-  context "a subgroup with all default members" 
-  context "a group with all default members"
+  
+  context "setting up custom default payment value for non defaultee" do 
+    before(:each) do
+      
+      @defaultee_glm_list = @first_sub_group.active_group_loan_memberships[0..1] + @second_sub_group.active_group_loan_memberships[0..1]
+      @defaultee_glm_id_list = @defaultee_glm_list.collect {|x| x.id }
+      
+      @group_loan.weekly_tasks.order("week_number ASC").each do |weekly_task| 
+        puts "======================\n"*2
+        puts "\n\nin week: #{weekly_task.week_number}"
+        
+        
+        initial_amount_to_be_paid_hash = {}
+        @group_loan.active_group_loan_memberships.includes(:member).each do |glm|
+          # setup 
+          initial_amount_to_be_paid_hash[glm.id] = glm.default_payment.amount_to_be_paid
+          
+          if @defaultee_glm_id_list.include?(glm.id)  #   and [1,2,3].include?(weekly_task.week_number)
+            weekly_task.mark_attendance_as_present( glm.member, @field_worker )
+            weekly_task.create_weekly_payment_declared_as_no_payment( glm.member )
+            next
+          end
+          
+          
+          
+          puts "Initial amount to be paid for glm id : #{glm.id} : #{glm.default_payment.amount_to_be_paid}"
+          
+          member =  glm.member 
+          saving_book = member.saving_book
+          initial_total_savings                = saving_book.total 
+          initial_extra_savings                = saving_book.total_extra_savings
+          initial_compulsory_savings           = saving_book.total_compulsory_savings
 
-
-############ general case 
-# everyone in subgroup paid, exept 1 guy in subgroup 1, and 2 guys in subgroup 2.. 
-# ensure that the correct default payment value is created 
-# what will happen if the  non-defaultee can't pay for the default co-payment? 
-# is the up-rounding to the highest 500 multiplication working ? 
-
-############ corner cases
-# => all members in 1 of the subgroup defaulted   -> what will happen ?
-# => all members defaulted in the whole group loan  -> what will happen ? 
-
+          glp = glm.group_loan_product
+          
+          
+          
+          #  mark member attendance  # the order doesn't matter 
+          weekly_task.mark_attendance_as_present( glm.member, @field_worker )
+          # do payment 
+          weekly_task = @group_loan.currently_executed_weekly_task
+          
+          puts "\n++++++++++ pre condition"
+          puts "member_id : #{member.id}"
+          
+          puts "initial compulsory_savings: #{initial_compulsory_savings}"
+          puts "the currently_executed_weekly_task : #{weekly_task.week_number}"
+          # TransactionActivity.create_basic_weekly_payment(member,weekly_task, @field_worker )
+          cash_payment = glp.total_weekly_payment
+          savings_withdrawal = BigDecimal("0")
+          number_of_weeks = 1 
+          number_of_backlogs = 0 
+          a = TransactionActivity.create_generic_weekly_payment(
+                  glm,
+                  @field_worker,
+                  cash_payment,
+                  savings_withdrawal, 
+                  number_of_weeks,
+                  number_of_backlogs
+          )
+          
+          
+          saving_book.reload
+          
+          final_total_savings      = saving_book.total 
+          final_extra_savings      = saving_book.total_extra_savings
+          final_compulsory_savings = saving_book.total_compulsory_savings
+          diff = final_total_savings - initial_total_savings
+          diff_extra_savings = final_extra_savings - initial_extra_savings
+          diff_compulsory_savings = final_compulsory_savings - initial_compulsory_savings
+          
+           #          
+           # puts "final compulsory_savings: #{final_compulsory_savings}"
+           # puts "\n******THE ANALYTICS"
+           # puts "glp min_savings : #{glp.min_savings}"
+           # puts "diff compulsory_savings: #{diff_compulsory_savings.to_i}"
+           # puts "diff extra_savings: #{diff_extra_savings.to_i}"
+           # puts "The amount of diff for member #{member.id}: #{diff}"
+           # 
+           # 
+           # puts "transaction validity"
+          a.should be_valid           # 
+                    # a.transaction_entries.each do |te|
+                    #   puts "#{te.inspect}"
+                    #   puts "#{te.amount.to_i}"
+                    # end
+                    # 
+          
+          puts "~~~~~ the assertion"
+          diff.should == glp.min_savings
+          diff_compulsory_savings.to_i.should == glp.min_savings.to_i
+          diff_extra_savings.should == BigDecimal("0")
+          
+          
+          
+        end
+        
+        
+        
+        
+        weekly_task.close_weekly_meeting(@field_worker)
+        weekly_task.close_weekly_payment( @field_worker )
+        weekly_task.approve_weekly_payment_collection( @cashier )
+        
+        weekly_task.is_weekly_attendance_marking_done.should be_true 
+        weekly_task.is_weekly_payment_collection_finalized.should be_true 
+        weekly_task.is_weekly_payment_approved_by_cashier.should be_true 
+        
+        
+        @group_loan.reload
+        if weekly_task.week_number != @group_loan.total_weeks 
+          @group_loan.active_group_loan_memberships.each do |glm|
+            puts "glm id = #{glm.id}"
+            puts "amount_to_be_paid: #{glm.default_payment.amount_to_be_paid}"
+            puts "initial_amount_to_be_paid: #{initial_amount_to_be_paid_hash[glm.id]}"
+            glm.default_payment.amount_to_be_paid.should == initial_amount_to_be_paid_hash[glm.id]
+            if glm.unpaid_backlogs.count > 0 
+              glm.default_payment.is_defaultee.should be_false
+            end
+            
+          end
+        else
+          
+          puts "*****************last week statistics\n"*5
+          @group_loan.active_group_loan_memberships.each do |glm|
+            puts "\n"
+            puts "glm id = #{glm.id}"
+            puts "unpaid backlogs: #{glm.unpaid_backlogs.count}"
+            puts "amount_to_be_paid: #{glm.default_payment.amount_to_be_paid}"
+            puts "initial_amount_to_be_paid: #{initial_amount_to_be_paid_hash[glm.id]}"
+            # not equal because of the recalculation of default payment resolution 
+            if glm.unpaid_backlogs.count > 0 
+              glm.default_payment.is_defaultee.should be_true
+            end
+            # glm.default_payment.amount_to_be_paid.should_not == initial_amount_to_be_paid_hash[glm.id]
+          end
+        end
+        
+        
+        
+        total_default = BigDecimal("0")
+        @group_loan.active_group_loan_memberships.each do |glm|
+          default_payment = glm.default_payment
+          if default_payment.is_defaultee == false
+            next
+          end
+          
+          total_default += glm.group_loan_product.grace_period_weekly_payment * glm.unpaid_backlogs.count 
+        end
+        
+        puts "\n****The default payment summary***"*5
+        puts "total default: #{total_default.to_i} "
+        puts "amount to be shared : #{@group_loan.default_payment_amount_to_be_shared}"
+        puts "\n\n"
+        @group_loan.active_group_loan_memberships.order("sub_group_id").each do |glm|
+          
+          puts "\n"
+          default_payment = glm.default_payment 
+          puts "glm id : #{glm.id}"
+          puts "sub_group_id : #{glm.sub_group_id}"
+          if glm.default_payment.is_defaultee == true 
+            puts "is defaultee -> YES"
+          else
+            puts "is defaultee -> NO"
+          end
+          
+          puts "self compulsory savings deduction: #{default_payment.amount_of_compulsory_savings_deduction.to_i}"
+          puts "to be shared with non-defaultee: #{default_payment.amount_to_be_shared_with_non_defaultee.to_i}"
+          
+          puts "sub_group_share amount: #{default_payment.amount_sub_group_share.to_i}"
+          puts "group_share_amount: #{default_payment.amount_group_share.to_i}"
+          
+          puts "total_amount : #{default_payment.total_amount.to_i}"
+          puts "amount to be paid: #{default_payment.amount_to_be_paid.to_i}"
+        end
+        
+      end # end of looping the weekly tasks
+    end # end of before(:each)
+     
+    it "should not allow custom payment if the total amount is less than the bare minimum (with the rounding up)" do 
+      
+      
+      @group_loan.reload
+      @group_loan.propose_default_payment_execution_custom_value(@field_worker, custom_value_hash)
+      
+      @group_loan.reload
+      @group_loan.execute_default_payment_execution( @cashier )
+      
+      
+    end
+    
+    # it "should not allow custom payment with non multiples of 500"
+    # 
+    # it "should not allow custom payment if it exceed the total compulsory savings"
+  end
+  
 end

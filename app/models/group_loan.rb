@@ -679,13 +679,18 @@ class GroupLoan < ActiveRecord::Base
     )
   end
   
-  def accounted_weekly_payments_by(member)
-    weekly_task_id_list = self.weekly_tasks.collect do |weekly_task|
+  
+  def weekly_task_id_list
+    self.weekly_tasks.collect do |weekly_task|
       weekly_task.id
     end
+  end
+  
+  
+  def accounted_weekly_payments_by(member)
     MemberPayment.find(:all,:conditions => {
       :member_id => member.id, 
-      :weekly_task_id => weekly_task_id_list
+      :weekly_task_id => self.weekly_task_id_list
     }).map{|x| x.weekly_task}
   end
   
@@ -990,79 +995,79 @@ class GroupLoan < ActiveRecord::Base
   end
   
   
-  def legitimate_custom_default_payment_input?(  non_defaultee_and_payment_amount_pair )
-    total_contribution = BigDecimal("0")
-    
-    list_of_non_defaultee_id = self.list_of_non_defaultee_id 
-    input_list_of_non_defaultee_id = [] 
-    amount_to_be_deducted_list = []
-    zero_value = BigDecimal("0")
-    
-    # no negative value 
-    non_defaultee_and_payment_amount_pair.each do |key,value|
-      input_list_of_non_defaultee_id << key 
-      
-      parsed_value = BigDecimal(value.to_s)
-      if parsed_value < zero_value 
-        return false
-      end
-      amount_to_be_deducted_list << parsed_value 
-    end
-    
-    # encompassing all non defaultee 
-    if (input_list_of_non_defaultee_id - list_of_non_defaultee_id).length != 0  or 
-        (list_of_non_defaultee_id - input_list_of_non_defaultee_id).length != 0  
-      return false
-    end
-    
-    
-    
-    non_defaultee_and_payment_amount_pair.each do |key,value|
-      parsed_value = BigDecimal(value.to_s)
-      total_contribution += parsed_value 
-    end
-    
-    if total_contribution < self.default_payment_to_be_shared_among_non_defaultee
-      return false
-    end
-  end
-  
-  def execute_custom_default_payment_for_non_defaultee( non_defaultee_and_payment_amount_pair, employee )
-    if not employee.has_role?(:branch_manager, employee.active_job_attachment) 
-      return nil 
-    end
-    
-    total_contribution = BigDecimal("0")
-    if self.legitimate_custom_default_payment_input?(  non_defaultee_and_payment_amount_pair ) == true 
-      non_defaultee_and_payment_amount_pair.each do |key,value|
-        non_defaultee_glm = GroupLoanMembership.find_by_id( key ) 
-        payment_amount = BigDecimal(value.to_s ) 
-        TransactionActivity.create_custom_default_payment_savings_deduction_for_non_defaultee( non_defaultee_glm,
-                                          payment_amount, employee)
-      end
-    else
-      return nil 
-    end
-  end
-  
-  def execute_basic_default_payment_for_non_defaultee(employee)
-    if not employee.has_role?(:branch_manager, employee.active_job_attachment) 
-      return nil 
-    end
-    
-    #  extract the sub_group amount
-    #  extract the group_amount 
-    #  kill it in one go 
-    
-    self.extract_sub_group_payment_contribution_for_non_defaultee
-    self.extract_group_payment_contribution_for_non_defaultee
-    
-    self.non_defaultee_group_loan_memberships.each do |glm|
-      TransactionActivity.create_basic_default_payment_savings_deduction_for_non_defaultee( non_defaultee_glm ,
-                  employee)
-    end
-  end
-  
+  # def legitimate_custom_default_payment_input?(  non_defaultee_and_payment_amount_pair )
+  #   total_contribution = BigDecimal("0")
+  #   
+  #   list_of_non_defaultee_id = self.list_of_non_defaultee_id 
+  #   input_list_of_non_defaultee_id = [] 
+  #   amount_to_be_deducted_list = []
+  #   zero_value = BigDecimal("0")
+  #   
+  #   # no negative value 
+  #   non_defaultee_and_payment_amount_pair.each do |key,value|
+  #     input_list_of_non_defaultee_id << key 
+  #     
+  #     parsed_value = BigDecimal(value.to_s)
+  #     if parsed_value < zero_value 
+  #       return false
+  #     end
+  #     amount_to_be_deducted_list << parsed_value 
+  #   end
+  #   
+  #   # encompassing all non defaultee 
+  #   if (input_list_of_non_defaultee_id - list_of_non_defaultee_id).length != 0  or 
+  #       (list_of_non_defaultee_id - input_list_of_non_defaultee_id).length != 0  
+  #     return false
+  #   end
+  #   
+  #   
+  #   
+  #   non_defaultee_and_payment_amount_pair.each do |key,value|
+  #     parsed_value = BigDecimal(value.to_s)
+  #     total_contribution += parsed_value 
+  #   end
+  #   
+  #   if total_contribution < self.default_payment_to_be_shared_among_non_defaultee
+  #     return false
+  #   end
+  # end
+  # 
+  # def execute_custom_default_payment_for_non_defaultee( non_defaultee_and_payment_amount_pair, employee )
+  #   if not employee.has_role?(:branch_manager, employee.active_job_attachment) 
+  #     return nil 
+  #   end
+  #   
+  #   total_contribution = BigDecimal("0")
+  #   if self.legitimate_custom_default_payment_input?(  non_defaultee_and_payment_amount_pair ) == true 
+  #     non_defaultee_and_payment_amount_pair.each do |key,value|
+  #       non_defaultee_glm = GroupLoanMembership.find_by_id( key ) 
+  #       payment_amount = BigDecimal(value.to_s ) 
+  #       TransactionActivity.create_custom_default_payment_savings_deduction_for_non_defaultee( non_defaultee_glm,
+  #                                         payment_amount, employee)
+  #     end
+  #   else
+  #     return nil 
+  #   end
+  # end
+  # 
+  # def execute_basic_default_payment_for_non_defaultee(employee)
+  #   if not employee.has_role?(:branch_manager, employee.active_job_attachment) 
+  #     return nil 
+  #   end
+  #   
+  #   #  extract the sub_group amount
+  #   #  extract the group_amount 
+  #   #  kill it in one go 
+  #   
+  #   self.extract_sub_group_payment_contribution_for_non_defaultee
+  #   self.extract_group_payment_contribution_for_non_defaultee
+  #   
+  #   self.non_defaultee_group_loan_memberships.each do |glm|
+  #     TransactionActivity.create_basic_default_payment_savings_deduction_for_non_defaultee( non_defaultee_glm ,
+  #                 employee)
+  #   end
+  # end
+  # 
 =begin
   Check grace period 
 =end
@@ -1088,12 +1093,8 @@ class GroupLoan < ActiveRecord::Base
         total_to_be_shared += dp.amount_to_be_shared_with_non_defaultee
         
     end
-      
-    puts "*********************\n"*10
-    puts "Total to be shared is #{total_to_be_shared}"
-    puts "The class is #{total_to_be_shared.class}"
+  
     return total_to_be_shared
-
   end
   
 
@@ -1119,7 +1120,7 @@ class GroupLoan < ActiveRecord::Base
   end
   
   def update_group_non_defaultee_default_payment_contribution(total_to_be_shared)
-    group_contribution = total_to_be_shared  * ( 50/100 )
+    group_contribution = total_to_be_shared  * ( 50.0/100.0 )
     
     active_group_glm = self.active_group_loan_memberships.includes(:default_payment)
     active_group_glm_id_list = active_group_glm.map {|x| x.id }
@@ -1147,10 +1148,18 @@ class GroupLoan < ActiveRecord::Base
         total_amount = default_payment.amount_of_compulsory_savings_deduction
         # puts "******!!!!!!!!!!In the shit, total_amount = #{total_amount}"
         default_payment.total_amount = total_amount
-        default_payment.save
+        
       elsif  default_payment.is_defaultee == false
-        default_payment.round_up_to( DEFAULT_PAYMENT_ROUND_UP_VALUE )
+        total_amount = default_payment.round_up_to( DEFAULT_PAYMENT_ROUND_UP_VALUE )
+        total_compulsory_savings = glm.member.saving_book.total_compulsory_savings 
+        if total_amount <= total_compulsory_savings
+          default_payment.total_amount = total_amount
+        else
+          default_payment.total_amount =  total_compulsory_savings 
+        end
       end
+      
+      default_payment.save
       
       # puts "!!# !!!!!!!!!!!!!!!In the shit, total_amount = #{default_payment.total_amount}"
       
@@ -1163,11 +1172,19 @@ class GroupLoan < ActiveRecord::Base
     # and after all the backlog payments  approval made in grace period 
     
     self.update_defaultee_default_payment_compulsory_savings_deduction
+    self.reload 
     total_to_be_shared = self.default_payment_amount_to_be_shared
-    self.update_sub_group_non_defaultee_default_payment_contribution(total_to_be_shared)
-    self.update_group_non_defaultee_default_payment_contribution(total_to_be_shared)
     
+    puts "Total to be shared: #{total_to_be_shared}\n"*5
+    self.reload
+    self.update_sub_group_non_defaultee_default_payment_contribution(total_to_be_shared)
+    self.reload
+    self.update_group_non_defaultee_default_payment_contribution(total_to_be_shared)
+    self.reload
     self.update_total_amount_in_default_payment 
+    
+    # self.update_estimated_office_lost   -> account for the 500 round up? yes 
+    # later, we have the actual office lost 
     
     
     # what if the non_defaultee's compulsory savings is not enough? will be handled by office
@@ -1181,6 +1198,65 @@ class GroupLoan < ActiveRecord::Base
     calculate_default_payment_in_grace_period # just an alias
   end
   
+  
+=begin
+  PROPOSE default payment resolution with custom amount 
+=end
+
+  def propose_default_payment_execution_custom_value(employee, glm_amount_pair)
+    if not employee.has_role?(:field_worker, employee.active_job_attachment)
+      return nil
+    end
+    
+    total_shared_default_payment = self.default_payment_amount_to_be_shared
+    active_glm = self.active_group_loan_memberships.includes(:default_payment, :member )
+    active_glm_id_list = active_glm.collect {|x| x.id }
+    proposed_glm_id_list = []
+    
+   
+    
+    glm_amount_pair.each do |key, value|
+      proposed_glm_id_list << key 
+    end
+    
+    if ( proposed_glm_id_list.length != active_glm_id_list.length )  or 
+        ( (proposed_glm_id_list - active_glm_id_list).length != 0  ) or 
+        ( (active_glm_id_list  - proposed_glm_id_list).length != 0  )
+      return nil
+    end
+    
+    
+    total_proposed_custom_value = BigDecimal("0")
+    
+    active_glm.each do |glm|
+      default_payment = glm.default_payment
+      if default_payment.is_defaultee == false  
+        custom_amount = default_payment.custom_amount
+        if custom_amount > glm.member.saving_book.total_compulsory_savings 
+          return nil
+        else
+          total_proposed_custom_value += custom_amount
+        end
+      end
+    end
+    
+    if total_proposed_custom_value < total_shared_default_payment
+      return nil
+    end
+    
+    
+    
+    # all glm must be non defaultee 
+    
+    # total amount in the glm amount pair must be at least equal to the total suggested amount
+    
+    # each custom amount must be in 500 denomination 
+    
+    # the custom amount must be equal or bigger than the total compulsory savings
+  end
+
+
+
 =begin
   PROPOSE default payment resolution 
 =end
@@ -1220,6 +1296,8 @@ class GroupLoan < ActiveRecord::Base
       self.default_payment_resolution_approver_id = employee.id 
       self.save
     end
+    
+    # update office lost, marked in group loan 
     
     
   end

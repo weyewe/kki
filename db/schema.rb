@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(:version => 20120524084402) do
     t.decimal  "amount_of_compulsory_savings_deduction", :precision => 10, :scale => 2, :default => 0.0
     t.decimal  "amount_to_be_shared_with_non_defaultee", :precision => 10, :scale => 2, :default => 0.0
     t.decimal  "total_amount",                           :precision => 10, :scale => 2, :default => 0.0
-    t.decimal  "custom_amount",                          :precision => 10, :scale => 2, :default => 0.0
+    t.decimal  "custom_amount",                          :precision => 10, :scale => 2
     t.decimal  "amount_paid",                            :precision => 10, :scale => 2, :default => 0.0
     t.boolean  "is_paid",                                                               :default => false
     t.decimal  "amount_assumed_by_office",               :precision => 10, :scale => 2, :default => 0.0

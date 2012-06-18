@@ -32,9 +32,10 @@ class DefaultPayment < ActiveRecord::Base
       multiplication_of_500 = ( total.to_i/nearest_amount.to_i ) .to_i
       remnant = (total.to_i%nearest_amount.to_i)
       if remnant > 0  
-        self.total_amount =  nearest_amount *( multiplication_of_500 + 1 )
-        self.save
-      end
+        return  nearest_amount *( multiplication_of_500 + 1 )
+      else
+        return nearest_amount *( multiplication_of_500  )
+      end  
     else
       return BigDecimal('0')
     end
@@ -43,7 +44,7 @@ class DefaultPayment < ActiveRecord::Base
   
   def amount_to_be_paid
     
-    if self.custom_amount.nil?
+    if self.custom_amount.nil? 
       return self.total_amount 
     else
       return self.custom_amount 

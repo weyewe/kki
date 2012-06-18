@@ -22,7 +22,13 @@ class GroupLoanMembership < ActiveRecord::Base
     total_compulsory_savings = self.member.saving_book.total_compulsory_savings
     if default_payment.is_defaultee == true 
       glp = self.group_loan_product 
-      total_amount = self.unpaid_backlogs.count*( glp.interest + glp.principal)
+      total_amount = self.unpaid_backlogs.count* glp.grace_period_weekly_payment
+      
+      # refresh the state 
+      default_payment.amount_of_compulsory_savings_deduction = BigDecimal("0")
+      default_payment.amount_to_be_shared_with_non_defaultee = BigDecimal("0")
+      
+      # do the deduction 
       if total_amount <= total_compulsory_savings
         default_payment.amount_of_compulsory_savings_deduction = total_amount 
       else
@@ -439,6 +445,28 @@ class GroupLoanMembership < ActiveRecord::Base
     return total_amount 
   end
 
+
+
+  def weekly_payments_paid_during_active_period
+    # number of weekly_payment + number of backlogs_payment paid during active_weekly_payment_period (24 weeks period )
+    # => before grace period
+    total_weekly_payments = MemberPayment.where(:weekly_task_id => self.group_loan.weekly_task_id_list, 
+    :member_id => self.member.id, 
+    :has_paid => true,
+    :no_payment => false , 
+    :only_savings => false
+    ).count
+    
+    total_backlogs_paid_before_grace_period = BacklogPayment.where(:member_id => member.id, 
+            :group_loan_id => group_loan.id, 
+            :is_cleared => true , 
+            :clearance_period => BACKLOG_CLEARANCE_PERIOD[:in_weekly_payment_cycle]
+    ).count 
+    
+    total_payment_before_grace_period =  total_weekly_payments + total_backlogs_paid_before_grace_period
+  end
+  
+  
   protected
   def destroy_group_loan_subcription
     GroupLoanSubcription.find(:all, :conditions => {
