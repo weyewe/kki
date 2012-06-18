@@ -42,6 +42,11 @@ class DefaultPayment < ActiveRecord::Base
   end
   
   
+  def set_custom_amount( custom_amount ) 
+    self.custom_amount = custom_amount
+    self.save
+  end
+  
   def amount_to_be_paid
     
     if self.custom_amount.nil? 
