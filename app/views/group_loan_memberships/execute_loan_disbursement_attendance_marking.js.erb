@@ -1,0 +1,8 @@
+$(document).ready(function(){
+  <% new_row = escape_javascript( render :partial => "group_loans/loan_disbursement_marking", :locals => {
+    :group_loan_membership => @group_loan_membership, 
+    :group_loan => @group_loan
+  }) %>
+
+  $("#mark_attendance_wrapper-<%= @group_loan_membership.id %>").replaceWith('<%= new_row %>');
+});

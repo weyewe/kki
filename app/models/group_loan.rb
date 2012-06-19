@@ -376,9 +376,17 @@ class GroupLoan < ActiveRecord::Base
     self.group_loan_memberships.where(:is_attending_financial_lecture => [true, false] )
   end
   
+  # ,
+  #   :deactivation_case => [nil,GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]]
   def marked_group_loan_memberships_attendance_for_loan_disbursement
     self.group_loan_memberships.where(:is_attending_financial_lecture => [true, false] , 
       :is_attending_loan_disbursement => [true,false])
+  end
+  
+  def group_loan_memberships_attendance_display_for_loan_disbursement
+    self.group_loan_memberships.where(:is_attending_financial_lecture => [true, false] , 
+      :is_attending_loan_disbursement => [true,false],
+      :deactivation_case => [nil,GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]] )
   end
   
   def propose_financial_education_attendance_finalization(employee)

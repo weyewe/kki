@@ -727,8 +727,8 @@ module ApplicationHelper
             :action => 'select_group_loan_for_loan_disbursement_meeting_attendance'
           },
           {
-            :controller => "group_loan_memberships",
-            :action => ""
+            :controller => "group_loans",
+            :action => "mark_loan_disbursement_attendance"
           }
         ]
       },
