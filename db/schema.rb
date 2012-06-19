@@ -159,8 +159,6 @@ ActiveRecord::Schema.define(:version => 20120524084402) do
     t.integer  "loan_disbursement_finalization_proposer_id"
     t.boolean  "is_loan_disbursement_attendance_done",                                                    :default => false
     t.integer  "loan_disbursement_inspector_id"
-    t.boolean  "is_loan_disbursement_done",                                                               :default => false
-    t.integer  "loan_disburser_id"
     t.boolean  "is_loan_disbursement_approved",                                                           :default => false
     t.integer  "loan_disbursement_approver_id"
     t.boolean  "is_setup_fee_collection_finalized",                                                       :default => false

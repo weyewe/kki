@@ -1,0 +1,42 @@
+<tr id="financial_education_attendance_finalization-<%= group_loan.id %>">
+  <td><%= link_to group_loan.name, finalize_loan_disbursement_attendance_url(group_loan) %></td>
+  <td><%= group_loan.get_commune %></td>
+  <td><%= group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.count %></td>
+  
+  
+  <!-- attending financial lecture -->
+  <td>
+    <span class="label">
+      <%= group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.where(:is_attending_loan_disbursement => true).count %>
+    </span>
+  </td>
+  <td>
+    <span class="label label-success">
+    <%= group_loan.group_loan_memberships.where(:final_loan_disbursement_attendance => true).count %>
+    </span>
+  </td>
+  
+  <!-- absent in the financial lecture -->
+  <td>
+    <span class="label">
+      <%= group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.where(:is_attending_loan_disbursement => false).count %>
+    </span>
+  </td>
+  <td>
+    <span class="label label-success">
+    <%= group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.where(:final_loan_disbursement_attendance => false).count %>
+    </span>
+  </td>
+  
+  <!--  pending  -->
+  <td><%= group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.where(:final_loan_disbursement_attendance => nil).count %></td>
+  <td>
+    <% if group_loan.is_loan_disbursement_attendance_done == false  %>
+      <a href="#" class="btn propose action"
+          id="close_weekly_payment-<%= group_loan.id %>">Finalize</a>
+    <% elsif group_loan.is_loan_disbursement_attendance_done == true %>
+      <span class="label label-success">Finalized</span>
+    <% end %>
+    
+  </td>
+</tr>

@@ -4,14 +4,24 @@
   
   <td><%= member.name %></td>
   <td><%= member.address %></td>
-  <td style='text-align:center;' colspan="2">
+  
+  <td>
+    <% if group_loan_membership.is_attending_loan_disbursement == true %>
+      <span class="label label-success">Present</span>
+    <% elsif group_loan_membership.is_attending_loan_disbursement == false %>
+      <span class="label label-important">Absent</span>
+    <% end %>
+  </td>
+  
+  
+  <td style='text-align:center;'>
     
     
-    <% if not group_loan_membership.is_attending_loan_disbursement.nil?  %>
+    <% if not group_loan_membership.final_loan_disbursement_attendance.nil?  %>
     
-      <% if group_loan_membership.is_attending_loan_disbursement == false  %>
+      <% if group_loan_membership.final_loan_disbursement_attendance == false  %>
         <span class="label label-important">Absent</span>
-      <% elsif group_loan_membership.is_attending_loan_disbursement == true %>
+      <% elsif group_loan_membership.final_loan_disbursement_attendance == true %>
         <span class="label label-success">Present</span>
       <% end %>
       
@@ -23,11 +33,11 @@
         id="mark_attendance_absent-<%= group_loan_membership.id %>">Absent</a>
         
     <% end %>
+    
+    
+    
+  
+    
+    
   </td>
-  
-  <td><%= print_money(group_loan_membership.group_loan_product.loan_amount)%></td>
-  <td><%= print_money(group_loan_membership.group_loan_product.setup_payment_amount )%></td>
-  <td><%=  print_money(group_loan_membership.group_loan_product.loan_amount_deducted_by_setup_amount ) %></td>
-  
-  
 </tr>

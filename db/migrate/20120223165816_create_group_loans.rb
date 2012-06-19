@@ -41,6 +41,8 @@ class CreateGroupLoans < ActiveRecord::Migration
       t.integer :loan_disbursement_finalization_proposer_id 
       
       
+      # approval by loan inspector -> matching attendance.. on attendance done, 
+      # => the loan disbursement transaction is created automatically. 
       t.boolean :is_loan_disbursement_attendance_done, :default => false 
       t.integer :loan_disbursement_inspector_id
     
@@ -48,13 +50,15 @@ class CreateGroupLoans < ActiveRecord::Migration
       # OLD WAY
       # when loan is started, loan officer is authorized to take setup fee from member
       # cashier is authorized to take $$$
-      t.boolean :is_loan_disbursement_done, :default => false 
-      t.integer :loan_disburser_id 
+      # IS THIS CODE STILL USED ? NOPE? test it 
+      # t.boolean :is_loan_disbursement_done, :default => false 
+      # t.integer :loan_disburser_id 
       
       # NEW WAY
       # the field worker disbursed the loan 
       # then, matched with the loan attendance record, the appropriate amount of money should be returned to the cashier
       # NO FUCKING idea. go. have a look at the code. 
+      # approval by cashier -> returning the $$$
       t.boolean :is_loan_disbursement_approved, :default => false 
       t.integer :loan_disbursement_approver_id 
       

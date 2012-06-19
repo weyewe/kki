@@ -20,7 +20,7 @@ class GroupLoan < ActiveRecord::Base
                   :is_closed, :group_loan_closer_id, 
                   :is_setup_fee_collection_finalized, :setup_fee_collection_finalizer_id, # finalized by loan_officer
                   :is_setup_fee_collection_approved, :setup_fee_collection_approver_id, # approval by cashier
-                  :is_loan_disbursement_done, :loan_disburser_id,
+                   :loan_disburser_id,
                   :aggregated_principal_amount, :aggregated_interest_amount,
                   :total_default, :default_creator_id ,
                   :group_leader_id
@@ -385,7 +385,7 @@ class GroupLoan < ActiveRecord::Base
   
   def group_loan_memberships_attendance_display_for_loan_disbursement
     self.group_loan_memberships.where(:is_attending_financial_lecture => [true, false] , 
-      :is_attending_loan_disbursement => [true,false],
+      :is_attending_loan_disbursement => [nil, true,false],
       :deactivation_case => [nil,GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]] )
   end
   
@@ -455,6 +455,10 @@ class GroupLoan < ActiveRecord::Base
   def finalize_loan_disbursement_attendance_summary(employee)
     if employee.nil? or not self.has_assigned_role?(:loan_inspector, employee) 
       puts "--------in the group loan, no assigned role"
+      return nil
+    end
+    
+    if self.is_loan_disbursement_attendance_done
       return nil
     end
     
@@ -580,6 +584,34 @@ class GroupLoan < ActiveRecord::Base
     return value
   end
   
+  def total_withdrawn_amount
+    value = BigDecimal("0")
+    self.group_loan_memberships.where(:is_attending_financial_lecture => true).each do |glm|
+      value += glm.group_loan_product.loan_amount_deducted_by_setup_amount
+    end
+    
+    return value 
+  end
+  
+  def total_returned_cash_from_loan_disbursement
+    value = BigDecimal("0")
+    if self.is_loan_disbursement_attendance_done == false
+      return value
+    else
+    
+    
+    withdrawn_amount = self.total_withdrawn_amount 
+    
+    self.active_group_loan_memberships.each do |glm|
+      withdrawn_amount -= glm.group_loan_product.loan_amount_deducted_by_setup_amount
+    end
+    return withdrawn_amount 
+    
+    # self.group_loan_memberships.where(:is)
+    end
+  end
+  
+  
   
   # create default_payment object for each active glm 
   def create_default_payments
@@ -598,8 +630,8 @@ class GroupLoan < ActiveRecord::Base
     if self.undisbursed_members.count != 0 
       return false
     else
-      self.is_loan_disbursement_done = true 
-      self.loan_disburser_id = current_user.id
+      self.is_loan_disbursement_approved = true 
+      self.loan_disbursement_approver_id = current_user.id
       self.save 
       
       

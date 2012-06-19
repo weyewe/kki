@@ -59,5 +59,9 @@ class GroupLoanProduct < ActiveRecord::Base
     self.admin_fee + self.initial_savings 
   end
   
+  def loan_amount_deducted_by_setup_amount
+    loan_amount - setup_payment_amount
+  end
+  
   
 end

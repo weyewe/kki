@@ -684,15 +684,15 @@ module ApplicationHelper
       },
       {
         :title => "Finalize Loan Disbursement Attendance",
-        :destination_link => "select_group_loan_to_create_loan_inspector_assignment_url",
+        :destination_link => "select_group_loan_for_loan_disbursement_attendance_finalization_url",
         :conditions => [
           {
             :controller => 'group_loans',
-            :action => 'select_group_loan_to_create_loan_inspector_assignment'
+            :action => 'select_group_loan_for_loan_disbursement_attendance_finalization'
           },
           {
-            :controller => "group_loan_assignments",
-            :action => 'new_loan_inspector_assignment_to_employee'
+            :controller => "group_loans",
+            :action => 'finalize_loan_disbursement_attendance'
           }
         ]
       }

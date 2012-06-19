@@ -117,6 +117,97 @@ class TransactionActivity < ActiveRecord::Base
     # how can we create the transaction entries ?
   end
   
+  def self.execute_automatic_loan_disbursement( group_loan_membership , employee)
+    # can only be executed by cashier  # wrong. latest update -> By field worker.
+    # cashier passed the $$$ to the field worker. 
+    # field worker give it to the member. pass the remaining to the cashier
+    # if there is member absent during the disbursement 
+    if not employee.has_role?(:branch_manager, employee.get_active_job_attachment)
+      puts "The employee doesn't have field_worker role "
+      return nil
+    end
+    
+  
+   if group_loan_membership.is_active == false
+     puts "The glm is not active. glm id = #{group_loan_membership.id}"
+     return nil
+   end
+   
+   # if attendance has not been marked 
+   if group_loan_membership.is_active == true && group_loan_membership.is_attending_loan_disbursement.nil?
+     puts "The attendance has not been marked, glm id = #{group_loan_membership.id}"
+     puts "#{group_loan_membership.id} is active: #{group_loan_membership.is_active}"
+     puts "#{group_loan_membership.id} attendance : #{group_loan_membership.is_attending_loan_disbursement}"
+     return nil
+   end
+   
+   
+   if group_loan_membership.is_attending_loan_disbursement == false && ( not   ( group_loan_membership.final_loan_disbursement_attendance.nil?  or   group_loan_membership.final_loan_disbursement_attendance==false) )
+     
+     return nil
+   end
+    
+    group_loan_product = group_loan_membership.group_loan_product
+    member = group_loan_membership.member
+    
+    initial_savings = group_loan_product.initial_savings
+    
+    
+    
+    old_payment =  TransactionActivity.find(:first, :conditions => {
+      :member_id => member.id, 
+      :loan_type => LOAN_TYPE[:group_loan],
+      :loan_id => group_loan_membership.group_loan_id,
+      :transaction_case => [
+        TRANSACTION_CASE[:loan_disbursement_with_setup_payment_deduction], 
+        TRANSACTION_CASE[:loan_disbursement_no_setup_payment_deduction]
+      ]
+    })
+    if not old_payment.nil?
+      return old_payment
+    end
+
+    new_hash = {}
+    if group_loan_membership.deduct_setup_payment_from_loan == true 
+      #  create another transaction 
+      new_hash[:total_transaction_amount]  = group_loan_product.loan_amount - group_loan_membership.min_setup_payment
+      new_hash[:transaction_case] = TRANSACTION_CASE[:loan_disbursement_with_setup_payment_deduction]
+      # new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:outward]
+    else
+      new_hash[:total_transaction_amount]  = group_loan_product.loan_amount
+      new_hash[:transaction_case] = TRANSACTION_CASE[:loan_disbursement_no_setup_payment_deduction]
+      # new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:outward]
+    end
+
+
+    # new_hash[:total_transaction_amount]  = group_loan_product.loan_amount
+    # new_hash[:transaction_case] = TRANSACTION_CASE[:loan_disbursement]
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:outward]
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
+    
+    transaction_activity = TransactionActivity.create new_hash 
+    
+    
+    transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , 
+                      group_loan_product.admin_fee, 
+                      group_loan_product.initial_savings,
+                      employee, 
+                      group_loan_membership.deduct_setup_payment_from_loan , member ) 
+    
+    puts "received loan disbursement"
+    group_loan_membership.has_received_loan_disbursement = true
+    group_loan_membership.loan_disbursement_transaction_id = transaction_activity.id 
+    group_loan_membership.save 
+    
+   
+    
+    return transaction_activity 
+  end
+  
   
   def self.execute_loan_disbursement( group_loan_membership , employee)
     # can only be executed by cashier  # wrong. latest update -> By field worker.
@@ -153,12 +244,6 @@ class TransactionActivity < ActiveRecord::Base
     
     initial_savings = group_loan_product.initial_savings
     
-    # can't be executed if there is previous loan disbursement for the same entry
-    
-    # past_transaction_activity = TransactionActivity.previous_transaction_activity( weekly_task, member )
-    #     if not past_transaction_activity.nil?
-    #       return past_transaction_activity
-    #     end
     
     
     old_payment =  TransactionActivity.find(:first, :conditions => {

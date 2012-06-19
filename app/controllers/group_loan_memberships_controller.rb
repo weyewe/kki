@@ -103,6 +103,17 @@ class GroupLoanMembershipsController < ApplicationController
       @group_loan_membership.mark_loan_disbursement_attendance( current_user, false , @group_loan) 
     end
   end
+  
+  def execute_final_loan_disbursement_attendance_marking
+    @group_loan_membership  = GroupLoanMembership.find_by_id params[:entity_id]
+    @group_loan = @group_loan_membership.group_loan
+    
+    if params[:action_value].to_i == TRUE_CHECK
+      @group_loan_membership.mark_final_loan_disbursement_attendance( current_user, true , @group_loan)
+    elsif params[:action_value].to_i == FALSE_CHECK
+      @group_loan_membership.mark_final_loan_disbursement_attendance( current_user, false , @group_loan)
+    end
+  end
 
 =begin
   For Cashier to disburse group loan 

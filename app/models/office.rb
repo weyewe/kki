@@ -82,6 +82,14 @@ class Office < ActiveRecord::Base
                 :is_financial_education_attendance_done => true)
   end
   
+  def loan_disbursable_group_loans
+    self.group_loans.where(:is_closed => false , 
+                :is_proposed => true , 
+                :is_started => true,
+                :is_financial_education_attendance_done => true,
+                :loan_disbursement_finalization_proposed => true )
+  end
+  
   def pending_approval_group_loans
     self.group_loans.where(:is_closed => false , :is_proposed => true , :is_started => false )
   end
@@ -102,7 +110,7 @@ class Office < ActiveRecord::Base
                 :is_started => true,
                 :is_setup_fee_collection_finalized => true , 
                 :is_setup_fee_collection_approved => true , 
-                :is_loan_disbursement_done => false  )
+                :is_loan_disbursement_approved => false  )
   end
   
   def running_group_loans
@@ -111,7 +119,7 @@ class Office < ActiveRecord::Base
                 :is_started => true,
                 :is_setup_fee_collection_finalized => true , 
                 :is_setup_fee_collection_approved => true , 
-                :is_loan_disbursement_done => true, 
+                :is_loan_disbursement_approved => true, 
                 :is_closed => false,
                 :is_group_loan_default => false   )
   end
@@ -123,7 +131,7 @@ class Office < ActiveRecord::Base
                 :is_started => true,
                 :is_setup_fee_collection_finalized => true , 
                 :is_setup_fee_collection_approved => true , 
-                :is_loan_disbursement_done => true, 
+                :is_loan_disbursement_approved => true, 
                 :is_closed => false,
                 :is_group_loan_default => true   )
   end
@@ -134,7 +142,7 @@ class Office < ActiveRecord::Base
                 :is_started => true,
                 :is_setup_fee_collection_finalized => true , 
                 :is_setup_fee_collection_approved => true , 
-                :is_loan_disbursement_done => true, 
+                :is_loan_disbursement_approved => true, 
                 :is_closed => true,
                 :is_group_loan_default => true   )
   end

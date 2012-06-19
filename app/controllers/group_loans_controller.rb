@@ -275,8 +275,58 @@ class GroupLoansController < ApplicationController
                 "Loan Disbursement Attendance"
   end
   
+  def propose_finalization_for_loan_disbursement
+    @group_loan   = GroupLoan.find_by_id params[:entity_id]
+    
+    @group_loan.propose_loan_disbursement_attendance_finalization(current_user)
+    
+    # only happen in the web app 
+    # on finalization -> auto create all loan disbursement transactions 
+    
+    # TransactionActivity.execute_loan_disbursement( glm , @field_worker )
+    
+   
+    
+  end
   
-  # in disbursing the loan 
+  # loan inspector part
+  def select_group_loan_for_loan_disbursement_attendance_finalization
+    setup_group_loan
+    @active_group_loans = @office.started_group_loans
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_disbursement_attendance_finalization_url'
+  end
+  
+  
+   
+  
+  def finalize_loan_disbursement_attendance
+    @office = current_user.active_job_attachment.office
+    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+    @group_loan_memberships = @group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.includes(:member).order("created_at DESC")
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_disbursement_attendance_finalization_url'
+    set_breadcrumb_for @group_loan, 'finalize_loan_disbursement_attendance_url' + "(#{@group_loan.id})", 
+                "Loan Disbursement Attendance"
+  end
+
+
+  def execute_finalize_loan_disbursement_attendance
+    @group_loan   = GroupLoan.find_by_id params[:entity_id]
+    @group_loan.finalize_loan_disbursement_attendance_summary(current_user)
+    
+    if @group_loan.is_loan_disbursement_attendance_done == true 
+      @group_loan.active_group_loan_memberships.each do |glm|
+        TransactionActivity.execute_automatic_loan_disbursement(glm, current_user)
+      end
+    end
+
+
+  end
+
+
+=begin
+  For LOAN DISBURSEMENT 
+=end
   
   def select_group_loan_for_loan_disbursement 
     @office = current_user.active_job_attachment.office

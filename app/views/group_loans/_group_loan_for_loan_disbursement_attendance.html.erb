@@ -1,10 +1,10 @@
 <tr id="loan_disbursement_attendance-<%= group_loan.id %>">
   <td><%= link_to group_loan.name, mark_loan_disbursement_attendance_url(group_loan) %></td>
   <td><%= group_loan.get_commune %></td>
-  <td><%= group_loan.active_group_loan_memberships.count %></td>
-  <td><%= group_loan.group_loan_memberships.where(:is_attending_loan_disbursement => true).count %></td>
-  <td><%= group_loan.group_loan_memberships.where(:is_attending_loan_disbursement => false).count %></td>
-  <td><%= group_loan.group_loan_memberships.where(:is_attending_loan_disbursement => nil).count %></td>
+  <td><%= group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.count %></td>
+  <td><%= group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.where(:is_attending_loan_disbursement => true).count %></td>
+  <td><%= group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.where(:is_attending_loan_disbursement => false).count %></td>
+  <td><%= group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.where(:is_attending_loan_disbursement => nil).count %></td>
   <td>
     <% if group_loan.loan_disbursement_finalization_proposed == false  %>
       <a href="#" class="btn propose action"
@@ -14,5 +14,11 @@
     <% end %>
     
   </td>
-  <td>Pending</td>
+  <td>
+    <% if group_loan.is_loan_disbursement_attendance_done == true %>
+      <span class="label label-success">Approved</span>
+    <% elsif group_loan.is_loan_disbursement_attendance_done == false  %>
+      <span class="label">--Pending--</span>
+    <% end %>
+  </td>
 </tr>
