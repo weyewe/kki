@@ -7,7 +7,7 @@
   One office handles at least 1 subdistrict (kecamatan)
 =end
 
-
+cilincing_office = Office.create :name => "Cilincing", :regency_id => NORTH_JAKARTA_REGENCY
 
 =begin
   We need to create the geoscope of cilincing_office
@@ -17,7 +17,7 @@ java_island = Island.create :name => "Java"
 jakarta_province = Province.create :name => "Jakarta", :island_id => java_island.id
 north_jakarta_regency = Regency.create :name => "Jakarta Utara", :province_id => jakarta_province.id
 cilincing_subdistrict = Subdistrict.create :name => "Cilincing", :regency_id => north_jakarta_regency.id
-cilincing_office = Office.create :name => "Cilincing", :regency_id => north_jakarta_regency.id 
+
 =begin
   One office handles at least one subdistrict
   Office has_many :subdistricts through :geo_scopes
@@ -146,10 +146,10 @@ What are the roles in typical branch?
 
 Role.all.each { |role| role.destroy }
 
-branch_manager_role = Role.create :name => USER_ROLE[:branch_manager]
-loan_officer_role   = Role.create :name => USER_ROLE[:loan_officer]
-field_worker_role   = Role.create :name => USER_ROLE[:field_worker]
-cashier_role         = Role.create :name => USER_ROLE[:cashier]
+branch_manager_role = Role.create :name => "BranchManager"
+loan_officer_role   = Role.create :name => "LoanOfficer"
+field_worker_role   = Role.create :name => "FieldWorker"
+cashier_role         = Role.create :name => "Cashier"
 
 =begin
   Create the blank slate user 
@@ -167,6 +167,9 @@ cashier = User.create :email => "cashier@gmail.com", :password => "willy1234",
                   :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
 
 field_worker = User.create :email => "field_worker@gmail.com", :password => "willy1234",
+                  :password_confirmation => "willy1234"# , :office_id => cilincing_office.id
+                  
+field_worker_2 = User.create :email => "field_worker_2@gmail.com", :password => "willy1234",
                   :password_confirmation => "willy1234"# , :office_id => cilincing_office.id
       
 puts "Done creating user. Gonna create job_attachment"            
@@ -186,6 +189,9 @@ cashier_job_attachment = JobAttachment.create(:office_id => cilincing_office.id,
 # cilincing_office.users << field_worker 
 field_worker_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
               :user_id => field_worker.id, :is_active => true )
+              
+field_worker_2_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+              :user_id => field_worker_2.id, :is_active => true )
 
 
 
@@ -208,4 +214,70 @@ cashier_job_attachment.save
 field_worker_job_attachment.roles << field_worker_role
 field_worker_job_attachment.save
 
+field_worker_2_job_attachment.roles << field_worker_role
+field_worker_2_job_attachment.save
+
 puts "Done adding roles to the JobAttachment"
+
+
+=begin  
+  The whole business process is started by the branch manager creating 
+    group loan product 
+=end
+puts "the first"
+group_loan_product_a = GroupLoanProduct.create :principal => 20000, 
+                                  :interest => 4000, 
+                                  :min_savings => 8000, :total_weeks => 3 ,
+                                  :admin_fee => 25000, :initial_savings => 15000,
+                                  :creator_id => branch_manager.id ,
+                                  :office_id => cilincing_office.id
+puts "the second"
+group_loan_product_b = GroupLoanProduct.create :principal => 25000, 
+                                  :interest => 3000, 
+                                  :min_savings => 8000, :total_weeks => 3 ,
+                                  :admin_fee => 25000, :initial_savings => 20000,
+                                  :creator_id => branch_manager.id,
+                                  :office_id => cilincing_office.id 
+                                  
+puts "The third"
+group_loan_product_c = GroupLoanProduct.create :principal => 40000, 
+                                   :interest => 1000, 
+                                   :min_savings => 8000, :total_weeks => 3 ,
+                                   :admin_fee => 25000, :initial_savings => 50000,
+                                   :creator_id => branch_manager.id ,
+                                   :office_id => cilincing_office.id
+                                  
+                                
+puts "done creating loan product" 
+
+
+=begin
+  Then, after the loan product has been created, the next role is to get member. (registering member) 
+  In this scheme, the members registered by loan officer are the qualified member, 
+  has been processsed offline, interviewed as well. 
+  Now, someone has to create a group
+  Commune == RW 
+  Only people from the same commune that can borrow (group loan membership)
+=end
+
+first_village = Village.first
+commune       = first_village.communes.first
+
+
+  # auto create group name 
+puts "create the member"
+TOTAL_MEMBER_COUNT = 8    
+member_hash = {}   
+(1..TOTAL_MEMBER_COUNT).each do |x|
+  member_hash[x] = Member.create :name => "Member #{x}", 
+                :id_card_no => "1233435253#{x}",  :village_id => first_village.id,
+                :commune_id => commune.id, :neighborhood_no => x,
+                :address => "Jalan Tikus Gang 33252 no 55 #{x}",
+                :creator_id => loan_officer.id,
+                :office_id => cilincing_office.id
+end            
+  
+
+puts " member creation is done "
+
+

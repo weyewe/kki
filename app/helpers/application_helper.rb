@@ -274,6 +274,10 @@ module ApplicationHelper
     if symbol == :field_worker 
       return create_process_nav( FIELD_WORKER_PROCESS_LIST, params )
     end
+    
+    if symbol == :group_employee_management
+      return create_process_nav(GROUP_EMPLOYEE_MANAGEMENT_PROCESS_LIST, params )
+    end
    
   end
   
@@ -622,21 +626,70 @@ module ApplicationHelper
     ]
   }
   
+  GROUP_EMPLOYEE_MANAGEMENT_PROCESS_LIST = {
+    :header_title => "Group Officer Assignment",
+    :processes => [
+      {
+        :title => "Assign Field Worker",
+        :destination_link => "select_group_loan_to_create_field_worker_assignment_url",
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_create_field_worker_assignment'
+          },
+          {
+            :controller => "group_loan_assignments",
+            :action => 'new_field_worker_assignment_to_employee'
+          }
+        ]
+      },
+      {
+        :title => "Assign Loan Inspector",
+        :destination_link => "select_group_loan_to_create_loan_inspector_assignment_url",
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_create_loan_inspector_assignment'
+          },
+          {
+            :controller => "group_loan_assignments",
+            :action => 'new_loan_inspector_assignment_to_employee'
+          }
+        ]
+      }
+    ]
+  }
+  
+  
   
   FIELD_WORKER_PROCESS_LIST = {
     :header_title => "FIELD WORKER",
     :processes => [
       {
-        :title => "Setup Payment Task",
+        :title => "Financial Education Attendance",
+        :destination_link => 'select_group_loan_for_financial_education_meeting_attendance_url',
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_financial_education_meeting_attendance'
+          },
+          {
+            :controller => "group_loans",
+            :action => "mark_financial_education_attendance"
+          }
+        ]
+      },
+      {
+        :title => "Loan Disbursement Attendance",
         :destination_link => 'select_group_loan_for_setup_payment_url',
         :conditions => [
           {
             :controller => 'group_loans',
-            :action => 'select_group_loan_for_setup_payment'
+            :action => ''
           },
           {
             :controller => "group_loan_memberships",
-            :action => "group_loan_memberships_for_setup_fee"
+            :action => ""
           }
         ]
       },

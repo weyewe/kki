@@ -17,6 +17,7 @@
           <tr>
             <th>Nama Group</th>
             <th>Total SubGroup Members</th>
+            <th>SubGroup Leader</th>
           </tr>
         </thead>
         <tbody>
@@ -24,6 +25,15 @@
             <tr>
               <td><%= link_to "SubGroup-#{sub_group.number}", select_sub_group_leader_from_sub_group_url( sub_group) %></td>
               <td><%= sub_group.group_loan_memberships.count %></td>
+              
+              <td>
+                <% if sub_group.leader.nil? %>
+                  	<span class="label">--NA--</span>
+                <% else %>
+                  <span class="label label-success"><%= sub_group.leader.name %></span>
+                <% end %>
+                
+              </td>
             </tr>
           <% end %>
 

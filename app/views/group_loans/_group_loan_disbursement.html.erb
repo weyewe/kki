@@ -1,8 +1,18 @@
 <tr id="group_loan_disbursement-<%= group_loan.id %>">
+  
+<!--   <th>Nama Group</th>
+  <th>Lokasi RW</th>
+  <th>Attending Financial Education</th>
+  <th>Withdrawn Cash</th>
+  <th>Attending Loan Disbursment</th>
+  <th>Returned Cash Cash</th>
+  <th style="text-align:center;">Finalize</th> -->
+  
+  
   <td><%= link_to group_loan.name, group_loan_disbursement_recipients_url(group_loan) %></td>
   <td><%= group_loan.get_commune %></td>
   <td><%= group_loan.members.count %></td>
-  
+  <td><%= print_money( group_loan.total_disbursement_amount ) %></td>
   
   <td><%= group_loan.disbursed_members.count  %></td>
   <td><%= print_money( group_loan.total_disbursement_amount ) %></td>

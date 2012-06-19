@@ -1,0 +1,18 @@
+<tr id="financial_education_attendance-<%= group_loan.id %>">
+  <td><%= link_to group_loan.name, mark_financial_education_attendance_url(group_loan) %></td>
+  <td><%= group_loan.get_commune %></td>
+  <td><%= group_loan.members.count %></td>
+  <td><%= group_loan.group_loan_memberships.where(:is_attending_financial_lecture => true).count %></td>
+  <td><%= group_loan.group_loan_memberships.where(:is_attending_financial_lecture => false).count %></td>
+  <td><%= group_loan.group_loan_memberships.where(:is_attending_financial_lecture => nil).count %></td>
+  <td>
+    <% if group_loan.financial_education_finalization_proposed == false  %>
+      <a href="#" class="btn propose action"
+          id="close_weekly_payment-<%= group_loan.id %>">Finalize</a>
+    <% elsif group_loan.financial_education_finalization_proposed == true %>
+      <span class="label label-success">Proposed</span>
+    <% end %>
+    
+  </td>
+  <td>Pending</td>
+</tr>

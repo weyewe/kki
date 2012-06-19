@@ -1,0 +1,8 @@
+$(document).ready(function(){
+  <% new_row = escape_javascript( render :partial => "group_loan_assignments/loan_inspector_assignment", :locals => {
+    :user => @user, 
+    :group_loan => @group_loan
+  }) %>
+
+  $("#loan_inspector_assignment-<%=  @user.id %>").replaceWith('<%= new_row %>');
+});

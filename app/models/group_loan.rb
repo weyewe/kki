@@ -23,7 +23,11 @@ class GroupLoan < ActiveRecord::Base
                   :is_loan_disbursement_done, :loan_disburser_id,
                   :aggregated_principal_amount, :aggregated_interest_amount,
                   :total_default, :default_creator_id ,
-                  :group_leader_id,
+                  :group_leader_id
+                  
+                  
+  has_many :group_loans, :through => :group_loan_assignments
+  has_many :group_loan_assignments
                   
                   
 =begin
@@ -214,6 +218,19 @@ class GroupLoan < ActiveRecord::Base
     else
       return nil
     end
+    
+    if self.is_setup_fee_collection_finalized  == true && 
+      self.is_setup_fee_collection_approved  == true 
+      return
+    end
+    
+    # BUSINESS LOGIC: all loan's setup fee are deducted from the loan disbursement 
+    self.group_loan_memberships.each do |glm|
+      glm.declare_setup_payment_by_loan_deduction
+    end
+    self.is_setup_fee_collection_finalized  = true 
+    self.is_setup_fee_collection_approved  = true 
+    self.save
   end
   
   def all_members_have_equal_loan_duration?
@@ -243,6 +260,22 @@ class GroupLoan < ActiveRecord::Base
   Financial Education and Group Loan Disbursement Attendance
 =end
 
+  def destroy_assignment( assignment_symbol, user ) 
+    if self.is_started == true 
+      return nil
+    end
+    
+    GroupLoanAssignment.find(:all, :conditions => {
+      :group_loan_id => self.id,
+      :assignment_type =>  GROUP_LOAN_ASSIGNMENT[assignment_symbol],
+      :user_id => user.id
+    }).each do |gla|
+      gla.destroy 
+    end
+    
+    return true # success in destroying 
+  end
+  
 # adding the employee responsible
   def add_assignment(assignment_symbol, user)
     past_assignments = GroupLoanAssignment.find(:all, :conditions => {
@@ -252,8 +285,12 @@ class GroupLoan < ActiveRecord::Base
     })
     
     if past_assignments.count > 0 
+      puts "The past assignment value is #{past_assignments.count}"
+      puts "The user email is :#{user.email}  "
+      puts "past_assignments.first.inspect: #{past_assignments.first.inspect}"
       return nil
     else
+      puts "we are gonna create the new one"
       return GroupLoanAssignment.create(
         :group_loan_id => self.id,
         :assignment_type =>  GROUP_LOAN_ASSIGNMENT[assignment_symbol],

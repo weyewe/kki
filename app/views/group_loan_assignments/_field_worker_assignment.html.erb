@@ -1,0 +1,26 @@
+<tr id="field_worker_assignment-<%= user.id %>">
+  <td class="user-nim"><%= user.email %></td>
+  <td>
+    <% if user.has_role?(:field_worker, user.active_job_attachment) %>
+      <span class="label label-info">Field Worker</span>
+    <% end %>
+  </td>
+  <td id='<%= "current_group_loans_provider_#{@group_loan.id}-consumer_#{user.id}" %>' style="text-align:center;"> 
+      <%= user.active_group_loan_assignments(:field_worker).count %>
+  </td>
+  <td style="text-align:center;" id='<%= "active_group_loans_provider_#{@group_loan.id}-consumer_#{user.id}" %>'> 
+    <%= user.active_group_loan_assignments(:loan_inspector).count %>
+  </td>
+  <td style="text-align:center;" class="well">
+    <label class="checkbox">
+      <% checkbox_value = GroupLoanAssignment.has_assignment_role?(user, :field_worker, @group_loan)   %>
+
+      <%= check_box_tag 'is_checked', get_checkbox_value(checkbox_value )   , 
+          checkbox_value, :class => 'checkbox_tracker', 
+          :id => "provider_#{@group_loan.id}-consumer_#{user.id}" %> Assigned
+    </label>
+
+  </td>
+  
+
+</tr>

@@ -65,6 +65,18 @@ Debita46::Application.routes.draw do
   match 'select_sub_group_from/:group_loan_id/to_select_leader' => "sub_groups#select_sub_group_to_pick_leader", :as => :select_sub_group_to_pick_leader
   match 'select_sub_group_leader_from/:sub_group_id' => "sub_groups#select_sub_group_leader_from_sub_group", :as => :select_sub_group_leader_from_sub_group
   match 'execute_select_sub_group_leader' => "sub_groups#execute_select_sub_group_leader", :as => :execute_select_sub_group_leader, :method => :post
+
+
+  # then, the post request -> different destination 
+  match 'select_group_loan_to_create_field_worker_assignment' => "group_loans#select_group_loan_to_create_field_worker_assignment", :as => :select_group_loan_to_create_field_worker_assignment
+  match 'new_field_worker_assignment_to_employee/:group_loan_id' => "group_loan_assignments#new_field_worker_assignment_to_employee", :as => :new_field_worker_assignment_to_employee
+  match 'execute_field_worker_assignment' => "group_loan_assignments#execute_field_worker_assignment", :as => :execute_field_worker_assignment, :method => :post 
+  
+  match 'select_group_loan_to_create_loan_inspector_assignment' => "group_loans#select_group_loan_to_create_loan_inspector_assignment", :as => :select_group_loan_to_create_loan_inspector_assignment
+  match 'new_loan_inspector_assignment_to_employee/:group_loan_id' => "group_loan_assignments#new_loan_inspector_assignment_to_employee", :as => :new_loan_inspector_assignment_to_employee
+  match 'execute_loan_inspector_assignment' => "group_loan_assignments#execute_loan_inspector_assignment", :as => :execute_loan_inspector_assignment, :method => :post
+  
+  
 =begin
   Branch Manager Routes
 =end
@@ -91,8 +103,15 @@ Debita46::Application.routes.draw do
   
   match 'execute_setup_fee_collection_finalization' => "group_loans#execute_setup_fee_collection_finalization", :as => :execute_setup_fee_collection_finalization, :method => :post 
   
-  # weekly meeting
   
+  # for setup: financial education and the loan disbursement attendance 
+  # the loan inspector has its counterpart as well
+  match 'select_group_loan_for_financial_education_meeting_attendance' => "group_loans#select_group_loan_for_financial_education_meeting_attendance", :as => :select_group_loan_for_financial_education_meeting_attendance
+  match 'mark_financial_education_attendance/:group_loan_id' => "group_loans#mark_financial_education_attendance", :as => :mark_financial_education_attendance
+  match 'execute_financial_attendance_marking' => 'group_loan_memberships#execute_financial_attendance_marking', :as => :execute_financial_attendance_marking, :method => :post 
+  match 'propose_finalization_for_financial_education' => "group_loans#propose_finalization_for_financial_education", :as => :propose_finalization_for_financial_education , :method => :post
+  
+  # weekly meeting
   match 'select_group_loan_for_weekly_meeting_attendance_marking' => "group_loans#select_group_loan_for_weekly_meeting_attendance_marking", :as => :select_group_loan_for_weekly_meeting_attendance_marking
   match 'select_weekly_meeting_for_attendance_marking/:group_loan_id' => "weekly_tasks#select_weekly_meeting_for_attendance_marking", :as => :select_weekly_meeting_for_attendance_marking
   match 'mark_attendance/:group_loan_id/for_week/:weekly_task_id' => "weekly_tasks#mark_attendance", :as => :mark_attendance

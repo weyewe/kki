@@ -23,6 +23,9 @@ class User < ActiveRecord::Base
   has_many :job_attachments 
   
   
+  has_many :group_loan_assignments
+  has_many :group_loans, :through => :group_loan_assignments
+  
 =begin
   FOR BRANCH_MANAGER 
   For any group_loan creation, it has to be tracked as history 
@@ -128,7 +131,15 @@ class User < ActiveRecord::Base
   end
   
   
-  
+  def active_group_loan_assignments(assignment_symbol)
+    active_group_loans_id_list = self.active_job_attachment.office.active_group_loans.map {|x| x.id }
+    
+    GroupLoanAssignment.find(:all, :conditions => {
+      :group_loan_id => active_group_loans_id_list, # it is the active group loans 
+      :user_id => self.id ,
+      :assignment_type =>  GROUP_LOAN_ASSIGNMENT[assignment_symbol]
+    })
+  end
   
   protected
   def self.find_for_database_authentication(conditions)

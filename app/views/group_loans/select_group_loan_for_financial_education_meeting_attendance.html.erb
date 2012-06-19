@@ -1,8 +1,8 @@
 
 <div class="span9 content">
-  <%= create_guide("Group Loan Disbursement", 
-        "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Loan to be disbursed: <b>#{@disbursable_group_loans.count}</b> ").html_safe %>
+  <%= create_guide("Financial Education", 
+        "Office: <b>#{@office.name}</b>" + "<br />" + 
+        "Total Active Group Loan: <b>#{@active_group_loans.count}</b> ").html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -16,20 +16,21 @@
           <tr>
             <th>Nama Group</th>
             <th>Lokasi RW</th>
-            <th>Attending Financial Education</th>
-            <th>Withdrawn Cash</th>
-            <th>Attending Loan Disbursment</th>
-            <th>Returned Cash</th>
-            <th style="text-align:center;">Finalize</th>
-          
+            <th>Terdaftar</th>
+            <th>Hadir</th>
+            <th>Absent</th>
+            <th>Pending</th>
+            <th>Finalize</th>
+            <th>Inspector Approval</th>
           </tr>
         </thead>
         <tbody>
-          <% @disbursable_group_loans.each do |group_loan| %>
-            <%#= render :partial => "group_loans/group_loan_setup" , 
+          <% @active_group_loans.each do |group_loan| %>
+            <%= render :partial => "group_loans/group_loan_for_financial_education_attendance" , 
                 :locals => {:group_loan => group_loan}%>
-            <%= render :partial => "group_loans/group_loan_disbursement" , 
-                :locals => {:group_loan => group_loan}%>
+            
+     
+            
           <% end %>
        
           
@@ -39,15 +40,14 @@
     </div><!-- end of #data_list -->
   </div>
   
-  
-  
   <div class=" hidden" id="approve_propose_form_wrapper">
-    <%= form_for GroupLoan.new, :url => execute_loan_disbursement_finalization_url   do |f| %>
+    <%= form_for GroupLoan.new, :url => propose_finalization_for_financial_education_url   do |f| %>
       <%= hidden_field_tag 'entity_id' , ''  %>
       <%= hidden_field_tag 'action_role', '' %>
       <%= hidden_field_tag 'action_value', '' %>
     <% end %>
   </div>
+  
   
   
   <div class="modal" id="myModal" style="display:none;">
@@ -63,9 +63,8 @@
        <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
      </div>
    </div>
-  
-  
-  
+   
+   
 
 </div><!--/span-->
 
