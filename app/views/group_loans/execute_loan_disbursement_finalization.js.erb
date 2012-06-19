@@ -9,7 +9,7 @@ $(document).ready(function(){
     
   <% else %>
   
-    <% if @group_loan.is_loan_disbursement_done == true %>
+    <% if @group_loan.is_loan_disbursement_approved == true %>
       <% new_row = escape_javascript( render :partial => "group_loans/group_loan_disbursement", 
             :locals => {:group_loan => @group_loan}) %>
 

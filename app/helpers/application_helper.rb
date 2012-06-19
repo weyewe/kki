@@ -564,16 +564,16 @@ module ApplicationHelper
   CASHIER_PROCESS_LIST = {
     :header_title => "CASHIER",
     :processes => [
-      {
-        :title => "Approves Setup Payment ",
-        :destination_link => 'select_group_loan_for_setup_payment_collection_approval_url',
-        :conditions => [
-          {
-            :controller => 'group_loans',
-            :action => 'select_group_loan_for_setup_payment_collection_approval'
-          }
-        ]
-      },
+      # {
+      #    :title => "Approves Setup Payment ",
+      #    :destination_link => 'select_group_loan_for_setup_payment_collection_approval_url',
+      #    :conditions => [
+      #      {
+      #        :controller => 'group_loans',
+      #        :action => 'select_group_loan_for_setup_payment_collection_approval'
+      #      }
+      #    ]
+      #  },
       {
         :title => "Loan Disbursement",
         :destination_link => 'select_group_loan_for_loan_disbursement_url',
