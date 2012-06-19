@@ -212,8 +212,10 @@ class GroupLoansController < ApplicationController
   
   def select_group_loan_for_financial_education_meeting_attendance
     setup_group_loan
+    @active_group_loans = @office.started_group_loans
     add_breadcrumb "Select Group Loan", 'select_group_loan_for_financial_education_meeting_attendance_url'
   end
+  
   
   def mark_financial_education_attendance
     @office = current_user.active_job_attachment.office
@@ -231,6 +233,37 @@ class GroupLoansController < ApplicationController
     @group_loan.propose_financial_education_attendance_finalization(current_user)
   end
   
+  # the loan inspector version
+  def select_group_loan_for_financial_education_finalization
+    setup_group_loan
+    @active_group_loans = @office.started_group_loans
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_financial_education_finalization_url'
+  end
+  
+  def finalize_financial_education_attendance
+    @office = current_user.active_job_attachment.office
+    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+    @group_loan_memberships = @group_loan.group_loan_memberships.includes(:member).order("created_at DESC")
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_financial_education_finalization_url'
+    set_breadcrumb_for @group_loan, 'finalize_financial_education_attendance_url' + "(#{@group_loan.id})", 
+                "Financial Education Attendance"
+  end
+  
+  def execute_finalize_financial_education
+    @group_loan   = GroupLoan.find_by_id params[:entity_id]
+    
+    @group_loan.finalize_financial_attendance_summary(current_user)
+  end
+  
+=begin
+  Marking the Loan Disbursement Attendance
+=end
+  def select_group_loan_for_loan_disbursement_meeting_attendance
+    setup_group_loan
+    @active_group_loans = @office.loan_disbursement_meeting_group_loans
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_disbursement_meeting_attendance_url'
+  end
   
   
   # in disbursing the loan 

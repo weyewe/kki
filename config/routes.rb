@@ -106,10 +106,30 @@ Debita46::Application.routes.draw do
   
   # for setup: financial education and the loan disbursement attendance 
   # the loan inspector has its counterpart as well
+=begin
+  MARKING FINANCIAL EDUCATION ATTENDANCE
+=end
   match 'select_group_loan_for_financial_education_meeting_attendance' => "group_loans#select_group_loan_for_financial_education_meeting_attendance", :as => :select_group_loan_for_financial_education_meeting_attendance
   match 'mark_financial_education_attendance/:group_loan_id' => "group_loans#mark_financial_education_attendance", :as => :mark_financial_education_attendance
   match 'execute_financial_attendance_marking' => 'group_loan_memberships#execute_financial_attendance_marking', :as => :execute_financial_attendance_marking, :method => :post 
   match 'propose_finalization_for_financial_education' => "group_loans#propose_finalization_for_financial_education", :as => :propose_finalization_for_financial_education , :method => :post
+  
+  # => the counter part
+  match 'select_group_loan_for_financial_education_finalization' =>  "group_loans#select_group_loan_for_financial_education_finalization", :as => :select_group_loan_for_financial_education_finalization
+  match 'finalize_financial_education_attendance/:group_loan_id' => "group_loans#finalize_financial_education_attendance", :as => :finalize_financial_education_attendance
+  match 'execute_final_financial_attendance_marking' => 'group_loan_memberships#execute_final_financial_attendance_marking', :as => :execute_final_financial_attendance_marking, :method => :post 
+  match 'execute_finalize_financial_education' => "group_loans#execute_finalize_financial_education", :as => :execute_finalize_financial_education , :method => :post
+  
+=begin
+ MARKING LOAN DISBURSEMENT MEETING ATTENDANCE
+=end
+  match 'select_group_loan_for_loan_disbursement_meeting_attendance' => "group_loans#select_group_loan_for_loan_disbursement_meeting_attendance", :as => :select_group_loan_for_loan_disbursement_meeting_attendance
+  match 'mark_loan_disbursement_attendance/:group_loan_id' => "group_loans#mark_loan_disbursement_attendance", :as => :mark_loan_disbursement_attendance
+  match 'execute_loan_disbursement_attendance_marking' => 'group_loan_memberships#execute_loan_disbursement_attendance_marking', :as => :execute_loan_disbursement_attendance_marking, :method => :post 
+  match 'propose_finalization_for_loan_disbursement' => "group_loans#propose_finalization_for_loan_disbursement", :as => :propose_finalization_for_loan_disbursement , :method => :post
+  
+  
+  
   
   # weekly meeting
   match 'select_group_loan_for_weekly_meeting_attendance_marking' => "group_loans#select_group_loan_for_weekly_meeting_attendance_marking", :as => :select_group_loan_for_weekly_meeting_attendance_marking

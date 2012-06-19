@@ -69,6 +69,19 @@ class Office < ActiveRecord::Base
     self.group_loans.where(:is_closed => false )
   end
   
+  def started_group_loans 
+    self.group_loans.where(:is_closed => false , 
+                :is_proposed => true , 
+                :is_started => true)
+  end
+  
+  def loan_disbursement_meeting_group_loans
+    self.group_loans.where(:is_closed => false , 
+                :is_proposed => true , 
+                :is_started => true,
+                :is_financial_education_attendance_done => true)
+  end
+  
   def pending_approval_group_loans
     self.group_loans.where(:is_closed => false , :is_proposed => true , :is_started => false )
   end
@@ -80,6 +93,8 @@ class Office < ActiveRecord::Base
                 :is_setup_fee_collection_finalized => true , 
                 :is_setup_fee_collection_approved => false  )
   end
+  
+  
   
   def disbursable_group_loans
     self.group_loans.where(:is_closed => false , 

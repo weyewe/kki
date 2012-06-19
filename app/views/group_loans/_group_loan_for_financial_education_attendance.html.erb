@@ -14,5 +14,12 @@
     <% end %>
     
   </td>
-  <td>Pending</td>
+  <td>
+    <% if group_loan.is_financial_education_attendance_done == true %>
+      <span class="label label-success">Approved</span>
+    <% elsif group_loan.is_financial_education_attendance_done == false  %>
+      <span class="label">--Pending--</span>
+    <% end %>
+    
+  </td>
 </tr>

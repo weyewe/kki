@@ -22,5 +22,9 @@
         <%= get_process_nav( :field_worker , params ).html_safe %> 
       <% end %>
        
+       
+      <% if not current_user.has_role?(:field_worker, current_user.active_job_attachment) %>
+        <%= get_process_nav( :loan_inspector , params ).html_safe %> 
+      <% end %>
    </div><!--/.well -->
  </div><!--/span-->

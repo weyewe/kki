@@ -279,6 +279,11 @@ module ApplicationHelper
       return create_process_nav(GROUP_EMPLOYEE_MANAGEMENT_PROCESS_LIST, params )
     end
    
+    if symbol == :loan_inspector
+      return create_process_nav(LOAN_INSPECTOR_PROCESS_LIST, params )
+    end
+    
+    
   end
   
   
@@ -660,6 +665,40 @@ module ApplicationHelper
     ]
   }
   
+  LOAN_INSPECTOR_PROCESS_LIST = {
+    :header_title => "Loan Inspector",
+    :processes => [
+      {
+        :title => "Finalize Financial Education Attendance",
+        :destination_link => "select_group_loan_for_financial_education_finalization_url",
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_financial_education_finalization'
+          },
+          {
+            :controller => "group_loans",
+            :action => 'finalize_financial_education_attendance'
+          }
+        ]
+      },
+      {
+        :title => "Finalize Loan Disbursement Attendance",
+        :destination_link => "select_group_loan_to_create_loan_inspector_assignment_url",
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_create_loan_inspector_assignment'
+          },
+          {
+            :controller => "group_loan_assignments",
+            :action => 'new_loan_inspector_assignment_to_employee'
+          }
+        ]
+      }
+    ]
+  }
+  
   
   
   FIELD_WORKER_PROCESS_LIST = {
@@ -681,11 +720,11 @@ module ApplicationHelper
       },
       {
         :title => "Loan Disbursement Attendance",
-        :destination_link => 'select_group_loan_for_setup_payment_url',
+        :destination_link => 'select_group_loan_for_loan_disbursement_meeting_attendance_url',
         :conditions => [
           {
             :controller => 'group_loans',
-            :action => ''
+            :action => 'select_group_loan_for_loan_disbursement_meeting_attendance'
           },
           {
             :controller => "group_loan_memberships",

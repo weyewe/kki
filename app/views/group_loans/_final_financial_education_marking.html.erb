@@ -1,0 +1,43 @@
+<% member = group_loan_membership.member %>
+
+<tr id="mark_attendance_wrapper-<%= group_loan_membership.id %>">
+  
+  <td><%= member.name %></td>
+  <td><%= member.address %></td>
+  
+  <td>
+    <% if group_loan_membership.is_attending_financial_lecture == true %>
+      <span class="label label-success">Present</span>
+    <% elsif group_loan_membership.is_attending_financial_lecture == false %>
+      <span class="label label-important">Absent</span>
+    <% end %>
+  </td>
+  
+  
+  <td style='text-align:center;'>
+    
+    
+    <% if not group_loan_membership.final_financial_lecture_attendance.nil?  %>
+    
+      <% if group_loan_membership.final_financial_lecture_attendance == false  %>
+        <span class="label label-important">Absent</span>
+      <% elsif group_loan_membership.final_financial_lecture_attendance == true %>
+        <span class="label label-success">Present</span>
+      <% end %>
+      
+    <% else %>
+    
+      <a href="#" class="btn propose action true_check"
+        id="mark_attendance_on_time-<%= group_loan_membership.id %>">Present</a>
+      <a href="#" class="btn propose action"
+        id="mark_attendance_absent-<%= group_loan_membership.id %>">Absent</a>
+        
+    <% end %>
+    
+    
+    
+  
+    
+    
+  </td>
+</tr>
