@@ -255,9 +255,24 @@ class GroupLoansController < ApplicationController
   
   def execute_propose_standard_default_resolution
     @group_loan = GroupLoan.find_by_id params[:entity_id]
+    @group_loan.propose_default_payment_execution(current_user)
   end
   
   
+=begin
+  DEFAULT PAYMENT Resolution: Execution by cashier
+=end
+  def select_group_loan_for_default_resolution_execution
+    @office = current_user.active_job_attachment.office
+    @group_loans = @office.group_loans_for_default_resolution_execution
+  end
+  
+  def execute_default_resolution
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
+    @group_loan.execute_default_payment_execution( current_user ) 
+  end
+  
+
   def select_closed_group_loan_for_history
     @office = current_user.active_job_attachment.office
     @closed_group_loans  = @office.closed_group_loans

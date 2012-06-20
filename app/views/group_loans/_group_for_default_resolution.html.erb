@@ -12,8 +12,23 @@
   
   <td> <%= link_to "Standard Resolution", standard_default_resolution_schema_url(group_loan) %> </td>
   <td> Custom Resolution</td> <!-- Total default mamber -->
-  <td>Pending Cashier</td> <!-- total default amount -->
-  <td>Pending BM</td> <!-- paid_member count -->
+  <td>
+    <% if group_loan.is_default_payment_resolution_approved == true %>
+    <span class="label label-success">Approved</span>
+    <% elsif group_loan.is_default_payment_resolution_approved == false %>
+    <span class="label">Pending</span>
+    <% end %>
+    
+    
+  </td> <!-- total default amount -->
+  <td>
+    
+    <% if group_loan.is_closed == true %>
+    <span class="label label-success">Approved</span>
+    <% elsif group_loan.is_closed == false %>
+    <span class="label">Pending</span>
+    <% end %>
+  </td> <!-- paid_member count -->
  
   
 </tr>

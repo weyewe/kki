@@ -5,7 +5,7 @@
         "Group Loan: <b>#{@group_loan.name}</b> "  + "<br />" + 
         "Total Defaultee: <b>#{@total_defaultee}</b>" + "<br />" + 
         "Total Default Amount: <b>#{print_money(@group_loan.unpaid_backlogs_grace_period_amount )}</b>" + "<br />" + 
-        "Total Amount Recovered: <b>#{print_money( @total_default_payment_to_be_paid )}</b>" + "<br />" + 
+        "Total Amount Recovered: <b>#{print_money( @group_loan.total_amount_deducted_for_default_payment_resolution )}</b>" + "<br />" + 
         "Office Loss: <b>#{print_money(@office_loss)}</b>").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
@@ -39,11 +39,10 @@
   </div>
   
   
-  <div class="alert alert-success" style="text-align: center;">
-    <strong>Propose Default Loan Resolution!</strong> <br />
-    <a href="#" class="btn propose action prevent_double_submit"
-          id="pending_approval_grace_period_transaction-<%= @group_loan.id %>">Propose</a>
-  </div>
+  <%= render :partial => "group_loans/propose_standard_default_resolution", :locals => {
+    :group_loan => @group_loan
+  }%>
+  
 
 
    

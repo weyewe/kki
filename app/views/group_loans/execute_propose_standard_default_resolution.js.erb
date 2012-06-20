@@ -1,0 +1,9 @@
+$(document).ready(function(){
+  
+  <% new_row = escape_javascript( render :partial => "group_loans/propose_standard_default_resolution", 
+        :locals => {:group_loan => @group_loan}) %>
+
+  $("#propose_standard_default_resolution").replaceWith('<%= new_row %>');
+  
+  
+});

@@ -1,37 +1,64 @@
+<!-- <th>Nama Group</th>
+<th>Lokasi RW</th>
+<th>Total Active Members</th>
+<th>Financial Education</th>
+<th>Loan Disbursement</th>
+<th>Grace Period</th>
+<th>Default Resolution Proposed</th>
+<th>Default Resolution Executed</th>
+<th>Close Group Loan</th> -->
+
+
 <tr id="start_group_loan-<%= group_loan.id %>">
   <td><%= link_to group_loan.name, new_group_loan_group_loan_subcription_url(group_loan) %></td>
   <td><%= group_loan.get_commune %></td>
-  <td><%= group_loan.members.count %></td>
+  <td><%= group_loan.preserved_active_group_loan_memberships.count %></td>
 
   
   <td>
-    <% if group_loan.is_setup_fee_collection_finalized == false %>
-      <span class="label">Pending</span>
-    <% elsif group_loan.is_setup_fee_collection_finalized == true  and 
-              group_loan.is_setup_fee_collection_approved == false and 
-               group_loan.is_setup_fee_collection_approved == false %>
-      <span class="label label-warning">Pending Cashier Approval</span>
-    <% elsif   group_loan.is_setup_fee_collection_finalized == true  and 
-               group_loan.is_setup_fee_collection_approved == true and 
-               group_loan.is_setup_fee_collection_approved == true  %>
+    
+    <% if group_loan.is_financial_education_attendance_done == true %>
       <span class="label label-success">DONE</span>
+    <% else %>
+      <span class="label">Pending</span>
     <% end %>
+   
   </td>
   
   
   <td>
-    <% if group_loan.is_setup_fee_collection_finalized == true  and 
-          group_loan.is_setup_fee_collection_approved == true and 
-          group_loan.is_setup_fee_collection_approved == true and 
-          group_loan.is_loan_disbursement_done == false  %>
-      <span class="label label-warning">In Progress</span>
-    <% elsif   group_loan.is_setup_fee_collection_finalized == true  and 
-            group_loan.is_setup_fee_collection_approved == true and 
-            group_loan.is_setup_fee_collection_approved == true and 
-            group_loan.is_loan_disbursement_done == true    %>
+    <% if group_loan.is_loan_disbursement_attendance_done == true %>
       <span class="label label-success">DONE</span>
+    <% else %>
+      <span class="label">Pending</span>
     <% end %>
   </td>
+  
+  <td>
+    <% if group_loan.is_grace_period? == true %>
+      <span class="label label-success">DONE</span>
+    <% else %>
+      <span class="label">Pending</span>
+    <% end %>
+  </td>
+  
+  <td>
+    <% if group_loan.is_default_payment_resolution_proposed? == true %>
+      <span class="label label-success">DONE</span>
+    <% else %>
+      <span class="label">Pending</span>
+    <% end %>
+  </td>
+  
+  <td>
+    <% if group_loan.is_default_payment_resolution_approved? == true %>
+      <span class="label label-success">DONE</span>
+    <% else %>
+      <span class="label">Pending</span>
+    <% end %>
+  </td>
+  
+  <td>Action</td>
   
   <!-- <td><span class="label">80%</span></td> -->
   

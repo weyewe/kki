@@ -337,6 +337,11 @@ class GroupLoan < ActiveRecord::Base
     self.group_loan_memberships.where(:is_active => true )
   end
   
+  def preserved_active_group_loan_memberships
+    active_group_loan_memberships  + self.group_loan_memberships.where(:is_active => false , 
+    :deactivation_case => GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed])
+  end
+  
   def non_active_group_loan_memberships
     self.group_loan_memberships.where(:is_active => false  )
   end
@@ -1452,7 +1457,13 @@ class GroupLoan < ActiveRecord::Base
     return true 
   end
 
-
+  def total_amount_deducted_for_default_payment_resolution
+    total_amount = BigDecimal("0")
+    self.active_group_loan_memberships.includes(:default_payment).each do |glm|
+      total_amount += glm.default_payment.amount_to_be_paid
+    end
+    return total_amount
+  end
 
 =begin
   PROPOSE default payment resolution 
@@ -1485,26 +1496,22 @@ class GroupLoan < ActiveRecord::Base
     if self.unpaid_backlogs.count >  0 
       self.active_group_loan_memberships.includes(:default_payment).each do |glm|
         default_payment = glm.default_payment 
-        if default_payment.total_amount !=  BigDecimal("0")
+        if default_payment.amount_to_be_paid !=  BigDecimal("0")
           transaction_activity = TransactionActivity.create_default_payment_resolution( default_payment,  employee  ) 
-          if not transaction_activity.nil?
-            glm.is_active = false 
-            glm.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
-          end
-        else 
-          glm.is_active = false 
-          glm.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
         end
       end
-      
-      self.is_default_payment_resolution_approved = true
-      self.default_payment_resolution_approver_id = employee.id 
-      self.save
     end
     
-    # update office lost, marked in group loan 
     
+    self.active_group_loan_memberships.each do |glm|
+      glm.is_active = false 
+      glm.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
+      glm.save
+    end
     
+    self.is_default_payment_resolution_approved = true
+    self.default_payment_resolution_approver_id = employee.id 
+    self.save
   end
   
   

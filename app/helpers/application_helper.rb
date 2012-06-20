@@ -615,21 +615,21 @@ module ApplicationHelper
             :action => "select_pending_grace_period_payment_to_be_approved"
           }
         ]
-      }# ,
-      #       {
-      #         :title => "Approve Backlog Payment",
-      #         :destination_link => 'select_group_loan_for_backlog_payment_approval_url',
-      #         :conditions => [
-      #           {
-      #             :controller => 'group_loans',
-      #             :action => 'select_group_loan_for_backlog_payment_approval'
-      #           },
-      #           {
-      #             :controller => "backlog_payments", 
-      #             :action => "select_pending_backlog_to_be_approved"
-      #           }
-      #         ]
-      #       }
+      },
+      {
+        :title => "Default Resolution Execution",
+        :destination_link => 'select_group_loan_for_default_resolution_execution_url',
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_default_resolution_execution'
+          },
+          {
+            :controller => "backlog_payments", 
+            :action => "select_pending_backlog_to_be_approved"
+          }
+        ]
+      }
     ]
   }
   

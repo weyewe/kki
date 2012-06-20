@@ -142,8 +142,20 @@ class Office < ActiveRecord::Base
     return unapproved_grace_period_group_loan_list
   end
   
+  def group_loans_for_default_resolution_execution
+    self.group_loans.where(
+                :is_proposed => true , 
+                :is_started => true,
+                :is_setup_fee_collection_finalized => true , 
+                :is_setup_fee_collection_approved => true , 
+                :is_loan_disbursement_approved => true, 
+                :is_default_payment_resolution_proposed => true ,
+                :is_default_payment_resolution_approved => [false,true],
+                :is_closed => false  )
+  end
+  
   def default_declared_group_loans
-    self.group_loans.where(:is_closed => false , 
+    self.group_loans.where(
                 :is_proposed => true , 
                 :is_started => true,
                 :is_setup_fee_collection_finalized => true , 

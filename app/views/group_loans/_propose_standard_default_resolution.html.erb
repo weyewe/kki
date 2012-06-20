@@ -1,0 +1,15 @@
+
+
+<% if group_loan.is_default_payment_resolution_proposed == false %>
+  <div class="alert alert-success" style="text-align: center;" id="propose_standard_default_resolution">
+    <strong>Propose Default Loan Resolution!</strong> <br />
+    <a href="#" class="btn propose action prevent_double_submit"
+    id="pending_approval_grace_period_transaction-<%= @group_loan.id %>">Propose</a>
+  </div>
+<% elsif group_loan.is_default_payment_resolution_proposed == true %>
+  <div class="alert alert-success" style="text-align: center;" id="propose_standard_default_resolution">
+    <strong>Default Resolution is Proposed!</strong> <br />
+    Pending Approval from Cashier and Branch Manager.
+  </div>
+<% end %>
+

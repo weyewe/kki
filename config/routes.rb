@@ -176,16 +176,24 @@ Debita46::Application.routes.draw do
   match 'select_pending_grace_period_payment_to_be_approved/:group_loan_id' => "transaction_activities#select_pending_grace_period_payment_to_be_approved", :as => :select_pending_grace_period_payment_to_be_approved
   match 'execute_backlog_payment_transaction_approval_by_cashier' => "transaction_activities#execute_backlog_payment_transaction_approval_by_cashier", :as => :execute_backlog_payment_transaction_approval_by_cashier, :method => :post
 
-  # backlog payment 
+  # backlog payment , maybe not used
   match 'select_group_loan_for_backlog_weekly_payment' => "group_loans#select_group_loan_for_backlog_weekly_payment", :as => :select_group_loan_for_backlog_weekly_payment
   match 'pay_backlog_for_group_loan/:group_loan_id/member/:member_id' => "backlog_payments#pay_backlog_for_group_loan", :as => :pay_backlog_for_group_loan
   
+=begin
+  Loan Default RESOLUTION : PROPOSAL
+=end
   #loan default resolution
   match 'select_group_loan_for_loan_default_resolution' =>"group_loans#select_group_loan_for_loan_default_resolution", :as => :select_group_loan_for_loan_default_resolution
   match 'standard_default_resolution_schema/:group_loan_id' => 'group_loans#standard_default_resolution_schema', :as => :standard_default_resolution_schema
   match 'custom_default_resolution_schema/:group_loan_id' => 'group_loans#custom_default_resolution_schema', :as => :custom_default_resolution_schema
-  
   match 'execute_propose_standard_default_resolution' => 'group_loans#execute_propose_standard_default_resolution', :as => :execute_propose_standard_default_resolution, :method => :post
+  
+=begin
+  Loan Default RESOLUTION : EXECUTION by Cashier 
+=end
+  match 'select_group_loan_for_default_resolution_execution' => "group_loans#select_group_loan_for_default_resolution_execution", :as => :select_group_loan_for_default_resolution_execution
+  match 'execute_default_resolution' => "group_loans#execute_default_resolution", :as => :execute_default_resolution, :method => :post 
   
 =begin
   Cashier Routes 
