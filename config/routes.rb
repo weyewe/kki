@@ -156,8 +156,18 @@ Debita46::Application.routes.draw do
   match 'select_weekly_meeting_for_weekly_payment/:group_loan_id' => "weekly_tasks#select_weekly_meeting_for_weekly_payment", :as => :select_weekly_meeting_for_weekly_payment
   match 'make_member_payment/:group_loan_id/for_week/:weekly_task_id' => "weekly_tasks#make_member_payment", :as => :make_member_payment
   match 'special_weekly_payment_for_member/:group_loan_id/for_week/:weekly_task_id/member/:member_id' => "weekly_tasks#special_weekly_payment_for_member", :as => :special_weekly_payment_for_member
-  # close weekly payment ?
+  # close weekly payment 
   match 'close_weekly_payment' => "weekly_tasks#close_weekly_payment", :as => :close_weekly_payment, :method => :post 
+
+
+
+=begin
+  GRACE PERIOD PAYMENT
+=end
+  match 'select_group_loan_for_backlog_grace_period_payment' => "group_loans#select_group_loan_for_backlog_grace_period_payment", :as => :select_group_loan_for_backlog_grace_period_payment
+  match 'default_members_for_grace_period_payment/:group_loan_id' => "group_loans#default_members_for_grace_period_payment", :as => :default_members_for_grace_period_payment
+
+
 
 
   # backlog payment 
@@ -166,8 +176,10 @@ Debita46::Application.routes.draw do
   
   #loan default resolution
   match 'select_group_loan_for_loan_default_resolution' =>"group_loans#select_group_loan_for_loan_default_resolution", :as => :select_group_loan_for_loan_default_resolution
+  match 'standard_default_resolution_schema/:group_loan_id' => 'group_loans#standard_default_resolution_schema', :as => :standard_default_resolution_schema
+  match 'custom_default_resolution_schema/:group_loan_id' => 'group_loans#custom_default_resolution_schema', :as => :custom_default_resolution_schema
+  # old one 
   match 'list_default_payment_for_clearance/:group_loan_id' =>"default_payments#list_default_payment_for_clearance", :as => :list_default_payment_for_clearance
-  
   match 'payment_for_default_resolution/:default_payment_id' =>"default_payments#payment_for_default_resolution", :as => :payment_for_default_resolution
 =begin
   Cashier Routes 
@@ -184,6 +196,7 @@ Debita46::Application.routes.draw do
   # approve weekly payment by field_worker 
   # objective is to ensure the total amount from a given group is matching the value 
   match 'list_pending_weekly_collection_approval' => "weekly_tasks#list_pending_weekly_collection_approval", :as => :list_pending_weekly_collection_approval
+  match 'details_weekly_collection/:weekly_task_id' =>  'weekly_tasks#details_weekly_collection' , :as => :details_weekly_collection
   match 'execute_weekly_collection_approval' => "weekly_tasks#execute_weekly_collection_approval", :as => :execute_weekly_collection_approval, :method => :post
 
   # approve backlog payment , received by the field worker 

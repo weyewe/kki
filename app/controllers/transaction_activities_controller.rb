@@ -31,11 +31,19 @@ class TransactionActivitiesController < ApplicationController
       :member_id => @member.id,
       :group_loan_id => @weekly_task.group_loan.id 
     })
-    @transaction_activity = TransactionActivity.create_basic_weekly_payment(
-      @member,
-      @weekly_task,
-      current_user
-    )
+    
+    @transaction_activity = TransactionActivity.create_generic_weekly_payment(
+            @group_loan_membership,
+            current_user,
+            @group_loan_membership.group_loan_product.total_weekly_payment,
+            BigDecimal("0"), 
+            1,
+            0)
+    # @transaction_activity = TransactionActivity.create_basic_weekly_payment(
+    #   @member,
+    #   @weekly_task,
+    #   current_user
+    # )
   end
   
   def create_savings_only_as_weekly_payment

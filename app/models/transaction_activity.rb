@@ -44,6 +44,10 @@ class TransactionActivity < ActiveRecord::Base
     })
   end
   
+  def member
+    Member.find_by_id( self.member_id )
+  end
+  
   def TransactionActivity.create_independent_savings( member, amount, field_worker )
     
     # member.add_savings()
@@ -356,7 +360,7 @@ class TransactionActivity < ActiveRecord::Base
   
   def TransactionActivity.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, current_user )
     if  (not current_user.has_role?(:field_worker, current_user.get_active_job_attachment) ) or
-        ( not weekly_task.is_weekly_attendance_marking_done == true )
+        ( not weekly_task.member_payment_can_be_started?  )
         return false
     else
       return true
@@ -510,7 +514,7 @@ class TransactionActivity < ActiveRecord::Base
     
     # 4 . according to the extra savings, create extra savings
     if extra_savings > zero_value
-      transaction_activity.create_only_savings_payment_entry(extra_savings, employee, member )
+      transaction_activity.create_extra_savings_entries(extra_savings, employee, member )
     end
     
     
@@ -528,7 +532,7 @@ class TransactionActivity < ActiveRecord::Base
           cash,
           savings_withdrawal, 
           number_of_weeks,
-          number_of_backlogs)
+          number_of_backlogs ) # we need this weekly_task info.. which week?
           
     group_loan = group_loan_membership.group_loan
     group_loan_product = group_loan_membership.group_loan_product
@@ -539,6 +543,15 @@ class TransactionActivity < ActiveRecord::Base
     if group_loan_membership.nil? or employee.nil? or cash.nil? or savings_withdrawal.nil? or number_of_weeks.nil? or number_of_backlogs.nil?
       return nil
     end      
+    
+    
+    # approved weekly task can't be modified
+    # if weekly_task.is_weekly_payment_approved_by_cashier == true 
+    #   return nil
+    # end
+    
+    # how can we prevent double creation programmatically? -> double click?
+    # no way to prevent it. it has member_payments and member_attendances
           
           
     if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
@@ -641,6 +654,9 @@ class TransactionActivity < ActiveRecord::Base
     
     
     # creating the backlog payment 
+    # we haven't updated the member payment 
+    # there is a method -> weekly_task#total_cash_received << how? 
+    # need to capture: backlog payment + extra cash, linked to that week
     if number_of_backlogs > 0
       member.backlog_payments_for_group_loan(group_loan).order("created_at ASC").limit( number_of_backlogs ).each do |x|
          x.is_cleared  = true 
@@ -667,7 +683,7 @@ class TransactionActivity < ActiveRecord::Base
     
     # 4 . according to the extra savings, create extra savings
     if extra_savings > zero_value
-      transaction_activity.create_only_savings_payment_entry(extra_savings, employee, member )
+      transaction_activity.create_extra_savings_entries(extra_savings, employee, member )
     end
     
     

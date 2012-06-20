@@ -780,24 +780,24 @@ class GroupLoan < ActiveRecord::Base
   #     self.total_weeks - self.completed_weekly_tasks.count
   #   end
   
-  def declare_default( current_user )
-    if not current_user.has_role?(:branch_manager, current_user.get_active_job_attachment)
-      return nil
-    end
-    
-    if self.completed_weekly_tasks.count != self.total_weeks
-      return nil
-    end
-    
-    # put this in transaction block
-    self.default_creator_id = current_user.id
-    self.is_group_loan_default = true 
-    self.save 
-    
-    
-    self.generate_default_payments(current_user)
-    
-  end
+  # def declare_default( current_user )
+  #   if not current_user.has_role?(:branch_manager, current_user.get_active_job_attachment)
+  #     return nil
+  #   end
+  #   
+  #   if self.completed_weekly_tasks.count != self.total_weeks
+  #     return nil
+  #   end
+  #   
+  #   # put this in transaction block
+  #   self.default_creator_id = current_user.id
+  #   self.is_group_loan_default = true 
+  #   self.save 
+  #   
+  #   
+  #   self.generate_default_payments(current_user)
+  #   
+  # end
   
   
   # def extract_total_default_amount
@@ -812,90 +812,107 @@ class GroupLoan < ActiveRecord::Base
   #   
   #   return total_default
   # end
-  
-  def extract_total_default_amount
-    
-    total_default = BigDecimal("0")
-    
-    self.sub_groups.each do |sub_group|
-      total_sub_group_default = sub_group.extract_total_unpaid_backlogs
-      puts "Total default sub_group #{sub_group.number}: #{sub_group.extract_total_unpaid_backlogs}"
-      
-      total_default += total_sub_group_default
-    end
-    
-    self.total_default_amount  =  total_default
-    self.save 
-    return total_default
-  end
-  
-  def declare_backlog_payments_as_default
-    self.unpaid_backlogs.each do |backlog|
-      backlog.is_group_loan_declared_as_default = true
-      backlog.save
-    end
-  end
+    # 
+    # def extract_total_default_amount
+    #   
+    #   total_default = BigDecimal("0")
+    #   
+    #   self.sub_groups.each do |sub_group|
+    #     total_sub_group_default = sub_group.extract_total_unpaid_backlogs
+    #     puts "Total default sub_group #{sub_group.number}: #{sub_group.extract_total_unpaid_backlogs}"
+    #     
+    #     total_default += total_sub_group_default
+    #   end
+    #   
+    #   self.total_default_amount  =  total_default
+    #   self.save 
+    #   return total_default
+    # end
+    # 
+  # def declare_backlog_payments_as_default
+  #   self.unpaid_backlogs.each do |backlog|
+  #     backlog.is_group_loan_declared_as_default = true
+  #     backlog.save
+  #   end
+  # end
   
   def unpaid_backlogs
     self.backlog_payments.where(:is_cleared => false , :is_cashier_approved => false)
+  end
+  
+  def unpaid_backlogs_grace_period_amount
+    total_amount = BigDecimal("0")
+    
+    self.unpaid_backlogs.each do |backlog|
+      member = backlog.member
+      glm = self.get_membership_for_member( member )
+      group_loan_product = glm.group_loan_product
+      total_amount += group_loan_product.grace_period_weekly_payment
+    end
+ 
+    return total_amount 
   end
   
   def pending_approval_backlogs
     self.backlog_payments.where(:is_cleared => true , :is_cashier_approved => false)
   end
   
-  def extract_default_member_id
-    list_of_default_member_id = BacklogPayment.list_member_id_with_default_in_group_loan( self ) 
-  end
+  # def total_defaultee
+  #    extract_default_member_id.count
+  #  end
+  #  
+  # def extract_default_member_id
+  #   list_of_default_member_id = BacklogPayment.list_member_id_with_default_in_group_loan( self ) 
+  # end
+  # 
+  # def total_default_member
+  #   self.extract_default_member_id.length 
+  # end
   
-  def total_default_member
-    self.extract_default_member_id.length 
-  end
+  # def members_paid_default_payment
+  #   list_of_non_defaultee_member_id = self.extract_non_default_member_id 
+  #   
+  #   non_defaultee_glm_id=  GroupLoanMembership.find(:all, :conditions => {
+  #       :member_id => list_of_non_defaultee_member_id,
+  #       :group_loan_id => self.id 
+  #     }).map{|x| x.id }
+  #     
+  #   DefaultPayment.where(
+  #     :group_loan_membership_id => non_defaultee_glm_id,
+  #     :is_paid => true 
+  #   )
+  # end
+  # 
+  # def default_payments
+  #   list_of_non_defaultee_member_id = self.extract_non_default_member_id 
+  #   
+  #   non_defaultee_glm_id=  GroupLoanMembership.find(:all, :conditions => {
+  #       :member_id => list_of_non_defaultee_member_id,
+  #       :group_loan_id => self.id 
+  #     }).map{|x| x.id }
+  #     
+  #   DefaultPayment.where(
+  #     :group_loan_membership_id => non_defaultee_glm_id,
+  #     :is_defaultee => false 
+  #   )
+  # end
+  # 
+  # 
+  # def pending_approval_default_payments
+  #   members_paid_default_payment.where(:is_cashier_approved => false)
+  # end
   
-  def members_paid_default_payment
-    list_of_non_defaultee_member_id = self.extract_non_default_member_id 
-    
-    non_defaultee_glm_id=  GroupLoanMembership.find(:all, :conditions => {
-        :member_id => list_of_non_defaultee_member_id,
-        :group_loan_id => self.id 
-      }).map{|x| x.id }
-      
-    DefaultPayment.where(
-      :group_loan_membership_id => non_defaultee_glm_id,
-      :is_paid => true 
-    )
-  end
-  
-  def default_payments
-    list_of_non_defaultee_member_id = self.extract_non_default_member_id 
-    
-    non_defaultee_glm_id=  GroupLoanMembership.find(:all, :conditions => {
-        :member_id => list_of_non_defaultee_member_id,
-        :group_loan_id => self.id 
-      }).map{|x| x.id }
-      
-    DefaultPayment.where(
-      :group_loan_membership_id => non_defaultee_glm_id,
-      :is_defaultee => false 
-    )
-  end
-  
-  
-  def pending_approval_default_payments
-    members_paid_default_payment.where(:is_cashier_approved => false)
-  end
-  
-  def total_paid_default_payment
-    members_paid_default_payment.sum("amount_paid")
-  end
-  
+  # def total_paid_default_payment
+  #   members_paid_default_payment.sum("amount_paid")
+  # end
+  # 
   def total_default_payment_paid_by_office
     members_paid_default_payment.sum("amount_assumed_by_office")
   end
   
-  def total_members_paid_default_payment
-    self.members_paid_default_payment.count
-  end
+  # def total_members_paid_default_payment
+  #   self.members_paid_default_payment.count
+  # end
   
   
   def extract_non_default_member_id
@@ -1148,6 +1165,7 @@ class GroupLoan < ActiveRecord::Base
 =begin
   Check grace period 
 =end
+
 
   def is_grace_period?
     self.weekly_tasks.where(:is_weekly_payment_approved_by_cashier => true ).count == self.total_weeks 

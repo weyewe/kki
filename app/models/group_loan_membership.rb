@@ -57,6 +57,10 @@ class GroupLoanMembership < ActiveRecord::Base
     })
   end
   
+  def has_unpaid_backlogs?
+    unpaid_backlogs.count != 0 
+  end
+  
   def add_deposit(field_worker, amount ) 
     # loan_product = self.group.group_loan 
     # "principal"

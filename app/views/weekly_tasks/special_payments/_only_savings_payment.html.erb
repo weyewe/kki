@@ -1,7 +1,10 @@
 
 
-
+<% if has_paid_weekly_payment == false  %>
 <div class="row-fluid tab-pane fade  active in pane_wrapper" id="only_savings_payment" >
+<% else %>
+<div class="row-fluid tab-pane fade   in pane_wrapper" id="only_savings_payment" >
+<% end %>
   <div class="span8">
     <h2>Pay as Savings</h2><br />
 

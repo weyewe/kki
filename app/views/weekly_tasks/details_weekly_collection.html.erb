@@ -1,0 +1,97 @@
+
+<div class="span9 content">
+  <%= create_guide("Weekly Collection Details", 
+        "Office: <b>#{@office.name}</b>" + "<br />" + 
+        "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "Week: <b>#{print_money(@weekly_task.week_number)}</b>" + "<br />" + 
+        "Total Amount: <b>#{print_money(@weekly_task.total_cash_received)}</b>" + "<br />" + 
+        "Total Transactions: <b>#{print_money(@transaction_activities.count)}</b>").html_safe %>
+  
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
+  
+  
+   
+  <div class="row-fluid">
+    <div id="data_list">
+      <table cellpadding="0" cellspacing="0" border="0" 
+            class="table table-striped table-bordered" id="example">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Member</th>
+            <th>Cash Passed</th>
+            <th>TransactionCase</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @transaction_activities.each do |transaction_activity| %>
+          <% puts "The transaction activities inspect: #{@transaction_activities.inspect}"%>
+            <%= render :partial => "weekly_tasks/transaction_details" , 
+                :locals => {:transaction_activity => transaction_activity}%>
+   
+          <% end %>
+       
+          
+
+        </tbody>
+      </table>
+    </div><!-- end of #data_list -->
+  </div>
+  
+  
+  
+  <div class=" hidden" id="approve_propose_form_wrapper">
+    <%= form_for WeeklyTask.new, :url => execute_weekly_collection_approval_url   do |f| %>
+      <%= hidden_field_tag 'entity_id' , ''  %>
+      <%= hidden_field_tag 'action_role', '' %>
+      <%= hidden_field_tag 'action_value', '' %>
+    <% end %>
+  </div>
+  
+  
+  <div class="modal" id="myModal" style="display:none;">
+     <div class="modal-header">
+       <a class="close" data-dismiss="modal">×</a>
+       <h3>Modal header</h3>
+     </div>
+     <div class="modal-body">
+       <p>One fine body…</p>
+     </div>
+     <div class="modal-footer">
+       <a href="#" class="btn modal-closer">Close</a>
+       <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
+     </div>
+   </div>
+   
+   <!-- <div class=" hidden" id="approve_propose_form_wrapper">
+       <%#= form_for GroupLoan.new, :url => approve_setup_fee_collection_url   do |f| %>
+         <%#= hidden_field_tag 'entity_id' , ''  %>
+         <%#= hidden_field_tag 'action_role', '' %>
+         <%#= hidden_field_tag 'action_value', '' %>
+       <%# end %>
+     </div> -->
+
+
+
+    
+    
+  
+  
+  
+
+</div><!--/span-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

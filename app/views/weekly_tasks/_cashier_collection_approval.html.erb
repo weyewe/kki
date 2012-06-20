@@ -7,7 +7,7 @@
   <td><%=  weekly_task.weekly_payment_collection_finalizer_id %></td>
   <td><%=  weekly_task.weekly_payment_collection_done_time %></td>
   <!-- expected cash -->
-  <td><%=  print_money( weekly_task.total_cash_received ) %></td>
+  <td><%=  link_to print_money( weekly_task.total_cash_received ), details_weekly_collection_url(weekly_task) %></td>
   
  <!-- action button -->
   <%# if group_loan.is_started == false && group_loan.is_proposed == true %>

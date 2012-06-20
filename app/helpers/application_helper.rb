@@ -595,6 +595,10 @@ module ApplicationHelper
           {
             :controller => 'weekly_tasks',
             :action => 'list_pending_weekly_collection_approval'
+          },
+          {
+            :controller => 'weekly_tasks',
+            :action => 'details_weekly_collection'
           }
         ]
       },
@@ -773,6 +777,20 @@ module ApplicationHelper
         ]
       },
       {
+        :title => "Grace Period Payment",
+        :destination_link => "select_group_loan_for_backlog_grace_period_payment_url",
+        :conditions => [
+          {
+            :controller => "group_loans",
+            :action => 'select_group_loan_for_backlog_grace_period_payment'
+          },
+          {
+            :controller => "group_loans",
+            :action => "default_members_for_grace_period_payment"
+          }
+        ]
+      },
+      {
         :title => "Backlog Payment",
         :destination_link => "select_group_loan_for_backlog_weekly_payment_url",
         :conditions => [
@@ -799,8 +817,8 @@ module ApplicationHelper
             :action => 'select_group_loan_for_loan_default_resolution'
           },
           {
-            :controller => "default_payments",
-            :action => 'list_default_payment_for_clearance'
+            :controller => "group_loans",
+            :action => 'standard_default_resolution_schema'
           },
           {
             :controller => "default_payments",

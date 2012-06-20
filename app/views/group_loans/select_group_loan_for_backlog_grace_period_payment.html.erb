@@ -1,8 +1,7 @@
-
 <div class="span9 content">
-  <%= create_guide("Default Loan Resolution", 
-        "Default group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Resolvable group loans: <b>#{@group_loans.count}</b> "  ).html_safe %>
+  <%= create_guide("Grace Period Payment", 
+        "Office: <b>#{@office.name}</b>" + "<br />" + 
+        "In Grace Period Group Loans: <b>#{@group_loans.count}</b> ").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -15,31 +14,35 @@
         <thead>
           <tr>
             <th>Nama Group</th>
-            <th>Unpaid Backlog</th>
+            <th>Lokasi RW</th>
+            <th>Unpaid Backlogs</th>
             <th>Unpaid Amount</th>
-            <th colspan='2' style="text-align:center;">Action</th>
-            <th>Cashier Execution</th>
-            <th>Branch Manager Closing</th>
           </tr>
         </thead>
         <tbody>
           <% @group_loans.each do |group_loan| %>
-            <%= render :partial => "group_loans/group_for_default_resolution" , 
+            <%#= render :partial => "group_loans/group_loan_setup" , 
+                :locals => {:group_loan => group_loan}%>
+            <%= render :partial => "group_loans/group_loan_for_backlog_grace_period_entry" , 
                 :locals => {:group_loan => group_loan}%>
           <% end %>
+       
+          
+
         </tbody>
       </table>
     </div><!-- end of #data_list -->
   </div>
   
+  
+  
   <div class=" hidden" id="approve_propose_form_wrapper">
-    <%= form_for GroupLoan.new, :url => execute_declare_default_group_loan_url   do |f| %>
+    <%= form_for GroupLoan.new, :url => execute_loan_disbursement_finalization_url   do |f| %>
       <%= hidden_field_tag 'entity_id' , ''  %>
       <%= hidden_field_tag 'action_role', '' %>
       <%= hidden_field_tag 'action_value', '' %>
     <% end %>
   </div>
-  
   
   
   <div class="modal" id="myModal" style="display:none;">
@@ -55,8 +58,9 @@
        <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
      </div>
    </div>
-   
-   
+  
+  
+  
 
 </div><!--/span-->
 

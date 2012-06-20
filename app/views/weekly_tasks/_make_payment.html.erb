@@ -7,6 +7,7 @@
   
   <td><%= member.name %></td>
   <td><%= member.address %></td>
+  <td><%= group_loan_membership.unpaid_backlogs.count %></td>
   <!-- basic payment -->
   <% member_payment =  weekly_task.member_payment_for(member) %>
   
@@ -43,26 +44,29 @@
 
     <!-- Special Payment -->
 
-  <% if weekly_task.has_paid_weekly_payment?(member)  %>
-     <td style="text-align:center;">
-       
-       <% if member_payment.is_full_payment? %>
-        <span class="label label-success">PAID</span>
-       <% elsif member_payment.only_savings_payment? %>
-        <span class="label label-warning">Only Savings</span>
-       <% elsif  member_payment.no_payment?  %>
-        <span class="label label-important">No Payment</span>
-       <% end %>
-       
-     </td>
-   <% else %>
-     <td>
-       <%= link_to "Special Payment",
-          special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
-            :class => "btn", 
-            :id => "make_basic_payment-#{member.id}"  %>
-      </td>
-   <% end %>
+
+    <% if weekly_task.has_paid_weekly_payment?(member)  %>
+    <td style="text-align:center;">
+
+      <% if member_payment.is_full_payment? %>
+      <span class="label label-success">PAID</span>
+      <% elsif member_payment.only_savings_payment? %>
+      <span class="label label-warning">Only Savings</span>
+      <% elsif  member_payment.no_payment?  %>
+      <span class="label label-important">No Payment</span>
+      <% end %>
+
+    </td>
+    <% else %>
+    <td>
+      <%= link_to "Special Payment",
+      special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
+      :class => "btn", 
+      :id => "make_basic_payment-#{member.id}"  %>
+    </td>
+    <% end %>
+
+    <!-- No payment -->
        
        <!-- No payment -->
        

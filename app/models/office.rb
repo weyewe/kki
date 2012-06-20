@@ -119,9 +119,7 @@ class Office < ActiveRecord::Base
                 :is_started => true,
                 :is_setup_fee_collection_finalized => true , 
                 :is_setup_fee_collection_approved => true , 
-                :is_loan_disbursement_approved => true, 
-                :is_closed => false,
-                :is_group_loan_default => false   )
+                :is_loan_disbursement_approved => true )
   end
   
   

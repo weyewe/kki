@@ -1,22 +1,19 @@
 <!-- <th>Nama Group</th>
-<th>Lokasi RW</th>
-<th>Total Member</th>
-<th>Total Default Member</th>
-<th>Default Amount</th>
-<th>Paid Member</th>
-<th>Paid Amount</th> -->
+<th>Unpaid Backlog</th>
+<th>Unpaid Amount</th>
+<th colspan='2'>Action</th>
+<th>Cashier Execution</th>
+<th>Branch Manager Closing</th> -->
 
 <tr id="declare_default_group_loan-<%= group_loan.id %>">
-  <td><%= link_to group_loan.name, list_default_payment_for_clearance_url(group_loan) %></td>
-  <td><%= group_loan.get_commune %></td>
-  <td><%= group_loan.members.count %></td>
+  <td><%=  group_loan.name  %></td>
+  <td><%= group_loan.unpaid_backlogs.count %></td>
+  <td><%= print_money( group_loan.unpaid_backlogs_grace_period_amount )  %></td>
   
-  <td><%= group_loan.total_default_member %></td> <!-- Total default mamber -->
-  <td><%= print_money( group_loan.total_default_amount ) %></td> <!-- total default amount -->
-  <td> <%= group_loan.total_members_paid_default_payment %> </td> <!-- paid_member count -->
-  <td> <%= print_money( group_loan.total_paid_default_payment ) %> </td>  <!-- paid amount -->
-  <td><%= print_money( group_loan.total_default_payment_paid_by_office )%></td>
-  
+  <td> <%= link_to "Standard Resolution", standard_default_resolution_schema_url(group_loan) %> </td>
+  <td> Custom Resolution</td> <!-- Total default mamber -->
+  <td>Pending Cashier</td> <!-- total default amount -->
+  <td>Pending BM</td> <!-- paid_member count -->
  
   
 </tr>

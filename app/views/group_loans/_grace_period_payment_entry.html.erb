@@ -1,0 +1,20 @@
+<!-- <tr>
+  <th>Member</th>
+  <th>Amount Per Backlog</th>
+  <th>Unpaid Backlogs</th>
+  <th>Total Unpaid Amount</th>
+  <th>Action</th>
+</tr> -->
+
+<% if group_loan_membership.has_unpaid_backlogs? %>
+  <% member= group_loan_membership.member %>
+  <% group_loan_product = group_loan_membership.group_loan_product %>
+
+  <tr>
+    <td><%= member.name %></td>
+    <td><%= print_money(group_loan_product.grace_period_weekly_payment)%></td>
+    <td><%= group_loan_membership.unpaid_backlogs.count  %></td>
+    <td><%= print_money( group_loan_membership.unpaid_backlogs.count * group_loan_product.grace_period_weekly_payment)%></td>
+    <td><%= link_to "Create Payment", root_url, :class => "btn" %></th>
+  <tr>
+<% end %>

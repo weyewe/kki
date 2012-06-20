@@ -26,6 +26,7 @@ class CreateTransactionActivities < ActiveRecord::Migration
       # if it si the single loan, not our problem yet 
       t.integer :loan_id
       
+      
       t.timestamps
     end
   end

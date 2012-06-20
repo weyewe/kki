@@ -1,0 +1,28 @@
+<!-- <th>Transaction ID</th>
+<th>Member</th>
+<th>Cash Passed</th>
+<th>TransactionCase</th> -->
+
+
+<% if transaction_activity.nil? %>
+<tr>
+  
+
+  <td colspan="4"><%= transaction_activity.inspect %></td>
+ 
+  
+</tr>
+<% else %>
+<tr id="transaction_activity-<%= transaction_activity %>">
+  
+
+  <td><%= transaction_activity.id  %></td>
+  <td><%= transaction_activity.member.name %></td>
+  <td><%= print_money( transaction_activity.total_transaction_amount ) %></td>
+
+  <td><%=  transaction_activity.transaction_case %></td>
+ 
+  
+</tr>
+<% end %>
+

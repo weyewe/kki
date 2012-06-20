@@ -1,0 +1,40 @@
+<!-- <th>Member</th>
+<th>Total Savings</th>
+<th>Compulsory Savings</th>
+<th>Extra Savings</th>
+<th>Default Status</th>
+<th>Unpaid Backlogs</th>
+<th>Amount per Backlog</th>
+<th>Deduction Amount</th> -->
+
+<% group_loan_membership = default_payment.group_loan_membership %>
+<% member =  default_payment.group_loan_membership.member %>
+<% saving_book = member.saving_book %>
+<tr>
+  <td><%= member.name %></td>
+  <td><%= print_money(saving_book.total) %></td>
+  <td><%= print_money(saving_book.total_compulsory_savings) %></td>
+  <td><%= print_money(saving_book.total_extra_savings) %></td>
+  
+  
+  
+  <td>
+    <% if default_payment.is_defaultee == true %>
+      <span class="label label-important">DEFAULTEE</span>
+    <% elsif default_payment.is_defaultee == false  %>
+      <span class="label label-success">NON Defaultee</span>
+    <% end %>
+  </td>
+  
+  <td>
+    <%= group_loan_membership.unpaid_backlogs.count %>
+  </td>
+  
+  <td>
+    <%= print_money( group_loan_membership.group_loan_product.grace_period_weekly_payment) %>
+  </td>
+  
+  <td>
+    <%= print_money( default_payment.amount_to_be_paid ) %>
+  </td>
+</tr>

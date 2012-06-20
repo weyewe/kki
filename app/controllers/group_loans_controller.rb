@@ -162,11 +162,71 @@ class GroupLoansController < ApplicationController
     
   end
   
+  
+=begin
+  GRACE PERIOD PAYMENT 
+=end
+
+  def select_group_loan_for_backlog_grace_period_payment
+    @office = current_user.active_job_attachment.office
+    
+    @group_loans = []
+    current_user.group_loans.each do |group_loan|
+      if group_loan.is_grace_period?
+        @group_loans << group_loan
+      end
+        
+    end
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_backlog_grace_period_payment_url'  
+  end
+  
+  def default_members_for_grace_period_payment
+    
+    @office = current_user.active_job_attachment.office
+    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+    @group_loan_memberships = @group_loan.active_group_loan_memberships 
+   
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_backlog_grace_period_payment_url'
+    set_breadcrumb_for @group_loan, 'default_members_for_grace_period_payment_url' + "(#{@group_loan.id})", 
+                "Grace Period Payment"
+  end
+  
+=begin
+  DEFAULT PAYMENT RESOLUTION 
+=end
   def select_group_loan_for_loan_default_resolution
     @office = current_user.active_job_attachment.office
-    @default_declared_group_loans  = @office.closed_group_loans
+    
+    @group_loans = []
+    current_user.group_loans.each do |group_loan|
+      if group_loan.is_grace_period?
+        @group_loans << group_loan
+      end
+        
+    end
     
     add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_default_resolution_path'
+  end
+  
+  def standard_default_resolution_schema
+    @office = current_user.active_job_attachment.office
+    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+    @group_loan_membership_id = @group_loan.active_group_loan_memberships.map{|x| x.id }
+    @default_payments = DefaultPayment.where(
+      :group_loan_membership_id => @group_loan_membership_id).order("is_defaultee ASC").includes(:group_loan_membership)
+    
+    @total_defaultee = @default_payments.where(:is_defaultee => true ).count
+    
+    @total_default_payment_to_be_paid = BigDecimal("0")
+    @default_payments.each do |dp|
+      @total_default_payment_to_be_paid += dp.amount_to_be_paid
+    end
+    
+    @office_loss = @group_loan.unpaid_backlogs_grace_period_amount - @total_default_payment_to_be_paid
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_default_resolution_path'
+    set_breadcrumb_for @group_loan, 'standard_default_resolution_schema_url' + "(#{@group_loan.id})", 
+                "Standard Default Resolution"
   end
   
   
@@ -428,9 +488,7 @@ class GroupLoansController < ApplicationController
     @active_group_loans = @office.active_group_loans
   end
 
-=begin
-  LOAN DEFAULT RESOLUTION
-=end
+
   
   protected
   

@@ -1,4 +1,11 @@
+<% if has_paid_weekly_payment == false  %>
 <div class="row-fluid tab-pane fade  in pane_wrapper" id="structured_multiple_payment" >
+<% else %>
+<div class="row-fluid tab-pane fade active in pane_wrapper" id="structured_multiple_payment" >
+<% end %>
+
+
+
   <div class="span8">
     
     <%= form_tag  create_structured_multiple_payment_url(@weekly_task, @member) , 
@@ -73,7 +80,7 @@
           
           
           <tr>
-            <td><b>Balance</b></td>
+            <td><b>Extra Savings</b></td>
             <td><b><span class="input-xlarge uneditable-input"
               id="sp_display_balance"></span></b></td>
             <%= hidden_field_tag 'smf_balance',
@@ -84,7 +91,7 @@
           <tr>
             <td colspan="2" style="text-align:center;">
               <button href="#" class="btn btn-primary" id="pay_and_save_balance">
-                Pay and Save Balance
+                Pay and Save Extra Savings
               </button>
             </td>
           </tr>
@@ -111,8 +118,18 @@
           <tr>
             <td>Total Savings</td>
             <td id="total_principal"><%= print_money(@member.total_savings)%> </td>
+          </tr>
+          
+          <tr>
+            <td>Compulsory Savings</td>
+            <td id="total_principal"><%= print_money(@member.saving_book.total_compulsory_savings)%> </td>
+          </tr>
+          
+          <tr>
+            <td>Voluntary Savings</td>
+            <td id="total_principal"><%= print_money(@member.saving_book.total_extra_savings)%> </td>
             <%= hidden_field_tag 'sp_total_savings_amount',
-                @member.total_savings.to_i %>
+                @member.saving_book.total_extra_savings.to_i %>
           </tr>
       </tbody>
     </table>
@@ -128,7 +145,7 @@
           <%= hidden_field_tag 'basic_weekly_payment_amount',
               @group_loan_product.total_weekly_payment.to_i %>
           <%= hidden_field_tag 'total_payable_weeks',
-              (@group_loan_product.total_weeks - @weekly_task.week_number + 1 ) %>
+             @group_loan.remaining_weekly_tasks_count_for_member(@member)  %>
           <tr>
             <td><b>Cash</b></td>
             <td id="total_cash">

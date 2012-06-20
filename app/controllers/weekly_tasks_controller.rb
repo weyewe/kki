@@ -93,6 +93,25 @@ class WeeklyTasksController < ApplicationController
   def list_pending_weekly_collection_approval
     @office = current_user.active_job_attachment.office
     @pending_weekly_tasks_cashier_approval = WeeklyTask.get_pending_cashier_approval_for_weekly_collection(@office)
+    add_breadcrumb "Weekly Payment Pending Approval", 'list_pending_weekly_collection_approval_url'
+  end
+  
+  def details_weekly_collection
+    @weekly_task = WeeklyTask.find_by_id params[:weekly_task_id]
+    @group_loan = @weekly_task.group_loan
+    @office = current_user.active_job_attachment.office
+    @transaction_activities = []
+    @weekly_task.member_payments.where{ cash_passed.not_eq nil }.
+                   order("created_at ASC").each do |x|     
+                      if not x.transaction_activity.nil?
+                        @transaction_activities << x.transaction_activity
+                      end
+                   end
+        
+    add_breadcrumb "Weekly Payment Pending Approval", 'list_pending_weekly_collection_approval_url'
+    set_breadcrumb_for @weekly_task, 'details_weekly_collection_url' + "(#{@weekly_task.id})", 
+     "Collection Details"
+                        
   end
   
   def execute_weekly_collection_approval

@@ -123,7 +123,7 @@ class WeeklyTask < ActiveRecord::Base
   
   def member_payment_can_be_started?
     # the previous weekly task is approved by cashier 
-    is_prev_weekly_task_approved? and attendace_marking_closed?
+    is_prev_weekly_task_approved? # and attendace_marking_closed?
   end
   
   def has_attendance(member)
@@ -437,6 +437,10 @@ class WeeklyTask < ActiveRecord::Base
     self.member_payments.sum("cash_passed")
   end
 
+
+  
+  
+ 
 
   def last_week?
     self.week_number == self.group_loan.total_weeks 
