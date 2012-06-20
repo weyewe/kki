@@ -44,6 +44,16 @@
 
 
 
+<div class=" hidden" id="approve_propose_form_wrapper">
+  <%= form_for GroupLoan.new, :url =>close_group_loan_url   do |f| %>
+    <%= hidden_field_tag 'entity_id' , ''  %>
+    <%= hidden_field_tag 'action_role', '' %>
+    <%= hidden_field_tag 'action_value', '' %>
+  <% end %>
+</div>
+
+
+
 
 
 

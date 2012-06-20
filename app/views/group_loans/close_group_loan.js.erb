@@ -1,0 +1,7 @@
+$(document).ready(function(){
+  
+  <% if @group_loan.is_closed == true %>
+    $("#start_group_loan-<%= @group_loan.id %>").remove();
+  <% end %>
+  
+});

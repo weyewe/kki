@@ -235,7 +235,7 @@ class GroupLoansController < ApplicationController
   def standard_default_resolution_schema
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
-    @group_loan_membership_id = @group_loan.active_group_loan_memberships.map{|x| x.id }
+    @group_loan_membership_id = @group_loan.preserved_active_group_loan_memberships.map{|x| x.id }
     @default_payments = DefaultPayment.where(
       :group_loan_membership_id => @group_loan_membership_id).order("is_defaultee ASC").includes(:group_loan_membership)
     
@@ -272,6 +272,13 @@ class GroupLoansController < ApplicationController
     @group_loan.execute_default_payment_execution( current_user ) 
   end
   
+=begin
+  Branch MANAGER CLOSE THE GROUP LOAN
+=end
+  def close_group_loan
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
+    @group_loan.close_group_loan(current_user)
+  end
 
   def select_closed_group_loan_for_history
     @office = current_user.active_job_attachment.office

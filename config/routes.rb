@@ -88,9 +88,10 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_to_be_declared_as_default' => "group_loans#select_group_loan_to_be_declared_as_default", :as => :select_group_loan_to_be_declared_as_default
   match 'execute_declare_default_group_loan' => "group_loans#execute_declare_default_group_loan", :as => :execute_declare_default_group_loan, :method => :post 
   
-  #default payment resolution progress
+  # View the loan Progress and close the group loan 
   match "select_group_loan_monitor_default_loan_resolution" => "group_loans#select_group_loan_monitor_default_loan_resolution", :as => :select_group_loan_monitor_default_loan_resolution
-
+  match 'close_group_loan' => "group_loans#close_group_loan", :as => :close_group_loan, :method => :post
+  
   # preview the past group loans
   match 'select_closed_group_loan_for_history' => 'group_loans#select_closed_group_loan_for_history', :as => :select_closed_group_loan_for_history
 =begin
