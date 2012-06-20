@@ -123,6 +123,25 @@ class Office < ActiveRecord::Base
   end
   
   
+  def group_loans_with_unapproved_grace_period_payment
+    running_group_loans = self.group_loans.where(
+      :is_proposed => true , 
+      :is_started => true,
+      :is_setup_fee_collection_finalized => true , 
+      :is_setup_fee_collection_approved => true , 
+      :is_loan_disbursement_approved => true )
+  
+    
+    unapproved_grace_period_group_loan_list = [] 
+    running_group_loans.each do |group_loan|
+      if group_loan.pending_approval_grace_period_transactions.count != 0 
+        unapproved_grace_period_group_loan_list << group_loan 
+      end
+    end
+    
+    return unapproved_grace_period_group_loan_list
+  end
+  
   def default_declared_group_loans
     self.group_loans.where(:is_closed => false , 
                 :is_proposed => true , 

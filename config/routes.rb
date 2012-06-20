@@ -166,9 +166,15 @@ Debita46::Application.routes.draw do
 =end
   match 'select_group_loan_for_backlog_grace_period_payment' => "group_loans#select_group_loan_for_backlog_grace_period_payment", :as => :select_group_loan_for_backlog_grace_period_payment
   match 'default_members_for_grace_period_payment/:group_loan_id' => "group_loans#default_members_for_grace_period_payment", :as => :default_members_for_grace_period_payment
+  match 'grace_period_payment_calculator/:group_loan_membership_id' => "group_loans#grace_period_payment_calculator", :as => :grace_period_payment_calculator
+  match 'create_transcation_activity_for_grace_period_payment/:group_loan_membership_id' => 'transaction_activities#create_transcation_activity_for_grace_period_payment', :as => :create_transcation_activity_for_grace_period_payment, :method => :post
 
-
-
+  
+  # Cashier approves grace period payment 
+  
+  match 'select_group_loan_for_grace_period_payment_approval' => "group_loans#select_group_loan_for_grace_period_payment_approval", :as => :select_group_loan_for_grace_period_payment_approval
+  match 'select_pending_grace_period_payment_to_be_approved/:group_loan_id' => "transaction_activities#select_pending_grace_period_payment_to_be_approved", :as => :select_pending_grace_period_payment_to_be_approved
+  match 'execute_backlog_payment_transaction_approval_by_cashier' => "transaction_activities#execute_backlog_payment_transaction_approval_by_cashier", :as => :execute_backlog_payment_transaction_approval_by_cashier, :method => :post
 
   # backlog payment 
   match 'select_group_loan_for_backlog_weekly_payment' => "group_loans#select_group_loan_for_backlog_weekly_payment", :as => :select_group_loan_for_backlog_weekly_payment
@@ -178,9 +184,9 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_loan_default_resolution' =>"group_loans#select_group_loan_for_loan_default_resolution", :as => :select_group_loan_for_loan_default_resolution
   match 'standard_default_resolution_schema/:group_loan_id' => 'group_loans#standard_default_resolution_schema', :as => :standard_default_resolution_schema
   match 'custom_default_resolution_schema/:group_loan_id' => 'group_loans#custom_default_resolution_schema', :as => :custom_default_resolution_schema
-  # old one 
-  match 'list_default_payment_for_clearance/:group_loan_id' =>"default_payments#list_default_payment_for_clearance", :as => :list_default_payment_for_clearance
-  match 'payment_for_default_resolution/:default_payment_id' =>"default_payments#payment_for_default_resolution", :as => :payment_for_default_resolution
+  
+  match 'execute_propose_standard_default_resolution' => 'group_loans#execute_propose_standard_default_resolution', :as => :execute_propose_standard_default_resolution, :method => :post
+  
 =begin
   Cashier Routes 
 =end
@@ -199,7 +205,6 @@ Debita46::Application.routes.draw do
   match 'details_weekly_collection/:weekly_task_id' =>  'weekly_tasks#details_weekly_collection' , :as => :details_weekly_collection
   match 'execute_weekly_collection_approval' => "weekly_tasks#execute_weekly_collection_approval", :as => :execute_weekly_collection_approval, :method => :post
 
-  # approve backlog payment , received by the field worker 
   match 'select_group_loan_for_backlog_payment_approval' => "group_loans#select_group_loan_for_backlog_payment_approval", :as => :select_group_loan_for_backlog_payment_approval
   match 'select_pending_backlog_to_be_approved/:group_loan_id' => "backlog_payments#select_pending_backlog_to_be_approved", :as => :select_pending_backlog_to_be_approved
   match 'execute_backlog_payment_approval_by_cashier' => "backlog_payments#execute_backlog_payment_approval_by_cashier", :as => :execute_backlog_payment_approval_by_cashier, :method => :post

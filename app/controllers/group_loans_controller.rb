@@ -191,6 +191,30 @@ class GroupLoansController < ApplicationController
                 "Grace Period Payment"
   end
   
+  def grace_period_payment_calculator
+    @office = current_user.active_job_attachment.office
+    @group_loan_membership = GroupLoanMembership.find_by_id(params[:group_loan_membership_id])
+    @group_loan = @group_loan_membership.group_loan 
+    @member  = @group_loan_membership.member 
+    @unpaid_backlogs_count = @group_loan_membership.unpaid_backlogs.count 
+    @group_loan_product = @group_loan_membership.group_loan_product
+    @amount_per_backlog_in_grace_period = @group_loan_product.grace_period_weekly_payment
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_backlog_grace_period_payment_url'
+    set_breadcrumb_for @group_loan, 'default_members_for_grace_period_payment_url' + "(#{@group_loan.id})", 
+                "Grace Period Payment"
+    set_breadcrumb_for @group_loan, 'grace_period_payment_calculator_url' + "(#{@group_loan_membership.id})", 
+          "Input Payment"           
+  end
+  
+=begin
+  Approve GRACE PERIOD PAYMENT 
+=end
+  def select_group_loan_for_grace_period_payment_approval
+    @office = current_user.active_job_attachment.office
+    @group_loans = @office.group_loans_with_unapproved_grace_period_payment
+  end
+    
 =begin
   DEFAULT PAYMENT RESOLUTION 
 =end
@@ -227,6 +251,10 @@ class GroupLoansController < ApplicationController
     add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_default_resolution_path'
     set_breadcrumb_for @group_loan, 'standard_default_resolution_schema_url' + "(#{@group_loan.id})", 
                 "Standard Default Resolution"
+  end
+  
+  def execute_propose_standard_default_resolution
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
   end
   
   

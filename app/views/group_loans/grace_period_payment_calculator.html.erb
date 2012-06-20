@@ -1,0 +1,235 @@
+<div class="span9 content">
+  <%= create_guide("Special Payment", 
+        "Office: <b>#{@office.name}</b>" + "<br />" + 
+        "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "Member: <b>#{@member.name}</b>" + "<br />" + 
+        "Unpaid Backlogs: <b>#{@unpaid_backlogs_count}</b>" + "<br />" + 
+        "Amount per Backlog: <b>#{print_money(@amount_per_backlog_in_grace_period)}</b>" ).html_safe %>
+        
+  
+  
+  
+    
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
+  <% if flash[:notice] %>
+    <div class="alert alert-success">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Well done!</strong> <%= flash[:notice].html_safe %>
+    </div>
+  <% end %>
+  
+  <% if flash[:error] %>
+    <div class="alert alert-error">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Create Failure!</strong> Please fill in all required (*) fields.
+    </div>
+  <% end %>
+  
+  
+  <%# has_paid_weekly_payment = @weekly_task.has_paid_weekly_payment?(@member)  %>
+ 
+
+  <div class="tab-content" id="myTabContent">
+    <div class="row-fluid tab-pane fade active in pane_wrapper" id="structured_multiple_payment" >
+      <div class="span8">
+
+        <%= form_tag  create_transcation_activity_for_grace_period_payment_url(@group_loan_membership) , 
+          :method => :post, :id => "structured_multiple_form" ,
+          :class => "prevent_double_submit" do  %>
+
+
+        <table cellpadding="0" cellspacing="0" border="0" 
+              class="table table-striped table-bordered" id="example">
+          <thead>
+            <tr><th colspan="2" style="text-align:center;">
+              Grace Period Payment: (Principal + Interest)
+            </th></tr>
+          </thead>
+          <tbody>
+
+
+
+              <tr>
+                <td><b>Min. Backlog Payment</b></td>
+                <td><span class="input-xlarge uneditable-input"
+                  id="sp_display_min_weekly_payment">
+                  <%= print_money(@group_loan_product.grace_period_weekly_payment)%></span></td>
+
+              </tr>
+
+              <tr>
+                <td>Num. of Backlogs</td>
+                <td id="calculator_duration">
+                  <div class="input-append">
+                    <span class="input-xlarge uneditable-input"
+                      id="sp_display_weeks"></span>
+                    <span class="add-on">weeks</span>
+                  </div>
+                </td>
+                <%= hidden_field_tag 'smf_weeks',
+                    '' %>
+              </tr>
+
+              <tr>
+                <td>Total Payment</td>
+                <td id="calculator_duration">
+                  <div class="input-append">
+                    <b><span class="input-xlarge uneditable-input"
+                      id="sp_display_total_payment"></span></b>
+                  </div>
+                </td>
+              </tr>
+
+
+
+              <tr>
+                <td>Cash</td>
+                <td id="total_cash">
+                  <div class="input-append">
+                    <span class="input-xlarge uneditable-input" 
+                      id="sp_display_cash"></span>
+                  </div>
+                </td>
+                <%= hidden_field_tag 'smf_cash',
+                    '' %>
+              </tr>
+
+
+
+              <tr>
+                <td>From Savings</td>
+                <td><span class="input-xlarge uneditable-input" 
+                    id="sp_display_savings_withdrawal"></span></td>
+                <%= hidden_field_tag 'smf_savings_withdrawal',
+                    '' %>
+              </tr>
+
+
+              <tr>
+                <td><b>Extra Savings</b></td>
+                <td><b><span class="input-xlarge uneditable-input"
+                  id="sp_display_balance"></span></b></td>
+                <%= hidden_field_tag 'smf_balance',
+                    '' %>
+              </tr>
+
+
+              <tr>
+                <td colspan="2" style="text-align:center;">
+                  <button href="#" class="btn btn-primary" id="gp_pay_and_save_balance">
+                    Pay and Save Extra Savings
+                  </button>
+                </td>
+              </tr>
+
+
+          </tbody>
+        </table>
+
+        <% end %>
+
+
+      </div> 
+
+
+
+      <div class="span4">
+
+        <table cellpadding="0" cellspacing="0" border="0" 
+              class="table table-striped table-bordered" id="example">
+          <thead>
+            <tr><th colspan="2" style="text-align:center;">Current Savings</th></tr>
+          </thead>
+          <tbody>
+              <tr>
+                <td>Total Savings</td>
+                <td id="total_principal"><%= print_money(@member.total_savings)%> </td>
+              </tr>
+
+              <tr>
+                <td>Compulsory Savings</td>
+                <td id="total_principal"><%= print_money(@member.saving_book.total_compulsory_savings)%> </td>
+              </tr>
+
+              <tr>
+                <td>Voluntary Savings</td>
+                <td id="total_principal"><%= print_money(@member.saving_book.total_extra_savings)%> </td>
+                <%= hidden_field_tag 'sp_total_savings_amount',
+                    @member.saving_book.total_extra_savings.to_i %>
+              </tr>
+          </tbody>
+        </table>
+
+
+        <table cellpadding="0" cellspacing="0" border="0" 
+              class="table table-striped table-bordered" id="example">
+          <thead>
+            <tr><th colspan="2" style="text-align:center;">Grace Period Payment Calculator</th></tr>
+          </thead>
+          <tbody>
+
+              <%= hidden_field_tag 'basic_weekly_payment_amount',
+                  @group_loan_product.grace_period_weekly_payment.to_i %>
+              <%= hidden_field_tag 'total_payable_weeks',
+                 @unpaid_backlogs_count  %>
+              <tr>
+                <td><b>Cash</b></td>
+                <td id="total_cash">
+                  <div class="input-append">
+                    <input type="text" size="16"  class="span8" id="sp_calc_cash" >
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td><b>Num. of Backlogs</b></td>
+                <td id="calculator_duration">
+                  <div class="input-append">
+                    <input type="text" size="16"  class="span5" id="sp_calc_weeks" >
+                    <span class="add-on">weeks</span>
+                  </div>
+                </td>
+              </tr>  
+
+              <tr>
+                <td><b>Savings Withdrawal</b></td>
+                <td> <input type="text" size="16"  class="span8" id="sp_calc_savings_withdraw"> </td>
+              </tr>
+
+              <tr>
+                <td colspan="2" style="text-align:center;">
+                  <button href="#" class="btn btn-primary"
+                   id="gp_simulate_structured_payment">Simulate</button>
+                </td>
+              </tr>
+
+
+          </tbody>
+        </table>
+
+      </div><!--/span-->
+
+    </div><!--/row-->
+
+
+    
+  </div>
+  
+  
+  <div class="modal" id="myModal" style="display:none;">
+     <div class="modal-header">
+       <a class="close" data-dismiss="modal">×</a>
+       <h3>Modal header</h3>
+     </div>
+     <div class="modal-body">
+       <p>One fine body…</p>
+     </div>
+     <div class="modal-footer">
+       <!-- <a href="#" class="btn modal-closer">Close</a> -->
+       <%= link_to "Close", default_members_for_grace_period_payment_url(@group_loan), :class => "btn"%>
+     </div>
+   </div>
+  
+  
+   <hr />
+</div><!--/span-->

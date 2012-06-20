@@ -15,8 +15,11 @@ class CreateBacklogPayments < ActiveRecord::Migration
       t.integer :clearance_period , :default => nil #BACKLOG_CLEARANCE_PERIOD
       
       t.integer :backlog_type, :nil => false # is that penalty payment? is that weekly payment?
+      # weekly payment only savings?
+      # weekly payment no savings ? declare default 
       
-      # cashier needs to approve this
+      # cashier needs to approve this, only for the one happening during grace payment period. 
+      # marks the time money is returned to the cashier 
       t.integer :backlog_payment_approver_id 
       t.boolean :is_cashier_approved , :default => false 
       t.timestamps

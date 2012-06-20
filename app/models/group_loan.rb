@@ -836,8 +836,12 @@ class GroupLoan < ActiveRecord::Base
   #   end
   # end
   
+  
+=begin
+  GRACE PERIOD PAYMENT
+=end
   def unpaid_backlogs
-    self.backlog_payments.where(:is_cleared => false , :is_cashier_approved => false)
+    self.backlog_payments.where(:is_cleared => false )
   end
   
   def unpaid_backlogs_grace_period_amount
@@ -852,6 +856,51 @@ class GroupLoan < ActiveRecord::Base
  
     return total_amount 
   end
+  
+=begin
+  GRACE PERIOD APPROVAL
+=end
+  def pending_approval_grace_period_transactions
+    transaction_activity_id_list = []
+    BacklogPayment.where(:clearance_period => BACKLOG_CLEARANCE_PERIOD[:in_grace_period], 
+      :is_cashier_approved => false,
+      :group_loan_id => self.id,
+      :is_cleared => true  ).each do |backlog|
+      
+      transaction_activity_id_list << backlog.transaction_activity_id_for_backlog_clearance
+    end
+    transaction_activity_id_list
+    transaction_activity_id_list.uniq! 
+
+    TransactionActivity.where(:id => transaction_activity_id_list)
+  end
+  
+  def grace_period_transactions
+    transaction_activity_id_list = []
+    BacklogPayment.where(:clearance_period => BACKLOG_CLEARANCE_PERIOD[:in_grace_period], 
+      :is_cashier_approved => [false,true],
+      :group_loan_id => self.id,
+      :is_cleared => true  ).each do |backlog|
+      
+      transaction_activity_id_list << backlog.transaction_activity_id_for_backlog_clearance
+    end
+    transaction_activity_id_list
+    transaction_activity_id_list.uniq! 
+
+    TransactionActivity.where(:id => transaction_activity_id_list)
+    
+  end
+  
+  def pending_approval_grace_period_transactions_amount
+    total_amount = BigDecimal("0")
+    self.pending_approval_grace_period_transactions.each do |ta|
+      total_amount += ta.total_transaction_amount
+    end
+    
+    return total_amount
+  end
+  
+  
   
   def pending_approval_backlogs
     self.backlog_payments.where(:is_cleared => true , :is_cashier_approved => false)

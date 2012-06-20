@@ -48,6 +48,87 @@ class TransactionActivity < ActiveRecord::Base
     Member.find_by_id( self.member_id )
   end
   
+  def savings_withdrawal_amount
+    transaction_entries = self.transaction_entries.where(
+      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal],
+      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
+    )
+    
+    total_amount = BigDecimal("0")
+    
+    transaction_entries.each do |te|
+      total_amount += te.amount
+    end
+    
+    return total_amount
+  end
+  
+  def number_of_weeks_paid
+  end
+  
+  def number_of_backlogs_paid
+     
+    BacklogPayment.where( :is_cleared  => true ,
+      :clearance_period => BACKLOG_CLEARANCE_PERIOD[:in_grace_period],
+      :transaction_activity_id_for_backlog_clearance => self.id).count
+  end
+  
+  
+  def group_loan_membership
+    member = Member.find_by_id self.member_id 
+    group_loan = GroupLoan.find_by_id  self.loan_id
+    return  group_loan.get_membership_for_member( member )
+  end
+  
+  def grace_period_backlogs_paid_amount
+    group_loan_membership = self.group_loan_membership
+    number_of_backlogs_paid * group_loan_membership.group_loan_product.grace_period_weekly_payment
+  end
+  
+  def extra_savings_amount
+    extra_savings_entries = self.transaction_entries.where( :transaction_entry_code => TRANSACTION_ENTRY_CODE[:extra_weekly_saving] )
+    total_amount = BigDecimal("0")
+    
+    extra_savings_entries.each do |te|
+      total_amount += te.amount
+    end
+    return total_amount 
+  end
+  
+=begin
+  GRACE PERIOD PAYMENT APPROVAL
+=end
+  def backlogs_associated
+    BacklogPayment.where(:transaction_activity_id_for_backlog_clearance => self.id)
+  end
+  
+  def is_approved_for_grace_period_payment?
+    self.backlogs_associated.where(:is_cashier_approved => true ).count ==  self.backlogs_associated.count 
+  end
+  
+  def approve_grace_period_payment( employee )
+    if not employee.has_role?(:cashier, employee.active_job_attachment)
+      return nil
+    end
+    
+    if self.is_approved_for_grace_period_payment?
+      return nil
+    end
+    
+    self.backlogs_associated.each do |backlog|
+      backlog.backlog_payment_approver_id = employee.id 
+      backlog.is_cashier_approved = true 
+      
+      backlog.save 
+    end
+    
+  end
+  
+  
+  
+  
+
+  
   def TransactionActivity.create_independent_savings( member, amount, field_worker )
     
     # member.add_savings()
@@ -421,6 +502,11 @@ class TransactionActivity < ActiveRecord::Base
     member = group_loan_membership.member 
     zero_value = BigDecimal("0")
     
+    # if glm is non active, return nil
+    if group_loan_membership.is_active == false
+      return nil
+    end
+    
     if not employee.has_role?(:field_worker, employee.active_job_attachment )
       return nil
     end
@@ -488,7 +574,7 @@ class TransactionActivity < ActiveRecord::Base
     transaction_activity = TransactionActivity.create new_hash
     
     # creating the backlog payment 
-    member.backlog_payments_for_group_loan(group_loan).order("created_at ASC").limit( number_of_backlogs ).each do |x|
+    member.backlog_payments_for_group_loan(group_loan).where(:is_cleared => false ).order("created_at ASC").limit( number_of_backlogs ).each do |x|
        x.is_cleared  = true 
        x.clearance_period = BACKLOG_CLEARANCE_PERIOD[:in_grace_period]
        x.backlog_cleared_declarator_id = employee.id 
@@ -544,6 +630,10 @@ class TransactionActivity < ActiveRecord::Base
       return nil
     end      
     
+    
+    if group_loan_membership.is_active == false 
+      return nil
+    end
     
     # approved weekly task can't be modified
     # if weekly_task.is_weekly_payment_approved_by_cashier == true 
@@ -658,7 +748,7 @@ class TransactionActivity < ActiveRecord::Base
     # there is a method -> weekly_task#total_cash_received << how? 
     # need to capture: backlog payment + extra cash, linked to that week
     if number_of_backlogs > 0
-      member.backlog_payments_for_group_loan(group_loan).order("created_at ASC").limit( number_of_backlogs ).each do |x|
+      member.backlog_payments_for_group_loan(group_loan).where(:is_cleared => false ).order("created_at ASC").limit( number_of_backlogs ).each do |x|
          x.is_cleared  = true 
          x.clearance_period = BACKLOG_CLEARANCE_PERIOD[:in_weekly_payment_cycle]
          x.backlog_cleared_declarator_id = employee.id 

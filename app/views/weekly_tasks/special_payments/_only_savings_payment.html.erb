@@ -17,7 +17,8 @@
     <% end %>
     
     <%= form_tag  create_savings_only_as_weekly_payment_url(@weekly_task, @member) , 
-      :method => :post, :id => "form_only_savings_payment"  do  %>
+      :method => :post, :id => "form_only_savings_payment", 
+      :class => "prevent_double_submit"  do  %>
       <table cellpadding="0" cellspacing="0" border="0" 
             class=" table table-striped table-bordered" >
         <thead>

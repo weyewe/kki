@@ -9,7 +9,8 @@
   <div class="span8">
     
     <%= form_tag  create_structured_multiple_payment_url(@weekly_task, @member) , 
-      :method => :post, :id => "structured_multiple_form"  do  %>
+      :method => :post, :id => "structured_multiple_form",
+      :class => "prevent_double_submit"  do  %>
       
       
     <table cellpadding="0" cellspacing="0" border="0" 

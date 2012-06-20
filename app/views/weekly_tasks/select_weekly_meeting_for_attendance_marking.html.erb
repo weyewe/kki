@@ -2,7 +2,7 @@
   <%= create_guide("Select Weekly Meeting", 
         "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
         "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
-        "Total Member: <b>#{@group_loan.members.count}</b>" + "<br />" + 
+        "Total Member: <b>#{@group_loan.active_group_loan_memberships.count}</b>" + "<br />" + 
         "Completed Meeting: <b>#{@group_loan.total_completed_meeting}</b>" ).html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
@@ -25,7 +25,7 @@
           <% @weekly_tasks.each do |weekly_task| %>
             <%= render :partial => "weekly_tasks/select_weekly_meeting" , 
                 :locals => {:weekly_task => weekly_task,
-                  :total_group_member => @group_loan.members.count, 
+                  :total_group_member => @group_loan.active_group_loan_memberships.count, 
                   :group_loan => @group_loan}%>
           <% end %>
        

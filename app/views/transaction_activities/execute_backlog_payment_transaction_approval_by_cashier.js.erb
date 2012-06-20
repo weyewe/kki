@@ -1,0 +1,8 @@
+$(document).ready(function(){
+  <% new_row = escape_javascript( render :partial => "transaction_activities/grace_period_payment_entry" , 
+      :locals => {
+        :transaction_activity => @transaction_activity }
+        )   %>
+  
+  $("#pending_approval-<%= @transaction_activity.id  %>").replaceWith('<%= new_row %>')
+});

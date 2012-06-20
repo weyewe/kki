@@ -1,0 +1,115 @@
+$(document).ready(function(){
+  
+  
+  /*
+    Special Payment JS . 
+    the namespace for fields/forms = sp_ << for user entry
+    for the js display sp_display_ namespace
+    for the fields in the form to be sent to the server : smf_
+   */
+   /*
+   The structured_multiple calculator
+   */
+   $("#gp_simulate_structured_payment").live('click', function(){
+     var cash = newParseInt( $("#sp_calc_cash").attr("value") );
+     var number_of_weeks = newParseInt( $("#sp_calc_weeks").attr("value") );
+     var stated_savings_withdrawal = newParseInt( $("#sp_calc_savings_withdraw").attr("value") );
+     var basic_weekly_payment_amount = newParseInt( $("#basic_weekly_payment_amount").attr("value") );
+     var total_savings = newParseInt( $("#sp_total_savings_amount").attr("value") );
+     var savings_withdrawal; 
+     var total_payable_weeks = newParseInt( $("#total_payable_weeks").attr("value")    )
+     
+     if( total_savings - stated_savings_withdrawal   >= 0 ){
+       savings_withdrawal = stated_savings_withdrawal;
+     }else{
+       savings_withdrawal = total_savings;
+     }
+     
+     
+     var total_payment = number_of_weeks*basic_weekly_payment_amount; 
+     var balance = cash + savings_withdrawal - total_payment ; 
+     
+     
+     // show the data 
+     if( number_of_weeks <= total_payable_weeks ){
+       $("#sp_display_weeks").text( number_of_weeks );
+        $("#sp_display_total_payment").text( addCommas(total_payment) );
+        $("#sp_display_cash").text( addCommas(cash));
+        $("#sp_display_savings_withdrawal").text( addCommas(savings_withdrawal));
+        $("#sp_display_balance").text( addCommas(balance));
+
+
+
+        $("#smf_savings_withdrawal").attr( 'value', savings_withdrawal );
+        $("#smf_balance").attr( 'value', balance );
+        $("#smf_cash").attr( 'value', cash );
+        $("#smf_weeks").attr( 'value', number_of_weeks );
+        
+        if( balance < 0 ){
+           alert("Negative balance: " + addCommas(balance) );
+         }
+     }else{
+       alert("Max number of weeks payable: " + total_payable_weeks  );
+     }
+     
+     
+     
+     
+     
+     return false; 
+   });
+
+    /*
+    Still the special payment. 
+    */
+   $("#gp_pay_and_save_balance").live('click', function(){
+        
+     var $form = $("#structured_multiple_form");
+        
+     var balance = $('#smf_balance').attr('value');
+     
+     var balance_value = newParseInt( $("#smf_balance").attr("value") );
+     var savings_withdrawal_value = newParseInt( $("#smf_savings_withdrawal").attr("value") );
+     var cash_value = newParseInt( $("#smf_cash").attr("value") );
+     
+     var duration = newParseInt( $("#sp_calc_weeks").attr("value") );
+     
+     if(   duration == 0   ){
+       alert("Can't execute payment. Duration is 0.");
+     }
+     
+     if( balance < 0  ) {
+       alert("Negative balance: " + addCommas(balance) +  ". Can't perform transaction");
+       return false; 
+     }else if(   ( balance == '') || 
+                 (  cash_value ==  0  && savings_withdrawal_value == 0  )  || 
+                 (  duration == 0   )){
+       alert("No value. Please simulate the Calculator.");
+       return false;
+       
+     }else if( (balance_value ==  0 ) && (cash_value == 0 ) 
+                    && (savings_withdrawal_value ==0)){
+       alert("Invalid case");
+       return false;
+     }else{
+       
+       if(confirm("Are you sure?")){
+         $form.showLoading();
+
+         $.ajax({
+           url: $form.attr("action"),
+           type: "POST",
+           data: $form.serialize(),
+           dataType: 'script',
+           success: function(response){
+             // $form.clearForm();
+             $form.hideLoading();
+           }
+         });
+         return false ;
+       }else{
+         return false;
+       }
+     }
+   });
+});

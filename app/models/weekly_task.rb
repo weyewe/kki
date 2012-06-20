@@ -118,7 +118,7 @@ class WeeklyTask < ActiveRecord::Base
   def member_payment_can_be_closed?
     # all member_payment has been made
     # either : only_savings, basic_payment_and_more, or no_payment
-    self.member_payments.count == self.group_loan.group_loan_memberships.count 
+    self.member_payments.count == self.group_loan.active_group_loan_memberships.count 
   end
   
   def member_payment_can_be_started?

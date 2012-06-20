@@ -15,7 +15,7 @@ class WeeklyTasksController < ApplicationController
   
   def mark_attendance
     setup_for_weekly_task_fulfillment_details
-    
+    @group_loan_memberships = @group_loan.active_group_loan_memberships
     add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_attendance_marking_path' + "(#{@group_loan.id})", 
                 "Select Week"
@@ -44,7 +44,7 @@ class WeeklyTasksController < ApplicationController
   
   def make_member_payment
     setup_for_weekly_task_fulfillment_details
-    
+    # @group_loan_memberships = @group_loan.active_group_loan_memberships
     add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 
                 "Select Week"
@@ -144,7 +144,7 @@ class WeeklyTasksController < ApplicationController
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @weekly_task = WeeklyTask.find_by_id params[:weekly_task_id]
-    @group_loan_memberships = @group_loan.group_loan_memberships.includes(:member).order("created_at DESC")
+    @group_loan_memberships = @group_loan.active_group_loan_memberships.includes(:member).order("created_at DESC")
   end
   
   def setup_for_weekly_meeting_task_closing

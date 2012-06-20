@@ -603,19 +603,33 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Approve Backlog Payment",
-        :destination_link => 'select_group_loan_for_backlog_payment_approval_url',
+        :title => "Approve Grace Period Payment",
+        :destination_link => 'select_group_loan_for_grace_period_payment_approval_url',
         :conditions => [
           {
             :controller => 'group_loans',
-            :action => 'select_group_loan_for_backlog_payment_approval'
+            :action => 'select_group_loan_for_grace_period_payment_approval'
           },
           {
-            :controller => "backlog_payments", 
-            :action => "select_pending_backlog_to_be_approved"
+            :controller => "transaction_activities", 
+            :action => "select_pending_grace_period_payment_to_be_approved"
           }
         ]
-      }
+      }# ,
+      #       {
+      #         :title => "Approve Backlog Payment",
+      #         :destination_link => 'select_group_loan_for_backlog_payment_approval_url',
+      #         :conditions => [
+      #           {
+      #             :controller => 'group_loans',
+      #             :action => 'select_group_loan_for_backlog_payment_approval'
+      #           },
+      #           {
+      #             :controller => "backlog_payments", 
+      #             :action => "select_pending_backlog_to_be_approved"
+      #           }
+      #         ]
+      #       }
     ]
   }
   
@@ -787,27 +801,31 @@ module ApplicationHelper
           {
             :controller => "group_loans",
             :action => "default_members_for_grace_period_payment"
-          }
-        ]
-      },
-      {
-        :title => "Backlog Payment",
-        :destination_link => "select_group_loan_for_backlog_weekly_payment_url",
-        :conditions => [
+          },
           {
             :controller => "group_loans",
-            :action => "select_group_loan_for_backlog_weekly_payment"
-          },
-          {
-            :controller => "backlog_payments",
-            :action => "index"
-          },
-          {
-            :controller => "backlog_payments",
-            :action => "pay_backlog_for_group_loan"
+            :action => 'grace_period_payment_calculator'
           }
         ]
       },
+      # {
+      #   :title => "Backlog Payment",
+      #   :destination_link => "select_group_loan_for_backlog_weekly_payment_url",
+      #   :conditions => [
+      #     {
+      #       :controller => "group_loans",
+      #       :action => "select_group_loan_for_backlog_weekly_payment"
+      #     },
+      #     {
+      #       :controller => "backlog_payments",
+      #       :action => "index"
+      #     },
+      #     {
+      #       :controller => "backlog_payments",
+      #       :action => "pay_backlog_for_group_loan"
+      #     }
+      #   ]
+      # },
       {
         :title => "Loan Default Resolution",
         :destination_link => 'select_group_loan_for_loan_default_resolution_url',
