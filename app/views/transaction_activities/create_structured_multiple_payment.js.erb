@@ -1,3 +1,5 @@
+
+
 $(document).ready(function(){
   
                 
@@ -9,7 +11,7 @@ $(document).ready(function(){
     
   <% if not @transaction_activity.nil? %>  
     <% transaction_activity_details = 
-      escape_javascript( render :partial => "transaction_activities/summary", :locals => {
+      escape_javascript( render :partial => "transaction_activities/weekly_payment_period_summary", :locals => {
         :transaction_activity => @transaction_activity 
       } ) %>
     body_html = '<%= transaction_activity_details %>';

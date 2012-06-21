@@ -11,11 +11,17 @@ $(document).ready(function(){
    $("#sp_simulate_structured_payment").live('click', function(){
      var cash = newParseInt( $("#sp_calc_cash").attr("value") );
      var number_of_weeks = newParseInt( $("#sp_calc_weeks").attr("value") );
+     var number_of_backlogs = newParseInt( $("#sp_calc_backlog_weeks").attr("value") );
+     var combined_number_of_weeks_and_backlogs_payment = number_of_weeks + number_of_backlogs ; 
+    
+     
      var stated_savings_withdrawal = newParseInt( $("#sp_calc_savings_withdraw").attr("value") );
      var basic_weekly_payment_amount = newParseInt( $("#basic_weekly_payment_amount").attr("value") );
      var total_savings = newParseInt( $("#sp_total_savings_amount").attr("value") );
      var savings_withdrawal; 
-     var total_payable_weeks = newParseInt( $("#total_payable_weeks").attr("value")    )
+     var total_payable_weeks = newParseInt( $("#total_payable_weeks").attr("value")    );
+     var total_payable_backlogs = newParseInt( $("#total_payable_backlogs").attr("value")    ); 
+     var combined_number_of_weeks = total_payable_weeks + total_payable_backlogs;
      
      if( total_savings - stated_savings_withdrawal   >= 0 ){
        savings_withdrawal = stated_savings_withdrawal;
@@ -23,13 +29,15 @@ $(document).ready(function(){
        savings_withdrawal = total_savings;
      }
      
-     var total_payment = number_of_weeks*basic_weekly_payment_amount; 
+     var total_payment = combined_number_of_weeks_and_backlogs_payment*basic_weekly_payment_amount ; 
      var balance = cash + savings_withdrawal - total_payment ; 
      
      
      // show the data 
-     if( number_of_weeks <= total_payable_weeks ){
+     if( number_of_weeks >= 1   && number_of_weeks <= total_payable_weeks  && 
+          number_of_backlogs >= 0 &&  number_of_backlogs <= total_payable_backlogs      ){
        $("#sp_display_weeks").text( number_of_weeks );
+       $("#sp_display_backlogs").text(number_of_backlogs);
         $("#sp_display_total_payment").text( addCommas(total_payment) );
         $("#sp_display_cash").text( addCommas(cash));
         $("#sp_display_savings_withdrawal").text( addCommas(savings_withdrawal));
@@ -41,12 +49,21 @@ $(document).ready(function(){
         $("#smf_balance").attr( 'value', balance );
         $("#smf_cash").attr( 'value', cash );
         $("#smf_weeks").attr( 'value', number_of_weeks );
+        $("#smf_backlogs").attr( 'value', number_of_backlogs );
         
         if( balance < 0 ){
            alert("Negative balance: " + addCommas(balance) );
          }
      }else{
-       alert("Max number of weeks payable: " + total_payable_weeks  );
+       
+       if( number_of_weeks < 0  || number_of_weeks > total_payable_weeks ){
+          alert("Duration should be between "  + 1 +   " and "  + total_payable_weeks);
+        }
+
+        if( number_of_backlogs < 0 || number_of_backlogs > total_payable_backlogs     ){
+           alert("Backlogs should be between " + 0 +  " and " + total_payable_backlogs);
+         }
+       
      }
      
      

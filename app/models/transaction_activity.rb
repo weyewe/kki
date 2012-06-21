@@ -66,6 +66,13 @@ class TransactionActivity < ActiveRecord::Base
   def number_of_weeks_paid
   end
   
+  
+  def number_of_backlogs_paid_in_weekly_cycle
+    BacklogPayment.where( :is_cleared  => true ,
+      :clearance_period => BACKLOG_CLEARANCE_PERIOD[:in_weekly_payment_cycle],
+      :transaction_activity_id_for_backlog_clearance => self.id).count
+  end
+  
   def number_of_backlogs_paid
      
     BacklogPayment.where( :is_cleared  => true ,
@@ -78,6 +85,11 @@ class TransactionActivity < ActiveRecord::Base
     member = Member.find_by_id self.member_id 
     group_loan = GroupLoan.find_by_id  self.loan_id
     return  group_loan.get_membership_for_member( member )
+  end
+  
+  def weekly_cycle_period_backlogs_paid_amount
+    group_loan_membership = self.group_loan_membership
+    number_of_backlogs_paid_in_weekly_cycle * group_loan_membership.group_loan_product.total_weekly_payment
   end
   
   def grace_period_backlogs_paid_amount
@@ -93,6 +105,20 @@ class TransactionActivity < ActiveRecord::Base
       total_amount += te.amount
     end
     return total_amount 
+  end
+  
+  def number_of_weekly_payments_paid
+    MemberPayment.find(:all, :conditions => {
+      :transaction_activity_id => self.id ,
+      :has_paid => true ,
+      :no_payment => false , 
+      :only_savings => false
+    }).count 
+  end
+  
+  def weekly_payments_paid_amount
+    group_loan_membership = self.group_loan_membership
+    number_of_weekly_payments_paid * group_loan_membership.group_loan_product.total_weekly_payment
   end
   
 =begin

@@ -64,19 +64,24 @@ class TransactionActivitiesController < ApplicationController
   def create_structured_multiple_payment
     @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
     @member  = Member.find_by_id params[:member_id]
-
+    @group_loan = @weekly_task.group_loan
+    @group_loan_membership = @group_loan.get_membership_for_member( @member )
+    
     cash = BigDecimal.new( params[:smf_cash] )
     savings_withdrawal = BigDecimal.new( params[:smf_savings_withdrawal] )
     number_of_weeks = params[:smf_weeks].to_i
-
-    @transaction_activity = TransactionActivity.create_structured_multiple_payment(
-      @member,
-      @weekly_task,
-      current_user,
-      cash,
-      savings_withdrawal,
-      number_of_weeks
-    )
+    number_of_backlogs = params[:smf_backlogs].to_i
+    
+    
+    
+    @transaction_activity = TransactionActivity.create_generic_weekly_payment(
+            @group_loan_membership,
+            current_user,
+            cash,
+            savings_withdrawal,
+            number_of_weeks,  
+            number_of_backlogs)
+            
   end
   
 

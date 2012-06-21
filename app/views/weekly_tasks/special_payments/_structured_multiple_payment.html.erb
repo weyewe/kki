@@ -46,6 +46,19 @@
           </tr>
           
           <tr>
+            <td>Backlogs</td>
+            <td id="calculator_backlog_duration">
+              <div class="input-append">
+                <span class="input-xlarge uneditable-input"
+                  id="sp_display_backlogs"></span>
+                <span class="add-on">weeks</span>
+              </div>
+            </td>
+            <%= hidden_field_tag 'smf_backlogs',
+                '' %>
+          </tr>
+          
+          <tr>
             <td>Total Payment</td>
             <td id="calculator_duration">
               <div class="input-append">
@@ -147,6 +160,9 @@
               @group_loan_product.total_weekly_payment.to_i %>
           <%= hidden_field_tag 'total_payable_weeks',
              @group_loan.remaining_weekly_tasks_count_for_member(@member)  %>
+             
+          <%= hidden_field_tag 'total_payable_backlogs',
+            @group_loan_membership.unpaid_backlogs.count %>
           <tr>
             <td><b>Cash</b></td>
             <td id="total_cash">
@@ -165,6 +181,16 @@
               </div>
             </td>
           </tr>  
+          
+          <tr>
+            <td><b>Backlogs</b></td>
+            <td id="calculator_duration">
+              <div class="input-append">
+                <input type="text" size="16"  class="span5" id="sp_calc_backlog_weeks" >
+                <span class="add-on">weeks</span>
+              </div>
+            </td>
+          </tr>
          
           <tr>
             <td><b>Savings Withdrawal</b></td>
