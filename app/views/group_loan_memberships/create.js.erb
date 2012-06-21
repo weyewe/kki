@@ -1,26 +1,15 @@
 $(document).ready(function(){
   var header_text  = "" ;
   
-  <% if @member.current_active_group_loans != 0  and @decision == TRUE_CHECK %>
+  <% if @member.current_active_group_loans.count != 0  and @decision == TRUE_CHECK %>
   // case where there is active group loans. no new loans can be added 
     header_text = "Fail to assign new member.";
-    body_text = "Reason: Total number of active group loan(s) <%=  @member.current_active_group_loans %>."
+    body_text = "Reason: Total number of active group loan(s) <%=  @member.current_active_group_loans.count %>."
     
     summonModal( header_text , 
                 body_text, 
                   "myModal");
-    // change back the checked (reverse) 
-    var checkbox_id = '<%=  "provider_#{@group_loan.id}-consumer_#{@member.id}" %>';
-    var value = '';
-    <% if @member.is_group_loan_member?(@group_loan) %>
-      value = 1; 
-    <% else %>
-      value = 0 ;
-    <% end %>
-    fillCheckbox( checkbox_id, value  );
-    
-    
-    
+  
   <% else %>
     // The case of no current_active group loans
   
@@ -34,23 +23,12 @@ $(document).ready(function(){
       summonModal( header_text , 
               "Reason: the group <%= @group_loan.name %> has started.", 
               "myModal");
-      // change back the checked (reverse) 
-      var checkbox_id = '<%=  "provider_#{@group_loan.id}-consumer_#{@member.id}" %>';
-      var value = '';
-      <% if @member.is_group_loan_member?(@group_loan) %>
-        value = 1; 
-      <% else %>
-        value = 0 ;
-      <% end %>
-      fillCheckbox( checkbox_id, value  );
-    
-    <% else %>
-  
-      var id = '<%= "current_group_loans_provider_#{@group_loan.id}-consumer_#{@member.id}" %>';
-      $("#" + id).text( <%= @member.current_assigned_group_loans %>);
-    
     <% end %>
-    // End of the case of no current active group loans
   <% end %>
+  
+  <% new_row = escape_javascript( render :partial => "group_loan_memberships/new_glm_entry", 
+        :locals => {:member => @member, :group_loan => @group_loan }) %>
+
+  $("#glm_creation-<%= @member.id %>").replaceWith('<%= new_row %>');
   
 });

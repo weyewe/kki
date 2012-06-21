@@ -1,0 +1,20 @@
+<tr  id="glm_creation-<%= member.id %>">
+  <td class="user-nim"><%= member.name %></td>
+  <td><%= member.past_group_loan_memberships.count  %></td>
+  <td id='<%= "current_group_loans_provider_#{group_loan.id}-consumer_#{member.id}" %>'>
+    <%= member.current_assigned_group_loans.count %>
+  </td>
+  <td id='<%= "active_group_loans_provider_#{group_loan.id}-consumer_#{member.id}" %>'>
+    <%= member.current_active_group_loans.count %>
+  </td>
+  <td class="well">
+    <label class="checkbox">
+      <% checkbox_value = member.is_group_loan_member?(group_loan) %>
+ 
+      <%= check_box_tag 'is_checked', get_checkbox_value(checkbox_value )   , 
+          checkbox_value, :class => 'checkbox_tracker', 
+          :id => "provider_#{group_loan.id}-consumer_#{member.id}" %> Assigned
+    </label>
+
+  </td>
+</tr>

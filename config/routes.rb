@@ -38,6 +38,13 @@ Debita46::Application.routes.draw do
 =begin
   Loan Officer Routes
 =end
+  match 'select_group_loan_to_assign_non_commune_constrained_member' => "group_loans#select_group_loan_to_assign_non_commune_constrained_member", :as => :select_group_loan_to_assign_non_commune_constrained_member
+  match 'select_commune_for_group_loan_assignment/:group_loan_id' => "communes#select_commune_for_group_loan_assignment", :as => :select_commune_for_group_loan_assignment
+  match 'list_members_in_commune/:commune_id/for_group_loan_membership_assignment/:group_loan_id' => "communes#list_members_in_commune", :as => :list_members_in_commune
+  
+  #  then, the new group loan memberships  summary
+  match 'execute_group_loan_membership_creation_from_summary' => "group_loan_memberships#execute_group_loan_membership_creation_from_summary", :as => :execute_group_loan_membership_creation_from_summary, :method => :post 
+
 
   match 'select_group_loan_to_assign_member' => "group_loans#select_group_loan_to_assign_member", :as => :select_group_loan_to_assign_member
   match 'select_group_loan_to_group_loan_product' => "group_loans#select_group_loan_to_group_loan_product", :as => :select_group_loan_to_group_loan_product

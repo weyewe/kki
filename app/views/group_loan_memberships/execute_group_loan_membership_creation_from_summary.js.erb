@@ -1,0 +1,26 @@
+$(document).ready(function(){
+  var header_text  = "" ;
+  
+  
+  <% if @group_loan.is_started == true  %>
+  // Handling the business logic in which a group_loan is running 
+    <% if @decision == TRUE_CHECK %> 
+      header_text = "Fail to assign new member";
+    <% elsif @decision == FALSE_CHECK %>
+      header_text = "Fail to delete membership";
+    <% end %>
+    summonModal( header_text , 
+            "Reason: the group <%= @group_loan.name %> has started.", 
+            "myModal");
+            
+    <% new_row = escape_javascript( render :partial => "group_loan_memberships/new_glm_entry", 
+        :locals => {:member => @member, :group_loan => @group_loan }) %>
+
+    $("#glm_creation-<%= @member.id %>").replaceWith('<%= new_row %>');
+  <% else %>
+    $("#glm_creation-<%= @member.id %>").remove();
+  <% end %> 
+  
+  
+  
+});

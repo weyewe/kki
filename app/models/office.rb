@@ -63,6 +63,8 @@ class Office < ActiveRecord::Base
     return result 
   end
   
+ 
+  
   
   # active means still pending for action
   def active_group_loans

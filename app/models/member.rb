@@ -28,24 +28,49 @@ class Member < ActiveRecord::Base
     {:group_loan => {:is_closed => true }}
     ).count
   end
+  
+  def past_group_loan_memberships
+    self.group_loan_memberships.where(:is_active => false )
+  end
 
   def current_assigned_group_loans
-    member_id = self.id
-    GroupLoanMembership.joins(:group_loan).where(
-    { :member_id => member_id   } &  
-    {:group_loan => {:is_closed => false }}
-    ).count
+    # member_id = self.id
+    
+    self.group_loan_memberships.joins(:group_loan).where(
+      {:is_active => true }  & 
+      {:group_loan => {:is_started => false }}
+    )
+    # GroupLoanMembership.joins(:group_loan).where(
+    # { :member_id => member_id   } &  
+    # {:group_loan => {:is_closed => false }}
+    # )
   end
 
   def current_active_group_loans
-    member_id = self.id
-    GroupLoanMembership.joins(:group_loan).where(
-    { :member_id => member_id   } &  
-    {:group_loan => {:is_closed => false }} & 
-    {:group_loan => {:is_started => true }} 
-    ).count
+    # member_id = self.id
+    # GroupLoanMembership.joins(:group_loan).where(
+    # { :member_id => member_id   } &  
+    # {:group_loan => {:is_closed => false }} & 
+    # {:group_loan => {:is_started => true }} 
+    # ).count
+    # 
+    self.group_loan_memberships.joins(:group_loan).where(
+      {:is_active => true }  & 
+      {:group_loan => {:is_started => true }} & 
+      {:group_loan => {:is_closed => false}}
+    )
   end
 
+=begin
+  On Group Loan Start
+=end
+  def destroy_non_started_group_loan_memberships(active_group_loan) 
+    current_assigned_group_loans.each do |glm|
+      if glm.group_loan_id != active_group_loan.id 
+        glm.destroy 
+      end
+    end
+  end
 
   def is_group_loan_member?(group_loan) 
     not GroupLoanMembership.find(:first, :conditions => {

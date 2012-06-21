@@ -1,0 +1,51 @@
+
+<div class="span9 content">
+  <%= create_guide("Member -> GroupLoan", 
+        "Office: <b>#{@office.name}</b>" + "<br />" + 
+        "Group Loan: <b>#{@group_loan.name}</b> ").html_safe %>
+  
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
+  
+  
+   
+  <div class="row-fluid">
+    <div id="data_list">
+      <table cellpadding="0" cellspacing="0" border="0" 
+            class="table table-striped table-bordered" id="example">
+        <thead>
+          <tr>
+            <th>RW</th>
+            <th>Total Member di RW</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @communes_array_list.each do |commune_array| %>
+            <% commune= Commune.find_by_id(commune_array[1])%>  
+            <tr>
+              <td><%= link_to commune_array[0], list_members_in_commune_url(commune_array[1], @group_loan) %></td>
+              
+              <td><%= commune.members.count %></td>
+            </tr>
+          <% end %>
+
+        </tbody>
+      </table>
+    </div><!-- end of #data_list -->
+  </div>
+
+</div><!--/span-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

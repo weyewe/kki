@@ -86,6 +86,11 @@ class GroupLoansController < ApplicationController
     add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_member_url'
   end
   
+  def select_group_loan_to_assign_non_commune_constrained_member
+    setup_select_group_loan
+    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_non_commune_constrained_member_url'
+  end
+  
   def select_group_loan_to_group_loan_product
     setup_select_group_loan
     

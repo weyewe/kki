@@ -127,9 +127,11 @@ class GroupLoanMembership < ActiveRecord::Base
     })
     
      # business logic , no new membership can be generated if the group loan is running 
-    if group_loan.is_started == true
+    if group_loan.is_started == true or  group_loan.is_closed == true 
       return group_loan_membership  
     end
+    
+  
     
     
     
@@ -140,7 +142,7 @@ class GroupLoanMembership < ActiveRecord::Base
     
     # special for group_membership_creation
     # a new group membership can't be created if the member has ongoing active group_loan
-    if member.current_active_group_loans != 0 
+    if member.current_active_group_loans.count != 0 
       return group_loan_membership
     end
     

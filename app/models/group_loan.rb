@@ -219,6 +219,11 @@ class GroupLoan < ActiveRecord::Base
       return nil
     end
     
+    
+    # delete the group loan  membership from other group loan 
+ 
+    
+    # preventing declaring setup payment by loan deduction 
     if self.is_setup_fee_collection_finalized  == true && 
       self.is_setup_fee_collection_approved  == true 
       return
@@ -227,6 +232,7 @@ class GroupLoan < ActiveRecord::Base
     # BUSINESS LOGIC: all loan's setup fee are deducted from the loan disbursement 
     self.group_loan_memberships.each do |glm|
       glm.declare_setup_payment_by_loan_deduction
+      glm.member.destroy_non_started_group_loan_memberships(glm.group_loan)
     end
     self.is_setup_fee_collection_finalized  = true 
     self.is_setup_fee_collection_approved  = true 

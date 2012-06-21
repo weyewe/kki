@@ -481,7 +481,25 @@ module ApplicationHelper
     :header_title => "Group Member Management",
     :processes => [
       {
-        :title => "Assign Member to GroupLoan",
+        :title => "Member Assignment",
+        :destination_link => 'select_group_loan_to_assign_non_commune_constrained_member_url',
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_assign_non_commune_constrained_member'
+          },
+          {
+            :controller => "communes",
+            :action => "select_commune_for_group_loan_assignment"
+          },
+          {
+            :controller => 'communes',
+            :action => "list_members_in_commune"
+          }
+        ]
+      },
+      {
+        :title => "Membership Summary",
         :destination_link => 'select_group_loan_to_assign_member_url',
         :conditions => [
           {

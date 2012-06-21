@@ -1,7 +1,8 @@
 
 <div class="span9 content">
   <%= create_guide("Assign Member to Group Loan", 
-        "Group Loan ID: <b>#{@group_loan.name}</b>").html_safe %>
+        "Group Loan ID: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "Commune: <b>#{@subdistrict.name}, #{@village.name} -- RW #{@commune.number }</b>").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -23,10 +24,10 @@
           </tr>
         </thead>
         <tbody>
-          <% @group_loan_memberships.each do |glm| %>
+          <% @commune.members.each do |member| %>
           
             <%= render :partial => "group_loan_memberships/new_glm_entry", :locals => {
-              :member => glm.member,
+              :member => member,
               :group_loan => @group_loan
             }%>
             
@@ -37,7 +38,7 @@
       
       
       <div class=" hidden" id="checkbox_form_wrapper">
-        <%= form_for GroupLoanMembership.new, :url =>execute_group_loan_membership_creation_from_summary_url   do |f| %>
+        <%= form_for GroupLoanMembership.new, :url =>group_loan_memberships_url   do |f| %>
           <%= hidden_field_tag 'membership_provider' , ''  %>
           <%= hidden_field_tag 'membership_consumer', '' %>
           <%= hidden_field_tag 'membership_decision', '' %>
