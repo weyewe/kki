@@ -1325,6 +1325,7 @@ class GroupLoan < ActiveRecord::Base
   def calculate_default_payment_in_grace_period
     # this will be called on last weekly payment cashier approval
     # and after all the backlog payments  approval made in grace period 
+    self.update_default_payment_status
     
     self.update_defaultee_default_payment_compulsory_savings_deduction
     self.reload 

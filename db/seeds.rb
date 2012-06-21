@@ -155,43 +155,61 @@ cashier_role         = Role.create :name => "Cashier"
   Create the blank slate user 
 =end
 puts "Gonna create user "
-branch_manager = User.create :email => "branch_manager@gmail.com", :password => "willy1234",
-                  :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
-                  
+branch_manager = 
+
+branch_manager = cilincing_office.create_user( [branch_manager_role], 
+  :email => 'branch_manager@gmail.com',
+  :password => 'willy1234',
+  :password_confirmation => 'willy1234'  ) 
+  
+  
+# User.create :email => "branch_manager@gmail.com", :password => "willy1234",
+#                   :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+#                   
 puts "Branch manager id is #{branch_manager.id}"
 
-loan_officer = User.create :email => "loan_officer@gmail.com", :password => "willy1234",
-                  :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
-                  
-cashier = User.create :email => "cashier@gmail.com", :password => "willy1234",
-                  :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+# loan_officer = User.create :email => "loan_officer@gmail.com", :password => "willy1234",
+#                   :password_confirmation => "willy1234" #, :office_id => cilincing_office.id
+#                 
+loan_officer = cilincing_office.create_user( [loan_officer_role], 
+                  :email => 'loan_officer@gmail.com',
+                  :password => 'willy1234',
+                  :password_confirmation => 'willy1234'  )
+cashier = cilincing_office.create_user( [cashier_role], 
+                  :email => "cashier@gmail.com", 
+                  :password => "willy1234",
+                  :password_confirmation => "willy1234" )  #, :office_id => cilincing_office.id
 
-field_worker = User.create :email => "field_worker@gmail.com", :password => "willy1234",
-                  :password_confirmation => "willy1234"# , :office_id => cilincing_office.id
+field_worker = cilincing_office.create_user( [field_worker_role],
+                  :email => "field_worker@gmail.com", 
+                  :password => "willy1234",
+                  :password_confirmation => "willy1234" ) # , :office_id => cilincing_office.id
                   
-field_worker_2 = User.create :email => "field_worker_2@gmail.com", :password => "willy1234",
-                  :password_confirmation => "willy1234"# , :office_id => cilincing_office.id
+field_worker_2 = cilincing_office.create_user( [field_worker_role],
+                  :email => "field_worker_2@gmail.com", 
+                  :password => "willy1234",
+                  :password_confirmation => "willy1234" )# , :office_id => cilincing_office.id
       
 puts "Done creating user. Gonna create job_attachment"            
 =begin
   assign job_attachment to each of this user 
 =end
 
-# cilincing_office.users << branch_manager 
-branch_manager_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
-              :user_id => branch_manager.id, :is_active => true )
-# cilincing_office.users << loan_officer 
-loan_officer_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
-              :user_id => loan_officer.id, :is_active => true )
-# cilincing_office.users << cashier 
-cashier_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
-              :user_id => cashier.id, :is_active => true )
-# cilincing_office.users << field_worker 
-field_worker_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
-              :user_id => field_worker.id, :is_active => true )
-              
-field_worker_2_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
-              :user_id => field_worker_2.id, :is_active => true )
+# # cilincing_office.users << branch_manager 
+# branch_manager_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+#               :user_id => branch_manager.id, :is_active => true )
+# # cilincing_office.users << loan_officer 
+# loan_officer_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+#               :user_id => loan_officer.id, :is_active => true )
+# # cilincing_office.users << cashier 
+# cashier_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+#               :user_id => cashier.id, :is_active => true )
+# # cilincing_office.users << field_worker 
+# field_worker_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+#               :user_id => field_worker.id, :is_active => true )
+#               
+# field_worker_2_job_attachment = JobAttachment.create(:office_id => cilincing_office.id, 
+#               :user_id => field_worker_2.id, :is_active => true )
 
 
 
@@ -202,20 +220,6 @@ puts "Done creating the blank slate user  user and the job attachment "
   Gonna add roles to the job attachment 
 =end
 
-branch_manager_job_attachment.roles << branch_manager_role
-branch_manager_job_attachment.save
-
-loan_officer_job_attachment.roles << loan_officer_role
-loan_officer_job_attachment.save
-
-cashier_job_attachment.roles << cashier_role
-cashier_job_attachment.save
-
-field_worker_job_attachment.roles << field_worker_role
-field_worker_job_attachment.save
-
-field_worker_2_job_attachment.roles << field_worker_role
-field_worker_2_job_attachment.save
 
 puts "Done adding roles to the JobAttachment"
 

@@ -21,6 +21,7 @@ class GroupLoanMembership < ActiveRecord::Base
     default_payment = self.default_payment 
     total_compulsory_savings = self.member.saving_book.total_compulsory_savings
     if default_payment.is_defaultee == true 
+      
       glp = self.group_loan_product 
       total_amount = self.unpaid_backlogs.count* glp.grace_period_weekly_payment
       
