@@ -1257,6 +1257,8 @@ class GroupLoan < ActiveRecord::Base
     self.active_group_loan_memberships.each do |glm|
       if glm.unpaid_backlogs.count != 0 
         glm.default_payment.mark_as_defaultee
+      else
+        glm.default_payment.mark_as_non_defaultee
       end
     end
   end

@@ -10,6 +10,11 @@ class DefaultPayment < ActiveRecord::Base
     self.save 
   end
   
+  def mark_as_non_defaultee
+    self.is_defaultee = false 
+    self.save
+  end
+  
   def set_amount_group_share( amount ) 
     self.amount_group_share = amount
     self.save 
