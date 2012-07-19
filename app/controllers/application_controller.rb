@@ -36,19 +36,6 @@ class ApplicationController < ActionController::Base
       return select_group_loan_for_loan_disbursement_url
     end
     
-    
-    
-    puts "God.. no role at all.. something messed up with the seeds\n"*10
-    
-    
-    # if current_user.has_role?(:cashier, active_job_attachment)
-    #    return project_submissions_url
-    #  end
-    #  
-    #  if current_user.has_role?(:field_worker, active_job_attachment)
-    #    return project_submissions_url
-    #  end
-    #  
   end
 
 

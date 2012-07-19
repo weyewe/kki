@@ -140,6 +140,8 @@ TRANSACTION_ENTRY_CODE = {
   :late_payment_fine => 7 ,
   :extra_weekly_saving => 8, 
   :no_weekly_payment_only_savings => 9,
+  :grace_period_payment => 66, 
+  
   
   # all transaction from company to the member
   :return_deposit => 101, 
@@ -242,5 +244,5 @@ BACKLOG_CLEARANCE_PERIOD = {
 BASIC_WEEKLY_PAYMENT_START = 77700000
 BASIC_WEEKLY_PAYMENT_END = 77720000 # max = 777 11122
  
-GRACE_PERIOD_PAYMENT_START = 6660000
-GRACE_PERIOD_PAYMENT_END =   6662000   # max= 666 1112 
+GRACE_PERIOD_PAYMENT_START = 666000  # cash , savings_withdrawal, extra_savings
+GRACE_PERIOD_PAYMENT_END =   666200  # max= 666 1112 

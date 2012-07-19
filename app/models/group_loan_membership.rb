@@ -17,13 +17,19 @@ class GroupLoanMembership < ActiveRecord::Base
   
   before_destroy :destroy_group_loan_subcription
   
-  def update_defaultee_compulsory_savings_deduction
+  def update_defaultee_savings_deduction
     default_payment = self.default_payment 
     total_compulsory_savings = self.member.saving_book.total_compulsory_savings
+    total_extra_savings = self.member.saving_book.total_extra_savings
+    total_deductible_member_savings = total_compulsory_savings + total_extra_savings
+    
+    
+  
     if default_payment.is_defaultee == true 
       
       glp = self.group_loan_product 
-      total_amount = self.unpaid_backlogs.count* glp.grace_period_weekly_payment
+      # total_amount = self.unpaid_backlogs.count* glp.grace_period_weekly_payment
+      total_amount = default_payment.unpaid_grace_period_amount
       
       # refresh the state 
       default_payment.amount_of_compulsory_savings_deduction = BigDecimal("0")
@@ -32,10 +38,14 @@ class GroupLoanMembership < ActiveRecord::Base
       # do the deduction 
       if total_amount <= total_compulsory_savings
         default_payment.amount_of_compulsory_savings_deduction = total_amount 
-      else
+      elsif total_amount <= total_deductible_member_savings
+        default_payment.amount_of_compulsory_savings_deduction = total_compulsory_savings 
+        default_payment.amount_of_extra_savings_deduction = total_amount  - total_compulsory_savings
+      elsif total_amount > total_deductible_member_savings 
         # will be handled by group
         default_payment.amount_of_compulsory_savings_deduction = total_compulsory_savings 
-        default_payment.amount_to_be_shared_with_non_defaultee = total_amount - total_compulsory_savings
+        default_payment.amount_of_extra_savings_deduction = total_extra_savings
+        default_payment.amount_to_be_shared_with_non_defaultee = total_amount - total_deductible_member_savings
       end
       
       default_payment.save 

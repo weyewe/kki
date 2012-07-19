@@ -695,6 +695,244 @@ describe GroupLoan do
     
     
     
+    it "should do the final case #2b: unpaid backlogs at the end of grace period. " + 
+        "distribute the pain to all non defaultee members." + 
+        "and, for the defaultee, eat up the voluntary savings" do
+      # strategy: take 50% out from each subgroup. paying only once. The rest is shared among other members. hehe.. looks good
+      
+      
+      
+      defaultee_glm_list = @first_sub_group.active_group_loan_memberships[0..1] + @second_sub_group.active_group_loan_memberships[0..1]
+      defaultee_glm_id_list = defaultee_glm_list.collect {|x| x.id }
+      puts "the list: #{defaultee_glm_id_list}"
+      
+      # now we have 4.. each of them only pay once for weekly payment
+      
+      
+      @group_loan.weekly_tasks.order("week_number ASC").each do |weekly_task| 
+        puts "======================\n"*2
+        puts "\n\nin week: #{weekly_task.week_number}"
+        @group_loan.active_group_loan_memberships.includes(:member).each do |glm|
+          # setup 
+          
+          # present in the weekly meeting. declaring no payment 
+          if defaultee_glm_id_list.include?(glm.id)  #   and [1,2,3].include?(weekly_task.week_number)
+            weekly_task.mark_attendance_as_present( glm.member, @field_worker )
+            weekly_task.create_weekly_payment_declared_as_no_payment( glm.member )
+            next
+          end
+          
+          
+          member =  glm.member 
+          saving_book = member.saving_book
+          initial_total_savings                = saving_book.total 
+          initial_extra_savings                = saving_book.total_extra_savings
+          initial_compulsory_savings           = saving_book.total_compulsory_savings
+
+          glp = glm.group_loan_product
+          
+          
+          
+          #  mark member attendance  # the order doesn't matter 
+          weekly_task.mark_attendance_as_present( glm.member, @field_worker )
+          # do payment 
+          weekly_task = @group_loan.currently_executed_weekly_task
+          
+          puts "\n++++++++++ pre condition"
+          puts "member_id : #{member.id}"
+          
+          puts "initial compulsory_savings: #{initial_compulsory_savings}"
+          puts "the currently_executed_weekly_task : #{weekly_task.week_number}"
+          # TransactionActivity.create_basic_weekly_payment(member,weekly_task, @field_worker )
+          cash_payment = glp.total_weekly_payment
+          savings_withdrawal = BigDecimal("0")
+          number_of_weeks = 1 
+          number_of_backlogs = 0 
+          a = TransactionActivity.create_generic_weekly_payment(
+                  glm,
+                  @field_worker,
+                  cash_payment,
+                  savings_withdrawal, 
+                  number_of_weeks,
+                  number_of_backlogs
+          )
+          
+          a.should be_valid 
+          
+      
+          
+          
+          saving_book.reload
+          
+          final_total_savings      = saving_book.total 
+          final_extra_savings      = saving_book.total_extra_savings
+          final_compulsory_savings = saving_book.total_compulsory_savings
+          diff = final_total_savings - initial_total_savings
+          diff_extra_savings = final_extra_savings - initial_extra_savings
+          diff_compulsory_savings = final_compulsory_savings - initial_compulsory_savings
+          
+          
+          puts "final compulsory_savings: #{final_compulsory_savings}"
+          puts "\n******THE ANALYTICS"
+          puts "glp min_savings : #{glp.min_savings}"
+          puts "diff compulsory_savings: #{diff_compulsory_savings.to_i}"
+          puts "diff extra_savings: #{diff_extra_savings.to_i}"
+          puts "The amount of diff for member #{member.id}: #{diff}"
+          
+          a.should be_valid 
+      
+          
+          puts "~~~~~ the assertion"
+          diff.should == glp.min_savings
+          diff_compulsory_savings.to_i.should == glp.min_savings.to_i
+          diff_extra_savings.should == BigDecimal("0")
+          
+          
+          
+        end
+        weekly_task.close_weekly_meeting(@field_worker)
+        weekly_task.close_weekly_payment( @field_worker )
+        weekly_task.approve_weekly_payment_collection( @cashier )
+        
+        weekly_task.is_weekly_attendance_marking_done.should be_true 
+        weekly_task.is_weekly_payment_collection_finalized.should be_true 
+        weekly_task.is_weekly_payment_approved_by_cashier.should be_true 
+      end
+      
+      # after doing weekly payment cycle -> on the last weekly payment approval, 
+      # default payments are created 
+           #  
+           # closing_result = @group_loan.close_group_loan(@branch_manager)
+           # closing_result.should be_nil
+      
+      #now we are in the grace period
+      # do the grace period transaction
+      # => in this example case, we don't want to do payment in grace period.. testing the default payment resolution 
+      # cash_value = @first_glm.group_loan_product.grace_period_weekly_payment
+      # savings_withdrawal  = BigDecimal("0")
+      # 
+      # number_of_weeks_1 = @group_loan.total_weeks + 1 
+      # result_1  = TransactionActivity.create_generic_grace_period_payment(
+      #         @first_glm,
+      #         @field_worker ,
+      #         cash_value*number_of_weeks_1,
+      #         savings_withdrawal,  
+      #         number_of_weeks_1 )  # it will always paying the backlog. nothing else # no compulsory savings
+      #   
+      # result_1.should be_nil 
+      # 
+      # number_of_weeks_2 =  @group_loan.total_weeks   
+      # 
+      # @first_glm.unpaid_backlogs.count.should == number_of_weeks_2 
+      # # i want to know the memberpayment
+      # 
+      # result_2 =  TransactionActivity.create_generic_grace_period_payment(
+      #         @first_glm,
+      #         @field_worker ,
+      #         cash_value*number_of_weeks_2,
+      #         savings_withdrawal,  
+      #         number_of_weeks_2)
+      #         
+      # result_2.should  be_valid 
+      # 
+      # result_2.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_principal]).count.should == number_of_weeks_2
+      # result_2.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_interest]).count.should == number_of_weeks_2
+      # 
+      # 
+      # @first_glm.unpaid_backlogs.count.should == 0
+      # 
+      # # execute default loan payment
+      
+      
+      # THE BEGINNING OF GRACCE PERIOD 
+      defaultee_glm_list.each do |glm|
+        glm.reload
+        glm.unpaid_backlogs.count.should == @group_loan.total_weeks 
+      end
+      
+      # getting the amount to be deducted, standard schema 
+      
+      @group_loan.reload
+      
+      deduction_hash = {} 
+      initial_compulsory_savings_before_default_payment_hash = {}
+      @group_loan.active_group_loan_memberships.each do |glm|
+        if glm.default_payment.is_defaultee == false 
+          deduction_hash[glm.id] = glm.default_payment.amount_to_be_paid
+          initial_compulsory_savings_before_default_payment_hash[glm.id] = glm.member.saving_book.total_compulsory_savings
+        end
+      end
+      
+      
+      # testing copy paste code 
+      @group_loan.reload
+      @group_loan.propose_default_payment_execution( @field_worker ) # cashier is notified
+      @group_loan.reload
+      @group_loan.execute_default_payment_execution( @cashier ) 
+      
+      
+      puts "\n\n********** deduction analytics"*5
+      deduction_hash.each do |key,value|
+        
+        puts "The glm id : #{key}"
+        glm = GroupLoanMembership.find_by_id key 
+      
+        initial_compulsory_savings = initial_compulsory_savings_before_default_payment_hash[key]
+        puts "initial_compulsory savings: #{initial_compulsory_savings}"
+        final_compulsory_savings = glm.member.saving_book.total_compulsory_savings
+        puts "final compulsory_savings: #{final_compulsory_savings}"
+        compulsory_savings_diff = initial_compulsory_savings - final_compulsory_savings
+        puts "expected- diff : #{compulsory_savings_diff}"
+        compulsory_savings_diff.should == deduction_hash[key]
+        
+      end
+      
+      
+      extra_savings_before_group_loan_closing = []
+      compulsory_savings_before_group_loan_closing = []
+      
+      @group_loan.reload
+      
+      initial_extra_savings_hash_pre_closing = {}
+      initial_compulsory_savings_hash_pre_closing = {}
+      @group_loan.active_group_loan_memberships.order("created_at ASC").each do |glm|
+        initial_extra_savings_hash_pre_closing[glm.id] = glm.member.saving_book.total_extra_savings 
+        initial_compulsory_savings_hash_pre_closing[glm.id] = glm.member.saving_book.total_compulsory_savings
+      end
+      
+    
+      
+      @group_loan.close_group_loan(@branch_manager)
+      @group_loan.is_closed.should be_true 
+      
+      #check -> extra savings diff should be the amount of final_compulsory savings 
+      
+      
+      @group_loan.reload
+      
+      
+       @group_loan.active_group_loan_memberships.each  do |glm|
+          extra_savings_after_closing = glm.member.saving_book.total_extra_savings 
+
+          diff = extra_savings_after_closing - initial_extra_savings_hash_pre_closing[glm.id]
+
+          puts "expected diff in extra savings: #{diff}"
+          diff.should == initial_compulsory_savings_hash_pre_closing[glm.id]
+        end
+      
+      
+     
+      # next is grace period. no weekly payment is being made over here
+      
+      
+      # finally default payment resolution 
+      
+      # close the group loan -> porting the remaining compulsory savings to extra savings 
+      
+    end
+    
+    
+    
     
     it "should do the final case #3: unpaid backlogs at the end of grace period. distribute the pain to all non defaultee members. CUSTOM-schema" do
       puts " SHIT SHIT "

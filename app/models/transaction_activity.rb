@@ -477,8 +477,7 @@ class TransactionActivity < ActiveRecord::Base
   def TransactionActivity.resolve_grace_period_transaction_case(
       cash, 
       savings_withdrawal, 
-      extra_savings, 
-      number_of_backlogs
+      extra_savings 
     )
     
     prependix= "666"  # backlog payment during grace period 
@@ -504,28 +503,23 @@ class TransactionActivity < ActiveRecord::Base
     end
     
     
-    if number_of_backlogs == 1 
-      content << 1.to_s 
-    elsif number_of_backlogs > 1
-      content << 2.to_s 
-    end
     
-    return ( prependix + content ) .to_i
-    
-    
+    return ( prependix + content ) .to_i 
   end
+  
+  
   
   def TransactionActivity.create_generic_grace_period_payment(
           group_loan_membership,
           employee,
           cash,
-          savings_withdrawal,  
-          number_of_backlogs)
+          savings_withdrawal)
           
     
     group_loan = group_loan_membership.group_loan 
     group_loan_product = group_loan_membership.group_loan_product 
     member = group_loan_membership.member 
+    default_payment = group_loan_membership.default_payment 
     zero_value = BigDecimal("0")
     
     # if glm is non active, return nil
@@ -544,12 +538,12 @@ class TransactionActivity < ActiveRecord::Base
     
     
     # check the number_of_backlogs < actual unpaid backlogs 
-    if number_of_backlogs <= 0 or ( number_of_backlogs >  group_loan_membership.unpaid_backlogs.count  )
-      return nil
-    end
+    # if number_of_backlogs <= 0 or ( number_of_backlogs >  group_loan_membership.unpaid_backlogs.count  )
+    #   return nil
+    # end
     
     # check if savings withdrawal > saving_book.extra_savings 
-    if member.saving_book.total_compulsory_savings < savings_withdrawal
+    if member.saving_book.total_extra_savings < savings_withdrawal
       return nil
     end
     
@@ -559,13 +553,18 @@ class TransactionActivity < ActiveRecord::Base
       return nil
     end
     
-    
-    total_payable = number_of_backlogs*(group_loan_product.grace_period_weekly_payment)
-    total_amount_paid = cash + savings_withdrawal
-    # check if cash + savings_withdrawal >= number_of_backlogs * group_loan_product.grace_period_weekly_payment
-    if  total_amount_paid < total_payable
+    if cash == zero_value && savings_withdrawal == zero_value
       return nil
     end
+    
+    
+    
+    # if (cash + savings_withdrawal) < default_payment.unpaid_grace_period_amount
+    
+    total_payable = default_payment.unpaid_grace_period_amount
+    total_amount_paid = cash + savings_withdrawal
+    # check if cash + savings_withdrawal >= number_of_backlogs * group_loan_product.grace_period_weekly_payment
+ 
     
     extra_savings = total_amount_paid - total_payable 
     
@@ -575,8 +574,7 @@ class TransactionActivity < ActiveRecord::Base
     result_resolve = self.resolve_grace_period_transaction_case(
       cash, 
       savings_withdrawal, 
-      extra_savings, 
-      number_of_backlogs
+      extra_savings
     )
     # this shit starts with 666
     
@@ -599,44 +597,41 @@ class TransactionActivity < ActiveRecord::Base
     
     transaction_activity = TransactionActivity.create new_hash
     
+    # IN GRACE PERIOD, NO NOTION ABOUT BACKLOG PAYMENT ANYMORE 
     # creating the backlog payment 
-    member.backlog_payments_for_group_loan(group_loan).where(:is_cleared => false ).order("created_at ASC").limit( number_of_backlogs ).each do |x|
-       x.is_cleared  = true 
-       x.clearance_period = BACKLOG_CLEARANCE_PERIOD[:in_grace_period]
-       x.backlog_cleared_declarator_id = employee.id 
-       x.transaction_activity_id_for_backlog_clearance = transaction_activity.id
-       x.save
-    end 
+    # member.backlog_payments_for_group_loan(group_loan).where(:is_cleared => false ).order("created_at ASC").limit( number_of_backlogs ).each do |x|
+    #    x.is_cleared  = true 
+    #    x.clearance_period = BACKLOG_CLEARANCE_PERIOD[:in_grace_period]
+    #    x.backlog_cleared_declarator_id = employee.id 
+    #    x.transaction_activity_id_for_backlog_clearance = transaction_activity.id
+    #    x.save
+    # end 
     
-    # creating the transaction entries
-    # create transaction entries: basic entry, savings withdrawal, extra savings 
-    # or even the backlog entries 
-    # 1. according to the number_of_weeks, create basic weekly payment entries 
-    # 2 . according to the number of backlogs, create backlog payment
-    (number_of_backlogs).times do |x|
-      
-      # we need to create this method -> only adding the principal and interest 
-      transaction_activity.create_grace_period_backlog_payment_transaction_entries(group_loan_product, employee, member) 
-    end
-    
-    # 3. according to the savings withdrawal, create savings withdrawal entry
+  
+    transaction_activity.create_grace_period_payment_transaction_entries(cash, employee, member) 
+
     if savings_withdrawal > zero_value 
       transaction_activity.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
     end
     
-    # 4 . according to the extra savings, create extra savings
     if extra_savings > zero_value
       transaction_activity.create_extra_savings_entries(extra_savings, employee, member )
     end
     
+    #  update the default_payment.unpaid_grace_period_amount 
+    if total_amount_paid < total_payable  
+      default_payment.update_paid_grace_period_amount( total_amount_paid  )
+    else
+      default_payment.update_paid_grace_period_amount( total_payable  )
+    end
     
-    group_loan.calculate_default_payment_in_grace_period
+    # update the default loan resolution amount 
+    group_loan.update_default_payment_in_grace_period
     
     return transaction_activity
-    
-    
-    
   end
+  
+  
   
   def TransactionActivity.create_generic_weekly_payment(
           group_loan_membership,
@@ -1579,6 +1574,18 @@ class TransactionActivity < ActiveRecord::Base
     end
    
   end
+  
+  
+  def create_grace_period_payment_transaction_entries(cash, employee, member)
+    self.transaction_entries.create( 
+                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:grace_period_payment], 
+                      :amount => cash ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+                      )
+                      
+  
+  end
+  
   
   def create_grace_period_backlog_payment_transaction_entries(group_loan_product, employee, member)
     self.transaction_entries.create( 

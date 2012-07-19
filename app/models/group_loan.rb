@@ -1255,17 +1255,19 @@ class GroupLoan < ActiveRecord::Base
 
   def update_default_payment_status
     self.active_group_loan_memberships.each do |glm|
+      default_payment = glm.default_payment
       if glm.unpaid_backlogs.count != 0 
-        glm.default_payment.mark_as_defaultee
+        default_payment.mark_as_defaultee
+        default_payment.calculate_grace_period_amount
       else
-        glm.default_payment.mark_as_non_defaultee
+        default_payment.mark_as_non_defaultee
       end
     end
   end
 
-  def update_defaultee_default_payment_compulsory_savings_deduction
+  def update_defaultee_default_payment_savings_deduction
     self.active_group_loan_memberships.each do |glm|
-      glm.update_defaultee_compulsory_savings_deduction
+      glm.update_defaultee_savings_deduction
       # we update the amount to be shared with groups (non defaultee)
     end
   end
@@ -1302,7 +1304,7 @@ class GroupLoan < ActiveRecord::Base
       default_payment = glm.default_payment 
       total_amount = BigDecimal("0")
       if default_payment.is_defaultee == true
-        total_amount = default_payment.amount_of_compulsory_savings_deduction
+        total_amount = default_payment.amount_of_compulsory_savings_deduction + default_payment.amount_of_extra_savings_deduction
         # puts "******!!!!!!!!!!In the shit, total_amount = #{total_amount}"
         default_payment.total_amount = total_amount
         
@@ -1328,8 +1330,11 @@ class GroupLoan < ActiveRecord::Base
     # this will be called on last weekly payment cashier approval
     # and after all the backlog payments  approval made in grace period 
     self.update_default_payment_status
-    
-    self.update_defaultee_default_payment_compulsory_savings_deduction
+    self.update_default_payment_in_grace_period
+  end
+  
+  def update_default_payment_in_grace_period
+    self.update_defaultee_default_payment_savings_deduction
     self.reload 
     total_to_be_shared = self.default_payment_amount_to_be_shared
     
@@ -1339,23 +1344,9 @@ class GroupLoan < ActiveRecord::Base
     self.reload
     self.update_group_non_defaultee_default_payment_contribution(total_to_be_shared)
     self.reload
-    self.update_total_amount_in_default_payment 
-    
-    # self.update_estimated_office_lost   -> account for the 500 round up? yes 
-    # later, we have the actual office lost 
-    
-    
-    # what if the non_defaultee's compulsory savings is not enough? will be handled by office
-    # this is corner case. but must be handled. or else, it is gonna be crashed 
-    # it will be handled in the transaction.. deduct all compulsory savings + paid by office 
-    # and sum it all in the group_loan -> default payment handled by office
-    ## it must be a really bad loan . the field_worker must be fired or severe disciplinary action 
+    self.update_total_amount_in_default_payment
   end
-  
-  def update_default_payment_in_grace_period
-    calculate_default_payment_in_grace_period # just an alias
-  end
-  
+ 
   
 =begin
   PROPOSE default payment resolution with custom amount 

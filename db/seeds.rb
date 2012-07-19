@@ -155,7 +155,6 @@ cashier_role         = Role.create :name => "Cashier"
   Create the blank slate user 
 =end
 puts "Gonna create user "
-branch_manager = 
 
 branch_manager = cilincing_office.create_user( [branch_manager_role], 
   :email => 'branch_manager@gmail.com',

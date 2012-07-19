@@ -3,14 +3,34 @@ class DefaultPayment < ActiveRecord::Base
   
 
     
-  attr_protected :amount_subgroup_share, :amount_group_share, :amount_paid
+  attr_protected :amount_subgroup_share, :amount_group_share, :amount_paid, :is_grace_period_initialized
+  
+  def unpaid_grace_period_amount
+    total_grace_period_amount - paid_grace_period_amount
+  end
+  
+  def update_paid_grace_period_amount(amount)
+    self.paid_grace_period_amount += amount
+    self.save 
+  end
+  
+  def calculate_grace_period_amount
+    glm = self.group_loan_membership
+    glp  = glm.group_loan_product
+    unpaid_backlogs_count = glm.unpaid_backlogs.count 
+    self.total_grace_period_amount = unpaid_backlogs_count*glp.grace_period_weekly_payment
+    self.save
+  end
+  
   
   def mark_as_defaultee
+    self.is_grace_period_initialized = true 
     self.is_defaultee = true 
     self.save 
   end
   
   def mark_as_non_defaultee
+    self.is_grace_period_initialized = true 
     self.is_defaultee = false 
     self.save
   end

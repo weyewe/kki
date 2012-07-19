@@ -9,15 +9,25 @@ class CreateDefaultPayments < ActiveRecord::Migration
       t.decimal :amount_group_share,  :precision => 10, :scale => 2 , :default => 0 
       # only if our guy is defaultee == true 
       t.decimal :amount_of_compulsory_savings_deduction,  :precision => 10, :scale => 2 , :default => 0 
+      t.decimal :amount_of_extra_savings_deduction,  :precision => 10, :scale => 2 , :default => 0 
       t.decimal :amount_to_be_shared_with_non_defaultee,  :precision => 10, :scale => 2 , :default => 0 
+      
+      
+      
+      
+      t.decimal :total_grace_period_amount ,  :precision => 10, :scale => 2 , :default => 0 
+      t.decimal :paid_grace_period_amount ,  :precision => 10, :scale => 2 , :default => 0 
+      t.boolean :is_grace_period_initialized, :default => false 
+      
+=begin
+  AMOUNT TO BE DEDUCTED ON DEFAULT LOAN RESOLUTION  
+=end
       
       # total suggested amount, after rounding up to 500 rupiah denomination ( default amount ) 
       t.decimal :total_amount ,  :precision => 10, :scale => 2 , :default => 0 
-      
-      
       # non defaultee member proposes the amount -> for fairness 
       t.decimal :custom_amount ,  :precision => 10, :scale => 2 , :default => nil 
-      # then, during transaction, migrate this custom amount to amount paid. recorded ! 
+      # then, during transaction, migrate this custom amount to amount paid. recorded !
       
       # actual compulsory savings deduction 
       t.decimal :amount_paid ,  :precision => 10, :scale => 2 , :default => 0 
