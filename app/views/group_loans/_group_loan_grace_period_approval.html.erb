@@ -6,7 +6,7 @@
 
 <tr>
   <td><%= link_to group_loan.name , select_pending_grace_period_payment_to_be_approved_url(group_loan)%></td>
-  <td><%= group_loan.unpaid_backlogs.count %></td>
+  <!-- <td><%#= group_loan.unpaid_backlogs.count %></td> -->
   <td><%= group_loan.pending_approval_grace_period_transactions.count  %></td>
   <td><%= print_money( group_loan.pending_approval_grace_period_transactions_amount )  %></td>
 </tr>

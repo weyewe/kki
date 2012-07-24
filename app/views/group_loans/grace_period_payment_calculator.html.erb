@@ -3,8 +3,8 @@
         "Office: <b>#{@office.name}</b>" + "<br />" + 
         "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
         "Member: <b>#{@member.name}</b>" + "<br />" + 
-        "Unpaid Backlogs: <b>#{@unpaid_backlogs_count}</b>" + "<br />" + 
-        "Amount per Backlog: <b>#{print_money(@amount_per_backlog_in_grace_period)}</b>" ).html_safe %>
+        "Number of Transactions: <b>#{@group_loan_membership.grace_period_payments.count}</b>" + "<br />" + 
+        "Grace Period Unpaid Amount: <b>#{print_money(@group_loan_membership.default_payment.unpaid_grace_period_amount)}</b>"   ).html_safe %>
         
   
   
@@ -49,15 +49,15 @@
 
 
 
-              <tr>
+<!--               <tr>
                 <td><b>Min. Backlog Payment</b></td>
                 <td><span class="input-xlarge uneditable-input"
                   id="sp_display_min_weekly_payment">
                   <%= print_money(@group_loan_product.grace_period_weekly_payment)%></span></td>
 
-              </tr>
+              </tr> -->
 
-              <tr>
+<!--               <tr>
                 <td>Num. of Backlogs</td>
                 <td id="calculator_duration">
                   <div class="input-append">
@@ -68,10 +68,10 @@
                 </td>
                 <%= hidden_field_tag 'smf_weeks',
                     '' %>
-              </tr>
+              </tr> -->
 
               <tr>
-                <td>Total Payment</td>
+                <td><b>Total Payment</b></td>
                 <td id="calculator_duration">
                   <div class="input-append">
                     <b><span class="input-xlarge uneditable-input"
@@ -79,6 +79,8 @@
                   </div>
                 </td>
               </tr>
+              
+              
 
 
 
@@ -105,6 +107,16 @@
               </tr>
 
 
+              <tr>
+                <td><b>Total Grace Payment</b></td>
+                <td id="calculator_duration">
+                  <div class="input-append">
+                    <b><span class="input-xlarge uneditable-input"
+                      id="sp_display_total_grace_payment"></span></b>
+                  </div>
+                </td>
+              </tr>
+              
               <tr>
                 <td><b>Extra Savings</b></td>
                 <td><b><span class="input-xlarge uneditable-input"
@@ -168,10 +180,9 @@
           </thead>
           <tbody>
 
-              <%= hidden_field_tag 'basic_weekly_payment_amount',
-                  @group_loan_product.grace_period_weekly_payment.to_i %>
-              <%= hidden_field_tag 'total_payable_weeks',
-                 @unpaid_backlogs_count  %>
+              <%= hidden_field_tag 'remaining_grace_period_amount',
+                  @group_loan_membership.default_payment.unpaid_grace_period_amount.to_i %>
+          
               <tr>
                 <td><b>Cash</b></td>
                 <td id="total_cash">
@@ -181,15 +192,15 @@
                 </td>
               </tr>
 
-              <tr>
-                <td><b>Num. of Backlogs</b></td>
-                <td id="calculator_duration">
-                  <div class="input-append">
-                    <input type="text" size="16"  class="span5" id="sp_calc_weeks" >
-                    <span class="add-on">weeks</span>
-                  </div>
-                </td>
-              </tr>  
+              <!-- <tr>
+                    <td><b>Num. of Backlogs</b></td>
+                    <td id="calculator_duration">
+                      <div class="input-append">
+                        <input type="text" size="16"  class="span5" id="sp_calc_weeks" >
+                        <span class="add-on">weeks</span>
+                      </div>
+                    </td>
+                  </tr>   -->
 
               <tr>
                 <td><b>Savings Withdrawal</b></td>

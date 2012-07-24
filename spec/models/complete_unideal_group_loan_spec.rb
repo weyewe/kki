@@ -567,45 +567,7 @@ describe GroupLoan do
       
       closing_result = @group_loan.close_group_loan(@branch_manager)
       closing_result.should be_nil
-      
-      #now we are in the grace period
-      # do the grace period transaction
-      # => in this example case, we don't want to do payment in grace period.. testing the default payment resolution 
-      # cash_value = @first_glm.group_loan_product.grace_period_weekly_payment
-      # savings_withdrawal  = BigDecimal("0")
-      # 
-      # number_of_weeks_1 = @group_loan.total_weeks + 1 
-      # result_1  = TransactionActivity.create_generic_grace_period_payment(
-      #         @first_glm,
-      #         @field_worker ,
-      #         cash_value*number_of_weeks_1,
-      #         savings_withdrawal,  
-      #         number_of_weeks_1 )  # it will always paying the backlog. nothing else # no compulsory savings
-      #   
-      # result_1.should be_nil 
-      # 
-      # number_of_weeks_2 =  @group_loan.total_weeks   
-      # 
-      # @first_glm.unpaid_backlogs.count.should == number_of_weeks_2 
-      # # i want to know the memberpayment
-      # 
-      # result_2 =  TransactionActivity.create_generic_grace_period_payment(
-      #         @first_glm,
-      #         @field_worker ,
-      #         cash_value*number_of_weeks_2,
-      #         savings_withdrawal,  
-      #         number_of_weeks_2)
-      #         
-      # result_2.should  be_valid 
-      # 
-      # result_2.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_principal]).count.should == number_of_weeks_2
-      # result_2.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_interest]).count.should == number_of_weeks_2
-      # 
-      # 
-      # @first_glm.unpaid_backlogs.count.should == 0
-      # 
-      # # execute default loan payment
-      
+     
       
       defaultee_glm_list.each do |glm|
         glm.reload
@@ -629,8 +591,10 @@ describe GroupLoan do
       # testing copy paste code 
       @group_loan.reload
       @group_loan.propose_default_payment_execution( @field_worker ) # cashier is notified
+      @group_loan.is_default_payment_resolution_proposed.should be_true 
       @group_loan.reload
       @group_loan.execute_default_payment_execution( @cashier ) 
+      @group_loan.is_default_payment_resolution_approved.should be_true 
       
       
       puts "\n\n********** deduction analytics"*5
@@ -673,28 +637,17 @@ describe GroupLoan do
       @group_loan.reload
       
       
-       @group_loan.active_group_loan_memberships.each  do |glm|
-          extra_savings_after_closing = glm.member.saving_book.total_extra_savings 
+      @group_loan.active_group_loan_memberships.each  do |glm|
+        extra_savings_after_closing = glm.member.saving_book.total_extra_savings 
 
-          diff = extra_savings_after_closing - initial_extra_savings_hash_pre_closing[glm.id]
+        diff = extra_savings_after_closing - initial_extra_savings_hash_pre_closing[glm.id]
 
-          puts "expected diff in extra savings: #{diff}"
-          diff.should == initial_compulsory_savings_hash_pre_closing[glm.id]
-        end
-      
-      
-     
-      # next is grace period. no weekly payment is being made over here
-      
-      
-      # finally default payment resolution 
-      
-      # close the group loan -> porting the remaining compulsory savings to extra savings 
-      
+        puts "expected diff in extra savings: #{diff}"
+        diff.should == initial_compulsory_savings_hash_pre_closing[glm.id]
+      end
     end
     
-    
-    
+
     it "should do the final case #2b: unpaid backlogs at the end of grace period. " + 
         "distribute the pain to all non defaultee members." + 
         "and, for the defaultee, eat up the voluntary savings" do
@@ -799,50 +752,6 @@ describe GroupLoan do
         weekly_task.is_weekly_payment_approved_by_cashier.should be_true 
       end
       
-      # after doing weekly payment cycle -> on the last weekly payment approval, 
-      # default payments are created 
-           #  
-           # closing_result = @group_loan.close_group_loan(@branch_manager)
-           # closing_result.should be_nil
-      
-      #now we are in the grace period
-      # do the grace period transaction
-      # => in this example case, we don't want to do payment in grace period.. testing the default payment resolution 
-      # cash_value = @first_glm.group_loan_product.grace_period_weekly_payment
-      # savings_withdrawal  = BigDecimal("0")
-      # 
-      # number_of_weeks_1 = @group_loan.total_weeks + 1 
-      # result_1  = TransactionActivity.create_generic_grace_period_payment(
-      #         @first_glm,
-      #         @field_worker ,
-      #         cash_value*number_of_weeks_1,
-      #         savings_withdrawal,  
-      #         number_of_weeks_1 )  # it will always paying the backlog. nothing else # no compulsory savings
-      #   
-      # result_1.should be_nil 
-      # 
-      # number_of_weeks_2 =  @group_loan.total_weeks   
-      # 
-      # @first_glm.unpaid_backlogs.count.should == number_of_weeks_2 
-      # # i want to know the memberpayment
-      # 
-      # result_2 =  TransactionActivity.create_generic_grace_period_payment(
-      #         @first_glm,
-      #         @field_worker ,
-      #         cash_value*number_of_weeks_2,
-      #         savings_withdrawal,  
-      #         number_of_weeks_2)
-      #         
-      # result_2.should  be_valid 
-      # 
-      # result_2.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_principal]).count.should == number_of_weeks_2
-      # result_2.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_interest]).count.should == number_of_weeks_2
-      # 
-      # 
-      # @first_glm.unpaid_backlogs.count.should == 0
-      # 
-      # # execute default loan payment
-      
       
       # THE BEGINNING OF GRACCE PERIOD 
       defaultee_glm_list.each do |glm|
@@ -911,27 +820,26 @@ describe GroupLoan do
       @group_loan.reload
       
       
-       @group_loan.active_group_loan_memberships.each  do |glm|
-          extra_savings_after_closing = glm.member.saving_book.total_extra_savings 
+      @group_loan.active_group_loan_memberships.each  do |glm|
+        extra_savings_after_closing = glm.member.saving_book.total_extra_savings 
 
-          diff = extra_savings_after_closing - initial_extra_savings_hash_pre_closing[glm.id]
+        diff = extra_savings_after_closing - initial_extra_savings_hash_pre_closing[glm.id]
 
-          puts "expected diff in extra savings: #{diff}"
-          diff.should == initial_compulsory_savings_hash_pre_closing[glm.id]
-        end
+        puts "expected diff in extra savings: #{diff}"
+        diff.should == initial_compulsory_savings_hash_pre_closing[glm.id]
+      end
       
       
-     
-      # next is grace period. no weekly payment is being made over here
-      
-      
-      # finally default payment resolution 
-      
-      # close the group loan -> porting the remaining compulsory savings to extra savings 
-      
+   
     end
     
     
+    it 'should do the case #2c: unpaid backlogs at the end' + 
+      'pay the grace payment that will result in default payment update  ' + 
+      'update the distribution of defaults to non defaultee'  do
+    end
+      
+      
     
     
     it "should do the final case #3: unpaid backlogs at the end of grace period. distribute the pain to all non defaultee members. CUSTOM-schema" do

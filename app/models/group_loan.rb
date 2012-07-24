@@ -855,6 +855,17 @@ class GroupLoan < ActiveRecord::Base
     self.backlog_payments.where(:is_cleared => false )
   end
   
+  
+  def unpaid_grace_period_amount
+    sum = BigDecimal("0")
+    DefaultPayment.where( :group_loan_membership_id => active_glm_id_list,
+    :is_defaultee => true).each do |x|
+      sum += x.unpaid_grace_period_amount 
+    end
+    return sum 
+  end
+  
+  
   def unpaid_backlogs_grace_period_amount
     total_amount = BigDecimal("0")
     
@@ -871,19 +882,30 @@ class GroupLoan < ActiveRecord::Base
 =begin
   GRACE PERIOD APPROVAL
 =end
-  def pending_approval_grace_period_transactions
-    transaction_activity_id_list = []
-    BacklogPayment.where(:clearance_period => BACKLOG_CLEARANCE_PERIOD[:in_grace_period], 
-      :is_cashier_approved => false,
-      :group_loan_id => self.id,
-      :is_cleared => true  ).each do |backlog|
-      
-      transaction_activity_id_list << backlog.transaction_activity_id_for_backlog_clearance
-    end
-    transaction_activity_id_list
-    transaction_activity_id_list.uniq! 
+ 
 
-    TransactionActivity.where(:id => transaction_activity_id_list)
+  def pending_approval_grace_period_transactions
+    active_member_id_list = self.active_group_loan_memberships.map{|x| x.member_id }
+    
+    TransactionActivity.where(:member_id => active_member_id_list, 
+                              :loan_id => self.id, 
+                              :loan_type => LOAN_TYPE[:group_loan],
+                              :transaction_case => (GRACE_PERIOD_PAYMENT_START..GRACE_PERIOD_PAYMENT_END),
+                              :is_approved => false   )
+                              
+                              
+    # transaction_activity_id_list = []
+    # BacklogPayment.where(:clearance_period => BACKLOG_CLEARANCE_PERIOD[:in_grace_period], 
+    #   :is_cashier_approved => false,
+    #   :group_loan_id => self.id,
+    #   :is_cleared => true  ).each do |backlog|
+    #   
+    #   transaction_activity_id_list << backlog.transaction_activity_id_for_backlog_clearance
+    # end
+    # transaction_activity_id_list
+    # transaction_activity_id_list.uniq! 
+    # 
+    # TransactionActivity.where(:id => transaction_activity_id_list)
   end
   
   def grace_period_transactions
@@ -916,64 +938,12 @@ class GroupLoan < ActiveRecord::Base
   def pending_approval_backlogs
     self.backlog_payments.where(:is_cleared => true , :is_cashier_approved => false)
   end
-  
-  # def total_defaultee
-  #    extract_default_member_id.count
-  #  end
-  #  
-  # def extract_default_member_id
-  #   list_of_default_member_id = BacklogPayment.list_member_id_with_default_in_group_loan( self ) 
-  # end
-  # 
-  # def total_default_member
-  #   self.extract_default_member_id.length 
-  # end
-  
-  # def members_paid_default_payment
-  #   list_of_non_defaultee_member_id = self.extract_non_default_member_id 
-  #   
-  #   non_defaultee_glm_id=  GroupLoanMembership.find(:all, :conditions => {
-  #       :member_id => list_of_non_defaultee_member_id,
-  #       :group_loan_id => self.id 
-  #     }).map{|x| x.id }
-  #     
-  #   DefaultPayment.where(
-  #     :group_loan_membership_id => non_defaultee_glm_id,
-  #     :is_paid => true 
-  #   )
-  # end
-  # 
-  # def default_payments
-  #   list_of_non_defaultee_member_id = self.extract_non_default_member_id 
-  #   
-  #   non_defaultee_glm_id=  GroupLoanMembership.find(:all, :conditions => {
-  #       :member_id => list_of_non_defaultee_member_id,
-  #       :group_loan_id => self.id 
-  #     }).map{|x| x.id }
-  #     
-  #   DefaultPayment.where(
-  #     :group_loan_membership_id => non_defaultee_glm_id,
-  #     :is_defaultee => false 
-  #   )
-  # end
-  # 
-  # 
-  # def pending_approval_default_payments
-  #   members_paid_default_payment.where(:is_cashier_approved => false)
-  # end
-  
-  # def total_paid_default_payment
-  #   members_paid_default_payment.sum("amount_paid")
-  # end
-  # 
+
   def total_default_payment_paid_by_office
     members_paid_default_payment.sum("amount_assumed_by_office")
   end
   
-  # def total_members_paid_default_payment
-  #   self.members_paid_default_payment.count
-  # end
-  
+ 
   
   def extract_non_default_member_id
     list_of_default_member_id = self.extract_default_member_id
@@ -1082,11 +1052,7 @@ class GroupLoan < ActiveRecord::Base
       return nil
     end
     
-    if self.unpaid_backlogs.count > 0 and self.is_default_payment_resolution_approved == false 
-      return nil
-    elsif ( self.unpaid_backlogs.count > 0 and self.is_default_payment_resolution_approved == true   ) or
-          ( self.unpaid_backlogs.count == 0 )
-      
+    if  self.is_default_payment_resolution_approved == true   
       self.active_group_loan_memberships.each do |glm|
         if glm.is_compulsory_savings_migrated == false 
           glm.migrate_compulsory_savings_to_extra_savings(current_user) # find all transactions associated with this group loan
@@ -1148,80 +1114,7 @@ class GroupLoan < ActiveRecord::Base
     
   end
   
-  
-  # def legitimate_custom_default_payment_input?(  non_defaultee_and_payment_amount_pair )
-  #   total_contribution = BigDecimal("0")
-  #   
-  #   list_of_non_defaultee_id = self.list_of_non_defaultee_id 
-  #   input_list_of_non_defaultee_id = [] 
-  #   amount_to_be_deducted_list = []
-  #   zero_value = BigDecimal("0")
-  #   
-  #   # no negative value 
-  #   non_defaultee_and_payment_amount_pair.each do |key,value|
-  #     input_list_of_non_defaultee_id << key 
-  #     
-  #     parsed_value = BigDecimal(value.to_s)
-  #     if parsed_value < zero_value 
-  #       return false
-  #     end
-  #     amount_to_be_deducted_list << parsed_value 
-  #   end
-  #   
-  #   # encompassing all non defaultee 
-  #   if (input_list_of_non_defaultee_id - list_of_non_defaultee_id).length != 0  or 
-  #       (list_of_non_defaultee_id - input_list_of_non_defaultee_id).length != 0  
-  #     return false
-  #   end
-  #   
-  #   
-  #   
-  #   non_defaultee_and_payment_amount_pair.each do |key,value|
-  #     parsed_value = BigDecimal(value.to_s)
-  #     total_contribution += parsed_value 
-  #   end
-  #   
-  #   if total_contribution < self.default_payment_to_be_shared_among_non_defaultee
-  #     return false
-  #   end
-  # end
-  # 
-  # def execute_custom_default_payment_for_non_defaultee( non_defaultee_and_payment_amount_pair, employee )
-  #   if not employee.has_role?(:branch_manager, employee.active_job_attachment) 
-  #     return nil 
-  #   end
-  #   
-  #   total_contribution = BigDecimal("0")
-  #   if self.legitimate_custom_default_payment_input?(  non_defaultee_and_payment_amount_pair ) == true 
-  #     non_defaultee_and_payment_amount_pair.each do |key,value|
-  #       non_defaultee_glm = GroupLoanMembership.find_by_id( key ) 
-  #       payment_amount = BigDecimal(value.to_s ) 
-  #       TransactionActivity.create_custom_default_payment_savings_deduction_for_non_defaultee( non_defaultee_glm,
-  #                                         payment_amount, employee)
-  #     end
-  #   else
-  #     return nil 
-  #   end
-  # end
-  # 
-  # def execute_basic_default_payment_for_non_defaultee(employee)
-  #   if not employee.has_role?(:branch_manager, employee.active_job_attachment) 
-  #     return nil 
-  #   end
-  #   
-  #   #  extract the sub_group amount
-  #   #  extract the group_amount 
-  #   #  kill it in one go 
-  #   
-  #   self.extract_sub_group_payment_contribution_for_non_defaultee
-  #   self.extract_group_payment_contribution_for_non_defaultee
-  #   
-  #   self.non_defaultee_group_loan_memberships.each do |glm|
-  #     TransactionActivity.create_basic_default_payment_savings_deduction_for_non_defaultee( non_defaultee_glm ,
-  #                 employee)
-  #   end
-  # end
-  # 
+ 
 =begin
   Check grace period 
 =end
@@ -1234,6 +1127,11 @@ class GroupLoan < ActiveRecord::Base
 =begin
   New DEFAULT PAYMENT RESOLUTION MECHANISM: just pay for the principal + interest 
 =end
+
+  def default_group_loan_memberships
+    GroupLoanMembership.joins(:default_payment).where(:default_payment => {:is_defaultee => true},
+      :is_active => true)
+  end
 
   def default_payment_amount_to_be_shared
     active_glm_id_list  = self.active_group_loan_memberships.map {|x| x.id }
@@ -1266,6 +1164,7 @@ class GroupLoan < ActiveRecord::Base
   end
 
   def update_defaultee_default_payment_savings_deduction
+    # puts "Updating the default payment\n"*5
     self.active_group_loan_memberships.each do |glm|
       glm.update_defaultee_savings_deduction
       # we update the amount to be shared with groups (non defaultee)
@@ -1337,8 +1236,8 @@ class GroupLoan < ActiveRecord::Base
     self.update_defaultee_default_payment_savings_deduction
     self.reload 
     total_to_be_shared = self.default_payment_amount_to_be_shared
-    
-    puts "Total to be shared: #{total_to_be_shared}\n"*5
+    # puts "inside the group_loan#update_default_payment_in_grace_period"
+    # puts "Total to be shared: #{total_to_be_shared}\n"*5
     self.reload
     self.update_sub_group_non_defaultee_default_payment_contribution(total_to_be_shared)
     self.reload
@@ -1470,6 +1369,10 @@ class GroupLoan < ActiveRecord::Base
 =end
   def propose_default_payment_execution(employee)
     if not employee.has_role?(:field_worker, employee.active_job_attachment)
+      return nil
+    end
+    
+    if self.pending_approval_grace_period_transactions.count != 0 
       return nil
     end
     

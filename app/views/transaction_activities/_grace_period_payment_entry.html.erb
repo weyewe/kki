@@ -9,12 +9,12 @@
 <% group_loan_membership = transaction_activity.group_loan_membership %>
 <tr id="pending_approval-<%= transaction_activity.id  %>">
   <td><%= group_loan_membership.member.name %></td>
-  <td><%= transaction_activity.backlogs_associated.count %></td>
+  <!-- <td><%#= transaction_activity.backlogs_associated.count %></td> -->
   <td><%= transaction_activity.transaction_case%></td>
   <td><%= print_money( transaction_activity.total_transaction_amount )%></td>
   <td style='text-align:center;'>
     
-    <% if transaction_activity.is_approved_for_grace_period_payment? %>
+    <% if transaction_activity.is_approved == true  %>
       <span class="label label-success">Approved</span>
     <% else %>
      <a href="#" class="btn propose action prevent_double_submit"

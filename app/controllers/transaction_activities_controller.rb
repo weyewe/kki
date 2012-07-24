@@ -125,8 +125,7 @@ class TransactionActivitiesController < ApplicationController
             @group_loan_membership,
             current_user,
             cash,
-            savings_withdrawal,  
-            number_of_backlogs)
+            savings_withdrawal )
   end
   
 =begin
@@ -136,7 +135,7 @@ class TransactionActivitiesController < ApplicationController
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     
-    @grace_period_transactions = @group_loan.grace_period_transactions
+    @grace_period_transactions = @group_loan.pending_approval_grace_period_transactions
     # @pending_approval_transactions = @group_loan.pending_approval_grace_period_transactions
     
     

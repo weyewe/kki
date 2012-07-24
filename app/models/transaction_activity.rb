@@ -137,16 +137,18 @@ class TransactionActivity < ActiveRecord::Base
       return nil
     end
     
-    if self.is_approved_for_grace_period_payment?
+    if self.is_approved == true 
       return nil
     end
     
-    self.backlogs_associated.each do |backlog|
-      backlog.backlog_payment_approver_id = employee.id 
-      backlog.is_cashier_approved = true 
-      
-      backlog.save 
-    end
+    # self.backlogs_associated.each do |backlog|
+    #    backlog.backlog_payment_approver_id = employee.id 
+    #    backlog.is_cashier_approved = true 
+    #    
+    #    backlog.save 
+    #  end
+    self.is_approved = true 
+    self.save
     
   end
   

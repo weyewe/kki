@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120524084402) do
+ActiveRecord::Schema.define(:version => 20120724075419) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
@@ -322,6 +322,8 @@ ActiveRecord::Schema.define(:version => 20120524084402) do
     t.integer  "loan_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "is_approved",                                            :default => false
+    t.integer  "approver_id"
   end
 
   create_table "transaction_books", :force => true do |t|

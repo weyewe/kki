@@ -8,7 +8,7 @@
 <tr id="declare_default_group_loan-<%= group_loan.id %>">
   <td><%=  group_loan.name  %></td>
   <td><%= group_loan.unpaid_backlogs.count %></td>
-  <td><%= print_money( group_loan.unpaid_backlogs_grace_period_amount )  %></td>
+  <td><%= print_money( group_loan.unpaid_grace_period_amount )  %></td>
   
   <td> <%= link_to "Standard Resolution", standard_default_resolution_schema_url(group_loan) %> </td>
   <td> Custom Resolution</td> <!-- Total default mamber -->

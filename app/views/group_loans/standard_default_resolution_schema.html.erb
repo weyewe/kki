@@ -4,7 +4,7 @@
         "Office: <b>#{@office.name}</b>" + "<br />" + 
         "Group Loan: <b>#{@group_loan.name}</b> "  + "<br />" + 
         "Total Defaultee: <b>#{@total_defaultee}</b>" + "<br />" + 
-        "Total Default Amount: <b>#{print_money(@group_loan.unpaid_backlogs_grace_period_amount )}</b>" + "<br />" + 
+        "Total Default Amount: <b>#{print_money(@group_loan.unpaid_grace_period_amount )}</b>" + "<br />" + 
         "Total Amount Recovered: <b>#{print_money( @group_loan.total_amount_deducted_for_default_payment_resolution )}</b>" + "<br />" + 
         "Office Loss: <b>#{print_money(@office_loss)}</b>").html_safe %>
   
@@ -23,8 +23,7 @@
             <th>Compulsory Savings</th>
             <th>Extra Savings</th>
             <th>Default Status</th>
-            <th>Unpaid Backlogs</th>
-            <th>Amount per Backlog</th>
+            <th>Unpaid Amount</th>
             <th>Deduction Amount</th>
           </tr>
         </thead>

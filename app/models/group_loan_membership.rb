@@ -23,32 +23,45 @@ class GroupLoanMembership < ActiveRecord::Base
     total_extra_savings = self.member.saving_book.total_extra_savings
     total_deductible_member_savings = total_compulsory_savings + total_extra_savings
     
-    
+    # puts "*****glm_id #{self.id}, total deductible member savings : #{total_deductible_member_savings}"
   
     if default_payment.is_defaultee == true 
       
-      glp = self.group_loan_product 
-      # total_amount = self.unpaid_backlogs.count* glp.grace_period_weekly_payment
       total_amount = default_payment.unpaid_grace_period_amount
-      
+      puts "TOTAL AMOUNT: #{total_amount}"
       # refresh the state 
       default_payment.amount_of_compulsory_savings_deduction = BigDecimal("0")
+      default_payment.amount_of_extra_savings_deduction = BigDecimal("0")
       default_payment.amount_to_be_shared_with_non_defaultee = BigDecimal("0")
       
       # do the deduction 
       if total_amount <= total_compulsory_savings
+        puts "glm id #{self.id}, case 1"
         default_payment.amount_of_compulsory_savings_deduction = total_amount 
-      elsif total_amount <= total_deductible_member_savings
+      elsif total_amount > total_compulsory_savings &&  total_amount <= total_deductible_member_savings 
+        puts "glm id #{self.id}, case 2"
         default_payment.amount_of_compulsory_savings_deduction = total_compulsory_savings 
         default_payment.amount_of_extra_savings_deduction = total_amount  - total_compulsory_savings
       elsif total_amount > total_deductible_member_savings 
         # will be handled by group
+        puts "glm id #{self.id}, case 3"
+        
+        
         default_payment.amount_of_compulsory_savings_deduction = total_compulsory_savings 
         default_payment.amount_of_extra_savings_deduction = total_extra_savings
         default_payment.amount_to_be_shared_with_non_defaultee = total_amount - total_deductible_member_savings
       end
       
       default_payment.save 
+      
+      puts "Total compulsory savings: #{total_compulsory_savings}"
+      puts "total extra savings : #{total_extra_savings}"
+      puts "compulsory deduction: #{default_payment.amount_of_compulsory_savings_deduction}"
+      puts "extra savings deduction: #{default_payment.amount_of_extra_savings_deduction}"
+      puts "to be shared: #{default_payment.amount_to_be_shared_with_non_defaultee}"
+      
+      
+
     end
   end
   
@@ -481,6 +494,16 @@ class GroupLoanMembership < ActiveRecord::Base
     ).count 
     
     total_payment_before_grace_period =  total_weekly_payments + total_backlogs_paid_before_grace_period
+  end
+  
+=begin
+  Grace Period Payment 
+=end
+  def grace_period_payments
+    TransactionActivity.where(:member_id => self.member_id, 
+                              :loan_id => self.group_loan_id, 
+                              :loan_type => LOAN_TYPE[:group_loan],
+                              :transaction_case => (GRACE_PERIOD_PAYMENT_START..GRACE_PERIOD_PAYMENT_END)  )
   end
   
   

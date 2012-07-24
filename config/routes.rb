@@ -172,7 +172,7 @@ Debita46::Application.routes.draw do
 =begin
   GRACE PERIOD PAYMENT
 =end
-  match 'select_group_loan_for_backlog_grace_period_payment' => "group_loans#select_group_loan_for_backlog_grace_period_payment", :as => :select_group_loan_for_backlog_grace_period_payment
+  match 'select_group_loan_for_grace_period_payment' => "group_loans#select_group_loan_for_grace_period_payment", :as => :select_group_loan_for_grace_period_payment
   match 'default_members_for_grace_period_payment/:group_loan_id' => "group_loans#default_members_for_grace_period_payment", :as => :default_members_for_grace_period_payment
   match 'grace_period_payment_calculator/:group_loan_membership_id' => "group_loans#grace_period_payment_calculator", :as => :grace_period_payment_calculator
   match 'create_transcation_activity_for_grace_period_payment/:group_loan_membership_id' => 'transaction_activities#create_transcation_activity_for_grace_period_payment', :as => :create_transcation_activity_for_grace_period_payment, :method => :post
@@ -183,6 +183,10 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_grace_period_payment_approval' => "group_loans#select_group_loan_for_grace_period_payment_approval", :as => :select_group_loan_for_grace_period_payment_approval
   match 'select_pending_grace_period_payment_to_be_approved/:group_loan_id' => "transaction_activities#select_pending_grace_period_payment_to_be_approved", :as => :select_pending_grace_period_payment_to_be_approved
   match 'execute_backlog_payment_transaction_approval_by_cashier' => "transaction_activities#execute_backlog_payment_transaction_approval_by_cashier", :as => :execute_backlog_payment_transaction_approval_by_cashier, :method => :post
+
+  # INDEPENDENT PAYMENT, for GROUP LOAN
+  match 'select_group_loan_for_independent_payment' => "group_loans#select_group_loan_for_independent_payment", :as => :select_group_loan_for_independent_payment
+  match 'select_member_for_independent_payment/:group_loan_id' => "group_loans#select_member_for_independent_payment", :as => :select_member_for_independent_payment
 
   # backlog payment , maybe not used
   match 'select_group_loan_for_backlog_weekly_payment' => "group_loans#select_group_loan_for_backlog_weekly_payment", :as => :select_group_loan_for_backlog_weekly_payment

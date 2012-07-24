@@ -2,8 +2,7 @@
   <%= create_guide("Grace Period Payment", 
         "Office: <b>#{@office.name}</b>" + "<br />" + 
         "Group Loan: <b>#{@group_loan.name}</b> " + "<br />" + 
-        "Unpaid Backlogs: <b>#{@group_loan.unpaid_backlogs.count }</b>" + "<br />" +  
-        "Amount: <b>#{ print_money( @group_loan.unpaid_backlogs_grace_period_amount ) }</b>").html_safe %>
+        "Amount: <b>#{ print_money( @group_loan.unpaid_grace_period_amount ) }</b>").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -16,8 +15,8 @@
         <thead>
           <tr>
             <th>Member</th>
-            <th>Amount Per Backlog</th>
-            <th>Unpaid Backlogs</th>
+            <!-- <th>Amount Per Backlog</th> -->
+            <th>Number of Transactions</th>
             <th>Total Unpaid Amount</th>
             <th>Action</th>
           </tr>

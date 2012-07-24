@@ -738,7 +738,7 @@ module ApplicationHelper
   
   
   FIELD_WORKER_PROCESS_LIST = {
-    :header_title => "FIELD WORKER",
+    :header_title => "FIELD WORKER: Group Loan",
     :processes => [
       {
         :title => "Financial Education Attendance",
@@ -808,24 +808,6 @@ module ApplicationHelper
           }
         ]
       },
-      {
-        :title => "Grace Period Payment",
-        :destination_link => "select_group_loan_for_backlog_grace_period_payment_url",
-        :conditions => [
-          {
-            :controller => "group_loans",
-            :action => 'select_group_loan_for_backlog_grace_period_payment'
-          },
-          {
-            :controller => "group_loans",
-            :action => "default_members_for_grace_period_payment"
-          },
-          {
-            :controller => "group_loans",
-            :action => 'grace_period_payment_calculator'
-          }
-        ]
-      },
       # {
       #   :title => "Backlog Payment",
       #   :destination_link => "select_group_loan_for_backlog_weekly_payment_url",
@@ -844,6 +826,42 @@ module ApplicationHelper
       #     }
       #   ]
       # },
+      {
+        :title => "Independent Payment",
+        :destination_link => "select_group_loan_for_backlog_weekly_payment_url",
+        :conditions => [
+          {
+            :controller => "group_loans",
+            :action => "select_group_loan_for_backlog_weekly_payment"
+          },
+          {
+            :controller => "backlog_payments",
+            :action => "index"
+          },
+          {
+            :controller => "backlog_payments",
+            :action => "pay_backlog_for_group_loan"
+          }
+        ]
+      },
+      {
+        :title => "Grace Period Payment",
+        :destination_link => "select_group_loan_for_grace_period_payment_url",
+        :conditions => [
+          {
+            :controller => "group_loans",
+            :action => 'select_group_loan_for_grace_period_payment'
+          },
+          {
+            :controller => "group_loans",
+            :action => "default_members_for_grace_period_payment"
+          },
+          {
+            :controller => "group_loans",
+            :action => 'grace_period_payment_calculator'
+          }
+        ]
+      },
       {
         :title => "Loan Default Resolution",
         :destination_link => 'select_group_loan_for_loan_default_resolution_url',

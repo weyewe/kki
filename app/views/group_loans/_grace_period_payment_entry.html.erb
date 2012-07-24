@@ -12,9 +12,21 @@
 
   <tr>
     <td><%= member.name %></td>
-    <td><%= print_money(group_loan_product.grace_period_weekly_payment)%></td>
-    <td><%= group_loan_membership.unpaid_backlogs.count  %></td>
-    <td><%= print_money( group_loan_membership.unpaid_backlogs.count * group_loan_product.grace_period_weekly_payment)%></td>
-    <td><%= link_to "Create Payment", grace_period_payment_calculator_url(group_loan_membership), :class => "btn" %></th>
+    <!-- <td><%#= print_money(group_loan_product.grace_period_weekly_payment)%></td> -->
+    <!-- <td><%#= group_loan_membership.unpaid_backlogs.count  %></td> -->
+    <td><%= group_loan_membership.grace_period_payments.count  %></td>
+    <td><%= print_money(group_loan_membership.default_payment.unpaid_grace_period_amount)%></td>
+    <td>
+    <% if group_loan_membership.default_payment.unpaid_grace_period_amount == BigDecimal("0")%>
+      <span class="label label-success">Complete</span>
+    <% else %>
+      <%= link_to "Create Payment",
+        grace_period_payment_calculator_url(group_loan_membership), :class => "btn" %>
+    <% end %>
+    
+    
+    </th>
   <tr>
 <% end %>
+
+

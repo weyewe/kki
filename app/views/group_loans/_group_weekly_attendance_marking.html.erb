@@ -1,7 +1,7 @@
 <tr>
   <td><%= link_to group_loan.name, select_weekly_meeting_for_attendance_marking_url(group_loan) %></td>
   <td><%= group_loan.get_commune %></td>
-  <td><%= group_loan.members.count %></td>
+  <td><%= group_loan.active_group_loan_memberships.count %></td>
   <td><%= group_loan.total_loan_duration %></td>
   <td><%= group_loan.total_completed_meeting %></td>
 

@@ -167,12 +167,16 @@ class GroupLoansController < ApplicationController
     
   end
   
+=begin
+  INDEPENDENT PAYMENT
+  select_group_loan_for_backlog_weekly_payment << find this in the routes 
+=end
   
 =begin
   GRACE PERIOD PAYMENT 
 =end
 
-  def select_group_loan_for_backlog_grace_period_payment
+  def select_group_loan_for_grace_period_payment
     @office = current_user.active_job_attachment.office
     
     @group_loans = []
@@ -182,7 +186,7 @@ class GroupLoansController < ApplicationController
       end
         
     end
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_backlog_grace_period_payment_url'  
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_grace_period_payment_url'  
   end
   
   def default_members_for_grace_period_payment
@@ -191,7 +195,7 @@ class GroupLoansController < ApplicationController
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @group_loan_memberships = @group_loan.active_group_loan_memberships 
    
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_backlog_grace_period_payment_url'
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_grace_period_payment_url'
     set_breadcrumb_for @group_loan, 'default_members_for_grace_period_payment_url' + "(#{@group_loan.id})", 
                 "Grace Period Payment"
   end
@@ -200,12 +204,19 @@ class GroupLoansController < ApplicationController
     @office = current_user.active_job_attachment.office
     @group_loan_membership = GroupLoanMembership.find_by_id(params[:group_loan_membership_id])
     @group_loan = @group_loan_membership.group_loan 
+    if @group_loan_membership.default_payment.unpaid_grace_period_amount == BigDecimal("0")
+      redirect_to default_members_for_grace_period_payment_url(@group_loan)
+      return 
+    end
+     
+     
+    
     @member  = @group_loan_membership.member 
     @unpaid_backlogs_count = @group_loan_membership.unpaid_backlogs.count 
     @group_loan_product = @group_loan_membership.group_loan_product
     @amount_per_backlog_in_grace_period = @group_loan_product.grace_period_weekly_payment
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_backlog_grace_period_payment_url'
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_grace_period_payment_url'
     set_breadcrumb_for @group_loan, 'default_members_for_grace_period_payment_url' + "(#{@group_loan.id})", 
                 "Grace Period Payment"
     set_breadcrumb_for @group_loan, 'grace_period_payment_calculator_url' + "(#{@group_loan_membership.id})", 
@@ -242,7 +253,7 @@ class GroupLoansController < ApplicationController
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @group_loan_membership_id = @group_loan.preserved_active_group_loan_memberships.map{|x| x.id }
     @default_payments = DefaultPayment.where(
-      :group_loan_membership_id => @group_loan_membership_id).order("is_defaultee ASC").includes(:group_loan_membership)
+      :group_loan_membership_id => @group_loan_membership_id).order("created_at ASC").includes(:group_loan_membership)
     
     @total_defaultee = @default_payments.where(:is_defaultee => true ).count
     
@@ -251,7 +262,7 @@ class GroupLoansController < ApplicationController
       @total_default_payment_to_be_paid += dp.amount_to_be_paid
     end
     
-    @office_loss = @group_loan.unpaid_backlogs_grace_period_amount - @total_default_payment_to_be_paid
+    @office_loss = @group_loan.unpaid_grace_period_amount - @total_default_payment_to_be_paid
     
     add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_default_resolution_path'
     set_breadcrumb_for @group_loan, 'standard_default_resolution_schema_url' + "(#{@group_loan.id})", 

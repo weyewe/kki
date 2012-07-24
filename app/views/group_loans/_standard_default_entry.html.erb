@@ -10,7 +10,7 @@
 <% group_loan_membership = default_payment.group_loan_membership %>
 <% member =  default_payment.group_loan_membership.member %>
 <% saving_book = member.saving_book %>
-<tr>
+<tr id="glm_<%= group_loan_membership.id%>">
   <td><%= member.name %></td>
   <td><%= print_money(saving_book.total) %></td>
   <td><%= print_money(saving_book.total_compulsory_savings) %></td>
@@ -27,11 +27,7 @@
   </td>
   
   <td>
-    <%= group_loan_membership.unpaid_backlogs.count %>
-  </td>
-  
-  <td>
-    <%= print_money( group_loan_membership.group_loan_product.grace_period_weekly_payment) %>
+    <%= print_money(group_loan_membership.default_payment.unpaid_grace_period_amount) %>
   </td>
   
   <td>
