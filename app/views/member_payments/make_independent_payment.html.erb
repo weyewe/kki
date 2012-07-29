@@ -1,0 +1,85 @@
+<div class="span9 content">
+  <%= create_guide("Special Payment", 
+        "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
+        "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "Member: <b>#{@member.name}</b>" + "<br />" +
+        "Minimum weekly payment: <b>#{print_money(@group_loan_product.total_weekly_payment)}</b>" + "<br />" + 
+        "Remaining weekly payment: <b>#{@group_loan.remaining_weekly_tasks_count_for_member(@member)}</b>" + "<br />" + 
+        "Unpaid Backlogs: <b>#{@group_loan_membership.unpaid_backlogs.count}</b>").html_safe %>
+        
+  
+  
+  
+    
+    
+
+
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
+  <% if flash[:notice] %>
+    <div class="alert alert-success">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Well done!</strong> <%= flash[:notice].html_safe %>
+    </div>
+  <% end %>
+  
+  <% if flash[:error] %>
+    <div class="alert alert-error">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Create Failure!</strong> Please fill in all required (*) fields.
+    </div>
+  <% end %>
+  
+  
+  <% has_paid_weekly_payment = true  %>
+  
+  <% if has_paid_weekly_payment  %>
+    <div class="alert alert-success">
+      <strong>Notification!</strong> You have paid the payment for 
+       <strong>week <%#= @weekly_task.week_number %></strong>.
+    </div>
+  
+  
+    <ul class="nav nav-tabs" id="tab">
+      <li class=""><a data-toggle="tab" href="#extra_savings"><strong>Extra Savings</strong></a></li>
+      <li class="active">
+        <a data-toggle="tab" href="#structured_multiple_payment">
+          <strong>
+            Multiple Weeks <%= "&"  %> Structured Payment
+          </strong>
+        </a>
+      </li>
+    </ul>
+  
+  <% end %>
+
+  <div class="tab-content" id="myTabContent">
+    
+    <%#= render :partial => "weekly_tasks/special_payments/extra_savings" , :locals => {
+      :has_paid_weekly_payment => has_paid_weekly_payment
+      }%>
+    <%#= render :partial => "weekly_tasks/special_payments/structured_multiple_payment" , :locals => {
+        :has_paid_weekly_payment => has_paid_weekly_payment
+      }%>
+
+
+  
+  </div>
+  
+  
+  <div class="modal" id="myModal" style="display:none;">
+     <div class="modal-header">
+       <a class="close" data-dismiss="modal">×</a>
+       <h3>Modal header</h3>
+     </div>
+     <div class="modal-body">
+       <p>One fine body…</p>
+     </div>
+     <div class="modal-footer">
+       <!-- <a href="#" class="btn modal-closer">Close</a> -->
+       <%#= link_to "Close", make_member_payment_url(@weekly_task.group_loan, @weekly_task), :class => "btn"%>
+     </div>
+   </div>
+  
+  
+   <hr />
+</div><!--/span-->

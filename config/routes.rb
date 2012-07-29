@@ -185,11 +185,11 @@ Debita46::Application.routes.draw do
   match 'execute_backlog_payment_transaction_approval_by_cashier' => "transaction_activities#execute_backlog_payment_transaction_approval_by_cashier", :as => :execute_backlog_payment_transaction_approval_by_cashier, :method => :post
 
   # INDEPENDENT PAYMENT, for GROUP LOAN
-  match 'select_group_loan_for_independent_payment' => "group_loans#select_group_loan_for_independent_payment", :as => :select_group_loan_for_independent_payment
-  match 'select_member_for_independent_payment/:group_loan_id' => "group_loans#select_member_for_independent_payment", :as => :select_member_for_independent_payment
+  match 'select_group_loan_for_independent_weekly_payment' => "group_loans#select_group_loan_for_independent_weekly_payment", :as => :select_group_loan_for_independent_weekly_payment
+  match 'select_member_for_independent_weekly_payment/:group_loan_id' => "group_loans#select_member_for_independent_weekly_payment", :as => :select_member_for_independent_weekly_payment
+  match 'make_independent_payment/:group_loan_membership_id' => "member_payments#make_independent_payment", :as => :make_independent_payment
 
-  # backlog payment , maybe not used
-  match 'select_group_loan_for_backlog_weekly_payment' => "group_loans#select_group_loan_for_backlog_weekly_payment", :as => :select_group_loan_for_backlog_weekly_payment
+  
   match 'pay_backlog_for_group_loan/:group_loan_id/member/:member_id' => "backlog_payments#pay_backlog_for_group_loan", :as => :pay_backlog_for_group_loan
   
 =begin

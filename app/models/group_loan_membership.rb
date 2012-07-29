@@ -81,6 +81,13 @@ class GroupLoanMembership < ActiveRecord::Base
     })
   end
   
+  def total_backlogs
+    BacklogPayment.find(:all, :conditions => {
+      :group_loan_id => self.group_loan_id,
+      :member_id => self.member_id
+    })
+  end
+  
   def has_unpaid_backlogs?
     unpaid_backlogs.count != 0 
   end

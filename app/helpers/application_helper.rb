@@ -828,19 +828,19 @@ module ApplicationHelper
       # },
       {
         :title => "Independent Payment",
-        :destination_link => "select_group_loan_for_backlog_weekly_payment_url",
+        :destination_link => "select_group_loan_for_independent_weekly_payment_url",
         :conditions => [
           {
             :controller => "group_loans",
-            :action => "select_group_loan_for_backlog_weekly_payment"
+            :action => "select_group_loan_for_independent_weekly_payment"
           },
           {
-            :controller => "backlog_payments",
-            :action => "index"
+            :controller => "group_loans",
+            :action => "select_member_for_independent_weekly_payment"
           },
           {
-            :controller => "backlog_payments",
-            :action => "pay_backlog_for_group_loan"
+            :controller => "member_payments",
+            :action => "make_independent_payment"
           }
         ]
       },

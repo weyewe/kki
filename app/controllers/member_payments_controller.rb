@@ -10,4 +10,18 @@ class MemberPaymentsController < ApplicationController
   end
   
   
+  def make_independent_payment
+    @office = current_user.active_job_attachment.office
+    @group_loan_membership = GroupLoanMembership.find_by_id params[:group_loan_membership_id]
+    @group_loan = @group_loan_membership.group_loan 
+    @member = @group_loan_membership.member 
+    @group_loan_product = @group_loan_membership.group_loan_product
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_for_independent_weekly_payment_url'
+    set_breadcrumb_for @group_loan, 'select_member_for_independent_weekly_payment_url' + "(#{@group_loan.id})", 
+                "Select Member"
+    set_breadcrumb_for @group_loan, 'make_independent_payment_url' + "(#{@group_loan_membership.id})", 
+                "Create Payment"
+  end
+  
 end
