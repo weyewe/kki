@@ -32,18 +32,34 @@ class TransactionActivitiesController < ApplicationController
       :group_loan_id => @weekly_task.group_loan.id 
     })
     
+    # we need to incorporate the weekly task info to this transaction activity
     @transaction_activity = TransactionActivity.create_generic_weekly_payment(
+            @weekly_task,
             @group_loan_membership,
             current_user,
             @group_loan_membership.group_loan_product.total_weekly_payment,
             BigDecimal("0"), 
             1,
             0)
-    # @transaction_activity = TransactionActivity.create_basic_weekly_payment(
-    #   @member,
-    #   @weekly_task,
-    #   current_user
-    # )
+  end
+  
+  def create_single_week_extra_savings_weekly_payment
+    @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
+    @member  = Member.find_by_id params[:member_id]
+    @cash = BigDecimal(params[:ses_cash_amount])
+    @group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+      :member_id => @member.id,
+      :group_loan_id => @weekly_task.group_loan.id 
+    })
+    
+    @transaction_activity = TransactionActivity.create_generic_weekly_payment(
+            @weekly_task,
+            @group_loan_membership,
+            current_user,
+            @cash,
+            BigDecimal("0"), 
+            1,
+            0)
   end
   
   def create_savings_only_as_weekly_payment
@@ -75,12 +91,13 @@ class TransactionActivitiesController < ApplicationController
     
     
     @transaction_activity = TransactionActivity.create_generic_weekly_payment(
+    @weekly_task,
             @group_loan_membership,
             current_user,
             cash,
             savings_withdrawal,
             number_of_weeks,  
-            number_of_backlogs)
+            number_of_backlogs  )
             
   end
   

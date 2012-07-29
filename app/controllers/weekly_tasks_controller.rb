@@ -73,10 +73,10 @@ class WeeklyTasksController < ApplicationController
     })
     @group_loan_product = @group_loan_membership.group_loan_product
     
-    if @weekly_task.has_paid_weekly_payment?(@member) 
-      redirect_to make_member_payment_url(@group_loan, @weekly_task)
-    end
-    
+    # if @weekly_task.has_paid_weekly_payment?(@member) 
+    #      redirect_to make_member_payment_url(@group_loan, @weekly_task)
+    #    end
+    #    
     
     add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 

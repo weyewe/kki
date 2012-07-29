@@ -189,6 +189,107 @@ class WeeklyTask < ActiveRecord::Base
   Creating weekly payment 
 =end
 
+  def group_independent_payment_transactions
+    active_member_id_list = self.group_loan.active_group_loan_memberships.map{|x| x.member_id }
+    transaction_id_list = self.member_payments.
+                              where{( member_id.in active_member_id_list) & 
+                                    ( is_independent_weekly_payment ==  true ) & 
+                                    ( transaction_activity_id.not_eq nil )}.
+                              map{|x| x.transaction_activity_id }
+    
+    TransactionActivity.where(:id => transaction_id_list)
+  end
+  
+ 
+
+  def group_payment_transactions
+    active_member_id_list = self.group_loan.active_group_loan_memberships.map{|x| x.member_id }
+    transaction_id_list = self.member_payments.
+                              where{( member_id.in active_member_id_list) & 
+                                    ( is_independent_weekly_payment ==  false )  &
+                                    ( transaction_activity_id.not_eq nil )}.
+                              map{|x| x.transaction_activity_id }
+    
+    TransactionActivity.where(:id => transaction_id_list)
+  end
+
+  def transactions_for_member(member)
+    weekly_task = self 
+    transaction_id_list = self.member_payments.
+                              where{( member_id.eq member.id ) & 
+                                    ( is_independent_weekly_payment.eq false )
+                                    ( transaction_activity_id.not_eq nil )}.
+                              map{|x| x.transaction_activity_id }
+    
+    TransactionActivity.where(:id => transaction_id_list)
+  end
+
+
+  def WeeklyTask.valid_duration?( group_loan_membership, number_of_weeks, number_of_backlogs)
+    group_loan = group_loan_membership.group_loan
+    member  = group_loan_membership.member 
+    return false if (number_of_weeks < 0) or (number_of_backlogs < 0 ) 
+    return false if (number_of_weeks == 0 ) and (number_of_backlogs == 0)
+    return false if ( group_loan.remaining_weekly_tasks_count_for_member(member) < number_of_weeks )  or 
+                    (number_of_weeks > group_loan.total_weeks)
+    return false if group_loan_membership.unpaid_backlogs.count < number_of_backlogs
+    
+    return true 
+  end
+  
+  
+  def WeeklyTask.valid_weekly_task_payment?(weekly_task, 
+                              group_loan_membership, 
+                              number_of_weeks, 
+                              number_of_backlogs)
+                              
+    # group_loan = group_loan_membership.group_loan
+    # member  = group_loan_membership.member 
+    # return false if (number_of_weeks < 0) or (number_of_backlogs < 0 ) 
+    # 
+    # return false if (number_of_weeks == 0 ) and (number_of_backlogs == 0)
+    #  
+    # return false if ( group_loan.remaining_weekly_tasks_count_for_member(member) < number_of_weeks )  or 
+    #                 (number_of_weeks > group_loan.total_weeks)
+    # 
+    # return false if group_loan.unpaid_backlogs.count < number_of_backlogs
+    
+    return false if not WeeklyTask.valid_duration?( group_loan_membership, number_of_weeks, number_of_backlogs)
+    
+    return false if not weekly_task.can_create_payment?
+    
+    return true 
+  end
+  
+  def can_create_payment?
+    # if the prev week payment has been approved by the cashier
+    # and the current payment has not been approved by the cashier & not finalized yet
+    if self.week_number > 1 
+      prev_weekly_task = self.previous_weekly_task 
+      if (  self.is_weekly_payment_approved_by_cashier == false and 
+            self.is_weekly_payment_collection_finalized == false ) and 
+         (  prev_weekly_task.is_weekly_payment_approved_by_cashier == true and 
+            prev_weekly_task.is_weekly_payment_collection_finalized == true  )
+          return true
+      end
+    elsif self.week_number == 1
+      if (  self.is_weekly_payment_approved_by_cashier == false and 
+            self.is_weekly_payment_collection_finalized == false )
+          return true
+      end
+    end
+    
+    return false 
+  end
+  
+  def previous_weekly_task
+    if self.week_number == 1 
+      return self
+    end
+    
+    WeeklyTask.where(:week_number => self.week_number - 1, :group_loan_id => self.group_loan_id ).first
+  end
+
   
   def create_weekly_payment_declared_as_only_savings(member, transaction_activity, cash_passed)
     if self.has_paid_weekly_payment?(member)  
@@ -255,81 +356,101 @@ class WeeklyTask < ActiveRecord::Base
   end
   
   
-  def create_basic_weekly_payment( member, transaction_activity, cash_passed)
-    if self.has_paid_weekly_payment?(member)  
-      # pay for the next week.
-      # it is recursive.. any iteration method? 
-      if self.is_last_weekly_task?
-        return nil
-      else
-        self.next_weekly_task.create_basic_weekly_payment( member, transaction_activity, cash_passed)
-      end
-      
-      
-    else 
-      self.member_payments.create(
-        :transaction_activity_id => transaction_activity.id,
-        :member_id => member.id , 
-        :has_paid => true ,
-        :no_payment => false, 
-        :only_savings => false,
-        :cash_passed => cash_passed
-      )
-      # self.add_total_cash( amount )
-    end
+  def create_backlog_payment( member, transaction_activity, cash_passed, is_independent_payment)
+    self.member_payments.create(
+      :transaction_activity_id => transaction_activity.id,
+      :member_id => member.id , 
+      :cash_passed => cash_passed,
+      :week_number => nil ,
+      :is_independent_weekly_payment => is_independent_payment
+    )
   end
   
-  def create_multiple_weeks_payment( member, transaction_activity, number_of_weeks, cash_passed)
+  def create_extra_savings_only_payment( member, transaction_activity, cash_passed)
+     self.member_payments.create(
+       :transaction_activity_id => transaction_activity.id,
+       :member_id => member.id , 
+       :has_paid => true ,
+       :only_extra_savings => true,
+       :cash_passed => cash_passed,
+       :week_number =>nil
+     )
+  end
+  
+  
+
+=begin
+  IN-GROUP WEEKLY PAYMENT 
+=end
+  def create_basic_weekly_payment( member, transaction_activity, cash_passed, is_independent_payment)
+
+    week_number = self.week_number 
+    while MemberPayment.has_made_payment_for( self, week_number, member ) do
+      week_number += 1 
+    end
+    self.member_payments.create(
+      :transaction_activity_id => transaction_activity.id,
+      :member_id => member.id , 
+      :has_paid => true ,
+      :no_payment => false, 
+      :only_savings => false,
+      :cash_passed => cash_passed,
+      :week_number =>  week_number ,
+      :is_independent_weekly_payment => is_independent_payment
+    )
+  end
+  
+  def first_unpaid_week_number_for_member( member) 
+    weekly_task = self
+    week_number_list = MemberPayment.where{
+                          (weekly_task_id.eq weekly_task.id ) & 
+                          (week_number.not_eq nil)}.map{|x| x.week_number }
+    week_number_list.max + 1 
+  end
+  
+  def create_multiple_weeks_payment( member, transaction_activity, number_of_weeks, cash_passed, is_independent_payment)
     
     current_week = self.week_number
+  
+  
+    if self.has_paid_weekly_payment?(member)
+      current_week = self.first_unpaid_week_number_for_member( member) 
+    end
+    
+    
     final_week = current_week + number_of_weeks - 1 
     group_loan = self.group_loan
     
-    
-    # for multiple payment? # Can't pay for multiple weeks 
-    #   if final_week > self.group_loan_weekly_tasks.count 
     if final_week > self.group_loan.weekly_tasks.count 
       return nil
     end
     
-    (current_week..final_week).each do |target_week_number|
-      weekly_task = group_loan.find_weekly_task_by_week_number( target_week_number )
-      # protection. if there has been payment for the given week, can't be double payment
-      # if you want to pay for the backlog, go to the backlog payment 
-      # IMPORTANT -> DO THIS KIND OF PROTECTION IN THE TRANSACTION ACTIVITY LEVEL
-      # we are protected by the UI (JS, not allowing payment )
-      # but, what if they bypassed the JS? fuck 
-      if( weekly_task.has_paid_weekly_payment?(member)  )
-        next
-      end
-      if target_week_number == current_week
-        weekly_task.member_payments.create(
+    (current_week..final_week).each do |week_number|
+      if week_number == current_week 
+        self.member_payments.create(
           :transaction_activity_id => transaction_activity.id,
-          :member_id => member.id , 
-          :has_paid => true,
-          :no_payment => false , 
-          :only_savings => false ,
-          :cash_passed => cash_passed
+          :cash_passed => cash_passed, 
+          :has_paid => true ,
+          :week_number => week_number ,
+          :member_id => member.id ,
+          :is_independent_weekly_payment => is_independent_payment
         )
       else
-        weekly_task.member_payments.create(
+        self.member_payments.create(
           :transaction_activity_id => transaction_activity.id,
-          :member_id => member.id , 
-          :has_paid => true,
-          :no_payment => false , 
-          :only_savings => false 
+          :cash_passed => BigDecimal("0"), 
+          :has_paid => false,
+          :week_number => week_number,
+          :member_id => member.id,
+          :is_independent_weekly_payment => is_independent_payment
         )
       end
-      
     end
   end
   
   def create_weekly_payment_declared_as_no_payment(member)
     if self.has_paid_weekly_payment?(member)  
       return nil
-      
-    elsif not self.member_payment_for(member).nil?
-      return self.member_payment_for(member)
     else 
       member_payment = self.member_payments.create(
         :transaction_activity_id => nil,
@@ -360,8 +481,10 @@ class WeeklyTask < ActiveRecord::Base
 =begin
   Checking weekly payment 
 =end
-  def has_paid_weekly_payment?(member)
-    self.member_payments.where(:member_id => member.id).length != 0 
+  def has_paid_weekly_payment?(member) 
+    MemberPayment.joins(:weekly_task).
+                where(:week_number => self.week_number, :member_id => member.id, 
+                      :weekly_task => {:group_loan_id => self.group_loan_id}  ).length != 0   
   end
   
   
@@ -447,15 +570,29 @@ class WeeklyTask < ActiveRecord::Base
   end
 
   def approve_weekly_payment_collection( current_user )
+    if not current_user.has_role?(:cashier , current_user.active_job_attachment)
+      puts "no cashier role"
+      return nil 
+    end
+    
+    puts "has been approvd by cashier"
+    return nil if self.is_weekly_payment_approved_by_cashier == true 
+    
+    independent_payments = self.group_independent_payment_transactions.where(:is_approved => false)
+    if independent_payments.count != 0 
+      return nil
+    end
+    
+    
     self.is_weekly_payment_approved_by_cashier = true 
     self.weekly_payment_approver_id = current_user.id
     self.save
     
+    self.group_payment_transactions.each do |transaction_activity|
+      transaction_activity.approve_payment(current_user)
+    end
+    
     if self.last_week?
-      # puts "This is the last week.. commencing update default payment status and calculate default payment\n"*10
-      
-      puts "THis is the last week!\n"*5
-      # self.group_loan.update_default_payment_status 
       self.group_loan.calculate_default_payment_in_grace_period #only principal and interest
     end
   end

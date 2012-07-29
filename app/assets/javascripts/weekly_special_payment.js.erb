@@ -5,6 +5,107 @@ $(document).ready(function(){
     for the js display sp_display_ namespace
     for the fields in the form to be sent to the server : smf_
    */
+   
+   /*
+    Single Week + Extra Savings 
+   */
+   
+   
+   $("#exe_single_extra_savings_payment").live("click", function(){
+     var $form = $("#form_single_extra_savings_payment");
+     var value = newParseInt( $("#ses_cash_amount").attr("value") );
+     var basic_weekly_payment_amount = newParseInt( $("#basic_weekly_payment_amount").attr("value") );
+     
+     
+     
+     if( value < basic_weekly_payment_amount ){
+        alert("The payment amount can't be less than " + addCommas(basic_weekly_payment_amount));
+        return false ;
+      }else{
+        if(confirm("Are you sure for savings_only payment with amount " +addCommas(value)+  " ?")){
+          $form.showLoading();
+          $.ajax({
+             url: $form.attr("action"),
+             type: "POST",
+             data: $form.serialize(),
+             dataType: 'script',
+             success: function(response){
+               $form.clearForm();
+               $form.hideLoading();
+             }
+           });
+           return false ;
+        }else{
+          return false;
+        }
+      }
+      
+      
+     
+   });
+   
+   
+   /*
+     Only savings payment  
+     */
+     $("#exe_only_savings_payment").live("click", function(){
+
+       var $form = $("#form_only_savings_payment");
+       var value = newParseInt( $("#os_cash_amount").attr("value") );
+
+       if( value <= 0 ){
+         alert("Wrong value, equal or less than 0");
+         return false ;
+       }else{
+         if(confirm("Are you sure for savings_only payment with amount " +addCommas(value)+  " ?")){
+           $form.showLoading();
+           $.ajax({
+              url: $form.attr("action"),
+              type: "POST",
+              data: $form.serialize(),
+              dataType: 'script',
+              success: function(response){
+                $form.clearForm();
+                $form.hideLoading();
+              }
+            });
+            return false ;
+         }else{
+           return false;
+         }
+       }
+     });
+
+    /*
+     No payment 
+    */
+    $("#no_payment_exe").live('click',function(){
+      var $form =$("#no_payment_form");
+      if(confirm("Are you sure for authorizing no payment?")){
+         $form.showLoading();
+
+         $.ajax({
+           url: $form.attr("action"),
+           type: "POST",
+           data: $form.serialize(),
+           dataType: 'script',
+           success: function(response){
+             // $form.clearForm();
+             $form.hideLoading();
+           }
+         });
+         return false ;
+       }else{
+         return false;
+       }
+    });
+   
+   
+   
+   
+   
+   
+   
    /*
    The structured_multiple calculator
    */
@@ -127,64 +228,9 @@ $(document).ready(function(){
      }
    });
    
-   /*
-    No payment 
-   */
    
-   $("#no_payment_form").live('submit',function(){
-     var $form =$(this);
-     if(confirm("Are you sure for authorizing no payment?")){
-        $form.showLoading();
+   
+   
 
-        $.ajax({
-          url: $form.attr("action"),
-          type: "POST",
-          data: $form.serialize(),
-          dataType: 'script',
-          success: function(response){
-            // $form.clearForm();
-            $form.hideLoading();
-          }
-        });
-        return false ;
-      }else{
-        return false;
-      }
-     
-   });
    
-   
-   /*
-   Only savings payment  
-   */
-   $("#form_only_savings_payment").live("submit", function(){
-     var $form = $(this);
-     
-     
-     var value = newParseInt( $("#os_cash_amount").attr("value") );
-     
-     if( value <= 0 ){
-       alert("Wrong value, equal or less than 0");
-       return false 
-     }else{
-       if(confirm("Are you sure for savings_only payment with amount " +addCommas(value)+  " ?")){
-         $form.showLoading();
-         $.ajax({
-            url: $form.attr("action"),
-            type: "POST",
-            data: $form.serialize(),
-            dataType: 'script',
-            success: function(response){
-              $form.clearForm();
-              $form.hideLoading();
-            }
-          });
-          return false ;
-       }else{
-         return false;
-       }
-     }
-
-     
-   });
 });

@@ -1,24 +1,22 @@
 
-<div class="row-fluid tab-pane fade   in pane_wrapper" id="only_savings_payment" >
-  <div class="span8">
-    <h2>Pay as Savings</h2><br />
 
-    <% if @member.can_pay_with_savings?( @group_loan_product.total_weekly_payment ) %>
-      <div class="alert alert-success">
-        <a data-dismiss="alert" class="close">×</a>
-        <strong>Notification!</strong> This member's saving is enough to pay for the weekly payment.<br />
-        Try to use the <strong>"Structured" payment method</strong>.
-      </div>
-    <% end %>
+<% if has_paid_weekly_payment == false  %>
+<div class="row-fluid tab-pane fade  active in pane_wrapper" id="single_extra_savings" >
+<% else %>
+<div class="row-fluid tab-pane fade   in pane_wrapper" id="single_extra_savings" >
+<% end %>
+  <div class="span8">
+
+  
     
-    <%= form_tag  create_savings_only_as_weekly_payment_url(@weekly_task, @member) , 
-      :method => :post, :id => "form_only_savings_payment", 
+    <%= form_tag  create_single_week_extra_savings_weekly_payment_url(@weekly_task, @member) , 
+      :method => :post, :id => "form_single_extra_savings_payment", 
       :class => "prevent_double_submit"  do  %>
       <table cellpadding="0" cellspacing="0" border="0" 
             class=" table table-striped table-bordered" >
         <thead>
           <tr>
-            <th colspan="2">Savings Payment</th>
+            <th colspan="2">Single Week + Extra Savings</th>
           </tr>
         </thead>
         <tbody>
@@ -26,16 +24,14 @@
         
           <tr>
             <td>Cash Amount:</td>
-            <td><%= text_field_tag 'os_cash_amount', '' %></td>
+            <td><%= text_field_tag 'ses_cash_amount', '' %></td>
           </tr>
           
           <tr>
             <td></td>
             <td>
               <div class="form-actions">
-                <%#= submit_tag "Pay as Savings",  :class => "btn btn-primary exe_special_payment" ,
-                  :disable_with => 'Saving...'%>
-                <button class="btn btn-primary" id="exe_only_savings_payment" type="submit">Pay as Savings</button>
+                <button class="btn btn-primary" id="exe_single_extra_savings_payment" type="submit">Pay Single Week + Extra Savings</button>
               </div>
             </td>
           </tr>

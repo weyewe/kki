@@ -1,16 +1,8 @@
 
-<div class="row-fluid tab-pane fade   in pane_wrapper" id="only_savings_payment" >
+<div class="row-fluid tab-pane fade   in pane_wrapper" id="extra_savings" >
   <div class="span8">
-    <h2>Pay as Savings</h2><br />
+    <h2> Extra Savings</h2><br />
 
-    <% if @member.can_pay_with_savings?( @group_loan_product.total_weekly_payment ) %>
-      <div class="alert alert-success">
-        <a data-dismiss="alert" class="close">×</a>
-        <strong>Notification!</strong> This member's saving is enough to pay for the weekly payment.<br />
-        Try to use the <strong>"Structured" payment method</strong>.
-      </div>
-    <% end %>
-    
     <%= form_tag  create_savings_only_as_weekly_payment_url(@weekly_task, @member) , 
       :method => :post, :id => "form_only_savings_payment", 
       :class => "prevent_double_submit"  do  %>
@@ -35,7 +27,7 @@
               <div class="form-actions">
                 <%#= submit_tag "Pay as Savings",  :class => "btn btn-primary exe_special_payment" ,
                   :disable_with => 'Saving...'%>
-                <button class="btn btn-primary" id="exe_only_savings_payment" type="submit">Pay as Savings</button>
+                <button class="btn btn-primary" id="exe_only_savings_payment" type="submit">Pay as Extra Savings</button>
               </div>
             </td>
           </tr>

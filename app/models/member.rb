@@ -149,7 +149,7 @@ class Member < ActiveRecord::Base
   end
   
   def can_pay_with_savings?( total_fee )
-    self.total_savings >= total_fee
+    self.saving_book.total_extra_savings >= total_fee
   end
   
 =begin

@@ -1,6 +1,6 @@
 <% member = group_loan_membership.member %>
 <% group_loan = group_loan_membership.group_loan %>
-
+<% member_payment =  weekly_task.member_payment_for(member) %>
 
 
 <tr id="make_payment_wrapper-<%= member.id %>">
@@ -9,7 +9,7 @@
   <td><%= member.address %></td>
   <td><%= group_loan_membership.unpaid_backlogs.count %></td>
   <!-- basic payment -->
-  <% member_payment =  weekly_task.member_payment_for(member) %>
+  
   
   
   
@@ -29,8 +29,9 @@
     <% else %>
       
       <td>
-        <a href="#" class="btn propose action"
-          id="make_basic_payment-<%= member.id %>">Pay</a>
+        <!-- <a href="#" class="btn propose action"
+             id="make_basic_payment-<%= member.id %>">Pay</a> -->
+          <span class="label">Unpaid</span>
       </td>
       
     <% end %>
@@ -46,20 +47,17 @@
 
 
     <% if weekly_task.has_paid_weekly_payment?(member)  %>
-    <td style="text-align:center;">
+    <td>
 
-      <% if member_payment.is_full_payment? %>
-      <span class="label label-success">PAID</span>
-      <% elsif member_payment.only_savings_payment? %>
-      <span class="label label-warning">Only Savings</span>
-      <% elsif  member_payment.no_payment?  %>
-      <span class="label label-important">No Payment</span>
-      <% end %>
+      <%= link_to "More Payment",
+      special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
+      :class => "btn", 
+      :id => "make_basic_payment-#{member.id}"  %>
 
     </td>
     <% else %>
     <td>
-      <%= link_to "Special Payment",
+      <%= link_to "Create Payment",
       special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
       :class => "btn", 
       :id => "make_basic_payment-#{member.id}"  %>
@@ -73,6 +71,9 @@
  
 
 
-       
+  <td>
+    <%=  weekly_task.transactions_for_member(member).count  %>
+  </td>
+  <td> <%= print_money( weekly_task.transactions_for_member(member).sum("total_transaction_amount") ) %></td>
     
 </tr>

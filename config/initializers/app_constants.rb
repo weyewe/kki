@@ -82,7 +82,6 @@ TRANSACTION_CASE = {
   :weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal => 9,
   :weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal_extra_savings => 10,
   
-  
   # backlog payment 
   :single_backlog_payment_exact_amount => 51, # has to be paid in full
   :single_backlog_payment_extra_savings => 52,
@@ -243,6 +242,10 @@ BACKLOG_CLEARANCE_PERIOD = {
 
 BASIC_WEEKLY_PAYMENT_START = 77700000
 BASIC_WEEKLY_PAYMENT_END = 77720000 # max = 777 11122
+
+# cash, savings_withdrawal, extra_savings, number_of weeks, number_of_backlogs 
+INDEPENDENT_PAYMENT_START = 88800000  
+INDEPENDENT_PAYMENT_END = 888300000 # max+ 88811122
  
 GRACE_PERIOD_PAYMENT_START = 666000  # cash , savings_withdrawal, extra_savings
 GRACE_PERIOD_PAYMENT_END =   666200  # max= 666 1112 

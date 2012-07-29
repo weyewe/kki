@@ -512,6 +512,7 @@ describe GroupLoan do
           number_of_weeks = 1 
           number_of_backlogs = 0 
           a = TransactionActivity.create_generic_weekly_payment(
+            weekly_task, 
                   glm,
                   @field_worker,
                   cash_payment,
@@ -702,6 +703,7 @@ describe GroupLoan do
           number_of_weeks = 1 
           number_of_backlogs = 0 
           a = TransactionActivity.create_generic_weekly_payment(
+            weekly_task, 
                   glm,
                   @field_worker,
                   cash_payment,

@@ -41,6 +41,7 @@
   
   
     <ul class="nav nav-tabs" id="tab">
+      <li class=""><a data-toggle="tab" href="#extra_savings"><strong>Extra Savings</strong></a></li>
       <li class="active">
         <a data-toggle="tab" href="#structured_multiple_payment">
           <strong>
@@ -52,7 +53,11 @@
   
   <% else %>
     <ul class="nav nav-tabs" id="tab">
-      <li class="active"><a data-toggle="tab" href="#only_savings_payment"><strong>Only Savings</strong></a></li>
+      
+      <li class="active"><a data-toggle="tab" href="#single_extra_savings"><strong>Single Week + Extra Savings</strong></a></li>
+      <li class=""><a data-toggle="tab" href="#only_savings_payment"><strong>Only Savings</strong></a></li>
+      <li class=""><a data-toggle="tab" href="#no_payment"><strong>No Payment Declaration</strong></a></li>
+   
       <li class="">
         <a data-toggle="tab" href="#structured_multiple_payment">
           <strong>
@@ -60,20 +65,31 @@
           </strong>
         </a>
       </li>
-      <li class=""><a data-toggle="tab" href="#no_payment"><strong>No Payment Declaration</strong></a></li>
     </ul>
   
   <% end %>
 
   <div class="tab-content" id="myTabContent">
-    <%= render :partial => "weekly_tasks/special_payments/only_savings_payment", :locals => {
-      :has_paid_weekly_payment => has_paid_weekly_payment
-    } %>
+    
+    <% if has_paid_weekly_payment == false %>
+      <%= render :partial => "weekly_tasks/special_payments/single_week_extra_savings", :locals => {
+        :has_paid_weekly_payment => has_paid_weekly_payment
+      } %>
+    
+      <%= render :partial => "weekly_tasks/special_payments/only_savings_payment", :locals => {
+        :has_paid_weekly_payment => has_paid_weekly_payment
+        } %>
+      
+      <%= render :partial => "weekly_tasks/special_payments/no_payment" , :locals => {
+        :has_paid_weekly_payment => has_paid_weekly_payment
+      }%>
+    <% else %>
+      <%= render :partial => "weekly_tasks/special_payments/extra_savings" , :locals => {
+        :has_paid_weekly_payment => has_paid_weekly_payment
+      }%>
+    <% end %>
     
     <%= render :partial => "weekly_tasks/special_payments/structured_multiple_payment" , :locals => {
-      :has_paid_weekly_payment => has_paid_weekly_payment
-    }%>
-    <%= render :partial => "weekly_tasks/special_payments/no_payment" , :locals => {
       :has_paid_weekly_payment => has_paid_weekly_payment
     }%>
   </div>

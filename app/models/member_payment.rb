@@ -30,4 +30,13 @@ class MemberPayment < ActiveRecord::Base
     (has_paid == false ) && (only_savings == false ) && (no_payment == true ) &&  
      ( transaction_activity_id.nil? )
   end
+  
+  
+  def MemberPayment.has_made_payment_for( weekly_task, week_number, member )
+    # if it exists, can't be done.. has to be paid through backlog payment 
+    MemberPayment.joins(:weekly_task).where(:week_number => week_number,
+                        :member_id => member.id ,
+                        :weekly_task => {:group_loan_id => weekly_task.group_loan_id}).length != 0 
+  end
+  
 end

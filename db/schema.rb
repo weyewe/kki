@@ -220,10 +220,13 @@ ActiveRecord::Schema.define(:version => 20120724075419) do
     t.integer  "transaction_activity_id"
     t.integer  "weekly_task_id"
     t.integer  "member_id"
-    t.boolean  "has_paid",                                              :default => false
-    t.boolean  "only_savings",                                          :default => false
-    t.boolean  "no_payment",                                            :default => false
-    t.decimal  "cash_passed",             :precision => 9, :scale => 2, :default => 0.0
+    t.boolean  "has_paid",                                                    :default => false
+    t.boolean  "only_savings",                                                :default => false
+    t.boolean  "no_payment",                                                  :default => false
+    t.boolean  "only_extra_savings",                                          :default => false
+    t.decimal  "cash_passed",                   :precision => 9, :scale => 2, :default => 0.0
+    t.integer  "week_number"
+    t.boolean  "is_independent_weekly_payment",                               :default => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

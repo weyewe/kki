@@ -776,10 +776,21 @@ class GroupLoan < ActiveRecord::Base
   
   
   def accounted_weekly_payments_by(member)
-    MemberPayment.find(:all,:conditions => {
-      :member_id => member.id, 
-      :weekly_task_id => self.weekly_task_id_list
-    }).map{|x| x.weekly_task}
+    group_loan = self 
+    # MemberPayment.joins(:weekly_task).
+    #           where(:member_id => member.id ,
+    #           :weekly_task => {:group_loan_id => group_loan.id },
+    #           :only_extra_savings => false )
+              
+    # Person.joins(:articles => :comments).
+    #          where(:articles => {:comments => {:body.matches => 'Hello!'}})
+    MemberPayment.joins(:weekly_task).
+            where{
+              (member_id.eq member.id ) & 
+              (week_number.not_eq nil) &
+              ( weekly_task.group_loan_id.eq group_loan.id )
+            }
+              
   end
   
   def remaining_weekly_tasks_count_for_member(member)
