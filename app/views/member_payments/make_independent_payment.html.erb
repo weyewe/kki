@@ -1,5 +1,5 @@
 <div class="span9 content">
-  <%= create_guide("Special Payment", 
+  <%= create_guide("Independent Payment", 
         "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
         "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
         "Member: <b>#{@member.name}</b>" + "<br />" +
@@ -42,7 +42,7 @@
     <ul class="nav nav-tabs" id="tab">
       <li class=""><a data-toggle="tab" href="#extra_savings"><strong>Extra Savings</strong></a></li>
       <li class="active">
-        <a data-toggle="tab" href="#structured_multiple_payment">
+        <a data-toggle="tab" href="#structured_multiple_independent_payment">
           <strong>
             Multiple Weeks <%= "&"  %> Structured Payment
           </strong>
@@ -57,7 +57,7 @@
     <%#= render :partial => "weekly_tasks/special_payments/extra_savings" , :locals => {
       :has_paid_weekly_payment => has_paid_weekly_payment
       }%>
-    <%#= render :partial => "weekly_tasks/special_payments/structured_multiple_payment" , :locals => {
+    <%= render :partial => "member_payments/independent_payments/structured_multiple_independent_payment" , :locals => {
         :has_paid_weekly_payment => has_paid_weekly_payment
       }%>
 

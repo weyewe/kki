@@ -1,0 +1,17 @@
+$(document).ready(function(){
+  var header_html;
+  var body_html;
+  
+  <% if @transaction_activity.nil? %>
+    header_html = "<h3>Extra Savings  payment FAIL</h3>";
+    body_html = "<p>Check the payment value</p>";
+  <% else %>
+    header_html = "<h3>Extra savings payment  is SUCCESS</h3>";
+    body_html = "<p><h3>Member: <%= @member.name %></h3>"+
+                "In week: <%= @weekly_task.week_number %>";
+  <% end %>
+  
+  summonModalHTML( header_html , 
+              body_html, 
+                "myModal");
+});

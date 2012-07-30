@@ -3,7 +3,8 @@
   <%= create_guide("Independent Payment", 
         "Office: <b>#{@office.name}</b>" + "<br />" + 
         "Group Loan: <b>#{@group_loan.name}</b> " + "<br />" +  
-        "Unpaid backlogs: <b>#{@group_loan.unpaid_backlogs.count}</b> "  ).html_safe %>
+        "Unpaid backlogs: <b>#{@group_loan.unpaid_backlogs.count}</b> "  + "<br />" + 
+        "Approval Week: <b>#{@deadline_weekly_task.week_number}</b> " ).html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   

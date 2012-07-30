@@ -24,8 +24,11 @@
         </thead>
         <tbody>
           <% @running_group_loans.each do |group_loan| %>
+            <% weekly_task = group_loan.currently_executed_weekly_task %>
+            
+          
             <%= render :partial => "group_loans/independent_payment_group_loan_entry" , 
-                :locals => {:group_loan => group_loan}%>
+                :locals => {:group_loan => group_loan, :weekly_task => weekly_task}%>
             
    
             

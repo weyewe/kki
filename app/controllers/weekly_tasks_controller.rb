@@ -107,7 +107,9 @@ class WeeklyTasksController < ApplicationController
                         @transaction_activities << x.transaction_activity
                       end
                    end
-        
+    
+    @transaction_activities.sort_by{|x| x.member_id }  
+    
     add_breadcrumb "Weekly Payment Pending Approval", 'list_pending_weekly_collection_approval_url'
     set_breadcrumb_for @weekly_task, 'details_weekly_collection_url' + "(#{@weekly_task.id})", 
      "Collection Details"

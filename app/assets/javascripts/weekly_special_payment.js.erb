@@ -230,6 +230,39 @@ $(document).ready(function(){
    
    
    
+   /*
+    ONLY EXTRA SAVINGS 
+   */
+   
+
+   $("#exe_only_extra_savings_payment").live("click", function(){
+
+     var $form = $("#form_only_extra_savings_payment");
+     var value = newParseInt( $("#oes_cash_amount").attr("value") );
+
+     if( value <= 0 ){
+       alert("Wrong value, equal or less than 0");
+       return false ;
+     }else{
+       if(confirm("Are you sure for savings_only payment with amount " +addCommas(value)+  " ?")){
+         $form.showLoading();
+         $.ajax({
+           url: $form.attr("action"),
+           type: "POST",
+           data: $form.serialize(),
+           dataType: 'script',
+           success: function(response){
+             $form.clearForm();
+             $form.hideLoading();
+           }
+         });
+         return false ;
+       }else{
+         return false;
+       }
+     }
+   });
+   
    
 
    

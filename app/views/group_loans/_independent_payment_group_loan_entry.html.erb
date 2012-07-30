@@ -1,5 +1,11 @@
 <tr id="select_group_loan_with_backlog-<%= group_loan.id %>">
-  <td><%= link_to   group_loan.name, select_member_for_independent_weekly_payment_url( group_loan )  %></td>
+  <td>
+    <% if weekly_task.nil? %>
+      <%= group_loan.name %>
+    <% else %>
+      <%= link_to   group_loan.name, select_member_for_independent_weekly_payment_url( group_loan )  %>
+    <% end %>
+  </td>
   <td><%= group_loan.get_commune %></td>
   <td><%= group_loan.members.count %></td>
   <td><%= group_loan.total_backlogs %></td>

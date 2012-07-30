@@ -179,13 +179,18 @@ class GroupLoansController < ApplicationController
     @office = current_user.active_job_attachment.office
     @running_group_loans = @office.running_group_loans
     
+    
     add_breadcrumb "Select Group Loan", 'select_group_loan_for_independent_weekly_payment_url'
   end
   
   def select_member_for_independent_weekly_payment
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
-    @glm_list = @group_loan.active_group_loan_memberships.order("sub_group_id")
+    @glm_list = @group_loan.active_group_loan_memberships.order("sub_group_id ASC")
+    
+    @deadline_weekly_task = @group_loan.currently_executed_weekly_task
+   
+    
     add_breadcrumb "Select Group Loan", 'select_group_loan_for_independent_weekly_payment_url'
     set_breadcrumb_for @group_loan, 'select_member_for_independent_weekly_payment_url' + "(#{@group_loan.id})", 
                 "Select Member"

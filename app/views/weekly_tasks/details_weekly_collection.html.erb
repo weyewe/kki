@@ -25,7 +25,7 @@
         </thead>
         <tbody>
           <% @transaction_activities.each do |transaction_activity| %>
-          <% puts "The transaction activities inspect: #{@transaction_activities.inspect}"%>
+          <%#: #{@transaction_activities.inspect}"%>
             <%= render :partial => "weekly_tasks/transaction_details" , 
                 :locals => {:transaction_activity => transaction_activity}%>
    

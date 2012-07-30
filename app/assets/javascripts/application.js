@@ -15,5 +15,6 @@
 //= require weekly_special_payment
 //= require weekly_extra_payment
 //= require grace_period_payment
+//= require independent_payment
 //= require script
 

@@ -118,8 +118,19 @@ class WeeklyTask < ActiveRecord::Base
   def member_payment_can_be_closed?
     # all member_payment has been made
     # either : only_savings, basic_payment_and_more, or no_payment
-    self.member_payments.count == self.group_loan.active_group_loan_memberships.count 
+    # self.core_member_weekly_payments.count ==  self.group_loan.active_group_loan_memberships.count 
+    # self.member_payments.count == self.group_loan.active_group_loan_memberships.count 
+    
+    # if all member has paid weekly payment
+    self.group_loan.active_group_loan_memberships.each do |glm|
+      if not self.has_paid_weekly_payment?(glm.member) 
+        return false 
+      end
+    end
+    
+    return true 
   end
+
   
   def member_payment_can_be_started?
     # the previous weekly task is approved by cashier 
@@ -217,7 +228,7 @@ class WeeklyTask < ActiveRecord::Base
     weekly_task = self 
     transaction_id_list = self.member_payments.
                               where{( member_id.eq member.id ) & 
-                                    ( is_independent_weekly_payment.eq false )
+                                    ( is_independent_weekly_payment.eq false ) & 
                                     ( transaction_activity_id.not_eq nil )}.
                               map{|x| x.transaction_activity_id }
     
@@ -301,7 +312,8 @@ class WeeklyTask < ActiveRecord::Base
         :has_paid => true,
         :no_payment => false ,
         :only_savings => true ,
-        :cash_passed => cash_passed
+        :cash_passed => cash_passed,
+        :week_number => self.week_number 
       )
       
       
@@ -457,7 +469,8 @@ class WeeklyTask < ActiveRecord::Base
         :member_id => member.id , 
         :has_paid => false,
         :no_payment => true ,
-        :only_savings => false 
+        :only_savings => false ,
+        :week_number => self.week_number
       )
       
       
