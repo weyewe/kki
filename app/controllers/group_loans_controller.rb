@@ -196,6 +196,14 @@ class GroupLoansController < ApplicationController
                 "Select Member"
   end
   
+  # approval by cashier 
+  def select_group_loan_to_approve_independent_payment
+    @office = current_user.active_job_attachment.office
+    @running_group_loans = @office.running_group_loans
+    
+    add_breadcrumb "Select Group Loan", 'select_group_loan_to_approve_independent_payment_url'
+  end
+  
 =begin
   GRACE PERIOD PAYMENT 
 =end

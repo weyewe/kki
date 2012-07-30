@@ -100,15 +100,16 @@ class WeeklyTasksController < ApplicationController
     @weekly_task = WeeklyTask.find_by_id params[:weekly_task_id]
     @group_loan = @weekly_task.group_loan
     @office = current_user.active_job_attachment.office
-    @transaction_activities = []
-    @weekly_task.member_payments.where{ cash_passed.not_eq nil }.
-                   order("created_at ASC").each do |x|     
-                      if not x.transaction_activity.nil?
-                        @transaction_activities << x.transaction_activity
-                      end
-                   end
-    
-    @transaction_activities.sort_by{|x| x.member_id }  
+    # @transaction_activities = []
+    # @weekly_task.member_payments.where{ ( cash_passed.not_eq nil)  & 
+    #                    ( is_independent_weekly_payment.eq false) 
+    #                    }.
+    #                 order("created_at ASC").each do |x|     
+    #                    if not x.transaction_activity.nil?
+    #                      @transaction_activities << x.transaction_activity
+    #                    end
+    #                 end
+    @transaction_activities  = @weekly_task.group_payment_transactions.order("member_id DESC")
     
     add_breadcrumb "Weekly Payment Pending Approval", 'list_pending_weekly_collection_approval_url'
     set_breadcrumb_for @weekly_task, 'details_weekly_collection_url' + "(#{@weekly_task.id})", 

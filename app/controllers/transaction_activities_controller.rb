@@ -145,6 +145,47 @@ class TransactionActivitiesController < ApplicationController
   end
   
 =begin
+  INDEPENDENT PAYMENT
+=end
+  def create_structured_multiple_independent_payment
+  
+    @group_loan_membership = GroupLoanMembership.find_by_id params[:group_loan_membership_id]
+    @group_loan = @group_loan_membership.group_loan
+    @member = @group_loan_membership.member 
+    
+    cash = BigDecimal.new( params[:smf_cash] )
+    savings_withdrawal = BigDecimal.new( params[:smf_savings_withdrawal] )
+    number_of_weeks = params[:smf_weeks].to_i
+    number_of_backlogs = params[:smf_backlogs].to_i
+    
+    @transaction_activity = TransactionActivity.create_generic_independent_payment(
+            @group_loan_membership,
+            current_user,
+            cash, 
+            savings_withdrawal,
+            number_of_weeks,
+            number_of_backlogs)
+  end
+  
+  def approve_independent_payment_transaction_activity
+    @transaction_activity = TransactionActivity.find_by_id params[:entity_id]
+    @action_role = params[:action_role].to_i
+    @action_value = params[:action_value].to_i
+    
+    if @action_role == APPROVER_ROLE
+      if @action_value == TRUE_CHECK
+        @transaction_activity.approve_payment(current_user)
+      elsif @action_value == FALSE_CHECK
+        # @weekly_task.reject_weekly_payment_collection( current_user )
+      end
+    end
+    
+    respond_to do |format|
+      format.html {  redirect_to root_url }
+      format.js 
+    end
+  end
+=begin
   GRACE  PERIOD PAYMENT
 =end
 

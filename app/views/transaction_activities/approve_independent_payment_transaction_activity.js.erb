@@ -1,0 +1,6 @@
+$(document).ready(function(){
+  <% new_row =escape_javascript(  render :partial => "member_payments/independent_payment_entry" , 
+      :locals => {:independent_payment => @transaction_activity}  ) %>
+
+  $("#independent_payment_entry-<%= @transaction_activity.id %>").replaceWith('<%= new_row %>');
+});

@@ -8,11 +8,15 @@ class WeeklyTask < ActiveRecord::Base
   # after_create :create_the_respective_meeting_attendances_and_payment_collections
   
   
-  def member_payment_for(member)
-    MemberPayment.find(:first,:conditions => {
-      :weekly_task_id => self.id,
-      :member_id => member.id 
-    })
+  def member_payment_for(member)  
+      # MemberPayment.find(:first,:conditions => {
+      #   :weekly_task_id => self.id,
+      #   :member_id => member.id ,
+      #   :week_number => self.week_number
+      # })
+    MemberPayment.joins(:weekly_task).where( :member_id => member.id, 
+      :week_number => self.week_number,
+      :weekly_task => {:group_loan_id => self.group_loan_id }   ).first
   end
   
   def total_members_present

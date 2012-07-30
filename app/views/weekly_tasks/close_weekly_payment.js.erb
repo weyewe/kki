@@ -10,7 +10,7 @@ $(document).ready(function(){
     $("#weekly_payment_wrapper-<%= @weekly_task.id %>").replaceWith('<%= new_row %>');
   <% else %>
     var header_text = "Fail to Close weekly payment: week <%= @weekly_task.week_number  %> ";
-    var body_text = "The  week's meeting hasn't been approved by the cashier.";
+    var body_text = "The  week's meeting hasn't been finalized by the member.";
     summonModal( header_text , 
                 body_text, 
                   "myModal");

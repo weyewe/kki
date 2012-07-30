@@ -582,16 +582,6 @@ module ApplicationHelper
   CASHIER_PROCESS_LIST = {
     :header_title => "CASHIER",
     :processes => [
-      # {
-      #    :title => "Approves Setup Payment ",
-      #    :destination_link => 'select_group_loan_for_setup_payment_collection_approval_url',
-      #    :conditions => [
-      #      {
-      #        :controller => 'group_loans',
-      #        :action => 'select_group_loan_for_setup_payment_collection_approval'
-      #      }
-      #    ]
-      #  },
       {
         :title => "Loan Disbursement",
         :destination_link => 'select_group_loan_for_loan_disbursement_url',
@@ -607,7 +597,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Approve Group Weekly Payment",
+        :title => "Weekly Payment",
         :destination_link => 'list_pending_weekly_collection_approval_url',
         :conditions => [
           {
@@ -621,7 +611,21 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Approve Grace Period Payment",
+        :title => "Independent Payment",
+        :destination_link => 'select_group_loan_to_approve_independent_payment_url',
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_approve_independent_payment'
+          },
+          {
+            :controller => 'member_payments',
+            :action => 'list_of_independent_payment'
+          }
+        ]
+      },
+      {
+        :title => "Period Payment",
         :destination_link => 'select_group_loan_for_grace_period_payment_approval_url',
         :conditions => [
           {
@@ -807,25 +811,7 @@ module ApplicationHelper
             :action => "special_weekly_payment_for_member"
           }
         ]
-      },
-      # {
-      #   :title => "Backlog Payment",
-      #   :destination_link => "select_group_loan_for_backlog_weekly_payment_url",
-      #   :conditions => [
-      #     {
-      #       :controller => "group_loans",
-      #       :action => "select_group_loan_for_backlog_weekly_payment"
-      #     },
-      #     {
-      #       :controller => "backlog_payments",
-      #       :action => "index"
-      #     },
-      #     {
-      #       :controller => "backlog_payments",
-      #       :action => "pay_backlog_for_group_loan"
-      #     }
-      #   ]
-      # },
+      }, 
       {
         :title => "Independent Payment",
         :destination_link => "select_group_loan_for_independent_weekly_payment_url",

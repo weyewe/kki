@@ -1,0 +1,10 @@
+
+<% weekly_task = group_loan.currently_pending_approval_weekly_task %>
+<tr>
+  <td><%= link_to group_loan.name , list_of_independent_payment_url(group_loan) %></td>
+  <td><%= group_loan.get_commune %></td>
+  <td><%= weekly_task.week_number %></td>
+
+  <td><%=  weekly_task.group_independent_payment_transactions.where(:is_approved => false).count  %></td>
+  
+</tr>

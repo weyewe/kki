@@ -695,6 +695,12 @@ class GroupLoan < ActiveRecord::Base
     }, :limit => 1, :order => "week_number ASC")
   end
   
+  def currently_pending_approval_weekly_task
+    self.weekly_tasks.find(:first, :conditions => {
+      :is_weekly_payment_approved_by_cashier =>  false
+    }, :limit => 1, :order => "week_number ASC")
+  end
+  
   
   def currently_being_payment_collected_weekly_task
     # attendance marking has been finalized 

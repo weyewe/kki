@@ -1,0 +1,23 @@
+
+<% member = independent_payment.member %>
+<tr id="independent_payment_entry-<%= independent_payment.id %>">
+  <td><%= member.name  %></td>
+  <td><%= independent_payment.transaction_case %></td>
+  <td><%= print_money(independent_payment.total_transaction_amount) %></td>
+
+
+  
+ <!-- action button -->
+  <%# if group_loan.is_started == false && group_loan.is_proposed == true %>
+    <td style="text-align:center;">
+      
+      <% if independent_payment.is_approved == false %>
+        <a href="#" class="btn approve action true_check"
+          id="finalize-<%= independent_payment.id %>">Approve</a>
+      <% else %>
+        <span class="label label-success">Approved</span>
+      <% end %>
+    </td>
+  
+ 
+</tr>

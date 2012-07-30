@@ -30,14 +30,7 @@
   <% end %>
   
   
-  <% has_paid_weekly_payment = true  %>
-  
-  <% if has_paid_weekly_payment  %>
-    <div class="alert alert-success">
-      <strong>Notification!</strong> You have paid the payment for 
-       <strong>week <%#= @weekly_task.week_number %></strong>.
-    </div>
-  
+
   
     <ul class="nav nav-tabs" id="tab">
       <li class=""><a data-toggle="tab" href="#extra_savings"><strong>Extra Savings</strong></a></li>
@@ -50,16 +43,12 @@
       </li>
     </ul>
   
-  <% end %>
-
   <div class="tab-content" id="myTabContent">
     
     <%#= render :partial => "weekly_tasks/special_payments/extra_savings" , :locals => {
       :has_paid_weekly_payment => has_paid_weekly_payment
       }%>
-    <%= render :partial => "member_payments/independent_payments/structured_multiple_independent_payment" , :locals => {
-        :has_paid_weekly_payment => has_paid_weekly_payment
-      }%>
+    <%= render :partial => "member_payments/independent_payments/structured_multiple_independent_payment" %>
 
 
   
@@ -76,10 +65,15 @@
      </div>
      <div class="modal-footer">
        <!-- <a href="#" class="btn modal-closer">Close</a> -->
-       <%#= link_to "Close", make_member_payment_url(@weekly_task.group_loan, @weekly_task), :class => "btn"%>
+       <%= link_to "Close", select_member_for_independent_weekly_payment_url(@group_loan), :class => "btn"%>
      </div>
    </div>
   
   
    <hr />
 </div><!--/span-->
+
+
+<% content_for :additional_js do %>
+  <%= javascript_include_tag "weekly_special_payment" %>
+<% end %>

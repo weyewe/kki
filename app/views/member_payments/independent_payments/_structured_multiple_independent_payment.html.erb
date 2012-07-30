@@ -6,8 +6,8 @@
 
   <div class="span8">
     
-    <%= form_tag  root_url, 
-      :method => :post, :id => "structured_multiple_independent_payment_form",
+    <%= form_tag  create_structured_multiple_independent_payment_url(@group_loan_membership.id), 
+      :method => :post, :id => "structured_multiple_form",
       :class => "prevent_double_submit"  do  %>
       
       

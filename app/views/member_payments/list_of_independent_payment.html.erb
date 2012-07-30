@@ -1,9 +1,8 @@
+
 <div class="span9 content">
-  <%= create_guide("Select Weekly Group Payment", 
-        "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
-        "Total Member: <b>#{@group_loan.active_group_loan_memberships.count}</b>" + "<br />" + 
-        "Completed Group Payment: <b>#{@group_loan.total_completed_group_payment}</b>" ).html_safe %>
+  <%= create_guide("Independent Payment Approval", 
+        "Office: <b>#{@office.name}</b>" + "<br />" + 
+        "Total Independent Payment Pending Approval: <b>#{@pending_approval_count}</b> ").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -15,20 +14,17 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Week No</th>
-            <th>Total Member</th>
-            <!-- <th>Total Member Paid</th> -->
-            <th>Only Savings</th>
-            <th>No Payment</th>
-            <th style="text-align:center;">Close Payment</th>
+            <th>Member</th>
+            <th>Transaction Case</th>
+            <th>Cash Amount</th>
+            <th style="text-align:center;">Action</th>
           </tr>
         </thead>
         <tbody>
-          <% @weekly_tasks.each do |weekly_task| %>
-            <%= render :partial => "weekly_tasks/select_weekly_payment" , 
-                :locals => {:weekly_task => weekly_task,
-                  :total_group_member => @group_loan.active_group_loan_memberships.count, 
-                  :group_loan => @group_loan} %>
+          <% @independent_payments.each do |independent_payment| %>
+            <%= render :partial => "member_payments/independent_payment_entry" , 
+                :locals => {:independent_payment => independent_payment}%>
+   
           <% end %>
        
           
@@ -41,7 +37,7 @@
   
   
   <div class=" hidden" id="approve_propose_form_wrapper">
-    <%= form_for GroupLoan.new, :url => close_weekly_payment_url   do |f| %>
+    <%= form_for WeeklyTask.new, :url => approve_independent_payment_transaction_activity_url, :method => :post do |f| %>
       <%= hidden_field_tag 'entity_id' , ''  %>
       <%= hidden_field_tag 'action_role', '' %>
       <%= hidden_field_tag 'action_value', '' %>
@@ -62,23 +58,5 @@
        <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
      </div>
    </div>
-  
-  
-  
-
+ 
 </div><!--/span-->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

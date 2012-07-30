@@ -17,7 +17,7 @@ class MemberPayment < ActiveRecord::Base
     #  
     #  
   def is_full_payment? 
-    (has_paid == true ) && (only_savings == false ) && (no_payment == false ) && 
+    (only_savings == false ) && (no_payment == false ) && 
     (not transaction_activity_id.nil? )
   end
   

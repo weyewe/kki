@@ -7,7 +7,13 @@ $(document).ready(function(){
   <% if @weekly_task.weekly_collection_approved? %>
     body_text = "Approval for weekly payment week <%= @weekly_task.week_number %> is successful.";
   <% else %>
-    body_text = "Weekly payment collection for <%= @weekly_task.week_number %> is rejected";
+    <% unapproved_independent_payment = @weekly_task.group_independent_payment_transactions.where(:is_approved => false).count %>
+    <% if  unapproved_independent_payment != 0 %>
+      body_text = "Weekly payment collection for <%= @weekly_task.week_number %> is rejected." + 
+              " Total un-approved independent payments: <%= unapproved_independent_payment %>";
+    <% else %>
+      body_text = "Weekly payment collection for <%= @weekly_task.week_number %> is rejected";
+    <% end %>
   <% end %>
   
   
