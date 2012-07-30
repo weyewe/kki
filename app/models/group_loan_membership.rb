@@ -23,16 +23,18 @@ class GroupLoanMembership < ActiveRecord::Base
     total_extra_savings = self.member.saving_book.total_extra_savings
     total_deductible_member_savings = total_compulsory_savings + total_extra_savings
     
-    # puts "*****glm_id #{self.id}, total deductible member savings : #{total_deductible_member_savings}"
-  
+    # refresh the state 
+    default_payment.amount_of_compulsory_savings_deduction = BigDecimal("0")
+    default_payment.amount_of_extra_savings_deduction = BigDecimal("0")
+    default_payment.amount_to_be_shared_with_non_defaultee = BigDecimal("0")
+    
+    
     if default_payment.is_defaultee == true 
       
       total_amount = default_payment.unpaid_grace_period_amount
-      puts "TOTAL AMOUNT: #{total_amount}"
-      # refresh the state 
-      default_payment.amount_of_compulsory_savings_deduction = BigDecimal("0")
-      default_payment.amount_of_extra_savings_deduction = BigDecimal("0")
-      default_payment.amount_to_be_shared_with_non_defaultee = BigDecimal("0")
+      puts "POST payment, unpaid grace period amount: #{total_amount}"
+      
+      
       
       # do the deduction 
       if total_amount <= total_compulsory_savings
@@ -51,18 +53,16 @@ class GroupLoanMembership < ActiveRecord::Base
         default_payment.amount_of_extra_savings_deduction = total_extra_savings
         default_payment.amount_to_be_shared_with_non_defaultee = total_amount - total_deductible_member_savings
       end
-      
-      default_payment.save 
-      
-      puts "Total compulsory savings: #{total_compulsory_savings}"
-      puts "total extra savings : #{total_extra_savings}"
-      puts "compulsory deduction: #{default_payment.amount_of_compulsory_savings_deduction}"
-      puts "extra savings deduction: #{default_payment.amount_of_extra_savings_deduction}"
-      puts "to be shared: #{default_payment.amount_to_be_shared_with_non_defaultee}"
-      
-      
-
+    else
     end
+    
+    
+    default_payment.save 
+    puts "Total compulsory savings: #{total_compulsory_savings}"
+    puts "total extra savings : #{total_extra_savings}"
+    puts "compulsory deduction: #{default_payment.amount_of_compulsory_savings_deduction}"
+    puts "extra savings deduction: #{default_payment.amount_of_extra_savings_deduction}"
+    puts "to be shared: #{default_payment.amount_to_be_shared_with_non_defaultee}"
   end
   
   def create_default_payment_for_the_default_member

@@ -1159,12 +1159,13 @@ class GroupLoan < ActiveRecord::Base
 
   def update_sub_group_non_defaultee_default_payment_contribution(total_to_be_shared)
     self.sub_groups.each do |sub_group|
-      sub_group.update_sub_group_default_payment_contribution(total_to_be_shared)
+      # sub_group.update_sub_group_default_payment_contribution(total_to_be_shared)
+      sub_group.update_sub_group_default_payment_contribution
     end
   end
   
   def update_group_non_defaultee_default_payment_contribution(total_to_be_shared)
-    group_contribution = total_to_be_shared  * ( 50.0/100.0 )
+    group_contribution = self.sub_groups.sum("sub_group_default_payment_contribution_amount")  * ( 50.0/100.0 )
     
     active_group_glm = self.active_group_loan_memberships.includes(:default_payment)
     active_group_glm_id_list = active_group_glm.map {|x| x.id }
@@ -1190,17 +1191,19 @@ class GroupLoan < ActiveRecord::Base
       total_amount = BigDecimal("0")
       if default_payment.is_defaultee == true
         total_amount = default_payment.amount_of_compulsory_savings_deduction + default_payment.amount_of_extra_savings_deduction
-        # puts "******!!!!!!!!!!In the shit, total_amount = #{total_amount}"
-        default_payment.total_amount = total_amount
+        default_payment.total_amount = total_amount # => rounding up? to 500
         
       elsif  default_payment.is_defaultee == false
         total_amount = default_payment.round_up_to( DEFAULT_PAYMENT_ROUND_UP_VALUE )
         total_compulsory_savings = glm.member.saving_book.total_compulsory_savings 
         if total_amount <= total_compulsory_savings
+          default_payment.amount_of_compulsory_savings_deduction = total_amount 
           default_payment.total_amount = total_amount
         else
           default_payment.total_amount =  total_compulsory_savings 
+          default_payment.amount_of_compulsory_savings_deduction = total_compulsory_savings
         end
+        default_payment.amount_of_extra_savings_deduction  = BigDecimal("0") # office won't deduct non-defaultee voluntary savings
       end
       
       default_payment.save

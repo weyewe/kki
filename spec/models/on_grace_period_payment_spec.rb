@@ -186,7 +186,13 @@ describe GroupLoan do
         # present in the weekly meeting. declaring no payment 
         if defaultee_glm_id_list.include?(glm.id)  #   and [1,2,3].include?(weekly_task.week_number)
           weekly_task.mark_attendance_as_present( glm.member, @field_worker )
-          weekly_task.create_weekly_payment_declared_as_no_payment( glm.member )
+          # weekly_task.create_weekly_payment_declared_as_no_payment( glm.member )
+          TransactionActivity.create_savings_only_weekly_payment(
+            glm.member,
+            weekly_task,
+            0.3*glm.group_loan_product.grace_period_weekly_payment,
+            @field_worker
+          )
           next
         end
 
@@ -273,9 +279,21 @@ describe GroupLoan do
 
   it "should update the amount deducted on every grace loan payment"  do
     
-    puts "******INITIAL EXTRA SAVINGS DATA*******"
+    puts "******INITIAL  SAVINGS DATA*******"
     @group_loan.active_group_loan_memberships.each do |glm|
-      puts "THE extra savings #{glm.id}: #{glm.member.saving_book.total_extra_savings}"
+      puts "THE voluntary savings #{glm.id}: #{glm.member.saving_book.total_extra_savings}"
+      puts "THE compulsory savings #{glm.id}: #{glm.member.saving_book.total_compulsory_savings}"
+      default_payment = glm.default_payment 
+      if default_payment.is_defaultee == true
+        puts "is defaultee"
+      else
+        puts "not defaultee"
+      end
+      puts "voluntary_savings to be deduced: #{default_payment.amount_of_extra_savings_deduction.to_s}"
+      puts "compulsory_savings to be deduced: #{default_payment.amount_of_compulsory_savings_deduction.to_s}"
+      
+      puts "unpaid grace payment: #{default_payment.unpaid_grace_period_amount.to_s}"
+      puts "-------+++++++++-------"
     end
      # get one defaultee 
      default_group_loan_memberships = @group_loan.default_group_loan_memberships 
@@ -283,25 +301,23 @@ describe GroupLoan do
      
       
      
+     puts "\n++++++++++++++ analytics before the grace payment -----------\n" 
      glm = default_group_loan_memberships.first 
      initial_unpaid_grace_period_amount = glm.default_payment.unpaid_grace_period_amount
      puts "OUR GLM: #{glm.id}"
-     # puts "initial amount to be paid for glm #{glm.id}: #{glm.default_payment.unpaid_grace_period_amount.to_s}"
-     # ensure that the member has savings 
-     TransactionActivity.create_independent_savings( glm.member,  0.3*initial_unpaid_grace_period_amount, @field_worker )
-     # puts "initial member extra savings:#{glm.member.saving_book.total_extra_savings.to_s}"
-     # puts "initial member compulsory savings:#{glm.member.saving_book.total_compulsory_savings.to_s}"
-     # 
-     # puts "\n\n===========================\n\n"
-     # 
-     # default_group_loan_memberships.each do |glm|
-     #    puts "\n***Default Payment: Initial statistic glm: #{glm.id}***\n"
-     #    default_payment = glm.default_payment 
-     #    puts "compulsory savings deduction: #{default_payment.amount_of_compulsory_savings_deduction.to_s}"
-     #    puts "extra savings deduction: #{default_payment.amount_of_extra_savings_deduction.to_s}"
-     #    puts "to be shared: #{default_payment.amount_to_be_shared_with_non_defaultee.to_s}"
-     # end
-    
+     puts "THE voluntary savings #{glm.id}: #{glm.member.saving_book.total_extra_savings}"
+     puts "THE compulsory savings #{glm.id}: #{glm.member.saving_book.total_compulsory_savings}"
+     default_payment = glm.default_payment 
+     if default_payment.is_defaultee == true
+       puts "is defaultee"
+     else
+       puts "not defaultee"
+     end
+     puts "voluntary_savings to be deduced: #{default_payment.amount_of_extra_savings_deduction.to_s}"
+     puts "compulsory_savings to be deduced: #{default_payment.amount_of_compulsory_savings_deduction.to_s}"
+     
+     puts "unpaid grace payment: #{default_payment.unpaid_grace_period_amount.to_s}"
+     puts "-------+++++++++-------"
      
      
      
@@ -309,31 +325,31 @@ describe GroupLoan do
      
      
      savings_withdrawal = 0.3*initial_unpaid_grace_period_amount
+     puts "cash value: #{cash.to_s}"
+     puts "savings_withdrawal value: #{savings_withdrawal.to_s}"
+     puts "\n Before the grace period payment \n"
      @transaction_activity = TransactionActivity.create_generic_grace_period_payment(
              glm,
              @field_worker,
              cash,
              savings_withdrawal)
+      @transaction_activity.should be_valid 
+      puts "\n after the grace period payment\n"
     glm.reload
     # puts "FINAL AMOUNT TO BE PAID: #{glm.default_payment.unpaid_grace_period_amount.to_s} "
     difference  = initial_unpaid_grace_period_amount   - glm.default_payment.unpaid_grace_period_amount
-    # puts "The difference = #{difference.to_s}"
-    # if cash+savings_withdrawal >= initial_unpaid_grace_period_amount
-    #   difference.should == initial_unpaid_grace_period_amount
-    # else
-    #   difference.should == cash + savings_withdrawal 
-    # end
+    puts "The difference = #{difference.to_s}"
+    if cash+savings_withdrawal >= initial_unpaid_grace_period_amount
+      difference.should == initial_unpaid_grace_period_amount
+    else
+      difference.should == cash + savings_withdrawal 
+    end
     
     puts "Default Payment: FINAL STATISTIC"
     @group_loan.reload
     default_group_loan_memberships = @group_loan.default_group_loan_memberships 
-    # default_group_loan_memberships.each do |glm|
-    #     puts "\n***FINAL statistic glm: #{glm.id}***\n"
-    #     default_payment = glm.default_payment 
-    #     puts "compulsory savings deduction: #{default_payment.amount_of_compulsory_savings_deduction.to_s}"
-    #     puts "extra savings deduction: #{default_payment.amount_of_extra_savings_deduction.to_s}"
-    #     puts "to be shared: #{default_payment.amount_to_be_shared_with_non_defaultee.to_s}"
-    #  end
+    
+    # how about the compulsory savings deduction and the voluntary savings deduction? 
   end
   
   
