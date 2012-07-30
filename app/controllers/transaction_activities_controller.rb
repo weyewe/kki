@@ -147,6 +147,22 @@ class TransactionActivitiesController < ApplicationController
 =begin
   INDEPENDENT PAYMENT
 =end
+
+  def create_only_extra_savings_independent_payment
+    @group_loan_membership = GroupLoanMembership.find_by_id params[:group_loan_membership_id]
+    @group_loan = @group_loan_membership.group_loan
+    @member = @group_loan_membership.member
+    
+    cash = BigDecimal.new( params[:oes_cash_amount] )
+    
+    
+    @transaction_activity= TransactionActivity.create_only_extra_savings_independent_payment( 
+      @group_loan_membership, 
+      current_user, 
+      cash  )
+  end
+  
+  
   def create_structured_multiple_independent_payment
   
     @group_loan_membership = GroupLoanMembership.find_by_id params[:group_loan_membership_id]

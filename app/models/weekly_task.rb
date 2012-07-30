@@ -393,6 +393,18 @@ class WeeklyTask < ActiveRecord::Base
      )
   end
   
+  def create_extra_savings_only_independent_payment( member, transaction_activity, cash_passed)
+     self.member_payments.create(
+       :transaction_activity_id => transaction_activity.id,
+       :member_id => member.id , 
+       :has_paid => true ,
+       :only_extra_savings => true,
+       :cash_passed => cash_passed,
+       :week_number =>nil,
+       :is_independent_weekly_payment => true 
+     )
+  end
+  
   
 
 =begin

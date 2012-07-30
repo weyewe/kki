@@ -625,7 +625,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Period Payment",
+        :title => "Grace Period Payment",
         :destination_link => 'select_group_loan_for_grace_period_payment_approval_url',
         :conditions => [
           {

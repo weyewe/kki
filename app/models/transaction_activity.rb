@@ -681,8 +681,49 @@ class TransactionActivity < ActiveRecord::Base
     self.is_approved = true
     self.approver_id = current_user.id 
     self.save 
+  end
+  
+  def TransactionActivity.create_only_extra_savings_independent_payment(
+      group_loan_membership,
+      employee,
+      amount )
+    zero_value = BigDecimal("0")
+    return nil if group_loan_membership.nil? or employee.nil? or amount.nil? 
+    return nil if amount <= zero_value 
+    return nil if not  employee.has_role?(:field_worker, employee.get_active_job_attachment)
+    
+    member = group_loan_membership.member 
+    group_loan = group_loan_membership.group_loan 
+    weekly_task = group_loan.currently_executed_weekly_task
+    return nil if weekly_task.nil? 
+    
+    transaction_case = self.resolve_independent_payment_transaction_case(
+      amount, 
+      BigDecimal('0'), 
+      amount, 
+      0,
+      0
+    )
+  
+    
+    new_hash = {}
+    new_hash[:total_transaction_amount]  = amount
+    new_hash[:transaction_case] = transaction_case
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
+    new_hash[:member_id] = member.id 
+    new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward]
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
     
     
+    transaction_activity = TransactionActivity.create new_hash 
+    transaction_activity.create_extra_savings_entries( amount , employee, member )
+    #  create member payment
+    
+    weekly_task.create_extra_savings_only_independent_payment( member, transaction_activity, amount) 
+    
+    return transaction_activity
   end
   
   def TransactionActivity.create_generic_independent_payment(
@@ -1534,6 +1575,7 @@ class TransactionActivity < ActiveRecord::Base
   
   
   def create_port_compulsory_savings_on_group_loan_closing_transaction_entry(amount, member ) 
+    # take it out from compulsory savings
     transaction_entry  = self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:port_remaining_compulsory_savings_on_group_loan_close], 
                       :amount => amount  ,
@@ -1541,6 +1583,7 @@ class TransactionActivity < ActiveRecord::Base
                       )
     member.deduct_compulsory_savings( amount, SAVING_ENTRY_CODE[:deduct_compulsory_savings_to_be_ported_to_extra_savings] , transaction_entry )
     
+    #  pull it into the voluntary savings 
     transaction_entry  = self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:port_remaining_compulsory_savings_on_group_loan_close], 
                       :amount => amount  ,

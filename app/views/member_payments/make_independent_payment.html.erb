@@ -45,9 +45,7 @@
   
   <div class="tab-content" id="myTabContent">
     
-    <%#= render :partial => "weekly_tasks/special_payments/extra_savings" , :locals => {
-      :has_paid_weekly_payment => has_paid_weekly_payment
-      }%>
+    <%= render :partial => "member_payments/independent_payments/extra_savings"  %>
     <%= render :partial => "member_payments/independent_payments/structured_multiple_independent_payment" %>
 
 

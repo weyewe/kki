@@ -10,7 +10,14 @@
   <td><%= group_loan.unpaid_backlogs.count %></td>
   <td><%= print_money( group_loan.unpaid_grace_period_amount )  %></td>
   
-  <td> <%= link_to "Standard Resolution", standard_default_resolution_schema_url(group_loan) %> </td>
+  <td> 
+    <%# if group_loan.is_default_payment_resolution_approved == false %>
+      <%= link_to "Standard Resolution", standard_default_resolution_schema_url(group_loan) %>  
+    <%# else %>
+      <!-- "Standard" -->
+    <%# end %>
+     
+  </td>
   <td> Custom Resolution</td> <!-- Total default mamber -->
   <td>
     <% if group_loan.is_default_payment_resolution_approved == true %>

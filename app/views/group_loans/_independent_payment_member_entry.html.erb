@@ -1,7 +1,7 @@
 <tr id="select_member_independent_payment-<%= group_loan_membership.id %>">
   <td><%= link_to   group_loan_membership.member.name, make_independent_payment_url(group_loan_membership)  %></td>
   <td><%= group_loan_membership.sub_group.number %></td>
-  <td>Alamat</td>
-  <td><%= group_loan_membership.total_backlogs.count %></td>
+  <td><%= group_loan_membership.member.address  %></td>
+  <!-- <td><%#= group_loan_membership.total_backlogs.count %></td> -->
   <td><%= group_loan_membership.unpaid_backlogs.count %></td>
 </tr>
