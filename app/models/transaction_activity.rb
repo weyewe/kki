@@ -1408,6 +1408,8 @@ class TransactionActivity < ActiveRecord::Base
     new_hash[:member_id] = member.id
     new_hash[:loan_type] = LOAN_TYPE[:group_loan]
     new_hash[:loan_id] = glm.group_loan_id
+    new_hash[:is_approved] = true
+    new_hash[:approver_id] = employee.id
 
     transaction_activity = TransactionActivity.create new_hash
     
@@ -1442,6 +1444,8 @@ class TransactionActivity < ActiveRecord::Base
     new_hash[:member_id] = member.id
     new_hash[:loan_type] = LOAN_TYPE[:group_loan]
     new_hash[:loan_id] = glm.group_loan_id
+    new_hash[:is_approved] = true
+    new_hash[:approver_id] = employee.id
 
     transaction_activity = TransactionActivity.create new_hash
     
