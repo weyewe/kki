@@ -147,7 +147,7 @@ class WeeklyTasksController < ApplicationController
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @weekly_task = WeeklyTask.find_by_id params[:weekly_task_id]
-    @group_loan_memberships = @group_loan.active_group_loan_memberships.includes(:member).order("created_at DESC")
+    @group_loan_memberships = @group_loan.active_group_loan_memberships.includes(:member).order("sub_group_id DESC, created_at ASC")
   end
   
   def setup_for_weekly_meeting_task_closing

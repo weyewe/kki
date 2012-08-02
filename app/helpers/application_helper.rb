@@ -392,16 +392,16 @@ module ApplicationHelper
           }
         ]
       },
-      {
-        :title => "Declare Default Loan",
-        :destination_link => "select_group_loan_to_be_declared_as_default_url",
-        :conditions => [
-          {
-            :controller => 'group_loans',
-            :action => 'select_group_loan_to_be_declared_as_default'
-          }
-        ]
-      },
+      # {
+      #   :title => "Declare Default Loan",
+      #   :destination_link => "select_group_loan_to_be_declared_as_default_url",
+      #   :conditions => [
+      #     {
+      #       :controller => 'group_loans',
+      #       :action => 'select_group_loan_to_be_declared_as_default'
+      #     }
+      #   ]
+      # },
       # {
       #         :title => "Monitor Default Loan Resolution",
       #         :destination_link => "select_group_loan_monitor_default_loan_resolution_url",

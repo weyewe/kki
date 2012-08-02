@@ -199,7 +199,7 @@ class GroupLoansController < ApplicationController
   # approval by cashier 
   def select_group_loan_to_approve_independent_payment
     @office = current_user.active_job_attachment.office
-    @running_group_loans = @office.running_group_loans
+    @running_group_loans = @office.running_group_loans.where(:is_grace_period => false)
     
     add_breadcrumb "Select Group Loan", 'select_group_loan_to_approve_independent_payment_url'
   end
@@ -294,8 +294,17 @@ class GroupLoansController < ApplicationController
       @total_default_payment_to_be_paid += dp.amount_to_be_paid
     end
     
-    @office_loss = @group_loan.unpaid_grace_period_amount - @total_default_payment_to_be_paid
+    # actually,total_payment= DefaultPayment.where(:group_loan_membership_id => active_glm_id_list).sum("amount_paid")
+    # total amount assumed by office = DefaultPayment.where(:group_loan_membership_id => active_glm_id_list, :is_default => true ).sum("total_grace_period_amount") - 
+    #  DefaultPayment.where(:group_loan_membership_id => active_glm_id_list, :is_default => true ).sum("paid_grace_period_amount")
     
+    
+    # if @group_loan.is_default_payment_resolution_approved == false 
+    #   @office_loss = @group_loan.unpaid_grace_period_amount - DefaultPayment.where(:group_loan_membership_id => @group_loan.active_glm_id_list, :is_default => true ).sum("paid_grace_period_amount")
+    # else
+    #   @office_loss = @group_loan.deducted_grace_period_amount - @group_loan.unpaid_grace_period_amount 
+    # end
+    # 
     add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_default_resolution_path'
     set_breadcrumb_for @group_loan, 'standard_default_resolution_schema_url' + "(#{@group_loan.id})", 
                 "Standard Default Resolution"

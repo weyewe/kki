@@ -24,7 +24,8 @@
   <div class="row-fluid">
     <div class="span8">
     
-    <% if GroupLoanMembership.can_perform_cash_savings_withdrawal?(@member) %>
+    <% if GroupLoanMembership.can_perform_cash_savings_withdrawal?(@member) and 
+          TransactionActivity.where(:member_id=> @member.id, :is_approved => false).count == 0 %>
           
       <%= form_tag  execute_transaction_for_cash_savings_withdrawal_url, 
           :method => :get, :id => "search_member", :class => "prevent_double_submit"  do  %>
@@ -58,7 +59,11 @@
     <% else %>
       <div class="alert alert-error">
         <a data-dismiss="alert" class="close">×</a>
-        <strong>Can perform cash savings withdrawal!</strong> The group loan is in grace period. 
+        <strong>Can perform cash savings withdrawal!</strong> <br />
+        Reason: The group loan where <b><%= @member.name %></b> is a member, is in grace period <br />
+        or <br />
+        There is non approved transactions for the respective member. 
+        
       </div>
     <% end %>
       
@@ -83,7 +88,9 @@
 
             <tr>
               <td>Voluntary Savings</td>
-              <td id="total_extra_savings"><%= print_money(@member.saving_book.total_extra_savings)%> </td>
+              <td><%= print_money(@member.saving_book.total_extra_savings)%> </td>
+              <%= hidden_field_tag 'total_extra_savings',
+                  @member.saving_book.total_extra_savings  %>
             </tr>
         </tbody>
       </table>

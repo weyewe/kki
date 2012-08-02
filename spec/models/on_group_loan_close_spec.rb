@@ -345,6 +345,7 @@ describe GroupLoan do
         initial_total_savings_hash = {}
         final_compulsory_savings_hash = {} 
         final_extra_savings_hash = {} 
+        final_total_savings_hash = {} 
         
         @group_loan.active_group_loan_memberships.joins(:default_payment).each do |glm|
           saving_book = glm.member.saving_book
@@ -380,9 +381,10 @@ describe GroupLoan do
         end
         
         it "should create N transactions where N is the number of active glm, to migrate compulsory savings to extra savings" do
-          
-          @group_loan.close_group_loan(@branch_manager)
           active_glm_count = @group_loan.active_group_loan_memberships.count
+          puts "876 total active glm count: #{active_glm_count}"
+          @group_loan.close_group_loan(@branch_manager)
+          
           
           @transactions = TransactionActivity.where(:transaction_case => TRANSACTION_CASE[:port_compulsory_savings_during_group_loan_closing],
             :loan_id =>@group_loan.id)
@@ -395,6 +397,10 @@ describe GroupLoan do
           initial_compulsory_savings = {}
           initial_total_savings = {}
           active_glm_id_list = []
+          
+          final_extra_savings = {}
+          final_compulsory_savings = {}
+          final_total_savings = {}
           
           @group_loan.active_group_loan_memberships.each do |glm|
             initial_extra_savings[glm.id] = glm.member.saving_book.total_extra_savings

@@ -1448,7 +1448,7 @@ class TransactionActivity < ActiveRecord::Base
     default_payment = glm.default_payment 
     # transaction_activity.create_default_payment_savings_withdrawal_transaction_entry(default_payment.amount_paid , member)
     
-    transaction_activity.create_port_compulsory_savings_on_group_loan_closing_transaction_entry( glm.compulsory_savings_to_be_ported_to_extra_savings , member )
+    transaction_activity.create_port_compulsory_savings_on_group_loan_closing_transaction_entry( member.saving_book.total_compulsory_savings , member )
     return transaction_activity
   end
   
@@ -1461,7 +1461,7 @@ class TransactionActivity < ActiveRecord::Base
     return nil if amount.nil? or employee.nil? or member.nil? 
     
     return nil if not GroupLoanMembership.can_perform_cash_savings_withdrawal?(member)
-    
+    return nil if TransactionActivity.where(:member_id => member.id, :is_approved => false ).count != 0 
     return nil if not employee.has_role?(:cashier, employee.active_job_attachment)
     return nil if amount < 0 
     return nil if amount > member.saving_book.total_extra_savings 

@@ -250,8 +250,13 @@ class TransactionActivitiesController < ApplicationController
   def execute_transaction_for_cash_savings_withdrawal
     @member = Member.find( params[:member_id])
     @amount = BigDecimal(params[:savings_withdrawal_amount])
-    # @transaction_activity = TransactionActivity.create_cash_savings_withdrawal( @amount, current_user, @member ) 
-    redirect_to input_value_for_cash_savings_withdrawal_url(@member, :error => "There is error", :amount => @amunt)
+    @transaction_activity = TransactionActivity.create_cash_savings_withdrawal( @amount, current_user, @member ) 
+    if @transaction_activity.nil?
+      redirect_to input_value_for_cash_savings_withdrawal_url(@member, :error => "There is error", :amount => @amount)
+    else
+      redirect_to input_value_for_cash_savings_withdrawal_url(@member, :amount => @amount)
+    end
+    
   end
  
   

@@ -344,8 +344,8 @@ class GroupLoan < ActiveRecord::Base
   end
   
   def preserved_active_group_loan_memberships
-    active_group_loan_memberships  + self.group_loan_memberships.where(:is_active => false , 
-    :deactivation_case => GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed])
+    ( active_group_loan_memberships  + self.group_loan_memberships.where(:is_active => false , 
+    :deactivation_case => GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]) ) .sort_by{|x| x.sub_group_id}
   end
   
   def non_active_group_loan_memberships
@@ -632,6 +632,20 @@ class GroupLoan < ActiveRecord::Base
     end
   end
   
+  def approve_loan_disbursement_with_setup_payment_deduction(employee)
+    return nil if not employee.has_role?(:cashier, employee.active_job_attachment)
+    
+    active_member_id_list =  GroupLoanMembership.where(:id => active_glm_id_list ).map{|x| x.member_id }
+    
+    TransactionActivity.where(:member_id => active_member_id_list , :loan_type => LOAN_TYPE[:group_loan],
+    :loan_id => self.id, :is_approved => false,
+    :transaction_case => TRANSACTION_CASE[:loan_disbursement_with_setup_payment_deduction]  ).each do |ta|
+        ta.is_approved  = true 
+        ta.approver_id = employee.id
+        ta.save
+    end
+  end
+  
   def execute_finalize_loan_disbursement( current_user )
     
     if not current_user.has_role?(:cashier, current_user.active_job_attachment)
@@ -645,7 +659,7 @@ class GroupLoan < ActiveRecord::Base
       self.loan_disbursement_approver_id = current_user.id
       self.save 
       
-      
+      self.approve_loan_disbursement_with_setup_payment_deduction(current_user)
       self.initiate_weekly_tasks
       self.create_default_payments 
       # group loan has these things
@@ -822,6 +836,15 @@ class GroupLoan < ActiveRecord::Base
       sum += x.unpaid_grace_period_amount 
     end
     return sum 
+  end
+  
+  def deducted_grace_period_amount
+    sum = BigDecimal("0")
+    
+    sum = DefaultPayment.where(:group_loan_membership_id => active_glm_id_list ).
+          sum("amount_paid")
+    
+    return sum
   end
   
   
@@ -1336,11 +1359,11 @@ class GroupLoan < ActiveRecord::Base
     # end
     
     
-    self.active_group_loan_memberships.each do |glm|
-      glm.is_active = false 
-      glm.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
-      glm.save
-    end
+    # self.active_group_loan_memberships.each do |glm|
+    #   glm.is_active = false 
+    #   glm.deactivation_case = GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
+    #   glm.save
+    # end
     
     self.is_default_payment_resolution_approved = true
     self.default_payment_resolution_approver_id = employee.id 

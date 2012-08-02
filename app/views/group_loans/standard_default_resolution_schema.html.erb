@@ -5,8 +5,10 @@
         "Group Loan: <b>#{@group_loan.name}</b> "  + "<br />" + 
         "Total Defaultee: <b>#{@total_defaultee}</b>" + "<br />" + 
         "Total Default Amount: <b>#{print_money(@group_loan.unpaid_grace_period_amount )}</b>" + "<br />" + 
-        "Total Amount Recovered: <b>#{print_money( @group_loan.total_amount_deducted_for_default_payment_resolution )}</b>" + "<br />" + 
-        "Office Loss: <b>#{print_money(@office_loss)}</b>").html_safe %>
+        "Total Amount Recovered: <b>#{print_money( @group_loan.total_amount_deducted_for_default_payment_resolution )}</b>" ).html_safe %>
+        
+        <!-- + "<br />" + 
+          "Office Loss: <b>#{print_money(@office_loss)}</b>" -->
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -21,10 +23,12 @@
             <th>Member</th>
             <th>Total Savings</th>
             <th>Compulsory Savings</th>
-            <th>Extra Savings</th>
+            <th>Voluntary Savings</th>
             <th>Default Status</th>
             <th>Unpaid Amount</th>
             <th>Deduction Amount</th>
+            <th>Compulsory Savings Deduction</th>
+            <th>Voluntary Savings Deduction</th>
           </tr>
         </thead>
         <tbody>

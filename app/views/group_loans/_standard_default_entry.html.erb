@@ -31,6 +31,14 @@
   </td>
   
   <td>
-    <%= print_money( default_payment.amount_to_be_paid ) %>
+    <%= print_money( default_payment.amount_paid ) %>
+  </td>
+  
+  <td>
+    <%= print_money( default_payment.amount_of_compulsory_savings_deduction ) %>
+  </td>
+  
+  <td>
+    <%= print_money( default_payment.amount_of_extra_savings_deduction ) %>
   </td>
 </tr>

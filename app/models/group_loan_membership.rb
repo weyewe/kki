@@ -395,92 +395,92 @@ class GroupLoanMembership < ActiveRecord::Base
     end
   end
   
-  def compulsory_savings_to_be_ported_to_extra_savings
-    member = self.member
-    group_loan = self.group_loan 
-    
-    
-    # all the weekly payment  + backlog payment during weekly payment cycle
-    member_transaction_activity_id_list_in_group_loan = TransactionActivity.find(:all, :conditions => {
-      :member_id => member.id ,
-      :loan_type => LOAN_TYPE[:group_loan] , 
-      :loan_id => group_loan.id ,
-      :transaction_case => (BASIC_WEEKLY_PAYMENT_START..BASIC_WEEKLY_PAYMENT_END) # TRANSACTION_CASE[]  -> starts with 777
-    }).map{|x| x.id }
-    
-    # initial savings through loan disbursement deduction 
-    member_transaction_activity_for_loan_disbursement_deduction_initial_savings = TransactionActivity.find(:all, :conditions => {
-      :member_id => member.id ,
-      :loan_type => LOAN_TYPE[:group_loan] , 
-      :loan_id => group_loan.id ,
-      :transaction_case => TRANSACTION_CASE[:loan_disbursement_with_setup_payment_deduction]
-    }).map{|x| x.id }
-    
-    # compulsory savings during grace period -> no compulsory savings, moron! 
-    # member_transaction_activity_id_list_grace_period = TransactionActivity.find(:all, :conditions => {
-    #   :member_id => member.id ,
-    #   :loan_type => LOAN_TYPE[:group_loan] , 
-    #   :loan_id => group_loan.id ,
-    #   :transaction_case => (GRACE_PERIOD_PAYMENT_START..GRACE_PERIOD_PAYMENT_END) # TRANSACTION_CASE[]  -> starts with 777
-    # }).map{|x| x.id }
-    
-    # compulsory savings deduction for default payment 
-    member_transaction_activity_for_default_payment_resolution = TransactionActivity.find(:all, :conditions => {
-      :member_id => member.id ,
-      :loan_type => LOAN_TYPE[:group_loan] , 
-      :loan_id => group_loan.id ,
-      :transaction_case => TRANSACTION_CASE[:default_payment_automatic_deduction]
-    }).map{|x| x.id }
-    
-    
-    
-    transaction_entries_in_weekly_payment = TransactionEntry.find(:all, :conditions => {
-      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_saving], 
-      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward], #adding money to the account 
-      :transaction_activity_id => member_transaction_activity_id_list_in_group_loan
-    })
-    
-    # no compulsory savings in grace period 
-    # transaction_entries_in_grace_period_payment = TransactionEntry.find(:all, :conditions => {
-    #    :transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_saving], 
-    #    :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward], #adding money to the account 
-    #    :transaction_activity_id => member_transaction_activity_id_list_grace_period
-    #  })
-    # puts "~~~~~~~~~~~~~~~~~~~total transaction activity representing weekly payment: #{member_transaction_activity_id_list_in_group_loan.count}\n"*10
-    # puts "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^total transaction entries in weekly payment: #{transaction_entries_in_weekly_payment.count}\n"*10
-    
-    transaction_entries_in_auto_deduct_setup_payment = TransactionEntry.find(:all, :conditions => {
-      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:initial_savings], 
-      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward],
-      :transaction_activity_id => member_transaction_activity_for_loan_disbursement_deduction_initial_savings
-    })
-    
-    transaction_entries_in_auto_deduct_default_payment_resolution = TransactionEntry.find(:all, :conditions => {
-      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:default_loan_resolution_compulsory_savings_withdrawal], 
-      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward],
-      :transaction_activity_id => member_transaction_activity_for_default_payment_resolution
-    })
-    
-    
-    
-    total_amount = BigDecimal("0")
-    
-    transaction_entries_in_weekly_payment.each do |te|
-      total_amount += te.amount
-      # not this simple. remember, that the compulsory_savings is used to pay default payment contribution? 
-    end
-    
-    transaction_entries_in_auto_deduct_setup_payment.each do |te|
-      total_amount += te.amount
-    end
-    
-    transaction_entries_in_auto_deduct_default_payment_resolution.each do |te|
-      total_amount -+ te.amount 
-    end
-        # 
-        # member.port_compulsory_savings_to_extra_savings( total_amount , group_loan ) 
-    return total_amount 
-  end
+  # def compulsory_savings_to_be_ported_to_extra_savings
+  #   member = self.member
+  #   group_loan = self.group_loan 
+  #   
+  #   
+  #   # all the weekly payment  + backlog payment during weekly payment cycle
+  #   member_transaction_activity_id_list_in_group_loan = TransactionActivity.find(:all, :conditions => {
+  #     :member_id => member.id ,
+  #     :loan_type => LOAN_TYPE[:group_loan] , 
+  #     :loan_id => group_loan.id ,
+  #     :transaction_case => (BASIC_WEEKLY_PAYMENT_START..BASIC_WEEKLY_PAYMENT_END) # TRANSACTION_CASE[]  -> starts with 777
+  #   }).map{|x| x.id }
+  #   
+  #   # initial savings through loan disbursement deduction 
+  #   member_transaction_activity_for_loan_disbursement_deduction_initial_savings = TransactionActivity.find(:all, :conditions => {
+  #     :member_id => member.id ,
+  #     :loan_type => LOAN_TYPE[:group_loan] , 
+  #     :loan_id => group_loan.id ,
+  #     :transaction_case => TRANSACTION_CASE[:loan_disbursement_with_setup_payment_deduction]
+  #   }).map{|x| x.id }
+  #   
+  #   # compulsory savings during grace period -> no compulsory savings, moron! 
+  #   # member_transaction_activity_id_list_grace_period = TransactionActivity.find(:all, :conditions => {
+  #   #   :member_id => member.id ,
+  #   #   :loan_type => LOAN_TYPE[:group_loan] , 
+  #   #   :loan_id => group_loan.id ,
+  #   #   :transaction_case => (GRACE_PERIOD_PAYMENT_START..GRACE_PERIOD_PAYMENT_END) # TRANSACTION_CASE[]  -> starts with 777
+  #   # }).map{|x| x.id }
+  #   
+  #   # compulsory savings deduction for default payment 
+  #   member_transaction_activity_for_default_payment_resolution = TransactionActivity.find(:all, :conditions => {
+  #     :member_id => member.id ,
+  #     :loan_type => LOAN_TYPE[:group_loan] , 
+  #     :loan_id => group_loan.id ,
+  #     :transaction_case => TRANSACTION_CASE[:default_payment_automatic_deduction]
+  #   }).map{|x| x.id }
+  #   
+  #   
+  #   
+  #   transaction_entries_in_weekly_payment = TransactionEntry.find(:all, :conditions => {
+  #     :transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_saving], 
+  #     :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward], #adding money to the account 
+  #     :transaction_activity_id => member_transaction_activity_id_list_in_group_loan
+  #   })
+  #   
+  #   # no compulsory savings in grace period 
+  #   # transaction_entries_in_grace_period_payment = TransactionEntry.find(:all, :conditions => {
+  #   #    :transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_saving], 
+  #   #    :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward], #adding money to the account 
+  #   #    :transaction_activity_id => member_transaction_activity_id_list_grace_period
+  #   #  })
+  #   # puts "~~~~~~~~~~~~~~~~~~~total transaction activity representing weekly payment: #{member_transaction_activity_id_list_in_group_loan.count}\n"*10
+  #   # puts "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^total transaction entries in weekly payment: #{transaction_entries_in_weekly_payment.count}\n"*10
+  #   
+  #   transaction_entries_in_auto_deduct_setup_payment = TransactionEntry.find(:all, :conditions => {
+  #     :transaction_entry_code => TRANSACTION_ENTRY_CODE[:initial_savings], 
+  #     :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward],
+  #     :transaction_activity_id => member_transaction_activity_for_loan_disbursement_deduction_initial_savings
+  #   })
+  #   
+  #   transaction_entries_in_auto_deduct_default_payment_resolution = TransactionEntry.find(:all, :conditions => {
+  #     :transaction_entry_code => TRANSACTION_ENTRY_CODE[:default_loan_resolution_compulsory_savings_withdrawal], 
+  #     :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward],
+  #     :transaction_activity_id => member_transaction_activity_for_default_payment_resolution
+  #   })
+  #   
+  #   
+  #   
+  #   total_amount = BigDecimal("0")
+  #   
+  #   transaction_entries_in_weekly_payment.each do |te|
+  #     total_amount += te.amount
+  #     # not this simple. remember, that the compulsory_savings is used to pay default payment contribution? 
+  #   end
+  #   
+  #   transaction_entries_in_auto_deduct_setup_payment.each do |te|
+  #     total_amount += te.amount
+  #   end
+  #   
+  #   transaction_entries_in_auto_deduct_default_payment_resolution.each do |te|
+  #     total_amount -+ te.amount 
+  #   end
+  #       # 
+  #       # member.port_compulsory_savings_to_extra_savings( total_amount , group_loan ) 
+  #   return total_amount 
+  # end
 
 
 
