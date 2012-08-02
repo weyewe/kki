@@ -1009,6 +1009,7 @@ class GroupLoan < ActiveRecord::Base
       
       
       self.is_closed = true 
+      self.is_grace_period = false
       self.group_loan_closer_id = current_user.id
       self.save
     end
