@@ -235,6 +235,13 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_backlog_payment_approval' => "group_loans#select_group_loan_for_backlog_payment_approval", :as => :select_group_loan_for_backlog_payment_approval
   match 'select_pending_backlog_to_be_approved/:group_loan_id' => "backlog_payments#select_pending_backlog_to_be_approved", :as => :select_pending_backlog_to_be_approved
   match 'execute_backlog_payment_approval_by_cashier' => "backlog_payments#execute_backlog_payment_approval_by_cashier", :as => :execute_backlog_payment_approval_by_cashier, :method => :post
+  
+=begin
+  SAVINGS WITHDRAWAL
+=end
+  match 'search_member_for_savings_withdrawal' => 'members#search_member_for_savings_withdrawal', :as => :search_member_for_savings_withdrawal
+  match 'input_value_for_cash_savings_withdrawal/:member_id' => 'members#input_value_for_cash_savings_withdrawal', :as => :input_value_for_cash_savings_withdrawal
+  match 'execute_transaction_for_cash_savings_withdrawal' => 'transaction_activities#execute_transaction_for_cash_savings_withdrawal', :as => :execute_transaction_for_cash_savings_withdrawal, :method => :post 
 =begin
   Transaction routes 
 =end

@@ -351,6 +351,7 @@ describe GroupLoan do
     
     # how about the compulsory savings deduction and the voluntary savings deduction? 
   end
-  
+  #  the amount deduction round up. How? 
+  # most likely, will happen to non defaultee -> rounded up 
   
 end

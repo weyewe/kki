@@ -38,15 +38,15 @@ class GroupLoanMembership < ActiveRecord::Base
       
       # do the deduction 
       if total_amount <= total_compulsory_savings
-        puts "glm id #{self.id}, case 1"
+        # puts "glm id #{self.id}, case 1"
         default_payment.amount_of_compulsory_savings_deduction = total_amount 
       elsif total_amount > total_compulsory_savings &&  total_amount <= total_deductible_member_savings 
-        puts "glm id #{self.id}, case 2"
+        # puts "glm id #{self.id}, case 2"
         default_payment.amount_of_compulsory_savings_deduction = total_compulsory_savings 
         default_payment.amount_of_extra_savings_deduction = total_amount  - total_compulsory_savings
       elsif total_amount > total_deductible_member_savings 
         # will be handled by group
-        puts "glm id #{self.id}, case 3"
+        # puts "glm id #{self.id}, case 3"
         
         
         default_payment.amount_of_compulsory_savings_deduction = total_compulsory_savings 
@@ -58,11 +58,11 @@ class GroupLoanMembership < ActiveRecord::Base
     
     
     default_payment.save 
-    puts "Total compulsory savings: #{total_compulsory_savings}"
-    puts "total extra savings : #{total_extra_savings}"
-    puts "compulsory deduction: #{default_payment.amount_of_compulsory_savings_deduction}"
-    puts "extra savings deduction: #{default_payment.amount_of_extra_savings_deduction}"
-    puts "to be shared: #{default_payment.amount_to_be_shared_with_non_defaultee}"
+    # puts "Total compulsory savings: #{total_compulsory_savings}"
+    # puts "total extra savings : #{total_extra_savings}"
+    # puts "compulsory deduction: #{default_payment.amount_of_compulsory_savings_deduction}"
+    # puts "extra savings deduction: #{default_payment.amount_of_extra_savings_deduction}"
+    # puts "to be shared: #{default_payment.amount_to_be_shared_with_non_defaultee}"
   end
   
   def create_default_payment_for_the_default_member
@@ -513,6 +513,22 @@ class GroupLoanMembership < ActiveRecord::Base
                               :transaction_case => (GRACE_PERIOD_PAYMENT_START..GRACE_PERIOD_PAYMENT_END)  )
   end
   
+  
+=begin
+  SAVINGS WITHDRAWAL
+=end
+  def self.can_perform_cash_savings_withdrawal?(member)
+     if GroupLoanMembership.joins(:group_loan, :default_payment).where(
+        :member_id => member.id , 
+        :is_active => true, 
+        :group_loan => {:is_grace_period => true },
+        :default_payment => {:is_defaultee => true }
+      ).length != 0 
+        return false
+      end
+      
+      return true 
+  end
   
   protected
   def destroy_group_loan_subcription

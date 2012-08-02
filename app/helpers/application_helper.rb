@@ -660,11 +660,15 @@ module ApplicationHelper
     :processes => [
       {
         :title => "Savings withdrawal",
-        :destination_link => "root_url",
+        :destination_link => "search_member_for_savings_withdrawal_url",
         :conditions => [
           {
-            :controller => '',
-            :action => ''
+            :controller => 'members',
+            :action => 'search_member_for_savings_withdrawal'
+          },
+          {
+            :controller => "members",
+            :action => 'input_value_for_cash_savings_withdrawal'
           }
         ]
       }

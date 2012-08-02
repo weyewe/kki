@@ -50,6 +50,20 @@ class DefaultPayment < ActiveRecord::Base
     self.save
   end
   
+  def DefaultPayment.rounding_up(amount,  nearest_amount ) 
+    total = amount
+    # total_amount
+
+    multiplication_of_500 = ( total.to_i/nearest_amount.to_i ) .to_i
+    remnant = (total.to_i%nearest_amount.to_i)
+    if remnant > 0  
+      return  nearest_amount *( multiplication_of_500 + 1 )
+    else
+      return nearest_amount *( multiplication_of_500  )
+    end  
+  end
+  
+  
   def round_up_to( nearest_amount )
     total = amount_group_share + amount_sub_group_share
     # total_amount
@@ -74,16 +88,16 @@ class DefaultPayment < ActiveRecord::Base
   
   def amount_to_be_paid
     
-    if self.custom_amount.nil? 
+    # if self.custom_amount.nil? 
       return self.total_amount 
-    else
-      return self.custom_amount 
-    end
+    # else
+      # return self.custom_amount 
+    # end
   end
   
   def set_default_amount_deducted(amount , transaction_activity  )
     
-    self.amount_paid = amount 
+    # self.amount_paid = amount 
     self.is_paid = true 
     self.transaction_id = transaction_activity.id 
     self.save

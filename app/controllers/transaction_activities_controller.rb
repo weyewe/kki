@@ -243,16 +243,15 @@ class TransactionActivitiesController < ApplicationController
     @transaction_activity.reload 
   end
   
+
 =begin
-  Default loan resolution 
+  CASH SAVINGS WITHDRAWAL 
 =end
-  def pay_default_loan_resolution_by_structured_payment
-    @default_payment = DefaultPayment.find_by_id(params[:default_payment_id])
-    
-    @transaction_activity = TransactionActivity.create_default_loan_resolution_payment(   @default_payment,
-                                                          current_user,
-                                                          cash, 
-                                                          savings_withdrawal)
+  def execute_transaction_for_cash_savings_withdrawal
+    @member = Member.find( params[:member_id])
+    @amount = BigDecimal(params[:savings_withdrawal_amount])
+    # @transaction_activity = TransactionActivity.create_cash_savings_withdrawal( @amount, current_user, @member ) 
+    redirect_to input_value_for_cash_savings_withdrawal_url(@member, :error => "There is error", :amount => @amunt)
   end
  
   

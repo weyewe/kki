@@ -4,6 +4,20 @@ $(document).ready(function() {
   // prevent double submit
   jQuery('.prevent_double_submit').preventDoubleSubmit();
   
+  $('#create_cash_savings_withdrawal').live('click', function(){
+    var value = newParseInt( $("#savings_withdrawal_amount").attr("value") );
+    
+    var extra_savings = newParseInt( $("#total_extra_savings").attr("value") );
+    
+    if( value > extra_savings){
+      alert("the savings withdrawal can't exceed "  + addCommas(extra_savings));
+      return false; 
+    }else if(value == 0 ){
+      alert("savings withdrawal must be greater than 0 ");
+      return false; 
+    }
+  });
+  
   /*
     To simulate the group loan product
       In the form:

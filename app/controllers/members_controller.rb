@@ -22,6 +22,33 @@ class MembersController < ApplicationController
     
   end
   
+=begin
+  Savings Withdrawal, hard cash 
+=end
+  def search_member_for_savings_withdrawal
+    @office = current_user.active_job_attachment.office
+    @members = [] 
+    if not  params[:member_name].nil?  and not params[:member_name].length == 0 
+      name_query = '%' + params[:member_name] + '%'
+      office = @office
+      @members = Member.where{ (name =~ name_query) & {office_id => office.id} }
+    end
+    add_breadcrumb "Select Group Loan", 'search_member_for_savings_withdrawal_url'
+  end
+  
+  def input_value_for_cash_savings_withdrawal
+    @office = current_user.active_job_attachment.office
+    @member = Member.find_by_id params[:member_id]
+    @transaction_activities = TransactionActivity.where(
+                  :member_id => @member.id, 
+                  :transaction_case => TRANSACTION_CASE[:cash_savings_withdrawal]
+                  )
+    
+    add_breadcrumb "Select Group Loan", 'search_member_for_savings_withdrawal_url'
+    set_breadcrumb_for @member, 'input_value_for_cash_savings_withdrawal_url' + "(#{@member.id})", 
+                "Amount for Savings Withdrawal"
+  end
+  
   protected
   def setup_members
     @office = current_user.active_job_attachment.office

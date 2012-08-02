@@ -119,7 +119,7 @@ TRANSACTION_CASE = {
   # all transaction from the company to the member
   :loan_disbursement_no_setup_payment_deduction => 100,
   :loan_disbursement_with_setup_payment_deduction => 101,
-  :saving_withdrawal => 200, 
+  :cash_savings_withdrawal => 200, 
   :deposit_return_complete => 300, 
   :deposit_return_deduct_default => 301 ,
   
@@ -155,6 +155,8 @@ TRANSACTION_ENTRY_CODE = {
   # default_payment
   :default_loan_resolution_payment => 500,
   :extra_savings_from_default_loan_resolution_payment => 510,
+  :default_payment_compulsory_savings_deduction => 511, 
+  :default_payment_extra_savings_deduction => 512, 
   
   :default_loan_resolution_compulsory_savings_withdrawal => 600,
   
@@ -173,13 +175,17 @@ SAVING_ENTRY_CODE = {
   :no_weekly_payment_only_savings => 5 ,
   
   :soft_withdraw_to_pay_basic_weekly_payment => 100, 
-  :hard_withdrawal => 101,
   
   :soft_withdraw_for_default_payment => 200,
   :weekly_saving_extra_from_default_payment => 250,
   
   :deduct_compulsory_savings_to_be_ported_to_extra_savings => 300,
-  :add_extra_savings_from_compulsory_savings_deduction => 301 
+  :add_extra_savings_from_compulsory_savings_deduction => 301 ,
+  
+  :deduct_compulsory_savings_for_default_payment => 401,
+  :deduct_extra_savings_for_default_payment => 402,
+  
+  :deduct_extra_savings_for_cash_savings_withdrawal => 500
   
  
   

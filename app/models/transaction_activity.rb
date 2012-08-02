@@ -1347,13 +1347,17 @@ class TransactionActivity < ActiveRecord::Base
   DEFAULT_PAYMENT_RESOLUTION
   new method 
 =end 
-
+  def savings_default_payment_deduction
+    # self.transaction_entries.where(:)
+  end
+  
   def TransactionActivity.create_default_payment_resolution( default_payment,  employee  ) 
     # flow: field worker propose default payment resolution : standard or custom (if custom, use the number as well ) 
     
     # then, the cashier approves
     
     if not employee.has_role?(:cashier, employee.active_job_attachment)
+      puts "666 no role"
       return nil 
     end
     
@@ -1361,14 +1365,29 @@ class TransactionActivity < ActiveRecord::Base
     member = glm.member 
     
     
-    amount_to_be_paid = default_payment.amount_to_be_paid
+    amount_to_be_paid = default_payment.amount_paid
 
     
+    puts "8821 amount to be paid: #{amount_to_be_paid}"
     # deduce transaction_case 
     
-    if amount_to_be_paid > member.saving_book.total_compulsory_savings
+    if default_payment.is_defaultee == false and amount_to_be_paid > member.saving_book.total_compulsory_savings
+      puts "666 total compulsory savings: #{member.saving_book.total_compulsory_savings.to_s}"
+      puts "666 to be paid: #{amount_to_be_paid.to_s}"
+      puts "666 not enough money, boom boom is deafultee = false"
+      
       return nil
     end
+    
+    if default_payment.is_defaultee == true and  amount_to_be_paid > member.saving_book.total 
+      puts "777 total  savings: #{member.saving_book.total.to_s}"
+      puts "777 to be paid: #{amount_to_be_paid.to_s}"
+      puts "777 not enough money, is deafultee = false"
+      puts "777 compulsory savings to be deducted = #{default_payment.amount_of_compulsory_savings_deduction.to_s}"
+      puts "777 voluntary savings to be deducted = #{default_payment.amount_of_extra_savings_deduction.to_s}"
+      return nil
+    end
+ 
     
     
     
@@ -1397,7 +1416,7 @@ class TransactionActivity < ActiveRecord::Base
     # member.deduct_savings( default_payment.amount_paid, SAVING_ENTRY_CODE[:soft_withdraw_for_default_payment] , transaction_entry )
     # the savings deduction is done in the transaction entry
     # transaction_activity.create_auto_default_payment_resolution_entries( default_payment) 
-    transaction_activity.create_default_payment_savings_withdrawal_transaction_entry(default_payment.amount_paid , member)
+    transaction_activity.create_default_payment_resolution_transaction_entries(default_payment , member)
     return transaction_activity
   end
   
@@ -1434,143 +1453,99 @@ class TransactionActivity < ActiveRecord::Base
   end
   
 
-  def TransactionActivity.execute_default_payment_deduction_from_savings(group_loan,default_payment,glm, current_user)
-    member = glm.member
+=begin
+  GROUP LOAN 
+=end
+
+  def TransactionActivity.create_cash_savings_withdrawal( amount, employee, member ) 
+    return nil if amount.nil? or employee.nil? or member.nil? 
+    
+    return nil if not GroupLoanMembership.can_perform_cash_savings_withdrawal?(member)
+    
+    return nil if not employee.has_role?(:cashier, employee.active_job_attachment)
+    return nil if amount < 0 
+    return nil if amount > member.saving_book.total_extra_savings 
     
     
     new_hash = {}
-    new_hash[:total_transaction_amount] = BigDecimal("0") #no hard money flowing 
-    new_hash[:transaction_case]  = TRANSACTION_CASE[:default_payment_automatic_deduction]
-    new_hash[:creator_id] = current_user.id 
-    new_hash[:office_id] = current_user.active_job_attachment.office.id
+    new_hash[:total_transaction_amount] = amount # hard money flowing 
+    new_hash[:transaction_case]  = TRANSACTION_CASE[:cash_savings_withdrawal]
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
     new_hash[:member_id] = member.id
-    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
-    new_hash[:loan_id] = glm.group_loan_id
+    new_hash[:loan_type] = nil
+    new_hash[:loan_id] =  nil 
+    new_hash[:is_approved] =  true 
+    new_hash[:approver_id] =  employee.id 
 
     transaction_activity = TransactionActivity.create new_hash
     
-    
-    if default_payment.total_amount > member.total_savings
-      default_payment.set_default_amount_deducted(transaction_activity, member, true)
-    else
-      default_payment.set_default_amount_deducted(transaction_activity, member, false)
-    end
-    
-    # member.deduct_savings( default_payment.amount_paid, SAVING_ENTRY_CODE[:soft_withdraw_for_default_payment] , transaction_entry )
-    # the savings deduction is done in the transaction entry
-    # transaction_activity.create_auto_default_payment_resolution_entries( default_payment) 
-    transaction_activity.create_default_payment_savings_withdrawal_transaction_entry(default_payment.amount_paid , member)
-    return transaction_activity
+    transaction_activity.create_cash_savings_withdrawal_entry( amount, member)
   end
-  
-  
-  # the old scheme where member can choose to pay by cash
-  #the new scheme: deduct automatically from savings. The excess is covered by KKI
-  def TransactionActivity.create_default_loan_resolution_payment(   default_payment,
-                                                        current_user,
-                                                        cash, 
-                                                        savings_withdrawal)
-    group_loan_membership = default_payment.group_loan_membership
-    member = group_loan_membership.member
-    group_loan = group_loan_membership.group_loan
-    
-    if default_payment.is_defaultee == true 
-      return nil
-    end
-    
-    zero_value = BigDecimal("0")
-    if savings_withdrawal > member.total_savings or
-      savings_withdrawal < zero_value or
-      cash < zero_value or
-      (cash + savings_withdrawal < default_payment.total_amount) or 
-      (default_payment.is_defaultee == true ) or 
-      (group_loan.is_closed == true) #if the group loan is closed, no more transactions 
-      return nil
-    end
-    
-    result_resolve= TransactionActivity.resolve_transaction_case_for_default_payment(cash,  savings_withdrawal,  default_payment )
-    
-    
-    new_hash = {}
-    new_hash[:total_transaction_amount] = result_resolve[:total_transaction_amount]
-    new_hash[:transaction_case]  = result_resolve[:transaction_case]
-    new_hash[:creator_id] = current_user.id 
-    new_hash[:office_id] = current_user.active_job_attachment.office.id
-    new_hash[:member_id] = member.id
-    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
-    new_hash[:loan_id] = group_loan_membership.group_loan_id
 
-    transaction_activity = TransactionActivity.create new_hash
-    
-    default_payment.transaction_id = transaction_activity.id
-    default_payment.is_paid = true
-    default_payment.save 
-    
-    transaction_activity.create_default_resolution_payment_entries(
-               cash,
-               savings_withdrawal,
-               default_payment,
-               member
-             )
-    
-    return transaction_activity
-    
+  def create_cash_savings_withdrawal_entry( amount, member)
+    transaction_entry = self.transaction_entries.create( 
+                      :transaction_entry_code =>  TRANSACTION_ENTRY_CODE[:hard_saving_withdrawal] , 
+                      :amount => amount  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
+                      )
+         
+    member.deduct_extra_savings(amount, SAVING_ENTRY_CODE[:deduct_extra_savings_for_cash_savings_withdrawal] , transaction_entry  ) 
+ 
   end
-  
+
 =begin
   Group Loan, default loan resolution
 =end
 
-  def create_default_resolution_payment_entries( cash, savings_withdrawal, default_payment, member)
-    # :default_payment_resolution_only_cash => 70,
-    #   :default_payment_resolution_only_savings_withdrawal => 71,
+  def create_default_payment_resolution_transaction_entries( default_payment, member)
+    member = default_payment.group_loan_membership.member
+    compulsory_savings = member.saving_book.total_compulsory_savings
+    extra_savings = member.saving_book.total_extra_savings 
+    total_savings = member.saving_book.total 
+    amount_to_be_paid = default_payment.amount_paid 
+
+    # create_default_payment_transaction_entry( TRANSACTION_ENTRY_CODE[:default_payment_compulsory_savings_deduction], default_payment.amount_of_compulsory_savings_deduction)
+    # create_default_payment_transaction_entry( TRANSACTION_ENTRY_CODE[:default_payment_extra_savings_deduction], default_payment.amount_of_extra_savings_deduction)
     # 
-    #   :default_payment_resolution_only_cash_extra_savings => 72,
-    #   :default_payment_resolution_only_savings_withdrawal_extra_savings => 73,
-    # 
-    #   :default_payment_resolution_cash_and_savings_withdrawal => 74,
-    #   :default_payment_resolution_cash_and_savings_withdrawal_extra_savings => 75,
-    #   
-    #   
-    extra_savings = cash + savings_withdrawal - default_payment.total_amount
-    # will create what the money is used for. 
-    create_default_payment_transaction_entry(default_payment.total_amount ) 
-    
-    # listing the methods to get the $$$ 
-    if self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_cash]
-      
-    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal]
-      create_default_payment_savings_withdrawal_transaction_entry(savings_withdrawal, member)
-      
-    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_cash_extra_savings]
-      create_extra_savings_from_default_payment_entry( extra_savings , member)
-      
-    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal_extra_savings]
-      create_default_payment_savings_withdrawal_transaction_entry(savings_withdrawal, member)
-      create_extra_savings_from_default_payment_entry( extra_savings  ,member)
-      
-    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_cash_and_savings_withdrawal]
-      create_default_payment_savings_withdrawal_transaction_entry(savings_withdrawal, member)
-      
-    elsif self.transaction_case == TRANSACTION_CASE[:default_payment_resolution_cash_and_savings_withdrawal_extra_savings]
-      create_default_payment_savings_withdrawal_transaction_entry(savings_withdrawal, member )
-      create_extra_savings_from_default_payment_entry( extra_savings, member )
-      
+    if amount_to_be_paid <= compulsory_savings 
+      create_default_payment_transaction_entry( TRANSACTION_ENTRY_CODE[:default_payment_compulsory_savings_deduction], amount_to_be_paid)
+    else
+      if default_payment.is_defaultee == true 
+        create_default_payment_transaction_entry( TRANSACTION_ENTRY_CODE[:default_payment_compulsory_savings_deduction], compulsory_savings)
+        excess_default = amount_to_be_paid - compulsory_savings
+        
+        if excess_default > extra_savings 
+          create_default_payment_transaction_entry(  TRANSACTION_ENTRY_CODE[:default_payment_extra_savings_deduction], extra_savings)
+        else
+          create_default_payment_transaction_entry(   TRANSACTION_ENTRY_CODE[:default_payment_extra_savings_deduction], excess_default)
+        end
+      else
+        create_default_payment_transaction_entry(  TRANSACTION_ENTRY_CODE[:default_payment_compulsory_savings_deduction], compulsory_savings)
+      end
     end
-      
   end
-  
+    
+    
+
   
 =begin
   create transaction entry for default loan resolution payment
 =end
 
-  def create_default_payment_transaction_entry(default_payment_amount)
-    self.transaction_entries.create( 
-                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:default_loan_resolution_payment], 
-                      :amount => default_payment_amount  ,
-                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+  def create_default_payment_transaction_entry(transaction_entry_code, amount)
+    transaction_entry = self.transaction_entries.create( 
+                      :transaction_entry_code =>  transaction_entry_code , 
+                      :amount => amount  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
                       )
+                      
+                      
+    if transaction_entry_code == TRANSACTION_ENTRY_CODE[:default_payment_compulsory_savings_deduction]
+      member.deduct_compulsory_savings( amount, SAVING_ENTRY_CODE[:deduct_compulsory_savings_for_default_payment] , transaction_entry  ) 
+    elsif transaction_entry_code == TRANSACTION_ENTRY_CODE[:default_payment_extra_savings_deduction]
+      member.deduct_extra_savings(amount, SAVING_ENTRY_CODE[:deduct_extra_savings_for_default_payment] , transaction_entry  ) 
+    end  
   end
   
   
@@ -1720,7 +1695,6 @@ class TransactionActivity < ActiveRecord::Base
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
                       
-  
   end
   
   
@@ -1886,51 +1860,7 @@ class TransactionActivity < ActiveRecord::Base
   end
   
   
-  
-  def self.resolve_transaction_case_for_default_payment(cash,  savings_withdrawal,  default_payment )
-     #    6 cases
-     # :default_payment_resolution_only_cash => 70,
-     # :default_payment_resolution_only_savings_withdrawal => 71,
-     # 
-     # :default_payment_resolution_only_cash_extra_saving => 72,
-     # :default_payment_resolution_only_savings_withdrawal_extra_savings => 73,
-     # 
-     # :default_payment_resolution_cash_and_savings_withdrawal => 74,
-     # :default_payment_resolution_cash_and_savings_withdrawal_extra_savings => 75
-    result_resolve = {}
-    result_resolve[:total_transaction_amount] = cash
-    zero_value = BigDecimal("0")
-    if savings_withdrawal == zero_value
-      if cash  ==  default_payment.total_amount
-        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_only_cash]
-      elsif cash > default_payment.total_amount
-        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_only_cash_extra_savings]
-      end
-    end
-    
-    if cash == zero_value
-      if savings_withdrawal  ==  default_payment.total_amount
-        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal]
-      elsif cash > default_payment.total_amount
-        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_only_savings_withdrawal_extra_savings]
-      end
-    end
-    
-    if cash != zero_value && savings_withdrawal != zero_value
-      if (cash+ savings_withdrawal) == default_payment.total_amount
-        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_cash_and_savings_withdrawal]
-      elsif (cash+ savings_withdrawal) > default_payment.total_amount
-        result_resolve[:transaction_case] = TRANSACTION_CASE[:default_payment_resolution_cash_and_savings_withdrawal_extra_savings]
-      end
-    end
-    
-    
-     # result_resolve[:total_transaction_amount]
-     #     new_hash[:transaction_case]  = result_resolve[:transaction_case]
-     
-     return result_resolve
-     
-  end
+ 
   
   def self.legitimate_structured_multiple_weeks_payment?( cash, savings_withdrawal, number_of_weeks, 
           basic_weekly_payment, total_savings )

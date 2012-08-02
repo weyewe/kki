@@ -17,6 +17,8 @@ class CreateGroupLoans < ActiveRecord::Migration
       # when loan is started, loan officer is authorized to take setup fee from member
       # cashier is authorized to take $$$ 
       
+      t.boolean :is_grace_period, :default => false 
+      
       
       # our scenario: loan inspector marked the attendance (this loan inspector is supposed to be the branch manager)
       # then, it finalize the financial education attendance

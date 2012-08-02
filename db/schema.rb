@@ -155,6 +155,7 @@ ActiveRecord::Schema.define(:version => 20120724075419) do
     t.integer  "group_loan_closer_id"
     t.boolean  "is_started",                                                                              :default => false
     t.integer  "group_loan_starter_id"
+    t.boolean  "is_grace_period",                                                                         :default => false
     t.boolean  "is_financial_education_attendance_done",                                                  :default => false
     t.integer  "financial_education_inspector_id"
     t.boolean  "financial_education_finalization_proposed",                                               :default => false

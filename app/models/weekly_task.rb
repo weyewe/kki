@@ -622,7 +622,11 @@ class WeeklyTask < ActiveRecord::Base
     end
     
     if self.last_week?
-      self.group_loan.calculate_default_payment_in_grace_period #only principal and interest
+      group_loan = self.group_loan
+      group_loan.is_grace_period = true
+      group_loan.save
+      
+      group_loan.calculate_default_payment_in_grace_period #only principal and interest
     end
   end
   

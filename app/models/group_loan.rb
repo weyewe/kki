@@ -804,65 +804,7 @@ class GroupLoan < ActiveRecord::Base
     remaining_weeks_count = self.weekly_tasks.count - number_of_accounted_weeks
   end
   
-  # def total_remaining_weekly_tasks
-  #     self.total_weeks - self.completed_weekly_tasks.count
-  #   end
-  
-  # def declare_default( current_user )
-  #   if not current_user.has_role?(:branch_manager, current_user.get_active_job_attachment)
-  #     return nil
-  #   end
-  #   
-  #   if self.completed_weekly_tasks.count != self.total_weeks
-  #     return nil
-  #   end
-  #   
-  #   # put this in transaction block
-  #   self.default_creator_id = current_user.id
-  #   self.is_group_loan_default = true 
-  #   self.save 
-  #   
-  #   
-  #   self.generate_default_payments(current_user)
-  #   
-  # end
-  
-  
-  # def extract_total_default_amount
-  #   total_default = BigDecimal("0")
-  #   
-  #   self.unpaid_backlogs.each do |backlog|
-  #     total_default += backlog.amount
-  #   end
-  #   
-  #   self.total_default_amount  =  total_default
-  #   self.save 
-  #   
-  #   return total_default
-  # end
-    # 
-    # def extract_total_default_amount
-    #   
-    #   total_default = BigDecimal("0")
-    #   
-    #   self.sub_groups.each do |sub_group|
-    #     total_sub_group_default = sub_group.extract_total_unpaid_backlogs
-    #     puts "Total default sub_group #{sub_group.number}: #{sub_group.extract_total_unpaid_backlogs}"
-    #     
-    #     total_default += total_sub_group_default
-    #   end
-    #   
-    #   self.total_default_amount  =  total_default
-    #   self.save 
-    #   return total_default
-    # end
-    # 
-  # def declare_backlog_payments_as_default
-  #   self.unpaid_backlogs.each do |backlog|
-  #     backlog.is_group_loan_declared_as_default = true
-  #     backlog.save
-  #   end
-  # end
+
   
   
 =begin
@@ -1019,14 +961,7 @@ class GroupLoan < ActiveRecord::Base
   end
   
   
-  def auto_deduct_default_payments_from_savings(current_user)
-    self.group_loan_memberships.includes(:default_payment).each do |glm|
-      default_payment = glm.default_payment
-      TransactionActivity.execute_default_payment_deduction_from_savings(self,default_payment,glm, current_user)
-    end
-    
-  end
-  
+
   def close_group_loan(current_user)
     
     if self.is_closed == true 
@@ -1064,28 +999,7 @@ class GroupLoan < ActiveRecord::Base
   def has_finalized_all_weekly_tasks?
     self.finalized_weekly_tasks.count == self.total_weeks 
   end
-  
-  def generate_default_payments(current_user)
-    
-    if not current_user.has_role?(:branch_manager, current_user.active_job_attachment) 
-      return nil
-    end
-    
-    if not self.has_finalized_all_weekly_tasks?
-      return nil
-    end
-    
-    self.extract_total_default_amount
-    # by now, we know the default amount for each subgroup
-    # total default amount for the group == sum of default amount from all subgroups
-   
-    self.generate_default_payments_per_group_loan_membership  # sub_group_share and group_share
-    self.declare_backlog_payments_as_default #but not cleared. that is the basis for future data
-    
-    self.auto_deduct_default_payments_from_savings(current_user)
-    # self.close_group_loan(current_user)
-  end
-  
+ 
   
   def deduct_defaultee_compulsory_savings(employee)
     if not employee.has_role?(:branch_manager, employee.active_job_attachment ) 
@@ -1189,28 +1103,51 @@ class GroupLoan < ActiveRecord::Base
     self.active_group_loan_memberships.includes(:default_payment).each do |glm|
       default_payment = glm.default_payment 
       total_amount = BigDecimal("0")
+      member = glm.member
+      total_savings = member.saving_book.total
+      total_compulsory_savings = member.saving_book.total_compulsory_savings
+      total_extra_savings = member.saving_book.total_extra_savings
       if default_payment.is_defaultee == true
         total_amount = default_payment.amount_of_compulsory_savings_deduction + default_payment.amount_of_extra_savings_deduction
-        default_payment.total_amount = total_amount # => rounding up? to 500
+        
+        rounded_up_total_amount  = DefaultPayment.rounding_up( total_amount, DEFAULT_PAYMENT_ROUND_UP_VALUE ) 
+        
+        remnant = rounded_up_total_amount  - default_payment.amount_of_compulsory_savings_deduction 
+        
+        if remnant <= total_extra_savings 
+          default_payment.amount_of_extra_savings_deduction = remnant
+        else
+          default_payment.amount_of_extra_savings_deduction = total_extra_savings
+        end
+        
+        
+        default_payment.total_amount = rounded_up_total_amount # => total_amount is not what deducted. it is what ideally being deducted,
+        # despite the amount of compulsory savings and extra savings 
+        # the actual amount paid is in the amount paid 
+        default_payment.amount_paid = default_payment.amount_of_compulsory_savings_deduction  + default_payment.amount_of_extra_savings_deduction
+        default_payment.amount_assumed_by_office = BigDecimal("0")
         
       elsif  default_payment.is_defaultee == false
-        total_amount = default_payment.round_up_to( DEFAULT_PAYMENT_ROUND_UP_VALUE )
-        total_compulsory_savings = glm.member.saving_book.total_compulsory_savings 
-        if total_amount <= total_compulsory_savings
-          default_payment.amount_of_compulsory_savings_deduction = total_amount 
-          default_payment.total_amount = total_amount
+        total_amount = default_payment.amount_sub_group_share + default_payment.amount_group_share
+        rounded_up_total_amount  = DefaultPayment.rounding_up( total_amount , DEFAULT_PAYMENT_ROUND_UP_VALUE) 
+        
+        # total_amount = default_payment.round_up_to( DEFAULT_PAYMENT_ROUND_UP_VALUE )
+        
+        if rounded_up_total_amount <= total_compulsory_savings
+          default_payment.amount_of_compulsory_savings_deduction = rounded_up_total_amount 
         else
-          default_payment.total_amount =  total_compulsory_savings 
           default_payment.amount_of_compulsory_savings_deduction = total_compulsory_savings
         end
         default_payment.amount_of_extra_savings_deduction  = BigDecimal("0") # office won't deduct non-defaultee voluntary savings
+        default_payment.total_amount = rounded_up_total_amount
+        default_payment.amount_paid = default_payment.amount_of_compulsory_savings_deduction
+        default_payment.amount_assumed_by_office = rounded_up_total_amount - default_payment.amount_of_compulsory_savings_deduction
       end
       
+      # actually,total_payment= DefaultPayment.where(:group_loan_membership_id => active_glm_id_list).sum("amount_paid")
+      # total amount assumed by office = DefaultPayment.where(:group_loan_membership_id => active_glm_id_list, :is_default => true ).sum("total_grace_period_amount") - 
+      #  DefaultPayment.where(:group_loan_membership_id => active_glm_id_list, :is_default => true ).sum("paid_grace_period_amount") 
       default_payment.save
-      
-      # puts "!!# !!!!!!!!!!!!!!!In the shit, total_amount = #{default_payment.total_amount}"
-      
-      
     end
   end
   
@@ -1231,8 +1168,10 @@ class GroupLoan < ActiveRecord::Base
     self.update_sub_group_non_defaultee_default_payment_contribution(total_to_be_shared)
     self.reload
     self.update_group_non_defaultee_default_payment_contribution(total_to_be_shared)
+    # we have updated default payment # amount of group share and amount of sub group share for non defaultee 
     self.reload
     self.update_total_amount_in_default_payment
+    # self.rounding_up_in_savings_deduction_for_default_payment
   end
  
   
@@ -1385,14 +1324,16 @@ class GroupLoan < ActiveRecord::Base
       return nil 
     end
     
-    if self.unpaid_backlogs.count >  0 
+    #  if there is stil unapproved independent payment? 
+    
+    # if self.unpaid_backlogs.count >  0 
       self.active_group_loan_memberships.includes(:default_payment).each do |glm|
         default_payment = glm.default_payment 
-        if default_payment.amount_to_be_paid !=  BigDecimal("0")
+        # if default_payment.amount_to_be_paid !=  BigDecimal("0")
           transaction_activity = TransactionActivity.create_default_payment_resolution( default_payment,  employee  ) 
-        end
+        # end
       end
-    end
+    # end
     
     
     self.active_group_loan_memberships.each do |glm|
