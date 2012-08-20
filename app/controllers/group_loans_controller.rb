@@ -479,15 +479,28 @@ class GroupLoansController < ApplicationController
 
   def execute_finalize_loan_disbursement_attendance
     @group_loan   = GroupLoan.find_by_id params[:entity_id]
-    @group_loan.finalize_loan_disbursement_attendance_summary(current_user)
     
-    if @group_loan.is_loan_disbursement_attendance_done == true 
-      @group_loan.active_group_loan_memberships.each do |glm|
-        TransactionActivity.execute_automatic_loan_disbursement(glm, current_user)
+    # transaction here.. if some shit happens, it will raise up all the way, and rollback
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @group_loan.finalize_loan_disbursement_attendance_summary(current_user)
+          # case, over here, it is not being executed. dafuq.. 
+          # financial data -> error is expensive. move the database to production.
+          # then, hope that every transactions will happen 
+        if @group_loan.is_loan_disbursement_attendance_done == true 
+          @group_loan.active_group_loan_memberships.each do |glm|
+            TransactionActivity.execute_automatic_loan_disbursement(glm, current_user)
+          end
+        end
       end
+    rescue ActiveRecord::ActiveRecordError  
+    else
     end
 
 
+    
+    
   end
 
 

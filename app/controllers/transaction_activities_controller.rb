@@ -8,15 +8,35 @@ class TransactionActivitiesController < ApplicationController
     initial_savings = BigDecimal.new( params[:initial_savings] )
     deposit = BigDecimal.new( params[:deposit] )
     @group_loan_membership = GroupLoanMembership.find_by_id( params[:group_loan_membership_id] )
-
-    @transaction_activity = TransactionActivity.create_setup_payment( admin_fee, initial_savings,
-              deposit, current_user, @group_loan_membership )
+    
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_setup_payment( admin_fee, initial_savings,
+                  deposit, current_user, @group_loan_membership )
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+    
+    
   end
   
   
   def execute_loan_disbursement
     @group_loan_membership = GroupLoanMembership.find_by_id( params[:entity_id] )
-    @transaction_activity = TransactionActivity.execute_loan_disbursement( @group_loan_membership , current_user)
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.execute_loan_disbursement( @group_loan_membership , current_user)
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+    
+    
   end
   
   
@@ -32,15 +52,22 @@ class TransactionActivitiesController < ApplicationController
       :group_loan_id => @weekly_task.group_loan.id 
     })
     
-    # we need to incorporate the weekly task info to this transaction activity
-    @transaction_activity = TransactionActivity.create_generic_weekly_payment(
-            @weekly_task,
-            @group_loan_membership,
-            current_user,
-            @group_loan_membership.group_loan_product.total_weekly_payment,
-            BigDecimal("0"), 
-            1,
-            0)
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_generic_weekly_payment(
+                @weekly_task,
+                @group_loan_membership,
+                current_user,
+                @group_loan_membership.group_loan_product.total_weekly_payment,
+                BigDecimal("0"), 
+                1,
+                0)
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+    
   end
   
   def create_single_week_extra_savings_weekly_payment
@@ -52,14 +79,24 @@ class TransactionActivitiesController < ApplicationController
       :group_loan_id => @weekly_task.group_loan.id 
     })
     
-    @transaction_activity = TransactionActivity.create_generic_weekly_payment(
-            @weekly_task,
-            @group_loan_membership,
-            current_user,
-            @cash,
-            BigDecimal("0"), 
-            1,
-            0)
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_generic_weekly_payment(
+                @weekly_task,
+                @group_loan_membership,
+                current_user,
+                @cash,
+                BigDecimal("0"), 
+                1,
+                0)
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+    
+    
   end
   
   def create_savings_only_as_weekly_payment
@@ -67,12 +104,22 @@ class TransactionActivitiesController < ApplicationController
     @member  = Member.find_by_id params[:member_id]
     @savings_only = BigDecimal.new( params[:os_cash_amount])
     
-    @transaction_activity = TransactionActivity.create_savings_only_weekly_payment(
-      @member,
-      @weekly_task,
-      @savings_only,
-      current_user
-    )
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_savings_only_weekly_payment(
+          @member,
+          @weekly_task,
+          @savings_only,
+          current_user
+        )
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+    
+    
     
     
   end
@@ -90,14 +137,22 @@ class TransactionActivitiesController < ApplicationController
     
     
     
-    @transaction_activity = TransactionActivity.create_generic_weekly_payment(
-    @weekly_task,
-            @group_loan_membership,
-            current_user,
-            cash,
-            savings_withdrawal,
-            number_of_weeks,  
-            number_of_backlogs  )
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_generic_weekly_payment(
+        @weekly_task,
+                @group_loan_membership,
+                current_user,
+                cash,
+                savings_withdrawal,
+                number_of_weeks,  
+                number_of_backlogs  )
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+    
             
   end
   
@@ -107,7 +162,14 @@ class TransactionActivitiesController < ApplicationController
     @member  = Member.find_by_id params[:member_id]
     
     # weekly_task.has_paid_weekly_payment?(member)  << filter to prevent double member payment
-    @member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment(@member)
+    begin
+      ActiveRecord::Base.transaction do
+        @member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment(@member)
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
   end
   
   def create_backlog_payment
@@ -118,14 +180,22 @@ class TransactionActivitiesController < ApplicationController
     savings_withdrawal = BigDecimal.new( params[:bmf_savings_withdrawal] )
     number_of_weeks = params[:bmf_weeks].to_i
 
-    @transaction_activity = TransactionActivity.create_backlog_payments(
-      @member,
-      @group_loan,
-      current_user,
-      cash,
-      savings_withdrawal,
-      number_of_weeks
-    )
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_backlog_payments(
+          @member,
+          @group_loan,
+          current_user,
+          cash,
+          savings_withdrawal,
+          number_of_weeks
+        )
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
   end
   
 =begin
@@ -137,11 +207,21 @@ class TransactionActivitiesController < ApplicationController
     @group_loan_membership = @weekly_task.group_loan.get_membership_for_member( @member )
     @savings_only = BigDecimal.new( params[:oes_cash_amount])
     
-    @transaction_activity = TransactionActivity.create_weekly_extra_savings_only( 
-      @weekly_task, 
-      @group_loan_membership, 
-      current_user, 
-      @savings_only  )
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_weekly_extra_savings_only( 
+          @weekly_task, 
+          @group_loan_membership, 
+          current_user, 
+          @savings_only  )
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+    
+    
   end
   
 =begin
@@ -155,11 +235,17 @@ class TransactionActivitiesController < ApplicationController
     
     cash = BigDecimal.new( params[:oes_cash_amount] )
     
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity= TransactionActivity.create_only_extra_savings_independent_payment( 
+          @group_loan_membership, 
+          current_user, 
+          cash  )
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
     
-    @transaction_activity= TransactionActivity.create_only_extra_savings_independent_payment( 
-      @group_loan_membership, 
-      current_user, 
-      cash  )
   end
   
   
@@ -174,13 +260,23 @@ class TransactionActivitiesController < ApplicationController
     number_of_weeks = params[:smf_weeks].to_i
     number_of_backlogs = params[:smf_backlogs].to_i
     
-    @transaction_activity = TransactionActivity.create_generic_independent_payment(
-            @group_loan_membership,
-            current_user,
-            cash, 
-            savings_withdrawal,
-            number_of_weeks,
-            number_of_backlogs)
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_generic_independent_payment(
+                @group_loan_membership,
+                current_user,
+                cash, 
+                savings_withdrawal,
+                number_of_weeks,
+                number_of_backlogs)
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+    
+    
   end
   
   def approve_independent_payment_transaction_activity
@@ -190,7 +286,17 @@ class TransactionActivitiesController < ApplicationController
     
     if @action_role == APPROVER_ROLE
       if @action_value == TRUE_CHECK
-        @transaction_activity.approve_payment(current_user)
+        
+        begin
+          ActiveRecord::Base.transaction do
+            @transaction_activity.approve_payment(current_user)
+          end
+        rescue ActiveRecord::ActiveRecordError  
+        else
+        end
+        
+        
+        
       elsif @action_value == FALSE_CHECK
         # @weekly_task.reject_weekly_payment_collection( current_user )
       end
@@ -211,11 +317,21 @@ class TransactionActivitiesController < ApplicationController
     cash = BigDecimal(params[:smf_cash])
     number_of_backlogs = params[:smf_weeks].to_i
     savings_withdrawal = BigDecimal(params[:smf_savings_withdrawal])
-    @transaction_activity = TransactionActivity.create_generic_grace_period_payment(
-            @group_loan_membership,
-            current_user,
-            cash,
-            savings_withdrawal )
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_generic_grace_period_payment(
+                @group_loan_membership,
+                current_user,
+                cash,
+                savings_withdrawal )
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+    
+    
   end
   
 =begin
@@ -225,8 +341,18 @@ class TransactionActivitiesController < ApplicationController
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     
-    @grace_period_transactions = @group_loan.pending_approval_grace_period_transactions
+    
     # @pending_approval_transactions = @group_loan.pending_approval_grace_period_transactions
+    
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @grace_period_transactions = @group_loan.pending_approval_grace_period_transactions
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
     
     
     
@@ -238,7 +364,16 @@ class TransactionActivitiesController < ApplicationController
   def execute_backlog_payment_transaction_approval_by_cashier
     @transaction_activity  = TransactionActivity.find_by_id params[:entity_id]
     
-    @transaction_activity.approve_grace_period_payment( current_user ) 
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity.approve_grace_period_payment( current_user ) 
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+    
+    
     
     @transaction_activity.reload 
   end
@@ -250,7 +385,17 @@ class TransactionActivitiesController < ApplicationController
   def execute_transaction_for_cash_savings_withdrawal
     @member = Member.find( params[:member_id])
     @amount = BigDecimal(params[:savings_withdrawal_amount])
-    @transaction_activity = TransactionActivity.create_cash_savings_withdrawal( @amount, current_user, @member ) 
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_cash_savings_withdrawal( @amount, current_user, @member )
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+    
+     
     if @transaction_activity.nil?
       redirect_to input_value_for_cash_savings_withdrawal_url(@member, :error => "There is error", :amount => @amount)
     else
