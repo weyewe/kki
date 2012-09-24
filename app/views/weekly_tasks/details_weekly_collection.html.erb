@@ -1,11 +1,11 @@
 
 <div class="span9 content">
-  <%= create_guide("Weekly Collection Details", 
-        "Office: <b>#{@office.name}</b>" + "<br />" + 
-        "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
-        "Week: <b>#{print_money(@weekly_task.week_number)}</b>" + "<br />" + 
-        "Total Amount: <b>#{print_money(@weekly_task.total_cash_received)}</b>" + "<br />" + 
-        "Total Transactions: <b>#{print_money(@transaction_activities.count)}</b>").html_safe %>
+  <%= create_guide("#{t 'process.weekly_collection_details'}", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "#{t 'variable.week'}: <b>#{print_money(@weekly_task.week_number)}</b>" + "<br />" + 
+        "#{t 'guide.total_amount'}: <b>#{print_money(@weekly_task.total_cash_received)}</b>" + "<br />" + 
+        "#{t 'guide.total_transactions'}: <b>#{print_money(@transaction_activities.count)}</b>").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -17,10 +17,10 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Transaction ID</th>
-            <th>Member</th>
-            <th>Cash Passed</th>
-            <th>TransactionCase</th>
+            <th><%= t 'report_metric.transaction_id'%></th>
+            <th><%= t 'report_metric.member' %></th>
+            <th><%= t 'report_metric.cash_passed' %></th>
+            <th><%= t 'report_metric.transaction_case'%></th>
           </tr>
         </thead>
         <tbody>
@@ -58,19 +58,11 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
        <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
      </div>
    </div>
-   
-   <!-- <div class=" hidden" id="approve_propose_form_wrapper">
-       <%#= form_for GroupLoan.new, :url => approve_setup_fee_collection_url   do |f| %>
-         <%#= hidden_field_tag 'entity_id' , ''  %>
-         <%#= hidden_field_tag 'action_role', '' %>
-         <%#= hidden_field_tag 'action_value', '' %>
-       <%# end %>
-     </div> -->
-
+    
 
 
     

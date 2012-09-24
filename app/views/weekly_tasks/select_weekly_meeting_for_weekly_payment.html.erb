@@ -1,9 +1,9 @@
 <div class="span9 content">
-  <%= create_guide("Select Weekly Group Payment", 
-        "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
+  <%= create_guide("#{t 'process.select_weekly_group_payment'}", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b>" + "<br />" + 
         "Total Member: <b>#{@group_loan.active_group_loan_memberships.count}</b>" + "<br />" + 
-        "Completed Group Payment: <b>#{@group_loan.total_completed_group_payment}</b>" ).html_safe %>
+        "#{t 'report_metric.completed_group_payment'}: <b>#{@group_loan.total_completed_group_payment}</b>" ).html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -15,12 +15,11 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Week No</th>
-            <th>Total Member</th>
-            <!-- <th>Total Member Paid</th> -->
-            <th>Only Savings</th>
-            <th>No Payment</th>
-            <th style="text-align:center;">Close Payment</th>
+            <th><%= t 'report_metric.week_no'%></th>
+            <th><%= t 'guide.total_member'%></th> 
+            <th><%=  t 'status.only_savings' %></th>
+            <th><%= t 'status.no_payment'%></th>
+            <th style="text-align:center;"><%= t 'report_metric.close_payment'%></th>
           </tr>
         </thead>
         <tbody>
@@ -58,7 +57,7 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
        <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
      </div>
    </div>

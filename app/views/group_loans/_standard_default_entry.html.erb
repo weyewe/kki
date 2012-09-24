@@ -1,12 +1,4 @@
-<!-- <th>Member</th>
-<th>Total Savings</th>
-<th>Compulsory Savings</th>
-<th>Extra Savings</th>
-<th>Default Status</th>
-<th>Unpaid Backlogs</th>
-<th>Amount per Backlog</th>
-<th>Deduction Amount</th> -->
-
+ 
 <% group_loan_membership = default_payment.group_loan_membership %>
 <% member =  default_payment.group_loan_membership.member %>
 <% saving_book = member.saving_book %>
@@ -20,9 +12,9 @@
   
   <td>
     <% if default_payment.is_defaultee == true %>
-      <span class="label label-important">DEFAULTEE</span>
+      <span class="label label-important"><%= t 'status.defaultee' %></span>
     <% elsif default_payment.is_defaultee == false  %>
-      <span class="label label-success">NON Defaultee</span>
+      <span class="label label-success"><%= t 'status.non_defaultee' %></span>
     <% end %>
   </td>
   

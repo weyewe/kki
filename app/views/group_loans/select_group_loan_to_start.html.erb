@@ -1,8 +1,8 @@
 
 <div class="span9 content">
-  <%= create_guide("Finalize Group Loan", 
-        "Finalize group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Total Pending Approval Group Loan: <b>#{@pending_approval_group_loans.count}</b> ").html_safe %>
+  <%= create_guide("#{t "process.finalize_group_loan"}", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.total_pending_approval_for_group_loan'}: <b>#{@pending_approval_group_loans.count}</b> ").html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -14,14 +14,14 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Group</th>
+            <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
             <th>Total Member</th>
-            <th>Aggregated Principal</th>
-            <th>Aggregated Interest</th>
-            <th>Aggregated Interest Rate</th>
+            <th><%= t 'variable.aggregated_principal' %></th>
+            <th><%= t 'variable.aggregated_interest' %></th>
+            <th><%= t 'variable.aggregated_interest_rate' %></th>
        
-            <th colspan="2" style="text-align:center;">Action</th>
+            <th colspan="2" style="text-align:center;"><%= t 'trigger.action' %></th>
             
           </tr>
         </thead>
@@ -29,18 +29,7 @@
           <% @pending_approval_group_loans.each do |group_loan| %>
             <%= render :partial => "group_loans/group_loan_starter" , 
                 :locals => {:group_loan => group_loan}%>
-            
-     <!--             <tr >
-                   <td><%= link_to group_loan.name, new_group_loan_group_loan_subcription_url(group_loan) %></td>
-                   <td><%= group_loan.get_commune %></td>
-                   <td><%= group_loan.members.count %></td>
-                   <td><%=  print_money( group_loan.aggregated_principal_amount ) %></td>
-                   <td><%=  print_money( group_loan.aggregated_interest_amount ) %></td>
-                   <td><%=  group_loan.aggregated_interest_rate_percentage.to_s + " %" %></td>
-                   <td style="text-align:center;"><span class="label">Pending</span></td>
-                   
-                 </tr> -->
-            
+   
           <% end %>
        
           
@@ -69,7 +58,7 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
        <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
      </div>
    </div>

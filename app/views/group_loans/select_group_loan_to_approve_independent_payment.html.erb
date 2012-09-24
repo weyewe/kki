@@ -1,6 +1,6 @@
 
 <div class="span9 content">
-  <%= create_guide("Independent Payment Approval", 
+  <%= create_guide("#{t 'process.independent_payment_approval'}", 
         "Office: <b>#{@office.name}</b>" + "<br />" + 
         "Total Group Loans: <b>#{@running_group_loans.count}</b> ").html_safe %>
   
@@ -14,10 +14,10 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Group</th>
+            <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
             <th>Week</th>
-            <th>Pending Approval</th>
+            <th><%= t 'report_metric.pending_approval'%></th>
           </tr>
         </thead>
         <tbody>
@@ -54,20 +54,11 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
        <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
      </div>
    </div>
-   
-   <!-- <div class=" hidden" id="approve_propose_form_wrapper">
-       <%#= form_for GroupLoan.new, :url => approve_setup_fee_collection_url   do |f| %>
-         <%#= hidden_field_tag 'entity_id' , ''  %>
-         <%#= hidden_field_tag 'action_role', '' %>
-         <%#= hidden_field_tag 'action_value', '' %>
-       <%# end %>
-     </div> -->
-
-
+    
 
     
     

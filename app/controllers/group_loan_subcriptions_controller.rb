@@ -6,9 +6,9 @@ class GroupLoanSubcriptionsController < ApplicationController
     # @group_loan_products_used = @group_loan.all_group_loan_products_used
     @group_loan_products = @office.group_loan_products
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_group_loan_product_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_group_loan_product_url'
     set_breadcrumb_for @group_loan, 'new_group_loan_group_loan_subcription_url' + "(#{@group_loan.id})", 
-                 "Assign Product"
+                 "#{t 'process.assign_product'}"
                  
   end
   

@@ -1,9 +1,9 @@
 
 <div class="span9 content">
   <%= create_guide("Member -> SubGroup",  
-        "Group: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b>" + "<br />" + 
         "Total SubGroups: <b>#{@sub_groups.count}</b> " + "<br />" + 
-        "Total Group Members: <b>#{@group_loan.members.count}</b>").html_safe %>
+        "#{t 'guide.total_group_member'}: <b>#{@group_loan.members.count}</b>").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -15,15 +15,15 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Group</th>
-            <th>Total SubGroup Members</th>
-            <th>SubGroup Leader</th>
+            <th><%= t 'report_metric.group_name' %></th>
+            <th><%= t 'guide.total_sub_group_member'%></th>
+            <th><%= t 'report_metric.sub_group_leader' %></th>
           </tr>
         </thead>
         <tbody>
           <% @sub_groups.each do |sub_group| %>
             <tr>
-              <td><%= link_to "SubGroup-#{sub_group.number}", select_sub_group_leader_from_sub_group_url( sub_group) %></td>
+              <td><%= link_to "#{t 'report_metric.sub_group' }-#{sub_group.number}", select_sub_group_leader_from_sub_group_url( sub_group) %></td>
               <td><%= sub_group.group_loan_memberships.count %></td>
               
               <td>

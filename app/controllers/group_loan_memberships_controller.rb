@@ -5,9 +5,9 @@ class GroupLoanMembershipsController < ApplicationController
     @group_loan = GroupLoan.find_by_id( params[:group_loan_id])
     @group_loan_memberships = @group_loan.group_loan_memberships.includes(:member)
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_member_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_assign_member_url'
     set_breadcrumb_for @group_loan, 'new_group_loan_group_loan_membership_url' + "(#{@group_loan.id})", 
-                "Membership Summary"
+                "#{t 'process.membership_summary'}"
                 
   end
   
@@ -68,7 +68,7 @@ class GroupLoanMembershipsController < ApplicationController
     @group_loan = GroupLoan.find_by_id( params[:group_loan_id] )
     @group_loan_memberships = @group_loan.group_loan_memberships.order("created_at DESC")
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_setup_payment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_setup_payment_url'
     set_breadcrumb_for @group_loan, 'group_loan_memberships_for_setup_fee_url' + "(#{@group_loan.id})", 
                 "Select Backlog"
                 

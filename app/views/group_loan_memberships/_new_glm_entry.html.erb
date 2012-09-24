@@ -13,7 +13,7 @@
  
       <%= check_box_tag 'is_checked', get_checkbox_value(checkbox_value )   , 
           checkbox_value, :class => 'checkbox_tracker', 
-          :id => "provider_#{group_loan.id}-consumer_#{member.id}" %> Assigned
+          :id => "provider_#{group_loan.id}-consumer_#{member.id}" %> <%= t 'status.assigned' %>
     </label>
 
   </td>

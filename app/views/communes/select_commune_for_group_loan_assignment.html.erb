@@ -1,8 +1,8 @@
 
 <div class="span9 content">
   <%= create_guide("Member -> GroupLoan", 
-        "Office: <b>#{@office.name}</b>" + "<br />" + 
-        "Group Loan: <b>#{@group_loan.name}</b> ").html_safe %>
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b> ").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -15,7 +15,7 @@
         <thead>
           <tr>
             <th>RW</th>
-            <th>Total Member di RW</th>
+            <th><%= t 'report_metric.total_member_in_commune'%></th>
           </tr>
         </thead>
         <tbody>

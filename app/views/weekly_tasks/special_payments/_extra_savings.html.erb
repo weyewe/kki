@@ -1,7 +1,7 @@
 
 <div class="row-fluid tab-pane fade   in pane_wrapper" id="extra_savings" >
   <div class="span8">
-    <h2> Extra Savings</h2><br />
+    <h2> <%= t 'variable.extra_savings'%></h2><br />
 
     <%= form_tag  create_only_extra_savings_payment_url(@weekly_task, @member) , 
       :method => :post, :id => "form_only_extra_savings_payment", 
@@ -17,7 +17,7 @@
           <%#= hidden_field_tag 'group_loan_membership_id', '' %>
         
           <tr>
-            <td>Cash Amount:</td>
+            <td><%= t 'variable.cash_amount' %>:</td>
             <td><%= text_field_tag 'oes_cash_amount', '' %></td>
           </tr>
           
@@ -52,17 +52,17 @@
       </thead>
       <tbody>
           <tr>
-            <td>Total Savings</td>
+            <td><%= t 'variable.total_savings'%></td>
             <td id="total_principal"><%= print_money(@member.total_savings)%> </td>
           </tr>
           
           <tr>
-            <td>Compulsory Savings</td>
+            <td><%= t 'report_metric.compulsory_savings'%></td>
             <td id="total_principal"><%= print_money(@member.saving_book.total_compulsory_savings)%> </td>
           </tr>
           
           <tr>
-            <td>Voluntary Savings</td>
+            <td><%= t 'variable.voluntary_savings' %></td>
             <td id="total_principal"><%= print_money(@member.saving_book.total_extra_savings)%> </td>
           </tr>
       </tbody>

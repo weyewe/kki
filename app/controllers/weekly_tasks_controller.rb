@@ -9,7 +9,7 @@ class WeeklyTasksController < ApplicationController
     
     add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_attendance_marking_path' + "(#{@group_loan.id})", 
-                "Select Week"
+                "#{t 'process.select_week'}"
     
   end
   
@@ -18,9 +18,9 @@ class WeeklyTasksController < ApplicationController
     @group_loan_memberships = @group_loan.active_group_loan_memberships
     add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_attendance_marking_path' + "(#{@group_loan.id})", 
-                "Select Week"
+                "#{t 'process.select_week'}"
     set_breadcrumb_for @group_loan, 'mark_attendance_path' + "(#{@group_loan.id}, #{@weekly_task.id})", 
-                "Mark Attendance"        
+                "#{t 'process.mark_attendance'}"        
   end
   
   def close_weekly_meeting
@@ -39,7 +39,7 @@ class WeeklyTasksController < ApplicationController
     
     add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 
-                "Select Week"
+                "#{t 'process.select_week'}"
   end
   
   def make_member_payment
@@ -47,9 +47,9 @@ class WeeklyTasksController < ApplicationController
     # @group_loan_memberships = @group_loan.active_group_loan_memberships
     add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 
-                "Select Week"
+                "#{t 'process.select_week'}"
     set_breadcrumb_for @group_loan, 'make_member_payment_url' + "(#{@group_loan.id}, #{@weekly_task.id})", 
-                "Make Payment"
+                "#{t 'process.make_payment'}"
   end
   
   def close_weekly_payment 
@@ -78,13 +78,13 @@ class WeeklyTasksController < ApplicationController
     #    end
     #    
     
-    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_payment_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 
-                "Select Week"
+                "#{t 'process.select_week'}"
     set_breadcrumb_for @group_loan, 'make_member_payment_url' + "(#{@group_loan.id}, #{@weekly_task.id})", 
-                "Make Payment"
+                "#{t 'process.make_payment'}"
     set_breadcrumb_for @group_loan, 'special_weekly_payment_for_member_url' + "(#{@group_loan.id}, #{@weekly_task.id}, #{@member.id})", 
-                "Special Payment"
+                "#{t 'process.special_payment'}"
   end
   
 =begin
@@ -93,7 +93,7 @@ class WeeklyTasksController < ApplicationController
   def list_pending_weekly_collection_approval
     @office = current_user.active_job_attachment.office
     @pending_weekly_tasks_cashier_approval = WeeklyTask.get_pending_cashier_approval_for_weekly_collection(@office)
-    add_breadcrumb "Weekly Payment Pending Approval", 'list_pending_weekly_collection_approval_url'
+    add_breadcrumb "#{t 'process.weekly_payment_pending_approval'}", 'list_pending_weekly_collection_approval_url'
   end
   
   def details_weekly_collection
@@ -111,9 +111,9 @@ class WeeklyTasksController < ApplicationController
     #                 end
     @transaction_activities  = @weekly_task.group_payment_transactions.order("member_id DESC")
     
-    add_breadcrumb "Weekly Payment Pending Approval", 'list_pending_weekly_collection_approval_url'
+    add_breadcrumb "#{t 'process.weekly_payment_pending_approval'}", 'list_pending_weekly_collection_approval_url'
     set_breadcrumb_for @weekly_task, 'details_weekly_collection_url' + "(#{@weekly_task.id})", 
-     "Collection Details"
+     "#{t 'process.collection_details'}"
                         
   end
   

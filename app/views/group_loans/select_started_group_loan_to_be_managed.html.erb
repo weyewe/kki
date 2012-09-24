@@ -1,8 +1,8 @@
 
 <div class="span9 content">
-  <%= create_guide("Group Loan Progress", 
-        "Monitor group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Started Group Loan: <b>#{@started_group_loans.count}</b> ").html_safe %>
+  <%= create_guide("#{t 'guide.group_loan_progress'}", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.started_group_loan'}: <b>#{@started_group_loans.count}</b> ").html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -14,16 +14,15 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Group</th>
+            <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
             <th>Total Member</th>
-            <th>Financial Education</th>
-            <th>Loan Disbursement</th>
-            <th>Grace Period</th>
-            <th>Default Resolution Proposed</th>
-            <th>Default Resolution Executed</th>
-            <th>Close Group Loan</th>
-            <!-- <th>Total Collected</th> -->
+            <th><%= t 'guide.financial_education' %></th>
+            <th><%= t 'process.loan_disbursement' %></th>
+            <th><%= t 'report_metric.grace_period' %></th>
+            <th><%= t 'report_metric.default_group_resolution_proposed' %> </th>
+            <th><%= t 'report_metric.default_group_resolution_executed' %></th>
+            <th><%= t 'report_metric.close_group_loan' %></th>
        
          
             

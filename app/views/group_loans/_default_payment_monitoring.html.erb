@@ -1,11 +1,4 @@
-<!-- <th>Nama Group</th>
-<th>Lokasi RW</th>
-<th>Total Member</th>
-<th>Total Default Member</th>
-<th>Default Amount</th>
-<th>Paid Member</th>
-<th>Paid Amount</th> -->
-
+  
 <tr id="declare_default_group_loan-<%= group_loan.id %>">
   <td><%= link_to group_loan.name, new_group_loan_group_loan_subcription_url(group_loan) %></td>
   <td><%= group_loan.get_commune %></td>
@@ -21,7 +14,7 @@
   <% if group_loan.pending_approval_default_payments.count == 0  %>
     <td style="text-align:center;">
       <a href="#" class="btn approve action true_check"
-          id="finalize-<%= group_loan.id %>">Close</a>
+          id="finalize-<%= group_loan.id %>"><%= t 'trigger.close' %></a>
     </td>
   <% else %>
     <td style="text-align:center;">

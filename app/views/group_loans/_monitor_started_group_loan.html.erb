@@ -1,14 +1,4 @@
-<!-- <th>Nama Group</th>
-<th>Lokasi RW</th>
-<th>Total Active Members</th>
-<th>Financial Education</th>
-<th>Loan Disbursement</th>
-<th>Grace Period</th>
-<th>Default Resolution Proposed</th>
-<th>Default Resolution Executed</th>
-<th>Close Group Loan</th> -->
-
-
+ 
 <tr id="start_group_loan-<%= group_loan.id %>">
   <td><%= link_to group_loan.name, new_group_loan_group_loan_subcription_url(group_loan) %></td>
   <td><%= group_loan.get_commune %></td>
@@ -18,9 +8,9 @@
   <td>
     
     <% if group_loan.is_financial_education_attendance_done == true %>
-      <span class="label label-success">DONE</span>
+      <span class="label label-success"><%= t 'status.done' %></span>
     <% else %>
-      <span class="label">Pending</span>
+      <span class="label"><%= t 'status.pending' %></span>
     <% end %>
    
   </td>
@@ -28,39 +18,39 @@
   
   <td>
     <% if group_loan.is_loan_disbursement_attendance_done == true %>
-      <span class="label label-success">DONE</span>
+      <span class="label label-success"><%= t 'status.done' %></span>
     <% else %>
-      <span class="label">Pending</span>
+      <span class="label"><%= t 'status.pending' %></span>
     <% end %>
   </td>
   
   <td>
     <% if group_loan.is_grace_period? == true %>
-      <span class="label label-success">DONE</span>
+      <span class="label label-success"><%= t 'status.done' %></span>
     <% else %>
-      <span class="label">Pending</span>
+      <span class="label"><%= t 'status.pending' %></span>
     <% end %>
   </td>
   
   <td>
     <% if group_loan.is_default_payment_resolution_proposed? == true %>
-      <span class="label label-success">DONE</span>
+      <span class="label label-success"><%= t 'status.done' %></span>
     <% else %>
-      <span class="label">Pending</span>
+      <span class="label"><%= t 'status.pending' %></span>
     <% end %>
   </td>
   
   <td>
     <% if group_loan.is_default_payment_resolution_approved? == true %>
-      <span class="label label-success">DONE</span>
+      <span class="label label-success"><%= t 'status.done' %></span>
     <% else %>
-      <span class="label">Pending</span>
+      <span class="label"><%= t 'status.pending' %></span>
     <% end %>
   </td>
   
   <td>
     <a href="#" class="btn propose action prevent_double_submit"
-      id="group_loan_to_be_closed-<%= group_loan.id %>">Close</a>
+      id="group_loan_to_be_closed-<%= group_loan.id %>"><%= t 'trigger.close' %></a>
   </td>
   
   <!-- <td><span class="label">80%</span></td> -->

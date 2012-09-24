@@ -25,7 +25,7 @@
        
     <% else %>
       <% if group_loan_membership.has_paid_setup_fee == true %>
-        <span class="label label-success">PAID</span>
+        <span class="label label-success"><%= t 'status.paid'%></span>
       <% elsif group_loan_membership.deduct_setup_payment_from_loan ==true %>
         <span class="label label-warning">Deduct Loan</span>
       <% end %>

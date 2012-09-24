@@ -8,17 +8,17 @@
   <td>
     <% if group_loan.is_setup_fee_collection_finalized == false %>
       <a href="#" class="btn propose action"
-          id="finalize-<%= group_loan.id %>">Finalize</a>
+          id="finalize-<%= group_loan.id %>"><%= t 'trigger.finalize' %></a>
     <% else %>
-      <span class="label label-info">Finalized</span>
+      <span class="label label-info"><%= t 'status.finalized'%></span>
     <% end %>
   </td>
 
   <td>
     <% if group_loan.is_setup_fee_collection_approved  == false%>
-      <span class="label">Pending</span>
+      <span class="label"><%= t 'status.pending' %></span>
     <% else %>
-      <span class="label label-success">Approved</span>
+      <span class="label label-success"><%= t 'status.approved' %></span>
     <% end %>
     
   </td>

@@ -4,9 +4,9 @@ class CommunesController < ApplicationController
     @office = current_user.active_job_attachment.office
     @communes_array_list = @office.all_communes_under_management
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_non_commune_constrained_member_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_assign_non_commune_constrained_member_url'
     set_breadcrumb_for @group_loan, 'select_commune_for_group_loan_assignment_url' + "(#{@group_loan.id})", 
-                "Select Commune"
+                "#{t 'process.select_commune'}"
   end
   
   def list_members_in_commune
@@ -17,11 +17,11 @@ class CommunesController < ApplicationController
     
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_non_commune_constrained_member_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_assign_non_commune_constrained_member_url'
     set_breadcrumb_for @group_loan, 'select_commune_for_group_loan_assignment_url' + "(#{@group_loan.id})", 
-                "Select Commune"
+                "#{t 'process.select_commune'}"
                 
     set_breadcrumb_for @group_loan, 'list_members_in_commune_url' + "(#{@commune.id}, #{@group_loan.id})", 
-                "Add Member"
+                "#{t 'process.add_member'}"
   end
 end

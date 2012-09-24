@@ -1,8 +1,8 @@
 
 <div class="span9 content">
-  <%= create_guide("Group Loan Collection Approval", 
-        "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Total Weekly Tasks Pending Approval: <b>#{@pending_weekly_tasks_cashier_approval.count}</b> ").html_safe %>
+  <%= create_guide("#{t 'guide.group_loan_collection_approval'}", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.total_weekly_tasks_pending_approval'}: <b>#{@pending_weekly_tasks_cashier_approval.count}</b> ").html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -14,13 +14,13 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Group</th>
+            <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
-            <th>Week </th>
-            <th>Finalizer ID</th>
-            <th>Finalization Time</th>
-            <th>Expected Cash</th>
-            <th style="text-align:center;" colspan='2'>Action</th>
+            <th><%= t 'report_metric.week' %></th>
+            <th><%= t 'report_metric.finalizer_id' %></th>
+            <th><%= t 'report_metric.finalization_time' %></th>
+            <th><%= t 'report_metric.expected_cash'%></th>
+            <th style="text-align:center;" colspan='2'><%= t 'trigger.action' %></th>
           </tr>
         </thead>
         <tbody>
@@ -57,21 +57,11 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
        <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
      </div>
    </div>
-   
-   <!-- <div class=" hidden" id="approve_propose_form_wrapper">
-       <%#= form_for GroupLoan.new, :url => approve_setup_fee_collection_url   do |f| %>
-         <%#= hidden_field_tag 'entity_id' , ''  %>
-         <%#= hidden_field_tag 'action_role', '' %>
-         <%#= hidden_field_tag 'action_value', '' %>
-       <%# end %>
-     </div> -->
-
-
-
+    
     
     
   

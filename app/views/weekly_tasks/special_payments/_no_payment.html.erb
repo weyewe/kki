@@ -3,7 +3,7 @@
 
 <div class="row-fluid tab-pane fade   in pane_wrapper" id="no_payment" >
   <div class="span8">
-    <h2>No Payment</h2><br />
+    <h2><%= t 'status.no_payment'%></h2><br />
 
     <% if @member.can_pay_with_savings?( @group_loan_product.total_weekly_payment ) %>
       <div class="alert alert-success">
@@ -54,17 +54,17 @@
       </thead>
       <tbody>
           <tr>
-            <td>Total Savings</td>
+            <td><%= t 'variable.total_savings'%></td>
             <td id="total_principal"><%= print_money(@member.total_savings)%> </td>
           </tr>
           
           <tr>
-            <td>Compulsory Savings</td>
+            <td><%= t 'report_metric.compulsory_savings'%></td>
             <td id="total_principal"><%= print_money(@member.saving_book.total_compulsory_savings)%> </td>
           </tr>
           
           <tr>
-            <td>Voluntary Savings</td>
+            <td><%= t 'variable.voluntary_savings' %></td>
             <td id="total_principal"><%= print_money(@member.saving_book.total_extra_savings)%> </td>
           </tr>
       </tbody>

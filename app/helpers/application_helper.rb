@@ -359,7 +359,7 @@ module ApplicationHelper
     :header_title => "BRANCH MANAGER",
     :processes => [
       {
-        :title => "Create Loan Product",
+        :title => "#{I18n.translate 'process.create_loan_product'}",
         :destination_link => 'new_group_loan_product_url',
         :conditions => [
           {
@@ -373,7 +373,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Pending Approval",
+        :title => "#{t 'process.pending_approval'}",
         :destination_link => 'select_group_loan_to_start_url',
         :conditions => [
           {
@@ -383,7 +383,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Monitor Progress",
+        :title => "#{I18n.t 'process.monitor_progress'}",
         :destination_link => 'select_started_group_loan_to_be_managed_url',
         :conditions => [
           {
@@ -391,27 +391,9 @@ module ApplicationHelper
             :action => "select_started_group_loan_to_be_managed"
           }
         ]
-      },
-      # {
-      #   :title => "Declare Default Loan",
-      #   :destination_link => "select_group_loan_to_be_declared_as_default_url",
-      #   :conditions => [
-      #     {
-      #       :controller => 'group_loans',
-      #       :action => 'select_group_loan_to_be_declared_as_default'
-      #     }
-      #   ]
-      # },
-      # {
-      #         :title => "Monitor Default Loan Resolution",
-      #         :destination_link => "select_group_loan_monitor_default_loan_resolution_url",
-      #         :conditions => [
-      #           :controller => "group_loans",
-      #           :action => 'select_group_loan_monitor_default_loan_resolution'
-      #         ]
-      #       },
+      }, 
       {
-        :title => "Closed Group Loan",
+        :title => "#{ I18n.translate 'process.closed_group_loan'}",
         :destination_link => "select_closed_group_loan_for_history_url",
         :conditions => [
           {
@@ -427,7 +409,7 @@ module ApplicationHelper
     :header_title => "LOAN_OFFICER",
     :processes => [
       {
-        :title => "Add Member",
+        :title => "#{I18n.translate 'process.add_member'}",
         :destination_link => 'new_member_url',
         :conditions => [
           {
@@ -465,7 +447,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Finalize Group Loan",
+        :title => "#{I18n.translate "process.finalize_group_loan"}",
         :destination_link => "select_group_loan_for_finalization_url",
         :conditions => [
           {
@@ -478,10 +460,10 @@ module ApplicationHelper
   }
   
   GROUP_MANAGEMENT_PROCESS_LIST = {
-    :header_title => "Group Member Management",
+    :header_title => "#{I18n.translate 'process.group_member_management'}",
     :processes => [
       {
-        :title => "Member Assignment",
+        :title => "#{I18n.translate 'process.member_assignment'}",
         :destination_link => 'select_group_loan_to_assign_non_commune_constrained_member_url',
         :conditions => [
           {
@@ -513,7 +495,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Select Group Leader",
+        :title => "#{I18n.t 'process.select_group_leader'}",
         :destination_link => 'select_group_loan_to_select_group_leader_url',
         :conditions => [
           {
@@ -527,7 +509,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Create SubGroup",
+        :title => "#{I18n.translate 'process.create_sub_group'}",
         :destination_link => 'select_group_loan_to_create_sub_group_url',
         :conditions => [
           {
@@ -559,7 +541,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Select Sub Group Leader",
+        :title => "#{I18n.t 'process.select_sub_group_leader'}",
         :destination_link => 'select_group_loan_to_select_sub_group_leader_url',
         :conditions => [
           {
@@ -583,7 +565,7 @@ module ApplicationHelper
     :header_title => "CASHIER",
     :processes => [
       {
-        :title => "Loan Disbursement",
+        :title => "#{I18n.translate 'process.loan_disbursement'}",
         :destination_link => 'select_group_loan_for_loan_disbursement_url',
         :conditions => [
           {
@@ -597,7 +579,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Weekly Payment",
+        :title => "#{I18n.t 'process.weekly_payment'}",
         :destination_link => 'list_pending_weekly_collection_approval_url',
         :conditions => [
           {
@@ -611,7 +593,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Independent Payment",
+        :title => "#{I18n.translate 'process.independent_payment'}",
         :destination_link => 'select_group_loan_to_approve_independent_payment_url',
         :conditions => [
           {
@@ -625,7 +607,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Grace Period Payment",
+        :title => "#{I18n.translate 'process.grace_period_payment'} ",
         :destination_link => 'select_group_loan_for_grace_period_payment_approval_url',
         :conditions => [
           {
@@ -659,7 +641,7 @@ module ApplicationHelper
     :header_title => "Savings",
     :processes => [
       {
-        :title => "Savings withdrawal",
+        :title => "#{I18n.t 'process.savings_withdrawal'}",
         :destination_link => "search_member_for_savings_withdrawal_url",
         :conditions => [
           {
@@ -679,7 +661,7 @@ module ApplicationHelper
     :header_title => "Group Officer Assignment",
     :processes => [
       {
-        :title => "Assign Field Worker",
+        :title => "#{I18n.translate 'process.assign_field_worker'}",
         :destination_link => "select_group_loan_to_create_field_worker_assignment_url",
         :conditions => [
           {
@@ -693,7 +675,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Assign Loan Inspector",
+        :title => "#{I18n.translate 'process.assign_loan_inspector'}",
         :destination_link => "select_group_loan_to_create_loan_inspector_assignment_url",
         :conditions => [
           {
@@ -713,7 +695,7 @@ module ApplicationHelper
     :header_title => "Loan Inspector",
     :processes => [
       {
-        :title => "Finalize Financial Education Attendance",
+        :title => "#{I18n.translate 'process.finalize_financial_education_attendance'}",
         :destination_link => "select_group_loan_for_financial_education_finalization_url",
         :conditions => [
           {
@@ -727,7 +709,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Finalize Loan Disbursement Attendance",
+        :title => "#{I18n.translate 'process.finalize_loan_disbursement_attendance'}",
         :destination_link => "select_group_loan_for_loan_disbursement_attendance_finalization_url",
         :conditions => [
           {
@@ -749,7 +731,7 @@ module ApplicationHelper
     :header_title => "FIELD WORKER: Group Loan",
     :processes => [
       {
-        :title => "Financial Education Attendance",
+        :title => "#{I18n.translate 'process.financial_education_attendance' }",
         :destination_link => 'select_group_loan_for_financial_education_meeting_attendance_url',
         :conditions => [
           {
@@ -777,7 +759,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Weekly Meeting",
+        :title => "#{I18n.t 'process.weekly_meeting'}",
         :destination_link => 'select_group_loan_for_weekly_meeting_attendance_marking_url',
         :conditions => [
           {
@@ -795,7 +777,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Weekly Payment",
+        :title => "#{I18n.t 'process.weekly_payment'}",
         :destination_link => 'select_group_loan_for_weekly_payment_url',
         :conditions => [
           {
@@ -817,7 +799,7 @@ module ApplicationHelper
         ]
       }, 
       {
-        :title => "Independent Payment",
+        :title => "#{I18n.translate 'process.independent_payment'}",
         :destination_link => "select_group_loan_for_independent_weekly_payment_url",
         :conditions => [
           {
@@ -835,7 +817,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Grace Period Payment",
+        :title => "#{I18n.translate 'process.grace_period_payment'} ",
         :destination_link => "select_group_loan_for_grace_period_payment_url",
         :conditions => [
           {
@@ -853,7 +835,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Loan Default Resolution",
+        :title => "#{I18n.translate 'process.loan_default_resolution'}",
         :destination_link => 'select_group_loan_for_loan_default_resolution_url',
         :conditions => [
           {

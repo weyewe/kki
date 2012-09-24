@@ -4,7 +4,7 @@ class DefaultPaymentsController < ApplicationController
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @default_payments = @group_loan.default_payments
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_default_resolution_path'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_loan_default_resolution_path'
     set_breadcrumb_for @group_loan, 'list_default_payment_for_clearance_url' + "(#{@group_loan.id})", 
                 "Select Backlog"
     

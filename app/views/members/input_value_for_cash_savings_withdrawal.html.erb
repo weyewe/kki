@@ -1,8 +1,8 @@
 
 <div class="span9 content">
-  <%= create_guide("Savings Withdrawal",  
-        "Office: #{@office.name}"     + "<br />" + 
-        "Member: #{@member.name}"     ).html_safe %>
+  <%= create_guide("#{ t 'process.savings_withdrawal'}",  
+        "#{t 'guide.office'}: #{@office.name}"     + "<br />" + 
+        "#{ t 'report_metric.member' }: #{@member.name}"     ).html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   <% if flash[:notice] %>
@@ -77,17 +77,17 @@
         </thead>
         <tbody>
             <tr>
-              <td>Total Savings</td>
+              <td><%= t 'variable.total_savings'%></td>
               <td id=""><%= print_money(@member.total_savings)%> </td>
             </tr>
 
             <tr>
-              <td>Compulsory Savings</td>
+              <td><%= t 'report_metric.compulsory_savings'%></td>
               <td id=""><%= print_money(@member.saving_book.total_compulsory_savings)%> </td>
             </tr>
 
             <tr>
-              <td>Voluntary Savings</td>
+              <td><%= t 'variable.voluntary_savings' %></td>
               <td><%= print_money(@member.saving_book.total_extra_savings)%> </td>
               <%= hidden_field_tag 'total_extra_savings',
                   @member.saving_book.total_extra_savings  %>
@@ -114,8 +114,8 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Transaction ID</th>
-            <th>Amount</th>
+            <th><%= t 'report_metric.transaction_id'%></th>
+            <th><%= t 'variable.amount' %></th>
             <th>Withdrawal Time</th>
             
           </tr>

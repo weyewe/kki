@@ -1,9 +1,4 @@
-<!-- <th>Nama Member</th>
-<th>Field Worker ID</th>
-<th>Transaction Amount</th>
-<th>Savings withdrawal</th>
-<th colspan="2">Action</th> -->
-
+ 
 <tr id="backlog_payment_pending_approval-<%= transaction_backlog[:transaction_activity_id]  %>">
   <td><%= transaction_backlog[:member].name  %></td>
   <td><%= transaction_backlog[:field_worker_id] %></td>
@@ -13,17 +8,11 @@
   <!-- expected cash -->
   
 
- <!-- action button -->
-  <%# if group_loan.is_started == false && group_loan.is_proposed == true %>
+ <!-- action button --> 
     <td style="text-align:center;" colspan="2">
       <a href="#" class="btn approve action true_check"
           id="finalize_backlog_with_transaction_id-<%= transaction_backlog[:transaction_activity_id]  %>">Approve</a>
     </td>
-  
-    <!-- <td style="text-align:center;">
-        <a href="#" class="btn approve action"
-            id="reject-<%#= weekly_task.id %>">Reject</a>
-      </td> -->
-  <%# end %>
+   
   
 </tr>

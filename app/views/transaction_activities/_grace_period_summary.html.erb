@@ -2,13 +2,13 @@
       class="table table-striped table-bordered" id="example">
   <thead>
     <tr>
-      <th>Grace Period Payment Detail: <b><%= transaction_activity.id %></b></th>
+      <th><%= t 'guide.grace_period_payment_detail' %>: <b><%= transaction_activity.id %></b></th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>
-        Cash Amount
+        <%= t 'variable.cash_amount' %>
       </td>
       <td>
         <b><%= print_money( transaction_activity.total_transaction_amount ) %></b>
@@ -17,7 +17,7 @@
     
     <tr>
       <td>
-        Savings Withdrawal
+        <%=  t 'variable.savings_withdrawal' %>
       </td>
       <td>
         <b><%= print_money( transaction_activity.savings_withdrawal_amount ) %></b>
@@ -26,7 +26,7 @@
     
     <tr>
       <td>
-        Number of Backlogs Paid
+        <%= t 'report_metric.number_of_backlogs_paid'%>
       </td>
       <td>
         <b><%=   transaction_activity.number_of_backlogs_paid %></b>
@@ -35,7 +35,7 @@
     
     <tr>
       <td>
-        Backlogs Paid Amount
+        <%= t 'report_metric.backlogs_paid_amount'%>
       </td>
       <td>
         <b><%=   print_money( transaction_activity.grace_period_backlogs_paid_amount )  %></b>
@@ -44,7 +44,7 @@
     
     <tr>
       <td>
-        Extra Savings
+        <%= t 'variable.extra_savings'%>
       </td>
       <td>
         <b><%= print_money( transaction_activity.extra_savings_amount ) %></b>

@@ -14,11 +14,11 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Group</th>
+            <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
             <th>Total Member</th>
             <th>Paid Member</th>
-            <th>Finalize</th>
+            <th><%= t 'trigger.finalize' %></th>
             <th>Cashier Approval</th>
           
           </tr>
@@ -56,8 +56,7 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
-       <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
      </div>
    </div>
   

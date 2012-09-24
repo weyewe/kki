@@ -1,7 +1,7 @@
 
 <div class="span9 content">
-  <%= create_guide("Assign Employee to Group Loan", 
-        "Group Loan ID: <b>#{@group_loan.name}</b>").html_safe %>
+  <%= create_guide("#{t 'process.assign_employee_to_group_loan'}", 
+        "#{t 'guide.group_loan_id'}: <b>#{@group_loan.name}</b>").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -16,10 +16,10 @@
         <thead>
           <tr>
             <th>email</th>
-            <th>Role</th>
-            <th style="text-align:center;">Active Field Workers Assignment</th>
-            <th style="text-align:center;">Active Loan Inspector Assignment</th>
-            <th style="text-align:center;">Field Worker Assignment</th>
+            <th><%= t 'report_metric.role' %></th>
+            <th style="text-align:center;"><%= t 'report_metric.active_field_workers_assignment' %></th>
+            <th style="text-align:center;"><%= t 'report_metric.active_loan_inspectors_assignment' %></th>
+            <th style="text-align:center;"><%= t 'report_metric.field_worker_assignment' %></th>
             <!-- <th style="text-align:center;">Loan Inspector Assignment</th> -->
           </tr>
         </thead>
@@ -33,7 +33,7 @@
               <td class="user-nim"><%= user.email %></td>
               <td>
                 <% if user.has_role?(:field_worker, user.active_job_attachment) %>
-                  <span class="label label-info">Field Worker</span>
+                  <span class="label label-info"><%= t 'variable.field_worker'%></span>
                 <% end %>
               </td>
               <td id='<%= "current_group_loans_provider_#{@group_loan.id}-consumer_#{user.id}" %>' style="text-align:center;"> 
@@ -48,21 +48,11 @@
            
                   <%= check_box_tag 'is_checked', get_checkbox_value(checkbox_value )   , 
                       checkbox_value, :class => 'checkbox_tracker', 
-                      :id => "provider_#{@group_loan.id}-consumer_#{user.id}" %> Assigned
+                      :id => "provider_#{@group_loan.id}-consumer_#{user.id}" %> <%= t 'status.assigned' %>
                 </label>
 
               </td>
-              
-              <!-- <td style="text-align:center;" class="well">
-                     <label class="checkbox">
-                       <% checkbox_value = true #  user.is_group_loan_member?(@group_loan) %>
-                
-                       <%= check_box_tag 'is_checked', get_checkbox_value(checkbox_value )   , 
-                           checkbox_value, :class => 'checkbox_tracker', 
-                           :id => "provider_#{@group_loan.id}-consumer_#{user.id}" %> Assigned
-                     </label>
-
-                   </td> -->
+           
             </tr>
             
           <% end %>
@@ -81,20 +71,7 @@
           <%= hidden_field_tag 'membership_decision', '' %>
         <% end %>
       </div>
-      <!-- <div class="alert alert-success allert-message">
-             <a class="close" href="#">&times;</a>
-             <strong>Well done!</strong> You successfully read this important alert message.
-           </div>
-
-           
-           <div class="form-actions">
-             <%#= hidden_field_tag 'destination_url', 
-                     group_group_memberships_url(@group) ,
-                      :id => "destination_url" %>
-
-             <button class="btn btn-large btn-primary"
-                   type="submit" id="save_button">Save changes</button>
-           </div> -->
+    
      
 
      <div class="modal" id="myModal" style="display:none;">
@@ -106,8 +83,7 @@
          <p>One fine body…</p>
        </div>
        <div class="modal-footer">
-         <a href="#" class="btn modal-closer">Close</a>
-         <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
+         <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
        </div>
      </div>
         

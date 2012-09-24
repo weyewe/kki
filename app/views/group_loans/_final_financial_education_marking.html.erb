@@ -7,9 +7,9 @@
   
   <td>
     <% if group_loan_membership.is_attending_financial_lecture == true %>
-      <span class="label label-success">Present</span>
+      <span class="label label-success"><%= t 'attendance_marking.present' %></span>
     <% elsif group_loan_membership.is_attending_financial_lecture == false %>
-      <span class="label label-important">Absent</span>
+      <span class="label label-important"><%= t 'attendance_marking.absent' %></span>
     <% end %>
   </td>
   
@@ -22,15 +22,15 @@
       <% if group_loan_membership.final_financial_lecture_attendance == false  %>
         <span class="label label-important">Absent</span>
       <% elsif group_loan_membership.final_financial_lecture_attendance == true %>
-        <span class="label label-success">Present</span>
+        <span class="label label-success"><%= t 'status.present'%></span>
       <% end %>
       
     <% else %>
     
       <a href="#" class="btn propose action true_check"
-        id="mark_attendance_on_time-<%= group_loan_membership.id %>">Present</a>
+        id="mark_attendance_on_time-<%= group_loan_membership.id %>"><%= t 'attendance_marking.present' %></a>
       <a href="#" class="btn propose action"
-        id="mark_attendance_absent-<%= group_loan_membership.id %>">Absent</a>
+        id="mark_attendance_absent-<%= group_loan_membership.id %>"><%= t 'attendance_marking.absent' %></a>
         
     <% end %>
     

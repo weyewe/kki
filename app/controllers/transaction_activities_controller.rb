@@ -356,9 +356,9 @@ class TransactionActivitiesController < ApplicationController
     
     
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_grace_period_payment_approval_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_grace_period_payment_approval_url'
     set_breadcrumb_for @group_loan, 'select_pending_grace_period_payment_to_be_approved_url' + "(#{@group_loan.id})", 
-                "Grace Period Payment Approval"
+                "#{t 'process.grace_period_payment_approval'}"
   end
   
   def execute_backlog_payment_transaction_approval_by_cashier

@@ -4,9 +4,9 @@ class SubGroupsController < ApplicationController
     @sub_groups = @group_loan.sub_groups.order("number ASC")
     @new_sub_group_loan = SubGroup.new 
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_create_sub_group_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_create_sub_group_url'
     set_breadcrumb_for @group_loan, 'new_group_loan_sub_group_url' + "(#{@group_loan.id})", 
-                "Create Subgroups"
+                "#{t 'process.create_sub_group'}"
   end
   
   def create
@@ -29,9 +29,9 @@ class SubGroupsController < ApplicationController
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @sub_groups = @group_loan.sub_groups.order("number ASC")
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_member_to_sub_group_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_assign_member_to_sub_group_url'
     set_breadcrumb_for @group_loan, 'select_sub_group_to_assign_members_url' + "(#{@group_loan.id})", 
-                "Select Subgroup"
+                "#{t 'process.select_sub_group'}"
                 
   end
   
@@ -40,9 +40,9 @@ class SubGroupsController < ApplicationController
     @group_loan = @sub_group.group_loan 
     @members = @group_loan.members.order("created_at ASC")
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_member_to_sub_group_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_assign_member_to_sub_group_url'
     set_breadcrumb_for @group_loan, 'select_sub_group_to_assign_members_url' + "(#{@group_loan.id})", 
-                "Select Subgroup"
+                "#{t 'process.select_sub_group'}"
     set_breadcrumb_for @sub_group, 'assign_member_to_sub_group_url' + "(#{@sub_group.id})", 
                 "Member -> SubGroup"
   end
@@ -74,9 +74,9 @@ class SubGroupsController < ApplicationController
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @sub_groups = @group_loan.sub_groups.order("number ASC")
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_select_sub_group_leader_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_select_sub_group_leader_url'
     set_breadcrumb_for @group_loan, 'select_sub_group_to_pick_leader_url' + "(#{@group_loan.id})", 
-                 "Select Subgroup"
+                 "#{t 'process.select_sub_group'}"
   end
   
   def select_sub_group_leader_from_sub_group
@@ -85,12 +85,12 @@ class SubGroupsController < ApplicationController
     @group_loan_memberships_from_subgroup = @sub_group.group_loan_memberships.includes(:member)
     @sub_group_leader_id = @sub_group.sub_group_leader_id
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_select_sub_group_leader_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_select_sub_group_leader_url'
     set_breadcrumb_for @group_loan, 'select_sub_group_to_pick_leader_url' + "(#{@group_loan.id})", 
-                 "Select Subgroup"
+                 "#{t 'process.select_sub_group'}"
     
     set_breadcrumb_for @sub_group, 'select_sub_group_leader_from_sub_group_url' + "(#{@sub_group.id})", 
-                   "Select SubGroup Leader"
+                   "#{t 'process.select_sub_group_leader'}"
   end
   
   

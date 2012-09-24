@@ -1,8 +1,8 @@
 <div class="span9 content">
-  <%= create_guide("Add New Group Loan Product", 
+  <%= create_guide("#{t process.add_new_group_loan_product}", 
         "Create the group loan for: " + "<br />" + 
-        "Office: #{@office.name}" + "<br />"    +  
-        "Total Office Members: #{@group_loan_products.count} " + "(<a href='#data_list'>see all</a>)"          ).html_safe %>
+        "#{t 'guide.office'}: #{@office.name}" + "<br />"    +  
+        "#{t 'guide.total_office_members'}: #{@group_loan_products.count} " + "(<a href='#data_list'>#{t 'trigger.see_all'}</a>)"          ).html_safe %>
         
 
   
@@ -24,17 +24,17 @@
   
   <div class="row-fluid">
     <div class="span8">
-      <h2>New Group Loan Product details</h2><br />
+      <h2><%= t 'guide.new_group_loan_product_details' %></h2><br />
 
       <%= simple_form_for(@new_group_loan_product, :html => {:class => 'form-horizontal' }) do |f| %>
         <%= f.input :principal , :input_html => {:class => "input-xlarge span5", :id =>"weekly_principal"}, 
-        :hint => "Pembayaran Cicilan Principal Mingguan", :label => "Installment Principal" %>
+        :hint => "Pembayaran Cicilan Principal Mingguan", :label => "#{t 'variable.installment_principal'}" %>
 
         <%= f.input :interest, :input_html => {:class => "input-xlarge span5",:id =>"weekly_interest"  },
-        :hint => "Pembayaran Bunga Mingguan", :label => "Interest Payment"%>
+        :hint => "Pembayaran Bunga Mingguan", :label => "#{t 'variable.interest_payment'}"%>
 
         <%= f.input :min_savings, :input_html => { :class => "input-xlarge span5" },
-        :hint => "Minimum Tabungan Mingguan", :label => "Min Weekly Saving"%>
+        :hint => "Minimum Tabungan Mingguan", :label => "#{t 'guide.min_weekly_savings'}"%>
 
         <%= f.input :admin_fee, :input_html => {:class => "input-xlarge span5" },
         :hint => "Biaya administrasi awal" %>
@@ -46,7 +46,7 @@
         :hint => "Jangka Waktu Pembayaran(minggu)" %>
         
         <div class="form-actions">
-          <%= f.button :submit , :class => "btn btn-primary", :text=> "Create Group Loan Product" %>
+          <%= f.button :submit , :class => "btn btn-primary", :text=> "#{t 'trigger.create_group_loan_product'}"  %>
         </div>
       <% end %>
       
@@ -61,11 +61,11 @@
       <table cellpadding="0" cellspacing="0" border="0" 
             class="table table-striped table-bordered" id="example">
         <thead>
-          <tr><th colspan="2" style="text-align:center;">Loan Calculator</th></tr>
+          <tr><th colspan="2" style="text-align:center;"><%= t 'guide.loan_calculator'%></th></tr>
         </thead>
         <tbody>
             <tr>
-              <td>Principal (Rp)</td>
+              <td><%= t 'variable.principal_rp' %> </td>
               <td id="total_principal">
                 <div class="input-append">
                   <input type="text" size="16" id="appendedInput" class="span8" >
@@ -74,7 +74,7 @@
               </td>
             </tr>
             <tr>
-              <td>Interest</td>
+              <td><%= t 'variable.interest'  %></td>
               <td id="percentage_interest">
                 <div class="input-append">
                   <input type="text" size="16" id="appendedInput" class="span8" >
@@ -84,7 +84,7 @@
             </tr>
             
             <tr>
-              <td>Duration</td>
+              <td><%= t 'variable.duration' %></td>
               <td id="calculator_duration">
                 <div class="input-append">
                   <input type="text" size="16" id="appendedInput" class="span5" >
@@ -95,7 +95,7 @@
             
             <tr>
               <td colspan="2" style="text-align:center;">
-                <button href="#" class="btn btn-primary" id="simulate_group_loan_product">Simulate</button>
+                <button href="#" class="btn btn-primary" id="simulate_group_loan_product"><%= t 'trigger.simulate' %></button>
               </td>
             </tr>
             
@@ -109,21 +109,21 @@
    <hr />
   <div class="row-fluid">
     <div id="data_list">
-      <h2>Total Group Loan Products: <%= @group_loan_products.count %></h2>
+      <h2><%= t 'guide.total_group_loan_products' %>: <%= @group_loan_products.count %></h2>
       
       
       <table cellpadding="0" cellspacing="0" border="0" 
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Loan Amount</th>
-            <th>Interest</th>
+            <th><%= t 'report_metric.loan_amount' %></th>
+            <th><%= t 'variable.interest'  %></th>
             
-            <th>Weekly Principal</th>
-            <th>Weekly Interest</th>
-            <th>Min Saving</th>
-            <th>Total Weekly Payment</th>
-            <th>Duration (weeks)</th>
+            <th><%= t 'variable.weekly_principal'%></th>
+            <th><%= t 'report_metric.weekly_interest'%></th>
+            <th><%= t 'report_metric.min_savings'%></th>
+            <th><%= t 'guide.total_weekly_payment'%></th>
+            <th><%= t 'variable.duration' %> (<%= t 'variable.weeks' %>)</th>
             
               
             

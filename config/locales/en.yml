@@ -2,4 +2,350 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
-  hello: "Hello world"
+  nav_bar: 
+    home: "Home"
+    about: "About"
+    contact: "Contact"
+  attendance_marking: 
+    absent: "Absent"
+    present: "Present"
+  trigger:
+    action: "Action"
+    assign: "Assign"
+    cancel: "Cancel"
+    close: "Close"
+    create_group_loan: "Create Group Loan"
+    create_group_loan_product: "Create Group Loan Product"
+    custom_group_loan_default_resolution: "Custom Resolution"
+    execute: "Execute"
+    finalize: "Finalize"
+    more_payment: "More Payment"
+    no_payment_declaration: "No Payment Declaration"
+    pay_and_save_extra_savings: "Pay and Save Extra Savings"
+    pay_single_week_extra_savings: "Pay Single Week + Extra Savings"
+    payment_details: "Payment Details"
+    propose: "Propose"
+    propose_default_loan_resolution: "Propose Default Loan Resolution"
+    reject: "Reject"
+    save_changes: "Save Changes"
+    search_member: "Search Member"
+    see_all: "See All"
+    sign_in: "Sign In"
+    sign_out: "Sign Out"
+    simulate: "Simulate"
+    standard_resolution: "Standard Resolution"
+    
+  status:
+    active: "Active"
+    approved: "Approved"
+    assigned: "Assigned"
+    closed: "Closed"
+    complete: "Complete"
+    defaultee: "Defaultee"
+    non_defaultee: "Non Defaultee"
+    done: "Done"
+    finalized: "Finalized"
+    leader: "Leader"
+    loan_started: "Loan Started"
+    no_payment: "No Payment"
+    only_savings: "Only Savings"
+    paid: "PAID"
+    pending: "Pending"
+    present: "Present"
+    started: "Started"
+    this_sub_group: "This SubGroup"
+    unpaid: "Unpaid"
+    
+    
+  report_metric:
+    field_worker_assignment: "Field Worker Assignment"
+    
+    active_field_workers_assignment: "Active Field Workers Assignment"  
+    active_loan_inspectors_assignment: "Active Loan Inspectors Assignment"
+    assigned_loan: "Assigned Loan"
+    attending_financial_education: "Attending Financial Education"
+    attending_loan_disbursement: "Attending Loan Disbursement"
+    compulsory_savings: "Compulsory Savings"
+    compulsory_savings_deduction: "Compulsory Savings Deduction"
+    
+    bm_approval: "BM Approval"
+    bm_closing: "Branch Manager Closing"
+    cashier_execution: "Cashier Execution"
+    cleared_backlog: "Cleared Backlog"
+    
+    field_worker_result: "Field Worker Result"
+    loan_inspector_result: "Loan Inspector Result"
+    
+    field_worker_version: "Field Worker Version"
+    loan_inspector_version: "Loan Inspector Version"
+    finalization_time: "Finalization Time"
+    finalizer_id: "Finalizer ID"
+    
+    backlogs_paid_amount: "Backlogs Paid Amount"
+    basic_payment: "Basic Payment"
+    cash_passed: "Cash Passed"
+    close_meeting: "Close Meeting"
+    close_payment: "Close Payment"
+    expected_cash: "Expected Cash"
+    loan_amount: "Loan Amount"
+    grace_period: "Grace Period"
+    
+    execute_group_default_resolution: "Execute Default Resolution"
+    
+    close_group_loan: "Close Group Loan"
+    completed_group_payment: "Completed Group Payment"
+    completed_meeting: "Completed Meeting"
+    
+    deduction_amount: "Deduction Amount"
+    default_status: "Default Status"
+    default_group_resolution_proposed: "Default  Resolution Proposed"
+    default_group_resolution_executed: "Default  Resolution Executed"
+    
+    mark_attendance: "Mark Attendance"
+    member: "Member"
+    member_present: "Member Present"
+    
+    min_savings: "Min Savings"
+    group_name: "Group Name"
+    number_of_backlogs_paid: "Number of Backlogs Paid"
+    number_of_transactions: "Number of Transactions"
+    
+    past: "Past"
+    pending_approval: "Pending Approval"
+    returned_cash: "Returned Cash"
+    role: "Role"
+    status: "Status"
+    structured_payment: "Structured Payment"
+    sub_group: "SubGroup"
+    sub_group_leader: "SubGroup Leader"
+    total: "Total"
+    total_active_member: "Total Active Member"
+    
+    total_backlog: "Total Backlog"
+    total_executable_amount: "Total Executable Amount"
+    total_loan: "Total Loan"
+    total_meeting: "Total Meeting"
+    total_member_in_commune: "Total Member di RW"
+    total_sub_group: "Total Sub Group"
+    
+    transaction_amount: "Transaction Amount"
+    transaction_code: "Transaction Code"
+    transaction_case: "Transaction Case"
+    transaction_id: "Transaction ID"
+    unassigned_group_loan_product: "Unassigned Group Loan Product"
+    unpaid_amount: "Unpaid Amount"
+    unpaid_backlogs: "Unpaid Backlogs"
+    voluntary_savings_deduction: "Voluntary Savings Deduction"
+    week: "Week"
+    week_no: "Week No"
+    weekly_interest: "Weekly Interest"
+    withdrawn_cash: "Withdrawn Cash"
+    
+  process:
+    create_loan_product: "Create Loan Product"
+    group_member_management: "Group Member Management"
+    add_member: "Add Member"
+    add_new_group_loan: "Add New Group Loan"
+    add_new_group_loan_product: "Add New Group Loan Product"
+    add_new_member: "Add New Member"
+    member_assignment: "Member Assignment"
+    membership_summary: "Membership Summary"
+    
+    assign_employee_to_group_loan: "Assign Employee to Group Loan"
+    assign_field_worker: "Assign Field Worker"
+    assign_group_leader: "Assign Group Leader"
+    assign_group_loan_product: "Assign Group Loan Product"
+    assign_loan_inspector: "Assign Loan Inspector"
+    assign_loan_product: "Assign Loan Product"
+    assign_member_to_group_loan: "Assign Member to Group Loan"
+    assign_product: "Assign Product"
+    assign_to_group_loan: "Assign to Group Loan"
+    assign_to_sub_group: "Assign to SubGroup"
+    create_field_worker_assignment: "Create Field Worker Assignment"
+    create_sub_group: "Create SubGroup"
+    
+    finalize_group_loan: "Finalize Group Loan"
+    loan_disbursement: "Loan Disbursement"
+    finalize_loan_disbursement_attendance: "Finalize Loan Disbursement Attendance"
+    
+    financial_education_attendance: "Financial Education Attendance"
+    finalize_financial_education_attendance: "Finalize Financial Education Attendance"
+  
+    make_payment: "Make Payment"
+    mark_attendance: "Mark Attendance"
+  
+    grace_period_payment: "Grace Period Payment"
+    grace_period_payment_approval: "Grace Period Payment Approval"
+    
+    independent_payment: "Independent Payment"
+    independent_payment_approval: "Independent Payment Approval"
+    
+    input_payment: "Input Payment"
+    
+    collection_details: "Collection Details"
+    create_payment: "Create Payment"
+    
+    loan_default_resolution: "Loan Default Resolution"
+    
+    approve_grace_period_payment: "Approve Grace Period Payment"
+    approve_independent_payment: "Approve Independent Payment"
+    
+    monitor_progress: "Monitor Progress"
+    closed_group_loan: "Closed Group Loan" 
+    
+    pending_approval: "Pending Approval"
+    savings_withdrawal: "Savings withdrawal"
+    select_commune: "Select Commune"
+    select_group_leader: "Select Group Leader"
+    select_group_loan: "Select Group Loan"
+    
+    select_sub_group: "Select Sub Group"
+    
+    select_sub_group_leader: "Select Sub Group Leader"
+    
+    select_week: "Select Week"
+    select_weekly_group_payment: "Select Weekly Group Payment"
+    select_weekly_group_meeting: "Select Weekly  Meeting"
+    special_payment: "Special Payment"
+    
+    
+    standard_default_resolution: "Standard Default Resolution"
+    total_grace_payment: "Total Grace Payment"
+    weekly_collection_details: "Weekly Collection Details"
+    
+    weekly_meeting: "Weekly Meeting"
+    weekly_payment: "Weekly Payment"
+    weekly_payment_pending_approval: "Weekly Payment Pending Approval"
+    
+  variable: 
+    field_worker: "Field Worker"
+    
+    address: "Address"
+    admin_fee: "Admin Fee"
+    aggregated_interest: "Aggregated Interest"
+    aggregated_interest_rate: "Aggregated Interest Rate" 
+    aggregated_principal: "Aggregated Principal"
+    
+    
+    commune: "Commune"
+    duration: "Duration"
+    duration_week: "Duration (week)"
+    week: "week"
+    weeks: "weeks"
+    
+    amount: "Amount"
+    cash_amount: "Cash Amount"
+    extra_savings: "Extra Savings"
+    from_savings: "From Savings"
+    
+    initial_savings: "Initial Savings"
+    installment_principal: "Installment Principal"
+    interest: "Interest"
+    interest_payment: "Interest Payment"
+    principal: "Principal"
+    principal_rp: "Principal (Rp)"
+    savings_withdrawal: "Savings withdrawal"
+    total_min_weekly_payment: "Total Min Weekly Payment"
+    total_payment: "Total Payment"
+    
+    total_savings: "Total Savings"
+    voluntary_savings: "Voluntary Savings"
+    weekly_min_savings: "Weekly Min. Savings"
+    weekly_principal: "Weekly Principal"
+    
+    
+  flash: 
+    pre_successful_weekly_payment: "Approval for weekly payment week"
+    post_successful_weekly_payment: "is successful"
+    
+  notification:
+    basic_payment_extra_savings_is_success: "Basic Payment + Extra Savings  is SUCCESS"
+    basic_payment_extra_savings_fails: "Basic Payment + Extra Savings  payment FAIL"
+    fail_to_close_weekly_payment: "Fail to Close weekly payment"
+    fail_to_close_weekly_meeting: "Fail to Close weekly meeting"
+    in_week: "In Week"
+    notice_for_weekly_payment_collection: "Notice for Weekly Payment Collection"
+    weekly_meeting_not_finalized: "The  week's meeting hasn't been finalized by the member"
+    
+    transaction_for_member: "Transaction for member"
+    error_in_creating_transaction: "Error in creating the transaction "
+    transaction_successful: "is successful"
+    transaction_fail: "FAIL"
+  
+  prompt: 
+    single_week_extra_savings: "Are you sure for single week + extra savings payment with amount "
+    login_prompt: "Enter your email and password"
+    employee_email_prompt: "Enter your  email"
+    employee_password_prompt: "Enter your  password"
+    
+  guide:
+    create_a_new_group_loan_for: "Create a new group loan for"
+    office: "Office"
+    group_loan: "Group Loan"
+    executable_group_loan: "Executable Group Loan"
+    financial_education: "Financial Education"
+    group_loan: "Group Loan"
+    grace_period_payment_calculator: "Grace Period Payment Calculator"
+    grace_period_payment_detail: "Grace Period Payment Detail"
+    grace_period_unpaid_amount: "Grace Period Unpaid Amount"
+    group_leader: "Group Leader"
+    
+    group_loan_assignment: "Group Loan Assignment"
+    group_loan_collection_approval: "Group Loan Collection Approval"
+    group_loan_disbursement: "Group Loan Disbursement"
+    group_loan_id: "Group Loan ID"
+    
+    group_loan_progress: "Group Loan Progress"
+    in_grace_period_group_loans: "In Grace Period Group Loans"
+    
+    group_loan_name_hint: "Just another label to differentiate group loans"
+    loan_calculator: "Loan Calculator"
+    loan_product_details: "Loan Product Details"
+    
+    loan_to_be_disbursed: "Loan to be disbursed"
+    
+    member_matching_result: "Member Matching Result"
+    members_without_sub_group: "Members without subgroup"
+    min_weekly_savings: "Min Weekly Savings"
+    min_weekly_payment: "Min Weekly Payment"
+    multiple_weeks_and_structured_payment: "Multiple Weeks & Structured Payment" 
+    
+    new_group_loan_details: "New Group Loan Details"
+    new_group_loan_product_details: "New Group Loan Product Details"
+    new_member_details: "New Member Details"
+    payment_for_week: "Payment for Week"
+    
+    principal_installment:  "Pembayaran Cicilan Principal Mingguan"
+    pending_approval: "Pending Approval"
+    
+    remaining_weekly_payment: "Remaining Weekly Payment"
+    resolvable_group_loans: "Resolvable Group Loans"
+    running_group_loans: "Running Group Loans"
+    single_week_extra_savings: "Single Week + Extra Savings"
+    started_group_loan: "Started Group Loan"
+    total_active_group_loan: "Total Active Group Loan"
+    total_active_group_loan_in_office: "Total Active Group Loan in office"
+    total_amount: "Total Amount"
+    total_amount_recovered: "Total Amount Recovered"
+    total_default_amount: "Total Default Amount"
+    total_default_group_loan: "Total Default Group Loan"
+    total_defaultee: "Total Defaultee"
+    total_group_loan_products: "Total Group Loan Products"
+    total_group_member: "Total Group Member"
+    total_independent_payment_pending_approval: "Total Independent Payment Pending Approval"
+    total_member: "Total Member"
+    total_members_in_office: "Total Members in Office"
+    total_office_members: "Total Office Members"
+    total_pending_approval_for_group_loan: "Total Pending Approval Group Loan"
+    total_running_group_loan: "Total Running Group Loan"
+    total_sub_group_member: "Total Sub Group Member"
+    total_transactions: "Total Transactions"
+    total_unpaid_amount: "Total Unpaid Amount"
+    total_weekly_payment: "Total Weekly Payment"
+    total_weekly_tasks_pending_approval: "Total Weekly Tasks Pending Approval"
+    
+    
+    
+    
+    
+    

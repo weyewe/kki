@@ -19,17 +19,17 @@
       <td colspan="1" style="text-align:center;">
         
          <% if member_payment.is_full_payment? %>
-          <span class="label label-success">PAID</span>
+          <span class="label label-success"><%= t 'status.paid'%></span>
          <% elsif member_payment.only_savings_payment? %>
-          <span class="label label-warning">Only Savings</span>
+          <span class="label label-warning"><%= t 'status.only_savings' %></span>
          <% elsif  member_payment.no_payment?  %>
-          <span class="label label-important">No Payment</span>
+          <span class="label label-important"><%= t 'status.no_payment'%></span>
          <% end %>
       </td>
     <% else %>
       
       <td>
-          <span class="label">Unpaid</span>
+          <span class="label"><%= t 'status.unpaid'%></span>
       </td>
       
     <% end %>
@@ -47,7 +47,7 @@
     <% if weekly_task.has_paid_weekly_payment?(member)  %>
     <td>
 
-      <%= link_to "More Payment",
+      <%= link_to "#{t 'trigger.more_payment'}",
       special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
       :class => "btn", 
       :id => "make_basic_payment-#{member.id}"  %>
@@ -55,7 +55,7 @@
     </td>
     <% else %>
     <td>
-      <%= link_to "Create Payment",
+      <%= link_to "#{t 'process.create_payment'}",
       special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
       :class => "btn", 
       :id => "make_basic_payment-#{member.id}"  %>

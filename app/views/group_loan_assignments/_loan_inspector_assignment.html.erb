@@ -2,7 +2,7 @@
   <td class="user-nim"><%= user.email %></td>
   <td>
     <% if user.has_role?(:field_worker, user.active_job_attachment) %>
-      <span class="label label-info">Field Worker</span>
+      <span class="label label-info"><%= t 'variable.field_worker'%></span>
     <% end %>
   </td>
   <td style="text-align:center;"> 
@@ -19,7 +19,7 @@
 
       <%= check_box_tag 'is_checked', get_checkbox_value(checkbox_value )   , 
           checkbox_value, :class => 'checkbox_tracker', 
-          :id => "provider_#{group_loan.id}-consumer_#{user.id}" %> Assigned
+          :id => "provider_#{group_loan.id}-consumer_#{user.id}" %> <%= t 'status.assigned' %>
     </label>
 
   </td>

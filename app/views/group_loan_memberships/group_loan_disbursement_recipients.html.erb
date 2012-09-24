@@ -1,9 +1,9 @@
 
 <div class="span9 content">
-  <%= create_guide("Loan Disbursement", 
-        "Office: <b>#{@office.name}</b>" + "<br />" + 
-        "Group Loan ID: <b>#{@group_loan.name}</b>" + "<br />" + 
-        "Total Group Member: <b>#{@group_loan_memberships.count}</b>").html_safe %>
+  <%= create_guide("#{t 'process.loan_disbursement'} ", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.group_loan_id'}: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "#{t 'guide.total_group_member'}: <b>#{@group_loan_memberships.count}</b>").html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -18,12 +18,12 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>Amount</th>
+            <th><%= t 'variable.amount' %></th>
             <th>Setup Payment Deduction</th>
             <th>Net Amount</th>
             
-            <th style="text-align:center;">Action</th>
-            <th>Transaction ID</th>
+            <th style="text-align:center;"><%= t 'trigger.action' %></th>
+            <th><%= t 'report_metric.transaction_id'%></th>
           </tr>
         </thead>
         <tbody>

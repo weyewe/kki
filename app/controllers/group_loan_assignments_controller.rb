@@ -2,9 +2,9 @@ class GroupLoanAssignmentsController < ApplicationController
   def new_field_worker_assignment_to_employee
     new_assignment_setup
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_create_field_worker_assignment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_create_field_worker_assignment_url'
     set_breadcrumb_for @group_loan, 'new_field_worker_assignment_to_employee_url' + "(#{@group_loan.id})", 
-                "Create Field Worker Assignment"
+                "#{t 'process.create_field_worker_assignment'}"
   end
   
   def execute_field_worker_assignment
@@ -31,9 +31,9 @@ class GroupLoanAssignmentsController < ApplicationController
   def new_loan_inspector_assignment_to_employee
     new_assignment_setup
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_create_loan_inspector_assignment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_create_loan_inspector_assignment_url'
     set_breadcrumb_for @group_loan, 'new_field_worker_assignment_to_employee_url' + "(#{@group_loan.id})", 
-                "Create Field Worker Assignment"
+                "#{t 'process.create_field_worker_assignment'}"
   end
   
   def execute_loan_inspector_assignment

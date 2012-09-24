@@ -1,8 +1,8 @@
 
 <div class="span9 content">
   <%= create_guide("Default Loan Resolution", 
-        "Default group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Total Default Group Loan: <b>#{@default_declared_group_loans.count}</b> "  ).html_safe %>
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.total_default_group_loan'}: <b>#{@default_declared_group_loans.count}</b> "  ).html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -14,7 +14,7 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Group</th>
+            <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
             <th>Total Member</th>
             <th>Total Default Member</th>
@@ -23,7 +23,7 @@
             <th>Paid Amount</th>
             <!--  to pay the default payment, gonna be another transaction_activity -->
        
-            <th style="text-align:center;">Action</th>
+            <th style="text-align:center;"><%= t 'trigger.action' %></th>
             
           </tr>
         </thead>
@@ -56,7 +56,7 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
        <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
      </div>
    </div>

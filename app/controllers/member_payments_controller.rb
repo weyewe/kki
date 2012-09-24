@@ -17,11 +17,11 @@ class MemberPaymentsController < ApplicationController
     @member = @group_loan_membership.member 
     @group_loan_product = @group_loan_membership.group_loan_product
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_independent_weekly_payment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_independent_weekly_payment_url'
     set_breadcrumb_for @group_loan, 'select_member_for_independent_weekly_payment_url' + "(#{@group_loan.id})", 
                 "Select Member"
     set_breadcrumb_for @group_loan, 'make_independent_payment_url' + "(#{@group_loan_membership.id})", 
-                "Create Payment"
+                "#{t 'process.create_payment'}"
   end
   
 =begin
@@ -35,9 +35,9 @@ class MemberPaymentsController < ApplicationController
     @independent_payments = @pending_approval_weekly_task.group_independent_payment_transactions.order("created_at DESC")
     @pending_approval_count  = @pending_approval_weekly_task.group_independent_payment_transactions.where(:is_approved => false).count
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_approve_independent_payment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_approve_independent_payment_url'
     set_breadcrumb_for @group_loan, 'list_of_independent_payment_url' + "(#{@group_loan.id})", 
-                "Approve Independent Payment"
+                "#{t 'process.approve_independent_payment'}"
                 
   end
 end

@@ -7,20 +7,7 @@
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
-  
-  <!-- <div class="alert alert-info" style="text-align:center;">
-    <a data-dismiss="alert" class="close">×</a>
-    <strong>Hello!!</strong> Anda (loan officer) harus mengumpulkan biaya setup untuk Group Loan. <br />
-    Adapun komponen biaya setup itu adalah: <strong>Admin Fee</strong>, 
-    <strong>Tabungan Awal</strong>, dan <strong>Deposito</strong>. <br />
-    Jika <strong>semua member</strong> telah membayar biaya setup, maka click tombol berikut ini:
-    <br >
-    <p style="text-align:center; margin-top:30px;">
-    <button href="#" class="btn btn-primary">Finalize Setup</button>
-    </p>
-  </div>
-         -->
-        
+   
   
    
   <div class="row-fluid">
@@ -30,10 +17,10 @@
         <thead>
           <tr>
             <th>Nama</th>
-            <th>Admin Fee</th>
+            <th><%= t 'variable.admin_fee' %></th>
             <th>Initial Saving</th>
             <th>Deposit</th>
-            <th style="text-align:center;" >Action</th> 
+            <th style="text-align:center;" ><%= t 'trigger.action' %></th> 
             <th>TransactionID</td>
           </tr>
         </thead>
@@ -69,7 +56,7 @@
   <%= render :partial => "transaction_activities/setup_payment/notification_modal_body" %>
   
   <div class="modal-footer">
-    <a href="#" class="btn modal-closer">Close</a>
+    <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
     <a href="#" class="btn btn-primary execute_transaction">Execute Transaction</a>
   </div>
 </div>

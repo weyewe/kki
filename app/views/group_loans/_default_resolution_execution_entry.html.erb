@@ -1,20 +1,14 @@
-<!-- <tr>
-  <th>Nama Group</th>
-  <th>Lokasi RW</th>
-  <th>Total Executable Amount</th>
-  <th>Execute Default Resolution</th>
-</tr> -->
-
+ 
 <tr id="execute_group_loan_default_resolution-<%= group_loan.id %>">
   <td><%= group_loan.name %></td>
   <td><%= group_loan.get_commune %></td>
   <td><%= print_money(group_loan.total_amount_deducted_for_default_payment_resolution)%></td>
   <td>
     <% if group_loan.is_default_payment_resolution_approved == true %>
-      <span class="label label-success">Approved</span>
+      <span class="label label-success"><%= t 'status.approved' %></span>
     <% elsif group_loan.is_default_payment_resolution_approved == false %>
       <a href="#" class="btn propose action prevent_double_submit"
-        id="group_loan_to_be_executed-<%= group_loan.id %>">Execute</a>
+        id="group_loan_to_be_executed-<%= group_loan.id %>"><%= t 'trigger.execute' %></a>
     <% end %>
   </td>
 </tr>

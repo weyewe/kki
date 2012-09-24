@@ -1,8 +1,8 @@
 
 <div class="span9 content">
-  <%= create_guide("Savings Withdrawal",  
-        "Office: #{@office.name}" + "<br />"    +  
-        "Total Office Members: #{@office.members.count} "         ).html_safe %>
+  <%= create_guide("#{t 'process.savings_withdrawal'}",  
+        "#{t 'guide.office'}: #{@office.name}" + "<br />"    +  
+        "#{t 'guide.total_office_members'}: #{@office.members.count} "         ).html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
 
@@ -19,7 +19,7 @@
           <thead>
             <tr>
               <th colspan="2" style="text-align:left;">
-                Search Member
+                <%= t 'trigger.search_member'%>
               </th>
             </tr>
           </thead>
@@ -32,7 +32,7 @@
             <tr>
               <td colspan="2" style="text-align:center;">
                 <button href="#" class="btn btn-primary" >
-                  Search Member
+                  <%= t 'trigger.search_member'%>
                 </button>
               </td>
             </tr>
@@ -51,22 +51,22 @@
    <hr />
   <div class="row-fluid">
     <div id="data_list">
-      <h2>Total Members in office <%= @office.name %>: <%= @office.members.count %> </h2>
+      <h2><%= t 'guide.total_members_in_office'%> <%= @office.name %>: <%= @office.members.count %> </h2>
       
-      <h2>Member matching result: <%= @members.count %></h2>
+      <h2><%= t 'guide.member_matching_result' %>: <%= @members.count %></h2>
       
       
       <table cellpadding="0" cellspacing="0" border="0" 
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama</th>
+            <th><%= t 'report_metric.member'%></th>
             <th>No KTP</th>
             <th>Kecamatan</th>
             <th>Desa/Kelurahan</th>
             <th>RW</th>
             <th>RT</th>
-            <th>Voluntary Savings</th>
+            <th><%= t 'variable.voluntary_savings' %></th>
             
           </tr>
         </thead>

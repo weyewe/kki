@@ -83,18 +83,18 @@ class GroupLoansController < ApplicationController
   
   def select_group_loan_to_assign_member
     setup_select_group_loan
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_member_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_assign_member_url'
   end
   
   def select_group_loan_to_assign_non_commune_constrained_member
     setup_select_group_loan
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_non_commune_constrained_member_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_assign_non_commune_constrained_member_url'
   end
   
   def select_group_loan_to_group_loan_product
     setup_select_group_loan
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_group_loan_product_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_group_loan_product_url'
   end
   
   
@@ -123,12 +123,12 @@ class GroupLoansController < ApplicationController
   
   def select_group_loan_to_create_field_worker_assignment
     setup_select_group_loan
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_create_field_worker_assignment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_create_field_worker_assignment_url'
   end
   
   def select_group_loan_to_create_loan_inspector_assignment
     setup_select_group_loan
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_create_loan_inspector_assignment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_create_loan_inspector_assignment_url'
   end
   
 =begin
@@ -140,7 +140,7 @@ class GroupLoansController < ApplicationController
     @office = current_user.active_job_attachment.office
     @started_group_loans = @office.started_group_loans
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_setup_payment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_setup_payment_url'
     
   end
   
@@ -180,7 +180,7 @@ class GroupLoansController < ApplicationController
     @running_group_loans = @office.running_group_loans
     
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_independent_weekly_payment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_independent_weekly_payment_url'
   end
   
   def select_member_for_independent_weekly_payment
@@ -191,7 +191,7 @@ class GroupLoansController < ApplicationController
     @deadline_weekly_task = @group_loan.currently_executed_weekly_task
    
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_independent_weekly_payment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_independent_weekly_payment_url'
     set_breadcrumb_for @group_loan, 'select_member_for_independent_weekly_payment_url' + "(#{@group_loan.id})", 
                 "Select Member"
   end
@@ -201,7 +201,7 @@ class GroupLoansController < ApplicationController
     @office = current_user.active_job_attachment.office
     @running_group_loans = @office.running_group_loans.where(:is_grace_period => false)
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_approve_independent_payment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_approve_independent_payment_url'
   end
   
 =begin
@@ -218,7 +218,7 @@ class GroupLoansController < ApplicationController
       end
         
     end
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_grace_period_payment_url'  
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_grace_period_payment_url'  
   end
   
   def default_members_for_grace_period_payment
@@ -227,9 +227,9 @@ class GroupLoansController < ApplicationController
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @group_loan_memberships = @group_loan.active_group_loan_memberships 
    
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_grace_period_payment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_grace_period_payment_url'
     set_breadcrumb_for @group_loan, 'default_members_for_grace_period_payment_url' + "(#{@group_loan.id})", 
-                "Grace Period Payment"
+                "#{t 'process.grace_period_payment'}"
   end
   
   def grace_period_payment_calculator
@@ -248,11 +248,11 @@ class GroupLoansController < ApplicationController
     @group_loan_product = @group_loan_membership.group_loan_product
     @amount_per_backlog_in_grace_period = @group_loan_product.grace_period_weekly_payment
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_grace_period_payment_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_grace_period_payment_url'
     set_breadcrumb_for @group_loan, 'default_members_for_grace_period_payment_url' + "(#{@group_loan.id})", 
-                "Grace Period Payment"
+                "#{t 'process.grace_period_payment'}"
     set_breadcrumb_for @group_loan, 'grace_period_payment_calculator_url' + "(#{@group_loan_membership.id})", 
-          "Input Payment"           
+          "#{t 'process.input_payment'}"           
   end
   
 =begin
@@ -277,7 +277,7 @@ class GroupLoansController < ApplicationController
         
     end
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_default_resolution_path'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_loan_default_resolution_path'
   end
   
   def standard_default_resolution_schema
@@ -305,9 +305,9 @@ class GroupLoansController < ApplicationController
     #   @office_loss = @group_loan.deducted_grace_period_amount - @group_loan.unpaid_grace_period_amount 
     # end
     # 
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_default_resolution_path'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_loan_default_resolution_path'
     set_breadcrumb_for @group_loan, 'standard_default_resolution_schema_url' + "(#{@group_loan.id})", 
-                "Standard Default Resolution"
+                "#{t 'process.standard_default_resolution'}"
   end
   
   def execute_propose_standard_default_resolution
@@ -380,7 +380,7 @@ class GroupLoansController < ApplicationController
   def select_group_loan_for_financial_education_meeting_attendance
     setup_group_loan
     @active_group_loans = @office.started_group_loans
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_financial_education_meeting_attendance_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_financial_education_meeting_attendance_url'
   end
   
   
@@ -389,9 +389,9 @@ class GroupLoansController < ApplicationController
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @group_loan_memberships = @group_loan.group_loan_memberships.includes(:member).order("created_at DESC")
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_financial_education_meeting_attendance_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_financial_education_meeting_attendance_url'
     set_breadcrumb_for @group_loan, 'mark_financial_education_attendance_url' + "(#{@group_loan.id})", 
-                "Financial Education Attendance"
+                "#{t 'process.financial_education_attendance'}"
   end
   
   def propose_finalization_for_financial_education
@@ -404,7 +404,7 @@ class GroupLoansController < ApplicationController
   def select_group_loan_for_financial_education_finalization
     setup_group_loan
     @active_group_loans = @office.started_group_loans
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_financial_education_finalization_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_financial_education_finalization_url'
   end
   
   def finalize_financial_education_attendance
@@ -412,9 +412,9 @@ class GroupLoansController < ApplicationController
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @group_loan_memberships = @group_loan.group_loan_memberships.includes(:member).order("created_at DESC")
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_financial_education_finalization_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_financial_education_finalization_url'
     set_breadcrumb_for @group_loan, 'finalize_financial_education_attendance_url' + "(#{@group_loan.id})", 
-                "Financial Education Attendance"
+                "#{t 'process.financial_education_attendance'}"
   end
   
   def execute_finalize_financial_education
@@ -429,7 +429,7 @@ class GroupLoansController < ApplicationController
   def select_group_loan_for_loan_disbursement_meeting_attendance
     setup_group_loan
     @active_group_loans = @office.loan_disbursement_meeting_group_loans
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_disbursement_meeting_attendance_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_loan_disbursement_meeting_attendance_url'
   end
   
   def mark_loan_disbursement_attendance
@@ -437,7 +437,7 @@ class GroupLoansController < ApplicationController
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @group_loan_memberships = @group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.includes(:member).order("created_at DESC")
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_disbursement_meeting_attendance_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_loan_disbursement_meeting_attendance_url'
     set_breadcrumb_for @group_loan, 'mark_loan_disbursement_attendance_url' + "(#{@group_loan.id})", 
                 "Loan Disbursement Attendance"
   end
@@ -460,7 +460,7 @@ class GroupLoansController < ApplicationController
   def select_group_loan_for_loan_disbursement_attendance_finalization
     setup_group_loan
     @active_group_loans = @office.started_group_loans
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_disbursement_attendance_finalization_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_loan_disbursement_attendance_finalization_url'
   end
   
   
@@ -471,7 +471,7 @@ class GroupLoansController < ApplicationController
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @group_loan_memberships = @group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.includes(:member).order("created_at DESC")
     
-    add_breadcrumb "Select Group Loan", 'select_group_loan_for_loan_disbursement_attendance_finalization_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_loan_disbursement_attendance_finalization_url'
     set_breadcrumb_for @group_loan, 'finalize_loan_disbursement_attendance_url' + "(#{@group_loan.id})", 
                 "Loan Disbursement Attendance"
   end
@@ -566,7 +566,7 @@ class GroupLoansController < ApplicationController
     
     add_breadcrumb "Select GroupLoan", 'select_group_loan_to_select_group_leader_url'
     set_breadcrumb_for @group_loan, 'select_group_leader_from_member_url' + "(#{@group_loan.id})", 
-                "Assign Group Leader"
+                "#{t 'process.assign_group_leader'}"
   end
   
   
@@ -585,17 +585,17 @@ class GroupLoansController < ApplicationController
   
   def select_group_loan_to_create_sub_group
     setup_group_loan
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_create_sub_group_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_create_sub_group_url'
   end
   
   def select_group_loan_to_assign_member_to_sub_group
     setup_group_loan
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_assign_member_to_sub_group_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_assign_member_to_sub_group_url'
   end
   
   def select_group_loan_to_select_sub_group_leader
     setup_group_loan
-    add_breadcrumb "Select Group Loan", 'select_group_loan_to_select_sub_group_leader_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_select_sub_group_leader_url'
   end
   
   

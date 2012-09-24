@@ -1,11 +1,4 @@
-<!-- <tr>
-  <th>Member</th>
-  <th>Backlogs Paid</th>
-  <th>Transaction Code</th>
-  <th>Transaction Amount</th>
-  <th>Action</th>
-</tr> -->
-
+ 
 <% group_loan_membership = transaction_activity.group_loan_membership %>
 <tr id="pending_approval-<%= transaction_activity.id  %>">
   <td><%= group_loan_membership.member.name %></td>
@@ -15,7 +8,7 @@
   <td style='text-align:center;'>
     
     <% if transaction_activity.is_approved == true  %>
-      <span class="label label-success">Approved</span>
+      <span class="label label-success"><%= t 'status.approved' %></span>
     <% else %>
      <a href="#" class="btn propose action prevent_double_submit"
           id="pending_approval_grace_period_transaction-<%= transaction_activity.id %>">Approve</a>

@@ -1,7 +1,7 @@
 
 <div class="span9 content">
-  <%= create_guide("Independent Payment", 
-        "Select Group Loan").html_safe %>
+  <%= create_guide("#{t 'process.independent_payment'}", 
+        "#{t 'process.select_group_loan'}").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -13,11 +13,11 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Group</th>
+            <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
             <th>Total Member</th>
-            <th>Total Backlog</th>
-            <th>Cleared Backlog</th>
+            <th><%= t 'report_metric.total_backlog' %></th>
+            <th><%= t 'report_metric.cleared_backlog' %></th>
           </tr>
         </thead>
         <tbody>

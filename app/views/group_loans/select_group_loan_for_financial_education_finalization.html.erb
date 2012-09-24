@@ -1,15 +1,15 @@
 
 <div class="span9 content">
-  <%= create_guide("Financial Education", 
-        "Office: <b>#{@office.name}</b>" + "<br />" + 
-        "Total Active Group Loan: <b>#{@active_group_loans.count}</b> ").html_safe %>
+  <%= create_guide("#{t 'guide.financial_education'}", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.total_active_group_loan'}: <b>#{@active_group_loans.count}</b> ").html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
   
   
-  <span class="label">Field Worker Version</span><br />
-	<span class="label label-success">Loan Inspector Version</span><br />
+  <span class="label"><%= t 'report_metric.field_worker_version' %></span><br />
+	<span class="label label-success"><%= t 'report_metric.loan_inspector_version' %></span><br />
    
   <div class="row-fluid">
     <div id="data_list">
@@ -18,13 +18,13 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Group</th>
+            <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
             <th>Terdaftar</th>
-            <th colspan="2">Hadir</th>
-            <th colspan="2">Absent</th>
-            <th>Pending</th>
-            <th>Finalize</th>
+            <th colspan="2"><%= t 'attendance_marking.present' %></th>
+            <th colspan="2"><%= t 'attendance_marking.absent' %></th>
+            <th><%= t 'status.pending' %></th>
+            <th><%= t 'trigger.finalize' %></th>
           </tr>
         </thead>
         <tbody>
@@ -62,8 +62,7 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
-       <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
      </div>
    </div>
    

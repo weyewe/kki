@@ -8,8 +8,8 @@ $(document).ready(function(){
     
   <% else %>
     header_html = "<h3>Savings only payment  is SUCCESS</h3>";
-    body_html = "<p><h3>Member: <%= @member.name %></h3>"+
-                "Week <%= @weekly_task.week_number %>, "+
+    body_html = "<p><h3><%= t 'report_metric.member' %>: <%= @member.name %></h3>"+
+                "<%= t 'report_metric.week' %> <%= @weekly_task.week_number %>, "+
               "is declared as NO PAYMENT ";
   <% end %>
   

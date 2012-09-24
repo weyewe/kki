@@ -9,9 +9,9 @@
       <a class="brand" href="#">Debita46</a>
       <div class="nav-collapse">
         <ul class="nav">
-          <li class="active"><a href="#">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#contact">Contact</a></li>
+          <li class="active"><a href="#"><%= t 'nav_bar.home' %></a></li>
+          <li><a href="#about"><%= t 'nav_bar.about' %></a></li>
+          <li><a href="#contact"><%= t 'nav_bar.contact' %></a></li>
         </ul>
 
 
@@ -22,7 +22,7 @@
               <li><a href="#">Setting</a></li>
               <li><a href="#">Profile</a></li>
               <li class="divider"></li>
-              <li><%= link_to "Logout", destroy_user_session_url %></li>
+              <li><%= link_to "#{t 'trigger.sign_out'}", destroy_user_session_url %></li>
             </ul>
           </li>
         </ul>

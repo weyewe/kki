@@ -10,7 +10,7 @@
         <a 
             class="btn group_loan_product_details"
             id="member_<%= member.id %>_detail_viewer-<%=  group_loan_product.id %>">
-          Payment Details
+          <%= t 'trigger.payment_details' %>
         </a>
     </td>
     <td><%= group_loan_product.total_weeks.to_s + " weeks" %></td>
@@ -23,7 +23,7 @@
             </a>
           </td>
         <% else %>
-          <td>Loan Started</td>
+          <%=  t 'guide.loan_product_details' %>
         <% end %>
   <% else %>
     <td> - </td>
@@ -34,10 +34,10 @@
       <% if group_loan.is_started == false %>
         <a class="btn change_group_loan_product no_loan_assigned"
             id="no_loan_subcription_member-<%= group_loan.get_membership_for_member(member).id %>">
-        Assign Loan Product
+        <%= t 'process.assign_loan_product' %>
         </a>
       <% else %>
-        Loan Started
+        <%=  t 'guide.loan_product_details' %>
       <% end %>
     </td>
   <% end %>

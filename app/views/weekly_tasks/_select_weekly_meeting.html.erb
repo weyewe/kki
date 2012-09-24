@@ -14,12 +14,12 @@
     <% if weekly_task.attendance_marking_not_closed? and 
           weekly_task.attendance_marking_can_be_closed? %>
       <a href="#" class="btn propose action"
-          id="close_weekly_meeting-<%= weekly_task.id %>">Close</a>
+          id="close_weekly_meeting-<%= weekly_task.id %>"><%= t 'trigger.close' %></a>
     <% elsif weekly_task.attendance_marking_not_closed? and 
                not weekly_task.attendance_marking_can_be_closed? %>
       <span class="label">--</span>
     <% else %>
-      <span class="label label-success">Closed</span>
+      <span class="label label-success"><%= t 'status.closed' %></span>
     <% end %>
     
   </td>

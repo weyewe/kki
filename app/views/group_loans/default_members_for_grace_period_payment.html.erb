@@ -1,8 +1,8 @@
 <div class="span9 content">
-  <%= create_guide("Grace Period Payment", 
+  <%= create_guide("#{t 'process.grace_period_payment'}", 
         "Office: <b>#{@office.name}</b>" + "<br />" + 
         "Group Loan: <b>#{@group_loan.name}</b> " + "<br />" + 
-        "Amount: <b>#{ print_money( @group_loan.unpaid_grace_period_amount ) }</b>").html_safe %>
+        "#{t 'variable.amount'}: <b>#{ print_money( @group_loan.unpaid_grace_period_amount ) }</b>").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -14,11 +14,10 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Member</th>
-            <!-- <th>Amount Per Backlog</th> -->
-            <th>Number of Transactions</th>
-            <th>Total Unpaid Amount</th>
-            <th>Action</th>
+            <th><%= t 'report_metric.member' %></th> 
+            <th><%= t 'report_metric.number_of_transactions'%></th>
+            <th><%= t 'guide.total_unpaid_amount'%></th>
+            <th><%= t 'trigger.action' %></th>
           </tr>
         </thead>
         <tbody>
@@ -54,8 +53,7 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
-       <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
      </div>
    </div>
   

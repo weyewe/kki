@@ -1,9 +1,9 @@
 
 <div class="span9 content">
-  <%= create_guide("Add New Group Loan", 
-        "Create a new group loan for: " + "<br />" + 
-        "Office: #{@office.name}" + "<br />"    +  
-        "Total Active Group Loan: #{@active_group_loans.count} " + "(<a href='#data_list'>see all</a>)"          ).html_safe %>
+  <%= create_guide("#{t process.add_new_group_loan}", 
+        "#{t 'guide.create_a_new_group_loan_for'}: " + "<br />" + 
+        "#{t 'guide.office'}: #{@office.name}" + "<br />"    +  
+        "#{t 'guide.total_active_group_loan'}: #{@active_group_loans.count} " + "(<a href='#data_list'>#{t 'trigger.see_all'}</a>)"          ).html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   <% if flash[:notice] %>
@@ -24,24 +24,13 @@
   <div class="row-fluid">
     <div class="span12">
       
-      <h2>New Group Loan details</h2><br />
+      <h2><%= t 'guide.new_group_loan_details'%></h2><br />
 
       <%= simple_form_for(@new_group_loan, :html => {:class => 'form-horizontal prevent_double_submit' }) do |f| %>
-      <!-- t.string   "name"
-          t.integer  "creator_id",                            :null => false
-          t.integer  "office_id"
-          t.boolean  "is_closed",          :default => false
-          t.integer  "group_closer_id"
-          t.boolean  "is_started",         :default => false
-          t.integer  "group_starter_id"
-          t.integer  "total_default"
-          t.boolean  "any_default",        :default => false
-          t.integer  "default_creator_id"
-          t.integer  "commune_id" -->
-        
+   
         
         <%= f.input :name , :input_html => {:class => "input-xlarge span5"}, 
-         :label => "Name", :hint => "Just another label to differentiate the group loans" %>
+         :label => "Name", :hint => "#{t 'guide.group_loan_name_hint'}" %>
 
        <%= f.input :commune_id, :hint => "Persyaratan group loan: anggota harus tinggal di satu RW. <br />Pilih Kecamatan, Desa-Kelurahan ---- RW".html_safe, :label => "RW" do %>
          <%= f.select :commune_id, 
@@ -53,7 +42,7 @@
 
      
         <div class="form-actions">
-          <%= f.button :submit , :class => "btn btn-primary", :text=> "Create Group Loan" %>
+          <%= f.button :submit , :class => "btn btn-primary", :text=> "#{t 'trigger.create_group_loan'}" %>
         </div>
       <% end %>
       
@@ -66,14 +55,14 @@
    <hr />
   <div class="row-fluid">
     <div id="data_list">
-      <h2>Total Active Group Loans in office <%= @office.name %>: <%= @active_group_loans.count %> </h2>
+      <h2><%= t 'guide.total_active_group_loan_in_office'%> <%= @office.name %>: <%= @active_group_loans.count %> </h2>
       
       
       <table cellpadding="0" cellspacing="0" border="0" 
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama</th>
+            <th><%= t 'report_metric.member'%></th>
             <th>RW</th>
             <th>Jumlah Anggota</th>
           </tr>

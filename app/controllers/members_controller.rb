@@ -33,7 +33,7 @@ class MembersController < ApplicationController
       office = @office
       @members = Member.where{ (name =~ name_query) & {office_id => office.id} }
     end
-    add_breadcrumb "Select Group Loan", 'search_member_for_savings_withdrawal_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'search_member_for_savings_withdrawal_url'
   end
   
   def input_value_for_cash_savings_withdrawal
@@ -44,7 +44,7 @@ class MembersController < ApplicationController
                   :transaction_case => TRANSACTION_CASE[:cash_savings_withdrawal]
                   )
     
-    add_breadcrumb "Select Group Loan", 'search_member_for_savings_withdrawal_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'search_member_for_savings_withdrawal_url'
     set_breadcrumb_for @member, 'input_value_for_cash_savings_withdrawal_url' + "(#{@member.id})", 
                 "Amount for Savings Withdrawal"
   end

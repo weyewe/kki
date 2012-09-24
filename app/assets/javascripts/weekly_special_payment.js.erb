@@ -22,7 +22,7 @@ $(document).ready(function(){
         alert("The payment amount can't be less than " + addCommas(basic_weekly_payment_amount));
         return false ;
       }else{
-        if(confirm("Are you sure for single week + extra savings payment with amount " +addCommas(value)+  " ?")){
+        if(confirm(<%= t 'prompt.single_week_extra_savings' %> +addCommas(value)+  " ?")){
           $form.showLoading();
           $.ajax({
              url: $form.attr("action"),

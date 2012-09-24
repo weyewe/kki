@@ -1,8 +1,8 @@
 
 <div class="span9 content">
-  <%= create_guide("Assign Group Loan Product", 
-        "Group Loan ID: <b>#{@group_loan.name}</b>" + "<br />" + 
-        "Total Group Member: <b>#{@group_loan_members.count}</b>").html_safe %>
+  <%= create_guide("#{t 'process.assign_group_loan_product'}", 
+        "#{t 'guide.group_loan_id'}: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "#{t 'guide.total_group_member'}: <b>#{@group_loan_members.count}</b>").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -16,11 +16,11 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Total Loan</th>
-            <th colspan="2">Interest</th>
-            <th>Duration</th>
-            <th>Assign Loan Product</th>
+            <th><%= t 'report_metric.member'%></th>
+            <th><%= t 'report_metric.total_loan'%></th>
+            <th colspan="2"><%= t 'variable.interest'  %></th>
+            <th><%= t 'variable.duration' %></th>
+            <th><%= t 'process.assign_loan_product'%></th>
           </tr>
         </thead>
         <tbody>

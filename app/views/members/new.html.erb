@@ -1,9 +1,9 @@
 
 <div class="span9 content">
-  <%= create_guide("Add New Member", 
+  <%= create_guide("#{t process.add_new_member}", 
         "Create the group loan for: " + "<br />" + 
         "Office: #{@office.name}" + "<br />"    +  
-        "Total Office Members: #{@office_members.count} " + "(<a href='#data_list'>see all</a>)"          ).html_safe %>
+        "#{t 'guide.total_office_members'}: #{@office_members.count} " + "(<a href='#data_list'>#{t 'trigger.see_all'}</a>)"          ).html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   <% if flash[:notice] %>
@@ -24,7 +24,7 @@
   <div class="row-fluid">
     <div class="span12">
       
-      <h2>New Member details</h2><br />
+      <h2><%= t 'guide.new_member_details'%></h2><br />
 
       <%= simple_form_for(@new_member, :html => {:class => 'form-horizontal' }) do |f| %>
         <%= f.input :name , :input_html => {:class => "input-xlarge span5"}, 
@@ -67,7 +67,7 @@
    <hr />
   <div class="row-fluid">
     <div id="data_list">
-      <h2>Total Members in office <%= @office.name %>: <%= @office_members.count %> </h2>
+      <h2><%= t 'guide.total_members_in_office'%> <%= @office.name %>: <%= @office_members.count %> </h2>
       
       
       <table cellpadding="0" cellspacing="0" border="0" 

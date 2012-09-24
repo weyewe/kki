@@ -1,8 +1,8 @@
 
 <div class="span9 content">
-  <%= create_guide("Independent Payment", 
-        "Office: <b>#{@office.name}</b>" + "<br />" + 
-        "Group Loan: <b>#{@group_loan.name}</b> " + "<br />" +  
+  <%= create_guide("#{t 'process.independent_payment'}", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b> " + "<br />" +  
         "Unpaid backlogs: <b>#{@group_loan.unpaid_backlogs.count}</b> "  + "<br />" + 
         "Approval Week: <b>#{@deadline_weekly_task.week_number}</b> " ).html_safe %>
   
@@ -16,11 +16,10 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Member</th>
-            <th>SubGroup</th>
-            <th>Alamat</th>
-            <!-- <th>Total Backlog</th> -->
-            <th>Unpaid Backlog</th>
+            <th><%= t 'report_metric.member' %></th>
+            <th><%= t 'report_metric.sub_group'%></th>
+            <th><%= t 'variable.address' %></th>
+            <th><%= t 'report_metric.unpaid_backlogs' %></th>
             
           </tr>
         </thead>
@@ -59,7 +58,7 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
        <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
      </div>
    </div>

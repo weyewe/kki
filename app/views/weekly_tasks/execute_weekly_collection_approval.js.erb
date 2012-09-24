@@ -3,9 +3,9 @@ $(document).ready(function(){
   
   $("#weekly_payment_collection_cashier_approval-<%= @weekly_task.id %>").remove();
   var header_text, body_text;
-  header_text = "Notice for Weekly Payment Collection";
+  header_text = "<%= t 'notification.notice_for_weekly_payment_collection' %>";
   <% if @weekly_task.weekly_collection_approved? %>
-    body_text = "Approval for weekly payment week <%= @weekly_task.week_number %> is successful.";
+    body_text = "<%=  t 'flash.pre_successful_weekly_payment' %> <%= @weekly_task.week_number %> <%=  t 'flash.post_successful_weekly_payment' %>.";
   <% else %>
     <% unapproved_independent_payment = @weekly_task.group_independent_payment_transactions.where(:is_approved => false).count %>
     <% if  unapproved_independent_payment != 0 %>

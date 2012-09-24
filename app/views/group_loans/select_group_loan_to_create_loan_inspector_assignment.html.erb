@@ -1,9 +1,9 @@
 
 <div class="span9 content">
-  <%= create_guide("Group Loan Assignment", 
-        "Select Group Loan" + "<br />" + 
-        "Manage group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Total Active Group Loan: <b>#{@active_group_loans.count}</b> ").html_safe %>
+  <%= create_guide("#{t 'guide.group_loan_assignment'}", 
+        "#{t 'process.select_group_loan'}" + "<br />" + 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.total_active_group_loan'}: <b>#{@active_group_loans.count}</b> ").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -15,7 +15,7 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Group</th>
+            <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
             <th>Total Members</th>
             <th>Field Officers</th>

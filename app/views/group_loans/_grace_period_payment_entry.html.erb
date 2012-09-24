@@ -1,26 +1,18 @@
-<!-- <tr>
-  <th>Member</th>
-  <th>Amount Per Backlog</th>
-  <th>Unpaid Backlogs</th>
-  <th>Total Unpaid Amount</th>
-  <th>Action</th>
-</tr> -->
+ 
 
 <% if group_loan_membership.unpaid_backlogs.count != 0  %>
   <% member= group_loan_membership.member %>
   <% group_loan_product = group_loan_membership.group_loan_product %>
 
   <tr>
-    <td><%= member.name %></td>
-    <!-- <td><%#= print_money(group_loan_product.grace_period_weekly_payment)%></td> -->
-    <!-- <td><%#= group_loan_membership.unpaid_backlogs.count  %></td> -->
+    <td><%= member.name %></td> 
     <td><%= group_loan_membership.grace_period_payments.count  %></td>
     <td><%= print_money(group_loan_membership.default_payment.unpaid_grace_period_amount)%></td>
     <td>
     <% if group_loan_membership.default_payment.unpaid_grace_period_amount == BigDecimal("0")%>
-      <span class="label label-success">Complete</span>
+      <span class="label label-success"><%= t 'status.complete' %></span>
     <% else %>
-      <%= link_to "Create Payment",
+      <%= link_to "#{trigger 'process.create_payment'}",
         grace_period_payment_calculator_url(group_loan_membership), :class => "btn" %>
     <% end %>
     

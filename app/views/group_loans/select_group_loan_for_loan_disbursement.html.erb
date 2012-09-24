@@ -1,8 +1,8 @@
 
 <div class="span9 content">
-  <%= create_guide("Group Loan Disbursement", 
-        "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Loan to be disbursed: <b>#{@disbursable_group_loans.count}</b> ").html_safe %>
+  <%= create_guide("#{t 'guide.group_loan_disbursement'}", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.loan_to_be_disbursed'}: <b>#{@disbursable_group_loans.count}</b> ").html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -14,13 +14,13 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Group</th>
+            <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
-            <th>Attending Financial Education</th>
-            <th>Withdrawn Cash</th>
-            <th>Attending Loan Disbursement</th>
-            <th>Returned Cash</th>
-            <th style="text-align:center;">Finalize</th>
+            <th><%= t 'report_metric.attending_financial_education' %></th>
+            <th><%= t 'report_metric.withdrawn_cash'%></th>
+            <th><%= t 'report_metric.attending_loan_disbursement' %></th>
+            <th><%= t 'report_metric.returned_cash' %></th>
+            <th style="text-align:center;"><%= t 'trigger.finalize'%></th>
           
           </tr>
         </thead>
@@ -59,8 +59,7 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
-       <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
      </div>
    </div>
   

@@ -1,12 +1,12 @@
 <div class="span9 content">
   <%= create_guide("Special Payment", 
-        "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Group Loan: <b>#{@group_loan.name}</b>" + "<br />" + 
-        "Member: <b>#{@member.name}</b>" + "<br />" + 
-        "Payment for week: <b>#{@weekly_task.week_number}</b>" + "<br />" + 
-        "Minimum weekly payment: <b>#{print_money(@group_loan_product.total_weekly_payment)}</b>" + "<br />" + 
-        "Remaining weekly payment: <b>#{@group_loan.remaining_weekly_tasks_count_for_member(@member)}</b>" + "<br />" + 
-        "Unpaid Backlogs: <b>#{@group_loan_membership.unpaid_backlogs.count}</b>").html_safe %>
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "#{ t 'report_metric.member' }: <b>#{@member.name}</b>" + "<br />" + 
+        "#{t 'guide.payment_for_week'}: <b>#{@weekly_task.week_number}</b>" + "<br />" + 
+        "#{t 'guide.min_weekly_payment'}: <b>#{print_money(@group_loan_product.total_weekly_payment)}</b>" + "<br />" + 
+        "#{t  'guide.remaining_weekly_payment'}: <b>#{@group_loan.remaining_weekly_tasks_count_for_member(@member)}</b>" + "<br />" + 
+        "#{t 'report_metric.unpaid_backlogs'}: <b>#{@group_loan_membership.unpaid_backlogs.count}</b>").html_safe %>
         
   
   
@@ -41,11 +41,11 @@
   
   
     <ul class="nav nav-tabs" id="tab">
-      <li class=""><a data-toggle="tab" href="#extra_savings"><strong>Extra Savings</strong></a></li>
+      <li class=""><a data-toggle="tab" href="#extra_savings"><strong><%= t 'variable.extra_savings'%></strong></a></li>
       <li class="active">
         <a data-toggle="tab" href="#structured_multiple_payment">
           <strong>
-            Multiple Weeks <%= "&"  %> Structured Payment
+            <%= t 'guide.multiple_weeks_and_structured_payment'%>
           </strong>
         </a>
       </li>
@@ -54,14 +54,14 @@
   <% else %>
     <ul class="nav nav-tabs" id="tab">
       
-      <li class="active"><a data-toggle="tab" href="#single_extra_savings"><strong>Single Week + Extra Savings</strong></a></li>
-      <li class=""><a data-toggle="tab" href="#only_savings_payment"><strong>Only Savings</strong></a></li>
-      <li class=""><a data-toggle="tab" href="#no_payment"><strong>No Payment Declaration</strong></a></li>
+      <li class="active"><a data-toggle="tab" href="#single_extra_savings"><strong><%= t 'guide.single_week_extra_savings'%></strong></a></li>
+      <li class=""><a data-toggle="tab" href="#only_savings_payment"><strong><%=  t 'status.only_savings'  %></strong></a></li>
+      <li class=""><a data-toggle="tab" href="#no_payment"><strong><%= t 'trigger.no_payment_declaration'%></strong></a></li>
    
       <li class="">
         <a data-toggle="tab" href="#structured_multiple_payment">
           <strong>
-            Multiple Weeks <%= "&"  %> Structured Payment
+            <%= t 'guide.multiple_weeks_and_structured_payment'%>
           </strong>
         </a>
       </li>
@@ -103,9 +103,8 @@
      <div class="modal-body">
        <p>One fine body…</p>
      </div>
-     <div class="modal-footer">
-       <!-- <a href="#" class="btn modal-closer">Close</a> -->
-       <%= link_to "Close", make_member_payment_url(@weekly_task.group_loan, @weekly_task), :class => "btn"%>
+     <div class="modal-footer"> 
+       <%= link_to "#{ t 'trigger.close' }", make_member_payment_url(@weekly_task.group_loan, @weekly_task), :class => "btn"%>
      </div>
    </div>
   

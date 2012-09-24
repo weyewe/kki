@@ -15,10 +15,10 @@ $(document).ready(function(){
         :transaction_activity => @transaction_activity 
       } ) %>
     body_html = '<%= transaction_activity_details %>';
-    header_html = "<h3>Transaction for member <%= @member.name %> is successful</h3>"
+    header_html = "<h3><%= t 'notification.transaction_for_member' %> <%= @member.name %> <%= t 'notification.transaction_successful' %></h3>"
   <% else %>
-    body_html = '<p>Error in creating the transaction</p>';
-     header_html = "<h3>Transaction for member <%= @member.name %> FAIL</h3>"
+    body_html = "<p><%= t 'notification.error_in_creating_transaction'%></p>";
+     header_html = "<h3><%= t 'notification.transaction_for_member' %> <%= @member.name %> <%= t 'notification.transaction_fail' %></h3>"
   <% end %>
   
   summonModalHTML( header_html , 

@@ -46,9 +46,7 @@
      <div class="modal-body">
        <p>One fine body…</p>
      </div>
-     <div class="modal-footer">
-       <!-- <a href="#" class="btn modal-closer">Close</a> -->
-       <%#= link_to "Close", make_member_payment_url(@weekly_task.group_loan, @weekly_task), :class => "btn"%>
+     <div class="modal-footer"> 
        <%= link_to "Close", group_loan_backlog_payments_url(@group_loan), :class => "btn"%>
      </div>
    </div>

@@ -28,7 +28,7 @@
           </tr>
           
           <tr>
-            <td>Duration</td>
+            <td><%= t 'variable.duration' %></td>
             <td id="calculator_duration">
               <div class="input-append">
                 <span class="input-xlarge uneditable-input"
@@ -41,7 +41,7 @@
           </tr>
           
           <tr>
-            <td>Total Payment</td>
+            <td><%= t 'variable.total_payment'%></td>
             <td id="calculator_duration">
               <div class="input-append">
                 <b><span class="input-xlarge uneditable-input"
@@ -67,7 +67,7 @@
           
           
           <tr>
-            <td>From Savings</td>
+            <td><%= t 'variable.from_savings' %></td>
             <td><span class="input-xlarge uneditable-input" 
                 id="bp_display_savings_withdrawal"></span></td>
             <%= hidden_field_tag 'bmf_savings_withdrawal',
@@ -112,7 +112,7 @@
       </thead>
       <tbody>
           <tr>
-            <td>Total Savings</td>
+            <td><%= t 'variable.total_savings'%></td>
             <td id="total_principal"><%= print_money(member.total_savings)%> </td>
             <%= hidden_field_tag 'bp_total_savings_amount',
                 member.total_savings.to_i %>
@@ -142,24 +142,24 @@
           </tr>
           
           <tr>
-            <td><b>Duration</b></td>
+            <td><b><%= t 'variable.duration' %></b></td>
             <td id="calculator_duration">
               <div class="input-append">
                 <input type="text" size="16"  class="span5" id="bp_calc_weeks" >
-                <span class="add-on">weeks</span>
+                <span class="add-on"><%= t 'variable.weeks' %></span>
               </div>
             </td>
           </tr>  
          
           <tr>
-            <td><b>Savings Withdrawal</b></td>
+            <td><b><%= t 'variable.savings_withdrawal'%></b></td>
             <td> <input type="text" size="16"  class="span8" id="bp_calc_savings_withdraw"> </td>
           </tr>
           
           <tr>
             <td colspan="2" style="text-align:center;">
               <button href="#" class="btn btn-primary"
-               id="bp_simulate_structured_payment">Simulate</button>
+               id="bp_simulate_structured_payment"><%= t 'trigger.simulate' %></button>
             </td>
           </tr>
           

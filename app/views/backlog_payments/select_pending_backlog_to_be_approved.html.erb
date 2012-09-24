@@ -1,7 +1,7 @@
 <div class="span9 content">
   <%= create_guide("Pending Backlog Payments", 
-        "Group loan for office: <b>#{@office.name}</b>" + "<br />" + 
-        "Pending Approval: <b>#{@transaction_activity_backlogs_pairs.count}</b> ").html_safe %>
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.pending_approval'}: <b>#{@transaction_activity_backlogs_pairs.count}</b> ").html_safe %>
   
   <%#= create_breadcrumb(@breadcrumbs).html_safe %>
   
@@ -13,13 +13,13 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th>Nama Member</th>
+            <th><%= t 'report_metric.member' %></th>
             <th>Field Worker ID</th>
             <th>Cash taken by field worker</th>
-            <th>Savings withdrawal</th>
+            <th><%= t 'variable.savings_withdrawal'%></th>
             <th>Number of Weeks Paid</th>
             
-            <th colspan="2">Action</th>
+            <th colspan="2"><%= t 'trigger.action' %></th>
             
           </tr>
         </thead>
@@ -58,8 +58,7 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer">
-       <a href="#" class="btn modal-closer">Close</a>
-       <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a> 
      </div>
    </div>
   
