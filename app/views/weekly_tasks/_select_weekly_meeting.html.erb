@@ -1,9 +1,9 @@
 <tr id="weekly_meeting_wrapper-<%= weekly_task.id %>">
   <td>
   <% if weekly_task.attendance_marking_can_be_done? %>
-    <%= link_to "Week: #{weekly_task.week_number} ", mark_attendance_url(group_loan.id, weekly_task.id) %>
+    <%= link_to "#{t 'variable.week'}: #{weekly_task.week_number} ", mark_attendance_url(group_loan.id, weekly_task.id) %>
   <% else %>
-    <%= "Week: #{weekly_task.week_number} " %>
+    <%= "#{t 'variable.week'}: #{weekly_task.week_number} " %>
   <% end %>
   
   </td>

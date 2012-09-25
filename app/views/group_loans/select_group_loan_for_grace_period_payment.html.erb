@@ -1,6 +1,6 @@
 <div class="span9 content">
   <%= create_guide("#{t 'process.grace_period_payment'}", 
-        "Office: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
         "#{t 'guide.in_grace_period_group_loans'}: <b>#{@group_loans.count}</b> ").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>

@@ -8,7 +8,7 @@ $(document).ready(function(){
   <% if @weekly_task.attendace_marking_closed? %>
     $("#weekly_meeting_wrapper-<%= @weekly_task.id %>").replaceWith('<%= new_row %>');
   <% else %>
-    var header_text = "<%= t 'notification.fail_to_close_weekly_meeting' %>: week <%= @weekly_task.week_number  %> ";
+    var header_text = "<%= I18n.t 'notification.fail_to_close_weekly_meeting' %>: week <%= @weekly_task.week_number  %> ";
     var body_text = "The previous week's meeting hasn't been approved by the cashier.";
     summonModal( header_text , 
                 body_text, 

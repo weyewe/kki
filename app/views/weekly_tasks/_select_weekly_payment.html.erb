@@ -1,10 +1,10 @@
 <tr id="weekly_payment_wrapper-<%= weekly_task.id %>">
   <td>
     <% if weekly_task.member_payment_can_be_started? %>
-      <%= link_to "Week: #{weekly_task.week_number} ", 
+      <%= link_to "#{t 'variable.week'}: #{weekly_task.week_number} ", 
           make_member_payment_url(group_loan.id, weekly_task.id) %>
     <% else %>
-      <%= "Week: #{weekly_task.week_number} " %>
+      <%= "#{t 'variable.week'}: #{weekly_task.week_number} " %>
     <% end %>
     
   </td>

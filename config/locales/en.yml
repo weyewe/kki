@@ -40,6 +40,7 @@ en:
     select: "Select"
     back: "Back"
     approve: "Approve"
+    pay_as_savings_only: "Pay as Savings Only"
     
   status:
     active: "Active"
@@ -153,6 +154,7 @@ en:
     inspector_approval: "Inspector Approval"
     disbursed_amount: "Disbursed Amount"
     attendance: "Attendance"
+    total_group_payment: "Total Group Payment"
     
   process:
     loan_officer: "Loan Officer"
@@ -360,6 +362,7 @@ en:
     total_weekly_payment: "Total Weekly Payment"
     total_weekly_tasks_pending_approval: "Total Weekly Tasks Pending Approval"
     select_group_loan_product: "Select Group Loan Product"
+    current_savings: "Current Savings"
     
     
     

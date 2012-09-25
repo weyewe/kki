@@ -9,6 +9,7 @@ id:
   attendance_marking: 
     absent: "Absen"
     present: "Hadir"
+    
   trigger:
     action: "Tindakan"
     assign: "Tugaskan"
@@ -40,6 +41,7 @@ id:
     select: "Pilih"
     back: "Sebelumnya"
     approve: "Setuju"
+    pay_as_savings_only: "Pembayaran hanya untuk Tabungan sukarela"
     
   status:
     active: "Aktif"
@@ -154,6 +156,7 @@ id:
     inspector_approval: "Persetujuan Pengawas"
     disbursed_amount: "Jumlah Pencairan"
     attendance: "Kehadiran"
+    total_group_payment: "Jumlah Pembayaran"
     
   process:
     loan_officer: "Asisten Manager Cabang"
@@ -363,6 +366,8 @@ id:
     total_weekly_payment: "Jumlah Cicilan Mingguan"
     total_weekly_tasks_pending_approval: "Cicilan Mingguan untuk Dicek"
     select_group_loan_product: "Pilih Jenis Pinjaman"
+    
+    current_savings: "Tabungan Saat Ini"
     
     
     

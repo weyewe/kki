@@ -7,7 +7,7 @@ class WeeklyTasksController < ApplicationController
     setup_for_select_weekly_meeting
     
     
-    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_attendance_marking_path' + "(#{@group_loan.id})", 
                 "#{t 'process.select_week'}"
     
@@ -16,7 +16,7 @@ class WeeklyTasksController < ApplicationController
   def mark_attendance
     setup_for_weekly_task_fulfillment_details
     @group_loan_memberships = @group_loan.active_group_loan_memberships
-    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_attendance_marking_path' + "(#{@group_loan.id})", 
                 "#{t 'process.select_week'}"
     set_breadcrumb_for @group_loan, 'mark_attendance_path' + "(#{@group_loan.id}, #{@weekly_task.id})", 
@@ -37,7 +37,7 @@ class WeeklyTasksController < ApplicationController
     
     # select_weekly_meeting_for_weekly_payment_url(group_loan)
     
-    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_payment_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 
                 "#{t 'process.select_week'}"
   end
@@ -45,7 +45,7 @@ class WeeklyTasksController < ApplicationController
   def make_member_payment
     setup_for_weekly_task_fulfillment_details
     # @group_loan_memberships = @group_loan.active_group_loan_memberships
-    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_payment_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 
                 "#{t 'process.select_week'}"
     set_breadcrumb_for @group_loan, 'make_member_payment_url' + "(#{@group_loan.id}, #{@weekly_task.id})", 
