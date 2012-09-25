@@ -145,6 +145,7 @@ en:
     current: "Current"
     
   process:
+    loan_officer: "Loan Officer"
     create_loan_product: "Create Loan Product"
     create_group_loan: "Create Group Loan"
     group_member_management: "Group Member Management"

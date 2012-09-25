@@ -215,6 +215,14 @@ class GroupLoanMembership < ActiveRecord::Base
     
   end
   
+  def is_group_leader?
+    if self.group_loan.group_leader_id.nil?
+      return false 
+    else
+      self.member_id == self.group_loan.group_leader_id 
+    end
+  end
+  
 =begin
   Attendance Marking for group loan: financial education and group loan disbursement
   By loan inspector

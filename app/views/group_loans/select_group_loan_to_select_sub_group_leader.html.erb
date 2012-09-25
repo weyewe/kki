@@ -1,6 +1,6 @@
 
 <div class="span9 content">
-  <%= create_guide("Member -> SubGroup Leader",  
+  <%= create_guide("#{t 'report_metric.member'} -> #{t 'report_metric.sub_group_leader'}",  
         "#{t 'guide.total_active_group_loan'}: <b>#{@active_group_loans.count}</b> ").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
@@ -14,8 +14,8 @@
         <thead>
           <tr>
             <th><%= t 'report_metric.group_name' %></th>
-            <th>Total Member</th>
-            <th><%= t 'variable.total_sub_group'%></th>
+            <th><%= t 'guide.total_member'%></th>
+            <th><%= t 'report_metric.total_sub_group'%></th>
           </tr>
         </thead>
         <tbody>

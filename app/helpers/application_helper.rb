@@ -406,7 +406,7 @@ module ApplicationHelper
   }
   
   LOAN_OFFICER_PROCESS_LIST = {
-    :header_title => "LOAN_OFFICER",
+    :header_title => "#{I18n.t 'process.loan_officer'}",
     :processes => [
       {
         :title => "#{I18n.translate 'process.add_member'}",
@@ -481,7 +481,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Membership Summary",
+        :title => "#{I18n.t 'process.membership_summary'} ",
         :destination_link => 'select_group_loan_to_assign_member_url',
         :conditions => [
           {
@@ -523,7 +523,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Assign Member to Subgroup",
+        :title => "#{I18n.t 'process.assign_to_sub_group'}",
         :destination_link => 'select_group_loan_to_assign_member_to_sub_group_url',
         :conditions => [
           {

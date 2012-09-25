@@ -1,8 +1,8 @@
 
 <div class="span9 content">
   <%= create_guide("Member -> SubGroup",  
-        "Group: <b>#{@group_loan.name}</b>" + "<br />" + 
-        "Total SubGroups: <b>#{@sub_groups.count}</b> " + "<br />" + 
+        "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "#{t 'report_metric.total_sub_group' }: <b>#{@sub_groups.count}</b> " + "<br />" + 
         "#{t 'guide.total_group_member'}: <b>#{@group_loan.members.count}</b>").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>

@@ -146,6 +146,7 @@ id:
     current: "Saat Ini"
     
   process:
+    loan_officer: "Asisten Manager Cabang"
     create_loan_product: "Buat Jenis Pinjaman Baru"
     create_group_loan: "Buat Kumpulan Baru"
     group_member_management: "Pengaturan Anggota Kumpulan"

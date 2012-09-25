@@ -17,19 +17,24 @@
             class="table table-striped table-bordered" id="example">
         <thead>
           <tr>
-            <th><%= t 'report_metric.member' %></th>
-            <th><%= t 'report_metric.sub_group' %></th>
-            <th>SubGroup Leader?</th>
+            <th><%= t 'report_metric.member' %></th> 
             <th><%= t 'guide.group_leader'%>?</th>
+            <th><%= t 'report_metric.sub_group_leader'%>?</th>
           </tr>
         </thead>
         <tbody>
           <% @group_loan_memberships_from_subgroup.each do |group_loan_membership| %>
             <% member =  group_loan_membership.member %>
             <tr>
-              <td class="user-nim"><%= member.name %></td>
-              <td><%= t 'report_metric.sub_group' %></td>
-              <td><%= t 'report_metric.sub_group_leader' %></td>
+              <td class="user-nim"><%= member.name %></td> 
+              <td>
+                <% if group_loan_membership.is_group_leader? %>
+                  <span class="label label-success"><%= t 'report_metric.group_leader' %></span>
+                <% else %>
+                  <span class='label'>NA</span>
+                <% end %>
+                
+              </td>
               
               <td class="well">
                 <label class="checkbox">
