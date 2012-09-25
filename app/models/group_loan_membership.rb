@@ -389,8 +389,8 @@ class GroupLoanMembership < ActiveRecord::Base
   end
   
   def min_setup_payment
-    group_loan_product = self.group_loan_product
-    group_loan_product.admin_fee + group_loan_product.initial_savings 
+    group_loan_product = self.group_loan_product 
+    group_loan_product.setup_payment_amount
   end
   
   def has_paid_setup_payment?

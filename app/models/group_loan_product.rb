@@ -60,7 +60,7 @@ class GroupLoanProduct < ActiveRecord::Base
   end
   
   def loan_amount_deducted_by_setup_amount
-    loan_amount - setup_payment_amount
+    loan_amount - setup_payment_amount 
   end
   
   

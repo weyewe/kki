@@ -7,7 +7,7 @@
   
   <td style="text-align:center;">
     <% if group_loan_membership.deduct_setup_payment_from_loan == true %>
-      	<span class="label label-important"><%= print_money( group_loan_membership.min_setup_payment )%></span>
+      	<span class="label label-important"><%= print_money( group_loan_product.setup_payment_amount )%></span>
     <% else %>
     	<span class="label label-success">0</span>
     <% end %>
@@ -17,7 +17,7 @@
   <td>
     <% if group_loan_membership.deduct_setup_payment_from_loan == true %>
       	<span class="label label-success">
-      	  <%= print_money( group_loan_product.loan_amount - group_loan_membership.min_setup_payment  ) %>
+      	  aa <%= print_money( group_loan_product.loan_amount_deducted_by_setup_amount  ) %>
       	</span>
     <% else %>
     	<span class="label label-success">

@@ -599,9 +599,27 @@ class GroupLoan < ActiveRecord::Base
     return value
   end
   
+  def potential_loan_disbursement_receivers
+    self.group_loan_memberships.where{
+      ( is_active.eq true) | 
+      ( ( is_active.eq false ) & (deactivation_case.eq GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]))
+    }.order("sub_group_id DESC")
+  end
+  
+  def actual_loan_disbursement_receivers
+    self.group_loan_memberships.where{
+      ( is_active.eq true) | 
+      ( ( is_active.eq false ) & (deactivation_case.eq GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]))
+    }.where(:has_received_loan_disbursement => true )
+  end
+  
   def total_withdrawn_amount
     value = BigDecimal("0")
-    self.group_loan_memberships.where(:is_attending_financial_lecture => true).each do |glm|
+    # self.group_loan_memberships.where(:is_attending_financial_lecture => true).each do |glm|
+    #     value += glm.group_loan_product.loan_amount_deducted_by_setup_amount
+    #   end
+    
+    self.potential_loan_disbursement_receivers.each do |glm|
       value += glm.group_loan_product.loan_amount_deducted_by_setup_amount
     end
     

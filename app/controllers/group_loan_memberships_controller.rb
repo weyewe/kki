@@ -143,10 +143,7 @@ class GroupLoanMembershipsController < ApplicationController
   def group_loan_disbursement_recipients
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
-    @group_loan_memberships = @group_loan.group_loan_memberships.where{
-      ( is_active.eq true) | 
-      ( ( is_active.eq false ) & (deactivation_case.eq GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_disbursement_absent]))
-    }.order("sub_group_id DESC")
+    @group_loan_memberships = @group_loan.potential_loan_disbursement_receivers
   end
   
 end
