@@ -206,6 +206,15 @@ class GroupLoanMembership < ActiveRecord::Base
     # put the user activity list on who the destroyer is 
   end
   
+  def is_sub_group_leader?
+    if self.sub_group_id.nil?
+      return false
+    else
+      self.sub_group.sub_group_leader_id == self.member_id
+    end
+    
+  end
+  
 =begin
   Attendance Marking for group loan: financial education and group loan disbursement
   By loan inspector

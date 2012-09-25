@@ -1,7 +1,6 @@
 
 <div class="span9 content">
-  <%= create_guide("#{t process.add_new_group_loan}", 
-        "#{t 'guide.create_a_new_group_loan_for'}: " + "<br />" + 
+  <%= create_guide("#{t 'process.add_new_group_loan'}",  
         "#{t 'guide.office'}: #{@office.name}" + "<br />"    +  
         "#{t 'guide.total_active_group_loan'}: #{@active_group_loans.count} " + "(<a href='#data_list'>#{t 'trigger.see_all'}</a>)"          ).html_safe %>
   
@@ -9,7 +8,7 @@
   <% if flash[:notice] %>
     <div class="alert alert-success">
       <a data-dismiss="alert" class="close">×</a>
-      <strong>Well done!</strong> <%= flash[:notice].html_safe %>
+      <strong><%= t 'notification.well_done'%></strong> <%= flash[:notice].html_safe %>
     </div>
   <% end %>
   
@@ -30,9 +29,9 @@
    
         
         <%= f.input :name , :input_html => {:class => "input-xlarge span5"}, 
-         :label => "Name", :hint => "#{t 'guide.group_loan_name_hint'}" %>
+         :label => "Nama", :hint => "#{t 'guide.group_loan_name_hint'}" %>
 
-       <%= f.input :commune_id, :hint => "Persyaratan group loan: anggota harus tinggal di satu RW. <br />Pilih Kecamatan, Desa-Kelurahan ---- RW".html_safe, :label => "RW" do %>
+       <%= f.input :commune_id, :hint => "Persyaratan group loan: anggota harus tinggal berdekatan. <br />Pilih Kecamatan, Desa-Kelurahan ---- RW".html_safe, :label => "RW" do %>
          <%= f.select :commune_id, 
              @all_communes %>
        <% end %>
@@ -42,7 +41,7 @@
 
      
         <div class="form-actions">
-          <%= f.button :submit , :class => "btn btn-primary", :text=> "#{t 'trigger.create_group_loan'}" %>
+          <%= f.button :submit , :class => "btn btn-primary", :value=> "#{t 'trigger.create_group_loan'}" %>
         </div>
       <% end %>
       

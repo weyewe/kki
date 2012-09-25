@@ -20,6 +20,10 @@ class Member < ActiveRecord::Base
     :message => "Harus unik. Sudah ada member dengan no KTP ini." }
  
 
+  def group_loan_membership_for(group_loan)
+    GroupLoanMembership.where(:is_active => true, :group_loan_id => group_loan.id, :member_id => self.id ).first
+  end
+
   def past_group_loans
     member_id = self.id
     GroupLoanMembership.joins(:group_loan).where(

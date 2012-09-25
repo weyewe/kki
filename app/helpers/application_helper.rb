@@ -373,7 +373,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "#{t 'process.pending_approval'}",
+        :title => "#{I18n.t 'process.pending_approval'}",
         :destination_link => 'select_group_loan_to_start_url',
         :conditions => [
           {
@@ -423,7 +423,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Create GroupLoan",
+        :title => "#{I18n.t 'process.create_group_loan'}",
         :destination_link => 'new_group_loan_url',
         :conditions => [
           {

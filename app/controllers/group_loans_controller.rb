@@ -531,13 +531,13 @@ class GroupLoansController < ApplicationController
   # loan collection 
   def select_group_loan_for_weekly_meeting_attendance_marking
     setup_group_loan_for_weekly_task
-    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
   end
   
   def select_group_loan_for_weekly_payment
     setup_group_loan_for_weekly_task
     
-    add_breadcrumb "Select GroupLoan", 'select_group_loan_for_weekly_payment_path'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_payment_path'
   end
   
 =begin
@@ -545,7 +545,7 @@ class GroupLoansController < ApplicationController
 =end
   def select_group_loan_to_select_group_leader
     setup_group_loan
-    add_breadcrumb "Select GroupLoan", 'select_group_loan_to_select_group_leader_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_select_group_leader_url'
   end
   
   # @office = current_user.active_job_attachment.office
@@ -564,7 +564,7 @@ class GroupLoansController < ApplicationController
     end
     # @group_leader_name = nil if @group_leader_id.nil? else @group_loan.group_leader.name 
     
-    add_breadcrumb "Select GroupLoan", 'select_group_loan_to_select_group_leader_url'
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_select_group_leader_url'
     set_breadcrumb_for @group_loan, 'select_group_leader_from_member_url' + "(#{@group_loan.id})", 
                 "#{t 'process.assign_group_leader'}"
   end

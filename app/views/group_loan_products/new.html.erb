@@ -1,6 +1,5 @@
 <div class="span9 content">
-  <%= create_guide("#{t process.add_new_group_loan_product}", 
-        "Create the group loan for: " + "<br />" + 
+  <%= create_guide("#{t 'process.add_new_group_loan_product'}",  
         "#{t 'guide.office'}: #{@office.name}" + "<br />"    +  
         "#{t 'guide.total_office_members'}: #{@group_loan_products.count} " + "(<a href='#data_list'>#{t 'trigger.see_all'}</a>)"          ).html_safe %>
         
@@ -10,7 +9,7 @@
   <% if flash[:notice] %>
     <div class="alert alert-success">
       <a data-dismiss="alert" class="close">×</a>
-      <strong>Well done!</strong> <%= flash[:notice].html_safe %>
+      <strong><%= t 'notification.well_done'%></strong> <%= flash[:notice].html_safe %>
     </div>
   <% end %>
   
@@ -37,16 +36,16 @@
         :hint => "Minimum Tabungan Mingguan", :label => "#{t 'guide.min_weekly_savings'}"%>
 
         <%= f.input :admin_fee, :input_html => {:class => "input-xlarge span5" },
-        :hint => "Biaya administrasi awal" %>
+        :hint => "Biaya administrasi awal" , :label => "#{t 'variable.admin_fee'}"%>
 
         <%= f.input :initial_savings, :input_html => { :class => "input-xlarge span5" },
-        :hint => "Jumlah tabungan minimum awal"%>
+        :hint => "Jumlah tabungan minimum awal", :label => "#{t 'variable.initial_savings'}" %>
 
         <%= f.input :total_weeks, :input_html => {:class => "input-xlarge span5", :id => "duration" },
-        :hint => "Jangka Waktu Pembayaran(minggu)" %>
+        :hint => "Jangka Waktu Pembayaran(minggu)", :label => "#{t 'variable.total_weeks'}" %>
         
         <div class="form-actions">
-          <%= f.button :submit , :class => "btn btn-primary", :text=> "#{t 'trigger.create_group_loan_product'}"  %>
+          <%= f.button :submit , :class => "btn btn-primary", :value=> "#{t 'trigger.create_group_loan_product'}"  %>
         </div>
       <% end %>
       
@@ -88,7 +87,7 @@
               <td id="calculator_duration">
                 <div class="input-append">
                   <input type="text" size="16" id="appendedInput" class="span5" >
-                  <span class="add-on">weeks</span>
+                  <span class="add-on"><%= t 'variable.weeks'%></span>
                 </div>
               </td>
             </tr>

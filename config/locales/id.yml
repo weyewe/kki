@@ -1,0 +1,358 @@
+# Sample localization file for English. Add more files in this directory for other locales.
+# See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
+
+id:
+  nav_bar: 
+    home: "Home"
+    about: "Mengenai Website Ini"
+    contact: "Kontak"
+  attendance_marking: 
+    absent: "Absen"
+    present: "Hadir"
+  trigger:
+    action: "Tindakan"
+    assign: "Tugaskan"
+    cancel: "Batal"
+    close: "Tutp"
+    create_group_loan: "Buat Kumpulan Baru"
+    create_group_loan_product: "Buat Jenis Pinjaman Baru"
+    custom_group_loan_default_resolution: "Penyelesaian Khusus"
+    execute: "Eksekusi"
+    finalize: "Finalisasi"
+    more_payment: "Pembayaran Tambahan"
+    no_payment_declaration: "Tidak Membayar"
+    pay_and_save_extra_savings: "Lakukan Transaksi"
+    pay_single_week_extra_savings: "Lakukan Transaksi"
+    payment_details: "Keterangan Pembayaran"
+    propose: "Ajukan"
+    propose_default_loan_resolution: "Ajukan Rencana Penyelesaian Tunggakan"
+    reject: "Tolak"
+    save_changes: "Save Changes"
+    search_member: "Cari Peminjam"
+    see_all: "Lihat Semua"
+    sign_in: "Masuk"
+    sign_out: "Keluar"
+    simulate: "Simulasikan"
+    standard_resolution: "Penyelesaian Standar"
+    create_member: "Buat Peminjam Baru"
+    
+  status:
+    active: "Aktif"
+    approved: "Disetujui"
+    assigned: "Ditugaskan"
+    closed: "Ditutup"
+    complete: "Selesai"
+    defaultee: "Macet"
+    non_defaultee: "Lancar"
+    done: "Selesai"
+    finalized: "Final"
+    leader: "Ketua"
+    loan_started: "Pinjaman sudah dicairkan"
+    no_payment: "Tidak Membayar"
+    only_savings: "Hanya Menabung"
+    paid: "Dibayar"
+    pending: "Belum"
+    present: "Hadir"
+    started: "Sudah Mulai"
+    this_sub_group: "Kelompok Ini"
+    unpaid: "Belum"
+    proposed: "Terajukan"
+    yes: "Ya"
+    
+    
+  report_metric:
+    field_worker_assignment: "Penugasan Pembimbing"
+    
+    active_field_workers_assignment: "Pembimbing yang ditugaskan"  
+    active_loan_inspectors_assignment: "Pengawas yang ditugaskan"
+    assigned_loan: "Sudah Ditentukan Pinjamannya"
+    attending_financial_education: "Menghadiri PENGARAHAN pinjaman"
+    attending_loan_disbursement: "Menghadiri PENCAIRAN pinjaman"
+    compulsory_savings: "Tabungan Wajib"
+    compulsory_savings_deduction: "Pengurangan Tabungan Wajib"
+    
+    bm_approval: "Persetujuan MC"
+    bm_closing: "Penutupan oleh MC"
+    cashier_execution: "Eksekusi Kasir"
+    cleared_backlog: "Sudah Dibayar"
+    
+    field_worker_result: "Absensi Pembimbing"
+    loan_inspector_result: "Absensi Pengawas"
+    
+    field_worker_version: "Versi Pembimbing"
+    loan_inspector_version: "Versi Pengawas"
+    finalization_time: "Waktu"
+    finalizer_id: "ID PIC"
+    
+    backlogs_paid_amount: "Nilai Tunggakan Dibayar"
+    basic_payment: "Cicilan Mingguan"
+    cash_passed: "Kas Diterima"
+    close_meeting: "Arisan Mingguan"
+    close_payment: "Pembayaran"
+    expected_cash: "Kas yang harus diterima"
+    loan_amount: "Jumlah Pinjaman"
+    grace_period: "Periode Penagihan"
+    
+    execute_group_default_resolution: "Eksekusi Penyelesaian Kredit Macet"
+    
+    close_group_loan: "Tutup Kumpulan"
+    completed_group_payment: "Pembayaran yang sudah Selesai"
+    completed_meeting: "Arisan Mingguan sudah selesai"
+    
+    deduction_amount: "Tanggung Renteng"
+    default_status: "Status Pinjaman"
+    default_group_resolution_proposed: "Rencana Penyelesaian Tunggakan"
+    default_group_resolution_executed: "Eksekusi Penyelesaian Tunggakan"
+    
+    mark_attendance: "Kehadiran"
+    member: "Peminjam"
+    member_present: "Peminjam yang Hadir"
+    
+    min_savings: "Tabungan Minimum"
+    group_name: "Nama Kumpulan"
+    number_of_backlogs_paid: "Jumlah Minggu Tunggakan Dibayar"
+    number_of_transactions: "Jumlah Transaksi"
+    
+    past: "Masa Lalu"
+    pending_approval: "Menunggu Persetujuan"
+    returned_cash: "Kas Dikembalikan"
+    role: "Posisi"
+    status: "Status"
+    structured_payment: "Lakukan Pembayaran"
+    sub_group: "Kelompok"
+    sub_group_leader: "Ketua Kelompok"
+    total: "Jumlah"
+    total_active_member: "Jumlah Peminjam Aktif"
+    
+    total_backlog: "Minggu Tunggakan"
+    total_executable_amount: "Jumlah yang bisa di eksekusi"
+    total_loan: "Jumlah Pinjaman"
+    total_meeting: "Jumlah Arisan Mingguan"
+    total_member_in_commune: "Jumlah Peminjam di RW"
+    total_sub_group: "Jumlah Kelompok"
+    
+    transaction_amount: "Nilai Transaksi"
+    transaction_code: "Kode Transaksi"
+    transaction_case: "Kode Transaksi"
+    transaction_id: "ID Transaksi"
+    unassigned_group_loan_product: "Belum Ditentukan Pinjamannya"
+    unpaid_amount: "Nilai Tunggakan"
+    unpaid_backlogs: "Minggu Tunggakan"
+    voluntary_savings_deduction: "Pengurangan Tabungan Sukarela"
+    week: "Minggu"
+    week_no: "Minggu ke"
+    weekly_interest: "Bagi Hasil dibayar per minggu"
+    withdrawn_cash: "Kas Diambil"
+    current: "Saat Ini"
+    
+  process:
+    create_loan_product: "Buat Jenis Pinjaman Baru"
+    create_group_loan: "Buat Kumpulan Baru"
+    group_member_management: "Pengaturan Anggota Kumpulan"
+    add_member: "Buat Peminjam"
+    add_new_group_loan: "Buat Kumpulan Baru"
+    add_new_group_loan_product: "Buat Jenis Pinjaman Baru"
+    add_new_member: "Buat Peminjam Baru"
+    member_assignment: "Pengalokasian Peminjam"
+    membership_summary: "Rangkuman Kumpulan"
+    
+    assign_employee_to_group_loan: "Tentukan Pembimbing untuk kumpulan"
+    assign_field_worker: "Tentukan Pembimbing"
+    assign_group_leader: "Tentukan Ketua Kumpulan"
+    assign_group_loan_product: "Tentukan Jenis Pinjaman"
+    assign_loan_inspector: "Tentukan Pengawas"
+    assign_loan_product: "Tentukan Pinjaman"
+    assign_member_to_group_loan: "Masukan Peminjam ke Kumpulan"
+    assign_product: "Tentukan Pinjaman"
+    assign_to_group_loan: "Masukan ke Kumpulan Ini"
+    assign_to_sub_group: "Masukan ke Kelompok"
+    create_field_worker_assignment: "Buat Penugasan Pembimbing"
+    create_sub_group: "Buat Kelompok"
+    
+  
+    finalize_group_loan: "Finalisasi Kumpulan"
+    loan_disbursement: "Pencairan Pinjaman"
+    finalize_loan_disbursement_attendance: "Finalisasi Kehadiran di Pencairan Pinjaman"
+    
+    financial_education_attendance: "Kehadiran di Pengarahan Pinjaman"
+    finalize_financial_education_attendance: "Finalisasi Kehadiran di Pengarahan Pinjaman"
+  
+    make_payment: "Lakukan Pembayaran"
+    mark_attendance: "Pencatatan Kehadiran dan Pembayaran"
+  
+    grace_period_payment: "Pembayaran di Periode Penagihan"
+    grace_period_payment_approval: "Persetujuan Pembayaran Periode Penagihan"
+    
+    independent_payment: "Pembayaran Perorangan"
+    independent_payment_approval: "Persetujuan Pembayaran Perorangan"
+    
+    input_payment: "Masukan Pembayaran"
+    
+    collection_details: "Detil Cicilan Mingguan"
+    create_payment: "Pembayaran"
+    
+    loan_default_resolution: "Penyelesaian Tunggakan"
+    
+    approve_grace_period_payment: "Setujui Pembayaran Periode Penagihan"
+    approve_independent_payment: "Setujui Pembayaran Perorangan
+    
+    monitor_progress: "Monitor Perkembangan"
+    closed_group_loan: "Kumpulan yang sudah ditutup" 
+    
+    pending_approval: "Menunggu Persetujuan"
+    savings_withdrawal: "Pengambilan Tabungan"
+    select_commune: "Pilih Lokasi"
+    select_group_leader: "Pilih Ketua Kumpulan"
+    select_group_loan: "Pilih Kumpulan"
+    
+    select_sub_group: "Pilih Kelompok"
+    
+    select_sub_group_leader: "Pilih  Ketua Kelompok"
+    
+    select_week: "Pilih Minggu"
+    select_weekly_group_payment: "Pilih Minggu Pembayaran"
+    select_weekly_group_meeting: "Pilih Arisan Mingguan"
+    special_payment: "Pembayaran Periode Penagihan"
+    
+    
+    standard_default_resolution: "Penyelesaian Tunggakan Standar"
+    total_grace_payment: "Jumlah Pembayaran Khusus"
+    weekly_collection_details: "Detil Cicilan Mingguan"
+    
+    weekly_meeting: "Arisan Mingguan"
+    weekly_payment: "Cicilan Mingguan"
+    weekly_payment_pending_approval: "Cicilan Mingguan untuk di Cek"
+    
+  variable: 
+    field_worker: "Pembimbing"
+    
+    address: "Alamat"
+    admin_fee: "Biaya Admin"
+    aggregated_interest: "Jumlah Bagi Hasil"
+    aggregated_interest_rate: "Jumlah  % Bagi Hasil" 
+    aggregated_principal: "Jumlah Pokok"
+    
+    
+    commune: "Lokasi"
+    duration: "Lama Pinjaman"
+    duration_week: "Lama Pinjaman (week)"
+    week: "minggu"
+    weeks: "minggu"
+    total_weeks: "Jumlah Minggu"
+    
+    amount: "Jumlah"
+    cash_amount: "Jumlah Kas"
+    extra_savings: "Tabungan Tambahan"
+    from_savings: "Dari Tabungan"
+    
+    initial_savings: "Tabungan Awal"
+    installment_principal: "Cicilan Pokok"
+    interest: "Bagi Hasil"
+    interest_payment: "Bagi Hasil Per Minggu"
+    principal: "Pokok"
+    principal_rp: "Pokok (Rp)"
+    savings_withdrawal: "Pengambilan Tabungan"
+    total_min_weekly_payment: "Jumlah Cicilan Mingguan Minimum"
+    total_payment: "Jumlah Pembayaran"
+    
+    total_savings: "Jumlah Tabungan"
+    voluntary_savings: "Tabungan Sukarela"
+    weekly_min_savings: "Tabungan Minimum per Minggu"
+    weekly_principal: "Pokok Dicicil per minggu"
+    
+    
+  flash: 
+    pre_successful_weekly_payment: "Persetujuan untuk pembayaran minggu"
+    post_successful_weekly_payment: "berhasil"
+    
+  notification:
+    basic_payment_extra_savings_is_success: "Cicilan Mingguan dan Tabungan Sukarela sudah dicatat"
+    basic_payment_extra_savings_fails: "Cicilan Mingguan dan Tabungan Sukarela gagal dicatat"
+    fail_to_close_weekly_payment: "Tidak bisa memfinalisasi pembayaran minggu ke"
+    fail_to_close_weekly_meeting: "Tidak bisa memfinalisasi kehadiran minggu ke "
+    in_week: "Minggu"
+    notice_for_weekly_payment_collection: "Catatan Penerimaan Pembayaran Mingguan"
+    weekly_meeting_not_finalized: "Arisan mingguan belum ditutup"
+    
+    transaction_for_member: "Transaksi untuk peminjam"
+    error_in_creating_transaction: "Kesalahan dalam membuat transaksi "
+    transaction_successful: "berhasil"
+    transaction_fail: "gagal"
+    well_done: "Selamat!!"
+  
+  prompt: 
+    single_week_extra_savings: "Apa anda yakin jumlah cicilan 1 minggu + tabungan sukarela =  "
+    login_prompt: "Masukan email dan password"
+    employee_email_prompt: "Masukan email anda"
+    employee_password_prompt: "Masukan Password Anda"
+    
+  guide:
+    create_a_new_group_loan_for: "Buat kumpulan baru untuk"
+    office: "Kantor"
+    group_loan: "Kumpulan"
+    executable_group_loan: "Kumpulan yang bisa di proses"
+    financial_education: "Pengarahan Pinjaman" 
+    grace_period_payment_calculator: "Kalkulator Pembayaran Periode Penagihan"
+    grace_period_payment_detail: "Detil Pembayaran Periode Penagihan"
+    grace_period_unpaid_amount: "Hutang Tersisa di Periode Penagihan"
+    group_leader: "Ketua Kumpulan"
+    
+    group_loan_assignment: "Pengalokasian Kumpulan"
+    group_loan_collection_approval: "Persetujuan Penerimaan kas dari kumpulan"
+    group_loan_disbursement: "Pencairan Pinjaman untuk Kumpulan"
+    group_loan_id: "ID Kumpulan"
+    
+    group_loan_progress: "Perkembangan Kumpulan"
+    in_grace_period_group_loans: "Kumpulan dalam Periode Penagihan"
+    
+    group_loan_name_hint: "Nama unik untuk kumpulan ini"
+    loan_calculator: "Kalkulator Pinjaman"
+    loan_product_details: "Loan Product Details"
+    
+    loan_to_be_disbursed: "Pinjaman yang akan Dicairkan"
+    
+    member_matching_result: "Hasil Pencocokan Peminjam"
+    members_without_sub_group: "Peminjam Belum Masuk Kelompok"
+    min_weekly_savings: "Tabungan Wajib Per Minggu"
+    min_weekly_payment: "Jumlah Cicilan Mingguan Minimum"
+    multiple_weeks_and_structured_payment: "Pembayaran > 1 minggu/memakai tabungan" 
+    
+    new_group_loan_details: "Detil Kumpulan Baru"
+    new_group_loan_product_details: "Detil Jenis Pinjaman Baru"
+    new_member_details: "Informasi Detil Peminjam Baru"
+    payment_for_week: "Cicilan Minggu ke"
+    
+    principal_installment:  "Pembayaran Cicilan Principal Mingguan"
+    pending_approval: "Menunggu Persetujuan"
+    
+    remaining_weekly_payment: "Jumlah Cicilan Mingguan Tersisa"
+    resolvable_group_loans: "Kumpulan yang tunggakannya harus diselesaikan"
+    running_group_loans: "Jumlah Kumpulan Aktif"
+    single_week_extra_savings: "Cicilan 1 minggu + tabungan sukarela"
+    started_group_loan: "Kumpulan yang sudah mendapat Pinjaman"
+    total_active_group_loan: "Jumlah Kumpulan Aktif"
+    total_active_group_loan_in_office: "Jumlah Kumpulan Aktif di kantor"
+    total_amount: "Jumlah Uang"
+    total_amount_recovered: "Jumlah uang yang ditanggung-renteng"
+    total_default_amount: "Jumlah Nilai Tunggakan"
+    total_default_group_loan: "Kumpulan dengan Peminjam Macet"
+    total_defaultee: "Jumlah Peminjam Macet"
+    total_group_loan_products: "Jumlah Jenis Pinjaman"
+    total_group_member: "Jumlah Peminjam di Kumpulan"
+    total_independent_payment_pending_approval: "Jumlah Pembayaran Perorangan untuk di cek"
+    total_member: "Total Peminjam"
+    total_members_in_office: "Jumlah Peminjam di kantor"
+    total_office_members: "Jumlah Peminjam di Kantor"
+    total_pending_approval_for_group_loan: "Jumlah Kumpulan baru untuk di cek"
+    total_running_group_loan: "Jumlah Kumpulan Aktif"
+    total_sub_group_member: "Jumlah Peminjam di Kelompok"
+    total_transactions: "Jumlah Transaksi"
+    total_unpaid_amount: "Nilai Tunggakan"
+    total_weekly_payment: "Jumlah Cicilan Mingguan"
+    total_weekly_tasks_pending_approval: "Cicilan Mingguan untuk Dicek"
+    
+    
+    
+    
+    
+    

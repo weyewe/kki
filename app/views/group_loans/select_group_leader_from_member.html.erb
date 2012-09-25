@@ -18,16 +18,33 @@
           <tr>
             <th><%= t 'report_metric.member' %></th>
             <th><%= t 'report_metric.sub_group'%></th>
-            <th>SubGroup Leader?</th>
+            <th><%= t 'report_metric.sub_group_leader'%>?</th>
             <th><%= t 'guide.group_leader'%>?</th>
           </tr>
         </thead>
         <tbody>
           <% @members.each do |member| %>
+            <% glm = member. group_loan_membership_for(@group_loan) %>
             <tr>
               <td class="user-nim"><%= member.name %></td>
-              <td><%= t 'report_metric.sub_group'%></td>
-              <td><%= t 'report_metric.sub_group_leader' %></td>
+              <td>
+                <% if glm.sub_group_id.nil? %>
+                  <span class="label">NA</span> 
+                <% else %>
+                  <%= t 'report_metric.sub_group'%>-<%= glm.sub_group.number%>
+                <% end %>
+                
+              </td>
+              
+              
+              
+              <td>
+                <% if glm.is_sub_group_leader? %>
+                  <span class="label label-success"><%= t 'status.yes' %></span> 
+                <% else %>
+                  <span class="label">NA</span>
+                <% end %>  
+              </td>
               
               <td class="well">
                 <label class="checkbox">
@@ -40,7 +57,7 @@
                       <% if checkbox_value == false %>
                        <%= t 'trigger.assign' %>
                       <% else %>
-                       <span class="label label-success"><%= t 'status.label'%></span>
+                       <span class="label label-success"><%= t 'status.leader'%></span>
                       <% end %>
                 </label>
 

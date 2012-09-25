@@ -30,10 +30,11 @@ en:
     save_changes: "Save Changes"
     search_member: "Search Member"
     see_all: "See All"
-    sign_in: "Sign In"
-    sign_out: "Sign Out"
+    sign_in: "Masuk"
+    sign_out: "Keluar"
     simulate: "Simulate"
     standard_resolution: "Standard Resolution"
+    create_member: "Create Member"
     
   status:
     active: "Active"
@@ -55,7 +56,8 @@ en:
     started: "Started"
     this_sub_group: "This SubGroup"
     unpaid: "Unpaid"
-    
+    proposed: "Proposed"
+    yes: "Yes"
     
   report_metric:
     field_worker_assignment: "Field Worker Assignment"
@@ -140,9 +142,11 @@ en:
     week_no: "Week No"
     weekly_interest: "Weekly Interest"
     withdrawn_cash: "Withdrawn Cash"
+    current: "Current"
     
   process:
     create_loan_product: "Create Loan Product"
+    create_group_loan: "Create Group Loan"
     group_member_management: "Group Member Management"
     add_member: "Add Member"
     add_new_group_loan: "Add New Group Loan"
@@ -271,6 +275,7 @@ en:
     error_in_creating_transaction: "Error in creating the transaction "
     transaction_successful: "is successful"
     transaction_fail: "FAIL"
+    well_done: "Well Done!!"
   
   prompt: 
     single_week_extra_savings: "Are you sure for single week + extra savings payment with amount "
@@ -283,8 +288,7 @@ en:
     office: "Office"
     group_loan: "Group Loan"
     executable_group_loan: "Executable Group Loan"
-    financial_education: "Financial Education"
-    group_loan: "Group Loan"
+    financial_education: "Financial Education" 
     grace_period_payment_calculator: "Grace Period Payment Calculator"
     grace_period_payment_detail: "Grace Period Payment Detail"
     grace_period_unpaid_amount: "Grace Period Unpaid Amount"
