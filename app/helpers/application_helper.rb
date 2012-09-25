@@ -433,7 +433,7 @@ module ApplicationHelper
         ]
       },
       {
-        :title => "Assign GroupLoanProduct",
+        :title => "#{I18n.t 'process.assign_group_loan_product'}",
         :destination_link => 'select_group_loan_to_group_loan_product_url',
         :conditions => [
           {

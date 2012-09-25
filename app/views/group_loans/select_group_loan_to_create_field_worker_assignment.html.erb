@@ -1,7 +1,6 @@
 
 <div class="span9 content">
-  <%= create_guide("#{t 'guide.group_loan_assignment'}", 
-        "#{t 'process.select_group_loan'}" + "<br />" + 
+  <%= create_guide("#{t 'guide.group_loan_assignment'}",  
         "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
         "#{t 'guide.total_active_group_loan'}: <b>#{@active_group_loans.count}</b> ").html_safe %>
   
@@ -17,9 +16,9 @@
           <tr>
             <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
-            <th>Total Member</th>
-            <th>Field Officers</th>
-            <th>Loan Inspectors</th>
+            <th><%= t 'guide.total_member'%></th>
+            <th><%= t 'variable.field_worker'%></th>
+            <th><%= t 'variable.loan_inspector'%></th>
           </tr>
         </thead>
         <tbody>

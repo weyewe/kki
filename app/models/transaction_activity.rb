@@ -230,36 +230,40 @@ class TransactionActivity < ActiveRecord::Base
     # how can we create the transaction entries ?
   end
   
-  def self.execute_automatic_loan_disbursement( group_loan_membership , employee)
-    # can only be executed by cashier  # wrong. latest update -> By field worker.
-    # cashier passed the $$$ to the field worker. 
-    # field worker give it to the member. pass the remaining to the cashier
-    # if there is member absent during the disbursement 
+  def self.execute_automatic_loan_disbursement( group_loan_membership , employee) 
     if not employee.has_role?(:branch_manager, employee.get_active_job_attachment)
       puts "The employee doesn't have field_worker role "
       return nil
     end
     
-  
-   if group_loan_membership.is_active == false
-     puts "The glm is not active. glm id = #{group_loan_membership.id}"
-     return nil
-   end
+    puts "after the first one"
+    
    
-   # if attendance has not been marked 
-   if group_loan_membership.is_active == true && group_loan_membership.is_attending_loan_disbursement.nil?
-     puts "The attendance has not been marked, glm id = #{group_loan_membership.id}"
-     puts "#{group_loan_membership.id} is active: #{group_loan_membership.is_active}"
-     puts "#{group_loan_membership.id} attendance : #{group_loan_membership.is_attending_loan_disbursement}"
-     return nil
-   end
+   return nil if group_loan_membership.is_active == false 
    
+   # # if attendance has not been marked 
+   #  if group_loan_membership.is_active == true && group_loan_membership.is_attending_loan_disbursement.nil?
+   #    puts "The attendance has not been marked, glm id = #{group_loan_membership.id}"
+   #    puts "#{group_loan_membership.id} is active: #{group_loan_membership.is_active}"
+   #    puts "#{group_loan_membership.id} attendance : #{group_loan_membership.is_attending_loan_disbursement}"
+   #    return nil
+   #  end
+   #  puts "After the third one"
+   #  
+   #  
+   #  if group_loan_membership.is_attending_loan_disbursement == false && 
+   #    ( not   ( group_loan_membership.final_loan_disbursement_attendance.nil?  or   
+   #     group_loan_membership.final_loan_disbursement_attendance==false) )
+   #    
+   #    return nil
+   #  end
    
-   if group_loan_membership.is_attending_loan_disbursement == false && ( not   ( group_loan_membership.final_loan_disbursement_attendance.nil?  or   group_loan_membership.final_loan_disbursement_attendance==false) )
-     
+   if not group_loan_membership.final_loan_disbursement_attendance.nil? and 
+      group_loan_membership.final_loan_disbursement_attendance != true 
      return nil
    end
     
+    puts "After the fourth one"
     group_loan_product = group_loan_membership.group_loan_product
     member = group_loan_membership.member
     

@@ -35,6 +35,11 @@ en:
     simulate: "Simulate"
     standard_resolution: "Standard Resolution"
     create_member: "Create Member"
+    change_group_loan_product: "Change Loan Product"
+    details: "Details"
+    select: "Select"
+    back: "Back"
+    approve: "Approve"
     
   status:
     active: "Active"
@@ -58,6 +63,7 @@ en:
     unpaid: "Unpaid"
     proposed: "Proposed"
     yes: "Yes"
+    selected: "Selected"
     
   report_metric:
     field_worker_assignment: "Field Worker Assignment"
@@ -143,6 +149,10 @@ en:
     weekly_interest: "Weekly Interest"
     withdrawn_cash: "Withdrawn Cash"
     current: "Current"
+    loan_inspector_assignment: "Loan Inspector Assignment"
+    inspector_approval: "Inspector Approval"
+    disbursed_amount: "Disbursed Amount"
+    attendance: "Attendance"
     
   process:
     loan_officer: "Loan Officer"
@@ -224,6 +234,7 @@ en:
     
   variable: 
     field_worker: "Field Worker"
+    loan_inspector: "Loan Inspector"
     
     address: "Address"
     admin_fee: "Admin Fee"
@@ -348,6 +359,7 @@ en:
     total_unpaid_amount: "Total Unpaid Amount"
     total_weekly_payment: "Total Weekly Payment"
     total_weekly_tasks_pending_approval: "Total Weekly Tasks Pending Approval"
+    select_group_loan_product: "Select Group Loan Product"
     
     
     

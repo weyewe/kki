@@ -3,7 +3,7 @@
   <div class="modal-header">
     <a class="close" data-dismiss="modal">×</a>
     <h3><%= t 'variable.amount' %>: <%= print_money( group_loan_product.loan_amount) %> ;
-      interest: <%= group_loan_product.interest_rate_in_percent %> % </h3>
+      <%= t 'variable.interest' %>: <%= group_loan_product.interest_rate_in_percent %> % </h3>
   </div>
   <div class="modal-body">
     <table cellpadding="0" cellspacing="0" border="0" 
@@ -19,7 +19,7 @@
           <td><b><%= print_money( group_loan_product.admin_fee) %></b></td>
         </tr>
         <tr>
-          <td><b>Initial Saving</b></td>
+          <td><b><%= t 'variable.initial_savings' %></b></td>
           <td><b><%= print_money( group_loan_product.initial_savings) %></b></td>
         </tr>
         <tr>

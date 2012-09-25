@@ -476,10 +476,14 @@ class GroupLoan < ActiveRecord::Base
     if  self.loan_disbursement_finalization_proposed == true 
       self.group_loan_memberships.each do |glm|
         if glm.final_loan_disbursement_attendance.nil?
+        
           glm.final_loan_disbursement_attendance = glm.is_attending_loan_disbursement
-          glm.save
+          glm.save 
+          
         end
       end
+       
+      
       
       
       self.is_loan_disbursement_attendance_done = true 

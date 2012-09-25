@@ -196,10 +196,10 @@ $(document).ready(function() {
        var group_loan_product_id = $(this).attr("id").split("-")[1];
        if( group_loan_product_id == member_group_loan_product_id){
          $(this).addClass("btn-success"); 
-         $(this).text("Selected");
+         $(this).text("<%= I18n.t 'status.selected' %>");
        }else{
          $(this).removeClass("btn-success");
-         $(this).text("Select");
+         $(this).text("<%= I18n.t 'trigger.select' %>");
          $(this).click(function(){
             $assign_loan_modal.showLoading();
             

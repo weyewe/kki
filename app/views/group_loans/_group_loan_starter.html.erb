@@ -12,7 +12,7 @@
   <% if group_loan.is_started == false && group_loan.is_proposed == true %>
     <td style="text-align:center;">
       <a href="#" class="btn approve action true_check"
-          id="finalize-<%= group_loan.id %>">Approve</a>
+          id="finalize-<%= group_loan.id %>"><%= t 'trigger.approve'%></a>
     </td>
   
     <td style="text-align:center;">

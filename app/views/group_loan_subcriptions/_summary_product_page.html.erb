@@ -1,7 +1,7 @@
 <div class="summary_product_selector">
   <div class="modal-header">
     <a class="close" data-dismiss="modal">×</a>
-    <h3>Select Group Loan Product </h3>
+    <h3><%= t 'guide.select_group_loan_product'%> </h3>
   </div>
   <div class="modal-body">
     <table cellpadding="0" cellspacing="0" border="0" 
@@ -19,17 +19,17 @@
           <tr>
             <td><%= print_money( group_loan_product.loan_amount) %></td>
             <td><%= group_loan_product.interest_rate_in_percent %> %</td>
-            <td><%=  group_loan_product.total_weeks.to_s  + " weeks"%></td>
+            <td><%=  group_loan_product.total_weeks.to_s  + " #{t 'variable.weeks'}"%></td>
             <td style="text-align:center;">
               <a class="btn group_loan_product_details_selector"
                 id="product_details_id-<%= group_loan_product.id %>">
-                 Details
+                 <%= t 'trigger.details' %>
               </a>
             </td>
             <td style="text-align:center;">
               <a class="btn group_loan_product_select" 
                   id="group_loan_product_select_button-<%= group_loan_product.id %>">
-               Select
+               <%= t 'trigger.select' %>
              </a>
             </td>
           </tr>

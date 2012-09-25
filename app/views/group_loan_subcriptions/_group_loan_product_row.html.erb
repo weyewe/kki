@@ -13,13 +13,14 @@
           <%= t 'trigger.payment_details' %>
         </a>
     </td>
-    <td><%= group_loan_product.total_weeks.to_s + " weeks" %></td>
+    <td><%= group_loan_product.total_weeks.to_s + " #{t 'variable.weeks'}" %></td>
         <% if group_loan.is_started == false %>
           <td>
             <a 
                 class="btn change_group_loan_product"
                 id="membership-<%= group_loan.get_membership_for_member(member).id %>_detailviewer-<%=  group_loan_product.id %>">
-              Change Loan Product
+              <%= t 'trigger.change_group_loan_product' %>
+              
             </a>
           </td>
         <% else %>

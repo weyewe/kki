@@ -13,7 +13,7 @@ id:
     action: "Tindakan"
     assign: "Tugaskan"
     cancel: "Batal"
-    close: "Tutp"
+    close: "Tutup"
     create_group_loan: "Buat Kumpulan Baru"
     create_group_loan_product: "Buat Jenis Pinjaman Baru"
     custom_group_loan_default_resolution: "Penyelesaian Khusus"
@@ -35,6 +35,11 @@ id:
     simulate: "Simulasikan"
     standard_resolution: "Penyelesaian Standar"
     create_member: "Buat Peminjam Baru"
+    change_group_loan_product: "Ganti Jenis Pinjaman"
+    details: "Detil"
+    select: "Pilih"
+    back: "Sebelumnya"
+    approve: "Setuju"
     
   status:
     active: "Aktif"
@@ -58,7 +63,7 @@ id:
     unpaid: "Belum"
     proposed: "Terajukan"
     yes: "Ya"
-    
+    selected: "Terpilih"
     
   report_metric:
     field_worker_assignment: "Penugasan Pembimbing"
@@ -108,6 +113,7 @@ id:
     member: "Peminjam"
     member_present: "Peminjam yang Hadir"
     
+    
     min_savings: "Tabungan Minimum"
     group_name: "Nama Kumpulan"
     number_of_backlogs_paid: "Jumlah Minggu Tunggakan Dibayar"
@@ -144,6 +150,10 @@ id:
     weekly_interest: "Bagi Hasil dibayar per minggu"
     withdrawn_cash: "Kas Diambil"
     current: "Saat Ini"
+    loan_inspector_assignment: "Penugasan Pengawas"
+    inspector_approval: "Persetujuan Pengawas"
+    disbursed_amount: "Jumlah Pencairan"
+    attendance: "Kehadiran"
     
   process:
     loan_officer: "Asisten Manager Cabang"
@@ -226,6 +236,7 @@ id:
     
   variable: 
     field_worker: "Pembimbing"
+    loan_inspector: "Pengawas"
     
     address: "Alamat"
     admin_fee: "Biaya Admin"
@@ -351,6 +362,7 @@ id:
     total_unpaid_amount: "Nilai Tunggakan"
     total_weekly_payment: "Jumlah Cicilan Mingguan"
     total_weekly_tasks_pending_approval: "Cicilan Mingguan untuk Dicek"
+    select_group_loan_product: "Pilih Jenis Pinjaman"
     
     
     
