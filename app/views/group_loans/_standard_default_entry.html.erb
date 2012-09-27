@@ -23,7 +23,23 @@
   </td>
   
   <td>
-    <%= print_money( default_payment.amount_paid ) %>
+    <% if default_payment.is_defaultee == true %>
+      <span class="label label-important"><%= print_money( default_payment.amount_paid ) %> </span>
+    <% elsif default_payment.is_defaultee == false  %>
+      <span class="label label">0  </span>
+    <% end %>
+  </td>
+  
+  <td>
+    
+    <% if default_payment.is_defaultee == true %>
+      <span class="label label">0  </span>
+    <% elsif default_payment.is_defaultee == false  %>
+      <span class="label label-important"><%= print_money( default_payment.amount_paid ) %></span>
+    <% end %>
+    
+    
+    <%#= print_money( default_payment.amount_paid ) %>
   </td>
   
   <td>
