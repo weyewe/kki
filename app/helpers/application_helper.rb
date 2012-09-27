@@ -81,7 +81,7 @@ module ApplicationHelper
 =end
 
   def print_money(value)
-    number_with_delimiter( value , :delimiter => ",")
+    number_with_delimiter( value.to_i , :delimiter => "." )
   end
   
   
