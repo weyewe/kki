@@ -93,11 +93,10 @@ class TransactionActivitiesController < ApplicationController
       end
     rescue ActiveRecord::ActiveRecordError  
     else
-    end
-    
-    
-    
+    end 
   end
+  
+  
   
   def create_savings_only_as_weekly_payment
     @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
@@ -168,9 +167,40 @@ class TransactionActivitiesController < ApplicationController
       end
     rescue ActiveRecord::ActiveRecordError  
     else
-    end
-    
+    end 
   end
+  
+  def update_weekly_payment
+    @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
+    @member  = Member.find_by_id params[:member_id]
+    @cash = BigDecimal(params[:ses_cash_amount])
+    @group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+      :member_id => @member.id,
+      :group_loan_id => @weekly_task.group_loan.id 
+    })
+    
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.update_generic_weekly_payment(
+                @weekly_task,
+                @group_loan_membership,
+                current_user,
+                @cash,
+                BigDecimal("0"), 
+                1,
+                0)
+      end
+    rescue ActiveRecord::Rollback
+      
+      @transaction_activity = nil 
+      puts "Invalid data asshole!!!!"
+    else
+    end 
+  end
+  
+  
+  
   
   def create_backlog_payment
     @member = Member.find params[:member_id]

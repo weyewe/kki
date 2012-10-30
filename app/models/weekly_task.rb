@@ -228,6 +228,7 @@ class WeeklyTask < ActiveRecord::Base
     TransactionActivity.where(:id => transaction_id_list)
   end
 
+  # get all transactions for member that is happening on that weekly task 
   def transactions_for_member(member)
     weekly_task = self 
     transaction_id_list = self.member_payments.
