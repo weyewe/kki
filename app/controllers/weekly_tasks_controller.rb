@@ -62,7 +62,7 @@ class WeeklyTasksController < ApplicationController
 =begin
   Weekly Special Payment 
 =end
-
+# deprecated
   def special_weekly_payment_for_member
     
     setup_for_weekly_task_fulfillment_details
@@ -71,6 +71,7 @@ class WeeklyTasksController < ApplicationController
       :member_id => @member.id , 
       :group_loan_id => @group_loan.id
     })
+    @weekly_task = WeeklyTask.find_by_id params[:weekly_task_id]
     @group_loan_product = @group_loan_membership.group_loan_product
     
     # if @weekly_task.has_paid_weekly_payment?(@member) 
@@ -85,6 +86,34 @@ class WeeklyTasksController < ApplicationController
                 "#{t 'process.make_payment'}"
     set_breadcrumb_for @group_loan, 'special_weekly_payment_for_member_url' + "(#{@group_loan.id}, #{@weekly_task.id}, #{@member.id})", 
                 "#{t 'process.special_payment'}"
+  end
+  
+  def edit_transaction_for_member
+    
+    setup_for_weekly_task_fulfillment_details
+    @member = Member.find_by_id params[:member_id]
+    @group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+      :member_id => @member.id , 
+      :group_loan_id => @group_loan.id
+    })
+    @weekly_task = WeeklyTask.find_by_id params[:weekly_task_id]
+    
+    @group_loan_product = @group_loan_membership.group_loan_product
+    
+    @member_payment =  @weekly_task.member_payment_for(@member)
+    
+    # if @weekly_task.has_paid_weekly_payment?(@member) 
+    #      redirect_to make_member_payment_url(@group_loan, @weekly_task)
+    #    end
+    #    
+    
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_payment_path'
+    set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 
+                "#{t 'process.select_week'}"
+    set_breadcrumb_for @group_loan, 'make_member_payment_url' + "(#{@group_loan.id}, #{@weekly_task.id})", 
+                "#{t 'process.make_payment'}"
+    set_breadcrumb_for @group_loan, 'edit_transaction_for_member_url' + "(#{@group_loan.id}, #{@weekly_task.id}, #{@member.id})", 
+                "#{t 'process.edit_payment'}"
   end
   
 =begin

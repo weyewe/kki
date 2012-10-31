@@ -204,6 +204,7 @@ id:
     
     collection_details: "Detil Cicilan Mingguan"
     create_payment: "Pembayaran"
+    edit_payment: "Perbaiki"
     
     loan_default_resolution: "Penyelesaian Tunggakan"
     

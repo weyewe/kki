@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120724075419) do
+ActiveRecord::Schema.define(:version => 20121030055432) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
@@ -289,6 +289,7 @@ ActiveRecord::Schema.define(:version => 20120724075419) do
     t.decimal  "amount",               :precision => 11, :scale => 2, :default => 0.0
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "is_deleted",                                          :default => false
   end
 
   create_table "sub_groups", :force => true do |t|
@@ -316,8 +317,8 @@ ActiveRecord::Schema.define(:version => 20120724075419) do
 
   create_table "transaction_activities", :force => true do |t|
     t.integer  "creator_id"
-    t.decimal  "total_transaction_amount", :precision => 9, :scale => 2, :default => 0.0
-    t.boolean  "from_member",                                            :default => true
+    t.decimal  "total_transaction_amount",       :precision => 9, :scale => 2, :default => 0.0
+    t.boolean  "from_member",                                                  :default => true
     t.integer  "member_id"
     t.integer  "transaction_action_type"
     t.integer  "office_id"
@@ -326,8 +327,11 @@ ActiveRecord::Schema.define(:version => 20120724075419) do
     t.integer  "loan_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "is_approved",                                            :default => false
+    t.boolean  "is_approved",                                                  :default => false
     t.integer  "approver_id"
+    t.integer  "parent_transaction_activity_id"
+    t.boolean  "is_deleted",                                                   :default => false
+    t.datetime "deleted_datetime"
   end
 
   create_table "transaction_books", :force => true do |t|
@@ -347,6 +351,8 @@ ActiveRecord::Schema.define(:version => 20120724075419) do
     t.integer  "cashflow_book_entry_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "is_deleted",                                                  :default => false
+    t.datetime "deleted_datetime"
   end
 
   create_table "users", :force => true do |t|

@@ -1,0 +1,93 @@
+<% transaction_activity = weekly_task.transactions_for_member(member) %>
+
+<% if member_payment.is_full_payment? and  transaction_activity.basic_single_week_extra_savings_weekly_payment?(weekly_task)  %>
+<div class="row-fluid tab-pane fade  active in pane_wrapper" id="single_extra_savings" >
+<% else %>
+<div class="row-fluid tab-pane fade   in pane_wrapper" id="single_extra_savings" >
+<% end %>
+  <div class="span8">
+
+  
+    
+    <%= form_tag  update_single_week_extra_savings_weekly_payment_url(@weekly_task, @member) , 
+      :method => :post, :id => "form_single_extra_savings_payment", 
+      :class => "prevent_double_submit"  do  %>
+<!-- check whether the transaction activity is nil.. if it is nil, the original payment == no payment declaration -->
+		<% if transaction_activity.nil? %>
+			<%= hidden_field_tag 'previous_transaction_activity_id',
+		          ''  %>
+		<% else %>
+			<%= hidden_field_tag 'previous_transaction_activity_id',
+		          transaction_activity.id  %>
+		<% end %> 
+      <table cellpadding="0" cellspacing="0" border="0" 
+            class=" table table-striped table-bordered" >
+        <thead>
+          <tr>
+            <th colspan="2"><%= t 'guide.single_week_extra_savings'%></th>
+          </tr>
+        </thead>
+        <tbody>
+          <%#= hidden_field_tag 'group_loan_membership_id', '' %>
+        
+          <tr>
+            <td><%= t 'variable.cash_amount' %>:</td>
+            <td><%= text_field_tag 'ses_cash_amount', '' %></td>
+          </tr>
+          
+          <tr>
+            <td></td>
+            <td>
+              <div class="form-actions">
+                <button class="btn btn-primary" id="exe_single_extra_savings_payment" type="submit">
+                  <%= t 'trigger.pay_single_week_extra_savings' %>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+
+        </tbody>
+      </table>
+    <% end %>
+    
+    
+   
+    
+  </div> 
+    
+    
+    
+  <div class="span4">
+    <table cellpadding="0" cellspacing="0" border="0" 
+          class="table table-striped table-bordered" id="example">
+      <thead>
+        <tr><th colspan="2" style="text-align:center;"><%= t 'guide.current_savings'%></th></tr>
+      </thead>
+      <tbody>
+          <tr>
+            <td><%= t 'variable.total_savings'%></td>
+            <td id="total_principal"><%= print_money(@member.total_savings)%> </td>
+          </tr>
+          
+          <tr>
+            <td><%= t 'report_metric.compulsory_savings'%></td>
+            <td id="total_principal"><%= print_money(@member.saving_book.total_compulsory_savings)%> </td>
+          </tr>
+          
+          <tr>
+            <td><%= t 'variable.voluntary_savings' %></td>
+            <td id="total_principal"><%= print_money(@member.saving_book.total_extra_savings)%> </td>
+          </tr>
+      </tbody>
+    </table>
+    
+  </div><!--/span-->
+  
+</div><!--/row-->
+
+
+
+
+
+

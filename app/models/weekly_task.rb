@@ -237,7 +237,14 @@ class WeeklyTask < ActiveRecord::Base
                                     ( transaction_activity_id.not_eq nil )}.
                               map{|x| x.transaction_activity_id }
     
-    TransactionActivity.where(:id => transaction_id_list)
+    TransactionActivity.where(:id => transaction_id_list, :is_deleted => false )
+  end
+  
+  def has_transaction_activity?( transaction_activity )
+    active_transaction_activity_id_list=  self.transactions_for_member(transaction_activity.member.id ).map{|x| x.id }
+    
+    
+    active_transaction_activity_id_list.include?( transaction_activity.id )
   end
 
 
@@ -511,6 +518,7 @@ class WeeklyTask < ActiveRecord::Base
 =begin
   Checking weekly payment 
 =end
+# only savings IS  counted as weekly payment 
   def has_paid_weekly_payment?(member) 
     MemberPayment.joins(:weekly_task).
                 where(:week_number => self.week_number, :member_id => member.id, 

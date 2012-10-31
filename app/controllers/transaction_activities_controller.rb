@@ -96,6 +96,35 @@ class TransactionActivitiesController < ApplicationController
     end 
   end
   
+  def update_single_week_extra_savings_weekly_payment
+    @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
+    @member  = Member.find_by_id params[:member_id]
+    @cash = BigDecimal(params[:ses_cash_amount])
+    @group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+      :member_id => @member.id,
+      :group_loan_id => @weekly_task.group_loan.id 
+    })
+    
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.update_generic_weekly_payment(
+                @weekly_task,
+                @group_loan_membership,
+                current_user,
+                @cash,
+                BigDecimal("0"), 
+                1,
+                0)
+      end
+    rescue ActiveRecord::Rollback, ActiveRecord::ActiveRecordError  
+      
+      @transaction_activity = nil 
+      puts "Invalid data asshole!!!!"
+    else
+    end 
+  end
+  
   
   
   def create_savings_only_as_weekly_payment
@@ -113,14 +142,29 @@ class TransactionActivitiesController < ApplicationController
           current_user
         )
       end
-    rescue ActiveRecord::ActiveRecordError  
+    rescue ActiveRecord::ActiveRecordError ,ActiveRecord::Rollback 
     else
-    end
+    end 
+  end
+  
+  def update_savings_only_as_weekly_payment
+    @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
+    @member  = Member.find_by_id params[:member_id]
+    @savings_only = BigDecimal.new( params[:os_cash_amount])
     
     
-    
-    
-    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_savings_only_weekly_payment(
+          @member,
+          @weekly_task,
+          @savings_only,
+          current_user
+        )
+      end
+    rescue ActiveRecord::ActiveRecordError ,ActiveRecord::Rollback 
+    else
+    end 
   end
   
   def create_structured_multiple_payment
@@ -149,10 +193,36 @@ class TransactionActivitiesController < ApplicationController
       end
     rescue ActiveRecord::ActiveRecordError  
     else
-    end
+    end 
+  end
+  
+  def update_structured_multiple_payment
+    @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
+    @member  = Member.find_by_id params[:member_id]
+    @group_loan = @weekly_task.group_loan
+    @group_loan_membership = @group_loan.get_membership_for_member( @member )
+    
+    cash = BigDecimal.new( params[:smf_cash] )
+    savings_withdrawal = BigDecimal.new( params[:smf_savings_withdrawal] )
+    number_of_weeks = params[:smf_weeks].to_i
+    number_of_backlogs = params[:smf_backlogs].to_i
     
     
-            
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_generic_weekly_payment(
+        @weekly_task,
+                @group_loan_membership,
+                current_user,
+                cash,
+                savings_withdrawal,
+                number_of_weeks,  
+                number_of_backlogs  )
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end 
   end
   
 
@@ -170,34 +240,21 @@ class TransactionActivitiesController < ApplicationController
     end 
   end
   
-  def update_weekly_payment
+  
+  def update_no_weekly_payment
     @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
     @member  = Member.find_by_id params[:member_id]
-    @cash = BigDecimal(params[:ses_cash_amount])
-    @group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
-      :member_id => @member.id,
-      :group_loan_id => @weekly_task.group_loan.id 
-    })
     
-    
+    # weekly_task.has_paid_weekly_payment?(member)  << filter to prevent double member payment
     begin
       ActiveRecord::Base.transaction do
-        @transaction_activity = TransactionActivity.update_generic_weekly_payment(
-                @weekly_task,
-                @group_loan_membership,
-                current_user,
-                @cash,
-                BigDecimal("0"), 
-                1,
-                0)
+        @member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment(@member)
       end
-    rescue ActiveRecord::Rollback
-      
-      @transaction_activity = nil 
-      puts "Invalid data asshole!!!!"
+    rescue ActiveRecord::ActiveRecordError  
     else
     end 
   end
+  
   
   
   

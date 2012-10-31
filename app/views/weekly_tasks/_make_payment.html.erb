@@ -25,10 +25,18 @@
          <% elsif  member_payment.no_payment?  %>
           <span class="label label-important"><%= t 'status.no_payment'%></span>
          <% end %>
+		
       </td>
+
+	  <td>
+		<%= link_to "#{t 'process.edit_payment'}",
+	      special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
+	      :class => "btn btn-mini", 
+	      :id => "make_basic_payment-#{member.id}"  %>
+	  </td>
     <% else %>
       
-      <td>
+      <td colspan='2'>
           <span class="label"><%= t 'status.unpaid'%></span>
       </td>
       
@@ -44,7 +52,7 @@
     <!-- Special Payment -->
 
 
-    <% if weekly_task.has_paid_weekly_payment?(member)  %>
+    <!-- <%# if weekly_task.has_paid_weekly_payment?(member)  %>
     <td>
 
       <%= link_to "#{t 'trigger.more_payment'}",
@@ -53,25 +61,21 @@
       :id => "make_basic_payment-#{member.id}"  %>
 
     </td>
-    <% else %>
+    <%# else %>
     <td>
       <%= link_to "#{t 'process.create_payment'}",
       special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
       :class => "btn", 
       :id => "make_basic_payment-#{member.id}"  %>
     </td>
-    <% end %>
+    <%# end %> -->
 
     <!-- No payment -->
        
        <!-- No payment -->
        
  
-
-
-  <td>
-    <%=  weekly_task.transactions_for_member(member).count  %>
-  </td>
+ 
   <td> <%= print_money( weekly_task.transactions_for_member(member).sum("total_transaction_amount") ) %></td>
     
 </tr>

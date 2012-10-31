@@ -163,6 +163,11 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_weekly_payment' => "group_loans#select_group_loan_for_weekly_payment", :as => :select_group_loan_for_weekly_payment
   match 'select_weekly_meeting_for_weekly_payment/:group_loan_id' => "weekly_tasks#select_weekly_meeting_for_weekly_payment", :as => :select_weekly_meeting_for_weekly_payment
   match 'make_member_payment/:group_loan_id/for_week/:weekly_task_id' => "weekly_tasks#make_member_payment", :as => :make_member_payment
+  
+  # update transaction value 
+  match 'edit_transaction_for_member/:group_loan_id/for_week/:weekly_task_id/member/:member_id' => "weekly_tasks#edit_transaction_for_member", :as => :edit_transaction_for_member
+  
+  # multiple payment for a weekly payment (deprecated) 
   match 'special_weekly_payment_for_member/:group_loan_id/for_week/:weekly_task_id/member/:member_id' => "weekly_tasks#special_weekly_payment_for_member", :as => :special_weekly_payment_for_member
   # close weekly payment 
   match 'close_weekly_payment' => "weekly_tasks#close_weekly_payment", :as => :close_weekly_payment, :method => :post 
@@ -264,61 +269,12 @@ Debita46::Application.routes.draw do
   
   match 'transaction_activity/create_backlog_payment' => 'transaction_activities#create_backlog_payment', :as => :create_backlog_payment, :method => :post
  
+  # for updating weekly payment 
+  match 'transaction_activity/update_single_week_extra_savings_weekly_payment/:weekly_task_id/member/:member_id' => 'transaction_activities#update_single_week_extra_savings_weekly_payment', :as => :update_single_week_extra_savings_weekly_payment, :method => :post
+  match 'transaction_activity/update_savings_only_as_weekly_payment/:weekly_task_id/member/:member_id' => 'transaction_activities#update_savings_only_as_weekly_payment', :as => :update_savings_only_as_weekly_payment, :method => :post
+  match 'transaction_activity/update_structured_multiple_payment/:weekly_task_id/member/:member_id' => 'transaction_activities#update_structured_multiple_payment', :as => :update_structured_multiple_payment, :method => :post
+  match 'transaction_activity/update_only_extra_savings_payment/:weekly_task_id/member/:member_id' => 'transaction_activities#update_only_extra_savings_payment', :as => :update_only_extra_savings_payment, :method => :post
   
-  # The priority is based upon order of creation:
-  # first created -> highest priority.
-
-  # Sample of regular route:
-  #   match 'products/:id' => 'catalog#view'
-  # Keep in mind you can assign values other than :controller and :action
-
-  # Sample of named route:
-  #   match 'products/:id/purchase' => 'catalog#purchase', :as => :purchase
-  # This route can be invoked with purchase_url(:id => product.id)
-
-  # Sample resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
-
-  # Sample resource route with options:
-  #   resources :products do
-  #     member do
-  #       get 'short'
-  #       post 'toggle'
-  #     end
-  #
-  #     collection do
-  #       get 'sold'
-  #     end
-  #   end
-
-  # Sample resource route with sub-resources:
-  #   resources :products do
-  #     resources :comments, :sales
-  #     resource :seller
-  #   end
-
-  # Sample resource route with more complex sub-resources
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', :on => :collection
-  #     end
-  #   end
-
-  # Sample resource route within a namespace:
-  #   namespace :admin do
-  #     # Directs /admin/products/* to Admin::ProductsController
-  #     # (app/controllers/admin/products_controller.rb)
-  #     resources :products
-  #   end
-
-  # You can have the root of your site routed with "root"
-  # just remember to delete public/index.html.
-  # root :to => 'welcome#index'
-
-  # See how all your routes lay out with "rake routes"
-
-  # This is a legacy wild controller route that's not recommended for RESTful applications.
-  # Note: This route will make all actions in every controller accessible via GET requests.
-  # match ':controller(/:action(/:id(.:format)))'
+  match 'transaction_activity/update_no_weekly_payment/:weekly_task_id/member/:member_id' => 'transaction_activities#update_no_weekly_payment', :as => :update_no_weekly_payment, :method => :post
+   
 end

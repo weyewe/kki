@@ -1,0 +1,119 @@
+<div class="span9 content">
+  <%= create_guide("Edit Payment", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "#{ t 'report_metric.member' }: <b>#{@member.name}</b>" + "<br />" + 
+        "#{t 'guide.payment_for_week'}: <b>#{@weekly_task.week_number}</b>" + "<br />" + 
+        "#{t 'guide.min_weekly_payment'}: <b>#{print_money(@group_loan_product.total_weekly_payment)}</b>" + "<br />" + 
+        "#{t  'guide.remaining_weekly_payment'}: <b>#{@group_loan.remaining_weekly_tasks_count_for_member(@member)}</b>" + "<br />" + 
+        "#{t 'report_metric.unpaid_backlogs'}: <b>#{@group_loan_membership.unpaid_backlogs.count}</b>").html_safe %>
+        
+  
+  
+  
+   
+    
+
+
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
+
+ 
+    
+		<% if @member_payment.is_full_payment? %>
+			<%= render :partial => "weekly_tasks/edit_payment/full_payment_info", :locals => {
+				:member_payment => @member_payment, 
+				:weekly_task => @weekly_task 
+			} %>
+			
+		<% elsif @member_payment.only_savings_payment? %>
+			<%= render :partial => "weekly_tasks/edit_payment/only_savings_info", :locals => {
+				:member_payment => @member_payment, 
+				:weekly_task => @weekly_task 
+			} %>
+			
+		<% elsif  @member_payment.no_payment?  %>
+			<%= render :partial => "weekly_tasks/edit_payment/no_payment_info", :locals => {
+				:member_payment => @member_payment, 
+				:weekly_task => @weekly_task 
+			} %>
+			
+		<% end %>
+    
+  
+  
+  <% has_paid_weekly_payment = @weekly_task.has_paid_weekly_payment?(@member)  %>
+
+	<ul class="nav nav-tabs" id="tab">
+
+		<li class="active"><a data-toggle="tab" href="#single_extra_savings"><strong><%= t 'guide.single_week_extra_savings'%></strong></a></li>
+		<li class=""><a data-toggle="tab" href="#only_savings_payment"><strong><%=  t 'status.only_savings'  %></strong></a></li>
+		
+		<li class="">
+			<a data-toggle="tab" href="#structured_multiple_payment">
+				<strong>
+					<%= t 'guide.multiple_weeks_and_structured_payment'%>
+				</strong>
+			</a>
+		</li>
+		
+		<% if has_paid_weekly_payment == true %>
+			<li class=""><a data-toggle="tab" href="#no_payment"><strong><%= t 'trigger.no_payment_declaration'%></strong></a></li>
+		<% end %>
+	</ul>
+
+
+   
+
+  <div class="tab-content" id="myTabContent">
+    
+    
+    <%= render :partial => "weekly_tasks/edit_payment/single_week_extra_savings", :locals => {
+      :has_paid_weekly_payment => has_paid_weekly_payment,
+		:member_payment => @member_payment,
+		:weekly_task => @weekly_task 
+    } %>
+    
+    <%= render :partial => "weekly_tasks/edit_payment/only_savings_payment", :locals => {
+      :has_paid_weekly_payment => has_paid_weekly_payment	,
+			:member_payment => @member_payment,
+			:weekly_task => @weekly_task
+      } %>
+      
+	 
+    
+    <%= render :partial => "weekly_tasks/edit_payment/structured_multiple_payment" , :locals => {
+      :has_paid_weekly_payment => has_paid_weekly_payment	,
+			:member_payment => @member_payment,
+			:weekly_task => @weekly_task
+    }%>
+
+	<% if has_paid_weekly_payment == true %>
+   	   <%= render :partial => "weekly_tasks/edit_payment/no_payment" , :locals => {
+	        :has_paid_weekly_payment => has_paid_weekly_payment,
+				:member_payment => @member_payment,
+				:weekly_task => @weekly_task
+	      }%>
+	<% end %>
+  </div>
+  
+  
+  <div class="modal" id="myModal" style="display:none;">
+     <div class="modal-header">
+       <a class="close" data-dismiss="modal">×</a>
+       <h3>Modal header</h3>
+     </div>
+     <div class="modal-body">
+       <p>One fine body…</p>
+     </div>
+     <div class="modal-footer"> 
+       <%= link_to "#{ t 'trigger.close' }", make_member_payment_url(@weekly_task.group_loan, @weekly_task), :class => "btn"%>
+     </div>
+   </div>
+  
+  
+   <hr />
+</div><!--/span-->
+
+<% content_for :additional_js do %>
+  <%= javascript_include_tag "weekly_special_payment" %>
+<% end %> 
