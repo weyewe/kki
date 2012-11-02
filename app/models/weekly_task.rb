@@ -523,10 +523,72 @@ class WeeklyTask < ActiveRecord::Base
         PAYMENT_PHASE[:weekly_payment] 
       )
       
-      return member_payment
-      
-      
+      return member_payment 
     end
+  end
+  
+  # only handle from (normal, only savings) => no weekly payment 
+  def update_weekly_payment_declared_as_no_payment(employee, member)
+    member_payment =  self.member_payment_for(member)
+    
+    if member_payment.no_payment?   
+      return nil
+    else 
+      
+      revision_code = nil 
+      if member_payment.is_full_payment?
+        revision_code   = REVISION_CODE[:normal][:no_payment] 
+      elsif  member_payment.only_savings_payment?
+        revision_code   = REVISION_CODE[:only_savings][:no_payment] 
+      elsif
+      end
+      
+      current_transaction = weekly_task.transactions_for_member(member).first 
+      return nil if current_transaction.nil? 
+      
+      current_transaction.revert_transaction_effect(member_payment) 
+      current_transaction.revert_member_payment_effect( member_payment )
+      current_transaction.is_deleted = true 
+      current_transaction.save
+      
+      
+      member_payment = self.member_payments.create(
+        :transaction_activity_id => nil,
+        :member_id => member.id , 
+        :has_paid => false,
+        :no_payment => true ,
+        :only_savings => false ,
+        :week_number => self.week_number
+      )
+      
+      
+      group_loan = self.group_loan 
+      BacklogPayment.create(
+        :group_loan_id => group_loan.id, 
+        :weekly_task_id => self.id , 
+        :member_payment_id => member_payment.id, 
+        :backlog_type => BACKLOG_TYPE[:no_payment],
+        :member_id => member.id 
+      ) 
+      
+      
+      MemberPaymentHistory.create_weekly_payment_history_entry(
+        employee,  # creator 
+        self,  # period object 
+        self.group_loan,  # the loan product
+        LOAN_PRODUCT[:group_loan],
+        member, # the member who paid 
+        BigDecimal('0'),  #  the cash passed
+        BigDecimal('0'), # savings withdrawal used
+        0, # in grace payment, number of weeks is nil 
+        0, # in grace payment, number of weeks is nil 
+        nil, # the transaction  
+        revision_code ,
+        PAYMENT_PHASE[:weekly_payment] 
+      )
+    end
+    
+    return member_payment  
   end
   
   

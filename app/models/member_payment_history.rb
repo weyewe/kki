@@ -26,7 +26,7 @@ class MemberPaymentHistory < ActiveRecord::Base
         revision_code,
         payment_phase) 
         
-      
+   
     
     MemberPaymentHistory.create(
       :weekly_task_id             => weekly_task.id , 

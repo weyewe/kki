@@ -61,7 +61,7 @@ class TransactionActivitiesController < ApplicationController
                 @group_loan_membership.group_loan_product.total_weekly_payment,
                 BigDecimal("0"), 
                 1,
-                0)
+                0, false )
       end
     rescue ActiveRecord::ActiveRecordError  
     else
@@ -89,7 +89,7 @@ class TransactionActivitiesController < ApplicationController
                 @cash,
                 BigDecimal("0"), 
                 1,
-                0)
+                0, false )
       end
     rescue ActiveRecord::ActiveRecordError  
     else
@@ -142,7 +142,8 @@ class TransactionActivitiesController < ApplicationController
           @member,
           @weekly_task,
           @savings_only,
-          current_user
+          current_user,
+          false # revision transaction
         )
       end
     rescue ActiveRecord::ActiveRecordError ,ActiveRecord::Rollback 
@@ -158,7 +159,7 @@ class TransactionActivitiesController < ApplicationController
     
     begin
       ActiveRecord::Base.transaction do
-        @transaction_activity = TransactionActivity.create_savings_only_weekly_payment(
+        @transaction_activity = TransactionActivity.update_savings_only_weekly_payment(
           @member,
           @weekly_task,
           @savings_only,
@@ -192,7 +193,8 @@ class TransactionActivitiesController < ApplicationController
                 cash,
                 savings_withdrawal,
                 number_of_weeks,  
-                number_of_backlogs  )
+                number_of_backlogs,
+                false  )
       end
     rescue ActiveRecord::ActiveRecordError  
     else
@@ -221,7 +223,7 @@ class TransactionActivitiesController < ApplicationController
                 cash,
                 savings_withdrawal,
                 number_of_weeks,  
-                number_of_backlogs  )
+                number_of_backlogs , false )
       end
     rescue ActiveRecord::ActiveRecordError  
     else
@@ -236,7 +238,7 @@ class TransactionActivitiesController < ApplicationController
     # weekly_task.has_paid_weekly_payment?(member)  << filter to prevent double member payment
     begin
       ActiveRecord::Base.transaction do
-        @member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment(current_user, @member)
+        @member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment(current_user, @member) # revision transaction
       end
     rescue ActiveRecord::ActiveRecordError  
     else
@@ -251,7 +253,7 @@ class TransactionActivitiesController < ApplicationController
     # weekly_task.has_paid_weekly_payment?(member)  << filter to prevent double member payment
     begin
       ActiveRecord::Base.transaction do
-        @member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment(@member)
+        @member_payment = @weekly_task.update_weekly_payment_declared_as_no_payment(@member)
       end
     rescue ActiveRecord::ActiveRecordError  
     else
