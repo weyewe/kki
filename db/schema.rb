@@ -222,10 +222,10 @@ ActiveRecord::Schema.define(:version => 20121102045208) do
     t.integer  "member_id"
     t.integer  "loan_product_id"
     t.integer  "loan_product_type"
-    t.decimal  "cash",                       :precision => 11, :scale => 2, :default => 0.0
-    t.decimal  "savings_withdrawal",         :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "cash",                    :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "savings_withdrawal",      :precision => 11, :scale => 2, :default => 0.0
     t.integer  "number_of_weeks"
-    t.integer  "number_of_backlog_payments"
+    t.integer  "number_of_backlog"
     t.integer  "creator_id"
     t.integer  "transaction_activity_id"
     t.integer  "revision_code"

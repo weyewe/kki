@@ -1,4 +1,6 @@
 FactoryGirl.define do
+  puts "This is inside the factory girl Members\n"*10
+  
   factory :member_of_first_rw_office_cilincing, class: Member do
       #   
       # t.string   "name"    # use faker 

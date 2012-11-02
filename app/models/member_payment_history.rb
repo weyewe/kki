@@ -36,7 +36,7 @@ class MemberPaymentHistory < ActiveRecord::Base
       :cash                       => cash,
       :savings_withdrawal         => savings_withdrawal,
       :number_of_weeks            => number_of_weeks,
-      :number_of_backlog_payments => number_of_backlogs,
+      :number_of_backlog => number_of_backlogs,
       :creator_id                 => employee.id ,
       :transaction_activity_id    => transaction_id,
       :revision_code              => revision_code,

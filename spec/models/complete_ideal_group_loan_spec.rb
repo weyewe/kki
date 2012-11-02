@@ -1,32 +1,65 @@
 require 'spec_helper'
 
 describe GroupLoan do
+  
+  puts " I want to live forever\n"
+  
   before(:each) do
+    puts " In the before each"
     @office = FactoryGirl.create(:cilincing_office)
     @branch_manager_role = FactoryGirl.create(:branch_manager_role)
     @loan_officer_role = FactoryGirl.create(:loan_officer_role)
     @cashier_role = FactoryGirl.create(:cashier_role)
     @field_worker_role = FactoryGirl.create(:field_worker_role)
+    puts "after creating the role"
+    
+    puts "office is oK " if not @office.nil?
+    puts "branch manager  role is oK " if not @branch_manager_role.nil?
+    puts "loan officer role  is oK " if not @loan_officer_role.nil?
+    puts "cashier is role oK " if not @cashier_role.nil?
+    puts "field worker  role is oK " if not @field_worker_role.nil?
+    
+  
+    
     @branch_manager = @office.create_user( [@branch_manager_role],
       :email => 'branch_manager@gmail.com',
       :password => 'willy1234',
       :password_confirmation => 'willy1234'
     )
+    
+    puts "BM is in deep shit" if @branch_manager.nil?
+    puts "The BM stat: #{@branch_manager}"
+    
+    puts "bm is ok" if not @branch_manager.nil? 
+    
+    
     @loan_officer = @office.create_user( [@loan_officer_role], 
       :email => 'loan_officer@gmail.com',
       :password => 'willy1234',
       :password_confirmation => 'willy1234'
     )
+    
+    puts "loan officer is ok" if not @loan_officer.nil?
+    puts "Loan officer id = #{@loan_officer.id }"
+    
+    
     @cashier = @office.create_user( [@cashier_role], 
       :email => 'cashier@gmail.com',
       :password => 'willy1234',
       :password_confirmation => 'willy1234' 
     )
+    puts "cashier is ok" if not @cashier.nil?
+     puts "cashier id = #{@cashier.id }"
+    
+    
     @field_worker = @office.create_user( [@field_worker_role], 
       :email => 'field_worker@gmail.com',
       :password => 'willy1234',
       :password_confirmation => 'willy1234' 
     )
+    
+    puts "field worker is ok" if not @field_worker.nil?
+    puts "field worker id = #{@field_worker.id }"
     
     @group_loan_commune = FactoryGirl.create(:group_loan_commune)
     #this shit will trigger the creation of kalibaru village, cilincing subdistrict 
@@ -35,8 +68,19 @@ describe GroupLoan do
     #          :commune_id => @group_loan_commune }, @branch_manager)
     
     # we need several members in a given commune   DONE 
+    
+    puts "group loan commune is OK" if not @group_loan_commune.nil?
+    
+    # puts "Loan officer id: #{@loan_officer.id}"
+    #   puts "GroupLoan Commune id: #{@group_loan_commune.id}"
+    #   puts "Office  id: #{@office.id}"
+    #   
     @members = FactoryGirl.create_list(:member_of_first_rw_office_cilincing, 10, creator_id: @loan_officer.id,
      commune_id: @group_loan_commune.id , office_id: @office.id )
+     
+    
+    
+    puts "we are in the creation of seeds members. Total member #{@members.count}\n"*10
      
     @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
        :commune_id => @group_loan_commune }, @branch_manager)
@@ -268,7 +312,8 @@ describe GroupLoan do
                   cash_payment,
                   savings_withdrawal, 
                   number_of_weeks,
-                  number_of_backlogs
+                  number_of_backlogs,
+                  false
           )
           
           
@@ -454,7 +499,7 @@ describe GroupLoan do
           # setup 
           
           if glm.id == @first_glm.id 
-            weekly_task.create_weekly_payment_declared_as_no_payment( glm.member )
+            weekly_task.create_weekly_payment_declared_as_no_payment( @field_worker, glm.member )
             next
           end
           
@@ -491,7 +536,8 @@ describe GroupLoan do
                   cash_payment,
                   savings_withdrawal, 
                   number_of_weeks,
-                  number_of_backlogs
+                  number_of_backlogs,
+                  false
           )
           
           

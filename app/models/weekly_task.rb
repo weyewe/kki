@@ -540,7 +540,7 @@ class WeeklyTask < ActiveRecord::Base
         revision_code   = REVISION_CODE[:normal][:no_payment] 
       elsif  member_payment.only_savings_payment?
         revision_code   = REVISION_CODE[:only_savings][:no_payment] 
-      elsif
+        
       end
       
       current_transaction = weekly_task.transactions_for_member(member).first 
