@@ -14,10 +14,10 @@
       :class => "prevent_double_submit"  do  %>
 <!-- check whether the transaction activity is nil.. if it is nil, the original payment == no payment declaration -->
 		<% if transaction_activity.nil? %>
-			<%= hidden_field_tag 'previous_transaction_activity_id',
+			<%= hidden_field_tag 'current_transaction_activity_id',
 		          ''  %>
 		<% else %>
-			<%= hidden_field_tag 'previous_transaction_activity_id',
+			<%= hidden_field_tag 'current_transaction_activity_id',
 		          transaction_activity.id  %>
 		<% end %> 
       <table cellpadding="0" cellspacing="0" border="0" 

@@ -449,6 +449,7 @@ class TransactionActivity < ActiveRecord::Base
     
     
     
+    
   
     
     
@@ -463,6 +464,27 @@ class TransactionActivity < ActiveRecord::Base
     new_hash[:loan_id] = group_loan_membership.group_loan_id
 
     transaction_activity = TransactionActivity.create new_hash 
+    
+    if transaction_activity.nil?
+      return nil
+    else
+      
+      MemberPaymentHistory.create_weekly_payment_history_entry(
+        employee,  # creator 
+        weekly_task,  # period object 
+        group_loan,  # the loan product
+        LOAN_PRODUCT[:group_loan],
+        member, # the member who paid 
+        cash,  #  the cash passed
+        BigDecimal('0'), # savings withdrawal used
+        0, # in grace payment, number of weeks is nil 
+        0, # in grace payment, number of weeks is nil 
+        transaction_activity.id, # the self 
+        REVISION_CODE[:original_only_savings],
+        PAYMENT_PHASE[:weekly_payment] 
+      )
+     end
+    
     transaction_activity.create_only_savings_payment_entry(savings_amount, current_user, member )
 
     weekly_task.create_weekly_payment_declared_as_only_savings( member, transaction_activity, savings_amount )
@@ -954,6 +976,27 @@ class TransactionActivity < ActiveRecord::Base
     
     transaction_activity = TransactionActivity.create new_hash 
     
+    if transaction_activity.nil?
+      return nil
+    else
+      MemberPaymentHistory.create_weekly_payment_history_entry(
+        employee,  # creator 
+        weekly_task,  # period object 
+        group_loan,  # the loan product
+        LOAN_PRODUCT[:group_loan],
+        member, # the member who paid 
+        cash,  #  the cash passed
+        savings_withdrawal, # savings withdrawal used
+        number_of_weeks, # in grace payment, number of weeks is nil 
+        number_of_backlogs, # in grace payment, number of weeks is nil 
+        transaction_activity.id, # the self 
+        REVISION_CODE[:original_normal],
+        PAYMENT_PHASE[:weekly_payment] 
+      ) 
+    end
+    
+    
+    
     
     
     #  creating the single or multiple weeks payment 
@@ -1008,37 +1051,41 @@ class TransactionActivity < ActiveRecord::Base
   Weekly Payment Update 
 =end
 
-  def revert_destroy_transaction_entries_for_extra_savings
-    # revert the extra savings effect
-    ( extra_savings_addition_transaction_entries + extra_savings_withdrawal_transaction_entries ).each do |te|
-      te.is_deleted = true
-      te.deleted_datetime = DateTime.now 
-      te.save 
-      
-      saving_entry = te.saving_entry
-      saving_entry.is_deleted = true
-      saving_entry.save 
-    end
-    
-    
-    # revert the savings_withdrawal effect
-    # add $$$ 
-    
-    initial_extra_savings = self.initial_extra_savings_before_current_transaction
-    saving_book = self.member.saving_book 
-    saving_book.total_extra_savings = initial_extra_savings
-    saving_book.save 
-  end
+  # def revert_destroy_transaction_entries_for_extra_savings
+  #   # revert the extra savings effect
+  #   ( extra_savings_addition_transaction_entries + extra_savings_withdrawal_transaction_entries ).each do |te|
+  #     te.is_deleted = true
+  #     te.deleted_datetime = DateTime.now 
+  #     te.save 
+  #     
+  #     saving_entry = te.saving_entry
+  #     saving_entry.is_deleted = true
+  #     saving_entry.save 
+  #   end
+  #   
+  #   
+  #   # revert the savings_withdrawal effect
+  #   # add $$$ 
+  #   
+  #   initial_extra_savings = self.initial_extra_savings_before_current_transaction
+  #   saving_book = self.member.saving_book 
+  #   saving_book.total_extra_savings = initial_extra_savings
+  #   saving_book.save 
+  # end
+  # 
+  # def revert_destroy_transaction_entries_for_payment
+  #   self.transaction_entries.where(:is_deleted => false).each do |te|
+  #     te.is_deleted = true
+  #     te.deleted_datetime = DateTime.now 
+  #     te.save
+  #   end
+  # end
+  # 
   
-  def revert_destroy_transaction_entries_for_payment
-    self.transaction_entries.where(:is_deleted => false).each do |te|
-      te.is_deleted = true
-      te.deleted_datetime = DateTime.now 
-      te.save
-    end
-  end
   
-  def revert_destroy_backlog_payments
+  # unclear the backlog payment ( cancelling the effect) cleared in the current transaction 
+  # destroying the member payments associated with the current transaction 
+  def revert_transaction_effect_in_normal_to_normal
     # code to create backlog payment
     # if number_of_backlogs > 0
     #   
@@ -1074,21 +1121,68 @@ class TransactionActivity < ActiveRecord::Base
     MemberPayment.where(:transaction_activity_id => self.id).each do |member_payment|
       member_payment.destroy 
     end
+  end
+   
+   
     
+    
+  def revert_transaction_effect(member_payment)
+    if member_payment.is_full_payment?
+      # there are basic payment entries created (multiple week and multiple backlog payments? )
+        # for all basic payment entries, 
+          # revert the compulsory savings generated 
+            self.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:weekly_saving]).each do |te|
+              te.revert_and_delete
+            end
+          # revert the income from interest generated (affecting the cashflow book). for now, we are not handling it yet
+          # revert the cost of sales in the form of principal  # we are not handling it yet 
+      # there are some extra savings
+        # revert the extra savings generated 
+          self.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:extra_weekly_saving]).each do |te|
+            te.revert_and_delete
+          end
+      # there are some savings withdrawal 
+        # revert the effect of savings withdrawal 
+        self.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal]).each do |te|
+          te.revert_and_delete
+        end
+        # and reduce the account payable in the cashflow book.. 
+    elsif member_payment.only_savings_payment?
+      # only extra savings.. revert the effect: delete the saving entry ,delete the transaction entry 
+      self.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:extra_weekly_saving]).each do |te|
+        te.revert_and_delete
+      end
+      # reduce the account payable in the cashflow book 
+    end
+     
+  end
+  
+  def revert_member_payment_effect(member_payment)
+    if member_payment.is_full_payment?
+      # might cleared several member payments (from present and future weekly payment)
+      BacklogPayment.where(:transaction_activity_id_for_backlog_clearance => self.id).each do |x|
+        x.is_cleared  = false  
+        x.clearance_period = nil 
+        x.backlog_cleared_declarator_id =  nil 
+        x.transaction_activity_id_for_backlog_clearance =  nil
+        x.save 
+      end
+      # might paid several future payments
+      MemberPayment.where(:transaction_activity_id => self.id).each do |member_payment|
+        member_payment.destroy 
+      end
+    elsif member_payment.only_savings_payment?
+      #  created 1 backlog payment 
+      BacklogPayment.where(:member_payment_id => member_payment.id, :is_cleared => false ).destroy 
+      
+      #  created 1 weekly payment 
+      MemberPayment.where(:transaction_activity_id => self.id).each do |member_payment|
+        member_payment.destroy 
+      end
+    end
   end
   
    
-  def replace_transaction( new_transaction_activity )
-    self.parent_transaction_activity_id = new_transaction_activity.id 
-    self.is_deleted = true 
-    self.deleted_datetime = DateTime.now 
-    self.save 
-    TransactionActivity.where(:parent_transaction_activity_id => self.id).each do |x|
-      x.parent_transaction_activity_id = new_transaction_activity.id 
-      x.save 
-    end
-    
-  end
   
   def extra_savings_withdrawal_transaction_entries
     self.transaction_entries.create( 
@@ -1136,6 +1230,8 @@ class TransactionActivity < ActiveRecord::Base
     }.count
   end 
   
+  
+  # all transaction type (normal, only savings, and no payment) to generic
   def TransactionActivity.update_generic_weekly_payment(
           weekly_task, 
           group_loan_membership,
@@ -1144,7 +1240,10 @@ class TransactionActivity < ActiveRecord::Base
           savings_withdrawal, 
           number_of_weeks,
           number_of_backlogs,
-          current_transaction_activity )
+          current_transaction_activity ) 
+          # current_transaction_activity can be nil
+          # hence, we have to ensure that the week payment is declared as no payment declaration.
+          # if it is not declared as no payment, then fuck it... it is fraud transaction 
           
       group_loan = group_loan_membership.group_loan
       
@@ -1155,30 +1254,66 @@ class TransactionActivity < ActiveRecord::Base
                     cash.nil? or
                     savings_withdrawal.nil? or 
                     number_of_weeks.nil? or 
-                    number_of_backlogs.nil? or 
-                    current_transaction_activity.nil? 
+                    number_of_backlogs.nil?  
                     
+      return nil if not weekly_task.has_paid_weekly_payment?(member) 
+      
+      member_payment =  weekly_task.member_payment_for(member) # will only return member payment for a given week 
+      return nil if member_payment.nil? 
+      # done with background check 
       return nil if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
       return nil if group_loan_membership.is_active == false
       
-      return nil if not weekly_task.has_transaction_activity?( current_transaction_activity )
+      
+      
+      
+       
+      # return nil if current_transaction_activity.nil? and (not member_payment.no_payment?)
+      # return nil if not current_transaction_activity.nil? and not weekly_task.valid_transaction_activity?( current_transaction_activity )
       
       group_loan_product = group_loan_membership.group_loan_product
       member = group_loan_membership.member 
       zero_value = BigDecimal("0")
       member = group_loan_membership.member
       
-      # if there is no weekly payment in for this weekly task, return nil 
-      # and in a given weekly payment, there can be at most 1 weekly payment 
       
-      ## !!!!!!!! WE HAVEN'T ENFORCE THAT THERE CAN ONLY BE 1 PAYMENT IN THE WEEKLY MEETING 
       current_transaction = weekly_task.transactions_for_member(member).first 
-      return nil if current_transaction.nil?   # how can there be update if there is no transaction in the first place
       
-      # try to delete the current_transaction 
-      current_transaction.revert_transaction_effect 
+      new_transaction = nil
+      if member_payment.is_full_payment? or member_payment.only_savings_payment?
+        
+        return nil if current_transaction.nil? 
+        
+        # we need to revert the transaction effect: member savings withdrawal and extra savings 
+        current_transaction.revert_transaction_effect(member_payment)
+        
+        current_transaction.revert_member_payment_effect( member_payment ) 
+        
+        # we need to revert the member payment effect: backlog creation and member payments creation 
+
+        current_transaction.is_deleted = true 
+        current_transaction.save
+
+        
+
+        # current_transaction.replace_transaction( new_transaction )
+        
+        
+      elsif member_payment.no_payment? 
+        # revert the transaction effect. 
+        # hey, no transaction is created in the first place. it is just the member payment 
+        BacklogPayment.where(:member_payment_id => member_payment.id ).each do |x|
+          x.destroy 
+        end
+        
+        member_payment.destroy 
+        
+      else 
+        return nil
+      end
       
-      new_transaction_activity = TransactionActivity.create_generic_weekly_payment(
+      
+      new_transaction = TransactionActivity.create_generic_weekly_payment(
               weekly_task, 
               group_loan_membership,
               employee,
@@ -1186,86 +1321,104 @@ class TransactionActivity < ActiveRecord::Base
               savings_withdrawal, 
               number_of_weeks,
               number_of_backlogs )
-    
-      if new_transaction_activity.nil?
+
+      if new_transaction.nil?
         raise ActiveRecord::Rollback, "Call tech support!"  # <<< THIS IS THE SHITE!!!! 
         return nil 
       end
       
-      current_transaction.replace_transaction( new_transaction_activity )
       
+      MemberPaymentHistory.create_weekly_payment_history_entry(
+        employee,  # creator 
+        weekly_task,  # period object 
+        group_loan,  # the loan product
+        LOAN_PRODUCT[:group_loan],
+        member, # the member who paid 
+        cash,  #  the cash passed
+        savings_withdrawal, # savings withdrawal used
+        number_of_weeks, # in grace payment, number of weeks is nil 
+        number_of_backlogs, # in grace payment, number of weeks is nil 
+        transaction_activity.id, # the self 
+        REVISION_CODE[:original_normal],
+        PAYMENT_PHASE[:weekly_payment]
+        )
+      
+      
+      
+       
       return new_transaction_activity  
   end
+   
+   
+   # all payment type ( no payment, normal, only savings) to  only savings
+  def TransactionActivity.update_savings_only_weekly_payment(member,weekly_task, savings_amount,  current_user )
+    if not TransactionActivity.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, current_user )
+      return nil
+    end
+    
+    if savings_amount <= BigDecimal("0")
+      return nil
+    end
+    
+    group_loan = weekly_task.group_loan
+    group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
+      :group_loan_id => group_loan.id, 
+      :member_id => member.id 
+    })
+    group_loan_product = group_loan_membership.group_loan_product
+    
+    # wrong, fucking wrong
+    
+    past_transaction_activity = TransactionActivity.previous_transaction_activity( weekly_task, member )
+    if not past_transaction_activity.nil?
+      return past_transaction_activity
+    end
+    
+    
+    
+    
   
-  # def TransactionActivity.update_generic_weekly_payment(
-  #         weekly_task, 
-  #         group_loan_membership,
-  #         employee,
-  #         cash,
-  #         savings_withdrawal, 
-  #         number_of_weeks,
-  #         number_of_backlogs )
-  #         
-  #     group_loan = group_loan_membership.group_loan
-  #     
-  # 
-  #     return nil if weekly_task.nil? or
-  #                   group_loan_membership.nil? or
-  #                   employee.nil? or 
-  #                   cash.nil? or
-  #                   savings_withdrawal.nil? or 
-  #                   number_of_weeks.nil? or 
-  #                   number_of_backlogs.nil?
-  #     return nil if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
-  #     return nil if group_loan_membership.is_active == false
-  #     
-  #     group_loan_product = group_loan_membership.group_loan_product
-  #     member = group_loan_membership.member 
-  #     zero_value = BigDecimal("0")
-  #     member = group_loan_membership.member
-  #     
-  #     # if there is no weekly payment in for this weekly task, return nil 
-  #     # and in a given weekly payment, there can be at most 1 weekly payment 
-  #     current_transaction = weekly_task.transactions_for_member(member).first 
-  #     return nil if current_transaction.nil? 
-  #       
-  #     
-  #     # get the parameter if the transaction activity corresponding to the weekly payment is reverted 
-  #     reverted_extra_savings = current_transaction.initial_extra_savings_before_current_transaction #
-  #     number_of_backlogs_paid_in_current_transaction = self.number_of_backlogs_paid # 
-  #     number_of_weeks_paid_in_current_transaction = self.number_of_weeks_paid # 
-  #     
-  #     
-  #     # raise ActiveRecord::Rollback, "Call tech support!"  <<< THIS IS THE SHITE!!!! 
-  #      
-  #    # check whether number of weeks and number of backlogs to be paid makes sense 
-  #     # return nil if not WeeklyTask.valid_weekly_task_payment?(weekly_task, 
-  #     #                            group_loan_membership, 
-  #     #                            number_of_weeks, 
-  #     #                            number_of_backlogs)
-  #                                
-  #     # return false if not WeeklyTask.valid_duration?( group_loan_membership, number_of_weeks, number_of_backlogs)
-  #     return nil if (number_of_weeks < 0) or (number_of_backlogs < 0 ) 
-  #     return nil if (number_of_weeks == 0 ) and (number_of_backlogs == 0)
-  #     return nil if ( group_loan.remaining_weekly_tasks_count_for_member(member) + number_of_weeks_paid_in_current_transaction < number_of_weeks )  or 
-  #                     (number_of_weeks > group_loan.total_weeks)
-  #     return nil if group_loan_membership.unpaid_backlogs.count + number_of_backlogs_paid_in_current_transaction < number_of_backlogs
-  # 
-  # 
-  #     return nil if not weekly_task.can_create_payment?
-  #     
-  #     #check whether the savings withdrawal make sense 
-  #     return nil if savings_withdrawal > reverted_extra_savings 
-  #     total_amount_paid = cash + savings_withdrawal
-  #     total_payable = ( number_of_weeks + number_of_backlogs)  * group_loan_product.total_weekly_payment  
-  # 
-  # 
-  #     return nil if total_amount_paid <  total_payable
-  #     
-  #     # run all the conditions on the reverted parameter 
-  #     # if there is no error, cancel the current transaction, revert the after effect
-  #     # else, revert the effect of previous transaction and create new transaction based on the new data 
-  # end
+    
+    
+    new_hash = {}
+    new_hash[:total_transaction_amount]  = savings_amount
+    new_hash[:transaction_case] = TRANSACTION_CASE[:weekly_payment_only_savings]
+    new_hash[:creator_id] = current_user.id 
+    new_hash[:office_id] = current_user.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward]
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
+
+    transaction_activity = TransactionActivity.create new_hash 
+    
+    if transaction_activity.nil?
+      return nil
+    else
+      
+      MemberPaymentHistory.create_weekly_payment_history_entry(
+        employee,  # creator 
+        weekly_task,  # period object 
+        group_loan,  # the loan product
+        LOAN_PRODUCT[:group_loan],
+        member, # the member who paid 
+        cash,  #  the cash passed
+        BigDecimal('0'), # savings withdrawal used
+        0, # in grace payment, number of weeks is nil 
+        0, # in grace payment, number of weeks is nil 
+        transaction_activity.id, # the self 
+        REVISION_CODE[:original_only_savings],
+        PAYMENT_PHASE[:weekly_payment] 
+      )
+     end
+    
+    transaction_activity.create_only_savings_payment_entry(savings_amount, current_user, member )
+
+    weekly_task.create_weekly_payment_declared_as_only_savings( member, transaction_activity, savings_amount )
+
+ 
+    return transaction_activity
+  end
 
   
   def TransactionActivity.resolve_independent_payment_transaction_case( cash, savings_withdrawal, extra_savings,

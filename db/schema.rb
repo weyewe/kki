@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121030055432) do
+ActiveRecord::Schema.define(:version => 20121102045208) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
@@ -217,6 +217,23 @@ ActiveRecord::Schema.define(:version => 20121030055432) do
     t.datetime "updated_at"
   end
 
+  create_table "member_payment_histories", :force => true do |t|
+    t.integer  "weekly_task_id"
+    t.integer  "member_id"
+    t.integer  "loan_product_id"
+    t.integer  "loan_product_type"
+    t.decimal  "cash",                       :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "savings_withdrawal",         :precision => 11, :scale => 2, :default => 0.0
+    t.integer  "number_of_weeks"
+    t.integer  "number_of_backlog_payments"
+    t.integer  "creator_id"
+    t.integer  "transaction_activity_id"
+    t.integer  "revision_code"
+    t.integer  "payment_phase"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "member_payments", :force => true do |t|
     t.integer  "transaction_activity_id"
     t.integer  "weekly_task_id"
@@ -332,6 +349,26 @@ ActiveRecord::Schema.define(:version => 20121030055432) do
     t.integer  "parent_transaction_activity_id"
     t.boolean  "is_deleted",                                                   :default => false
     t.datetime "deleted_datetime"
+    t.boolean  "is_canceled",                                                  :default => false
+    t.boolean  "canceler_id",                                                  :default => false
+    t.datetime "canceled_datetime"
+  end
+
+  create_table "transaction_activity_histories", :force => true do |t|
+    t.integer  "weekly_task_id"
+    t.integer  "member_id"
+    t.integer  "loan_product_id"
+    t.integer  "loan_product_type"
+    t.decimal  "cash",                       :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "savings_withdrawal",         :precision => 11, :scale => 2, :default => 0.0
+    t.integer  "number_of_weeks"
+    t.integer  "number_of_backlog_payments"
+    t.integer  "creator_id"
+    t.integer  "transaction_activity_id"
+    t.integer  "revision_code"
+    t.integer  "payment_phase"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "transaction_books", :force => true do |t|

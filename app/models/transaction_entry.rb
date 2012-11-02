@@ -46,6 +46,15 @@
   
   
   How can we model withdrawal from one's account 
+  transaction_activity has_many transaction_entry
+  transaction_entry has_one saving_entry 
+  
+  if we delete a transaction activity, the changes has to be propagated all the way to the saving entry
+  
+  up to now, we have just been considering the effect of transaction entry to the 
+  member's savings. Why? Because the office's profit is handled outside the system. 
+  
+  What if we want it to be handled inside the system? the cashflow_book_entry book has to be changed as well (principal + interest payment)
 =end
 
 
@@ -57,4 +66,55 @@ class TransactionEntry < ActiveRecord::Base
   
   has_one :saving_entry # if it is linked to the weekly_payment from member to office
   
+  def delete
+    self.is_deleted = true
+    self.deleted_datetime = DateTime.now 
+    self.save
+    
+    # revert the effect 
+    case  self.transaction_entry_code
+    when TRANSACTION_ENTRY_CODE[:weekly_saving]  # in 
+      
+    when TRANSACTION_ENTRY_CODE[:extra_weekly_saving] # in 
+      member.deduct_compulsory_savings( self ) 
+    when TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal]  # out 
+      member.add_extra_savings( self )
+    end
+    
+  end
+  
+  
+  def revert_and_delete
+    saving_entry  = self.saving_entry
+    
+    case  self.transaction_entry_code
+    when TRANSACTION_ENTRY_CODE[:weekly_saving]  # compulsory_savings  
+      saving_entry.is_deleted = true 
+      saving_entry.save 
+      
+      saving_book = saving_entry.saving_book
+      saving_book.total_compulsory_savings -= self.amount 
+      saving_book.save  
+    when TRANSACTION_ENTRY_CODE[:extra_weekly_saving] # in 
+      saving_entry.is_deleted = true 
+      saving_entry.save 
+      
+      saving_book = saving_entry.saving_book
+      saving_book.total_extra_savings -= self.amount 
+      saving_book.save 
+    when TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal]  # out 
+      saving_entry.is_deleted = true 
+      saving_entry.save 
+      
+      saving_book = saving_entry.saving_book
+      saving_book.total_extra_savings += self.amount 
+      saving_book.save
+    end
+    
+    
+    self.is_deleted = true
+    self.deleted_datetime = DateTime.now 
+    self.save
+    
+  end
 end

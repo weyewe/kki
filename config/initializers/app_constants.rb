@@ -255,3 +255,52 @@ INDEPENDENT_PAYMENT_END = 888300000 # max+ 88811122
  
 GRACE_PERIOD_PAYMENT_START = 666000  # cash , savings_withdrawal, extra_savings
 GRACE_PERIOD_PAYMENT_END =   666200  # max= 666 1112 
+
+
+=begin
+  MEMBER PAYMENT HISTORY 
+=end
+
+PAYMENT_PHASE = {
+  :weekly_payment => 1, 
+  :independent_payment => 2 , 
+  :grace_payment => 3 
+}
+
+
+# 1 normal -> normal
+#  2 only savings -> normal
+#  3 no payment -> normal 
+#  
+#  4 normal -> only savings
+#  5 only savings -> only savings
+#  6 no payment -> only savings 
+#  
+#  7 normal -> no payment
+#  8 only savings -> no payment
+REVISION_CODE = {
+  :normal => {
+    :normal => 1,
+    :only_savings => 4, 
+    :no_payment => 7
+  }, 
+  :only_savings => {
+    :normal => 2, 
+    :only_savings => 5, 
+    :no_payment => 8
+  }, 
+  :no_payment => {
+    :normal => 3, 
+    :only_savings => 6 
+  } ,
+  
+  :original_normal => 11,
+  :original_only_savings => 12,
+  :original_no_payment => 13 
+}
+
+LOAN_PRODUCT = {
+  :group_loan => 1 , 
+  :personal_loan => 2 , 
+  :savings_account  => 3 
+}

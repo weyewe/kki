@@ -240,7 +240,7 @@ class WeeklyTask < ActiveRecord::Base
     TransactionActivity.where(:id => transaction_id_list, :is_deleted => false )
   end
   
-  def has_transaction_activity?( transaction_activity )
+  def valid_transaction_activity?( transaction_activity )
     active_transaction_activity_id_list=  self.transactions_for_member(transaction_activity.member.id ).map{|x| x.id }
     
     
@@ -484,7 +484,8 @@ class WeeklyTask < ActiveRecord::Base
     end
   end
   
-  def create_weekly_payment_declared_as_no_payment(member)
+  def create_weekly_payment_declared_as_no_payment(employee, member)
+    
     if self.has_paid_weekly_payment?(member)  
       return nil
     else 
@@ -505,6 +506,21 @@ class WeeklyTask < ActiveRecord::Base
         :member_payment_id => member_payment.id, 
         :backlog_type => BACKLOG_TYPE[:no_payment],
         :member_id => member.id 
+      )
+      
+      MemberPaymentHistory.create_weekly_payment_history_entry(
+        employee,  # creator 
+        self,  # period object 
+        self.group_loan,  # the loan product
+        LOAN_PRODUCT[:group_loan],
+        member, # the member who paid 
+        BigDecimal('0'),  #  the cash passed
+        BigDecimal('0'), # savings withdrawal used
+        0, # in grace payment, number of weeks is nil 
+        0, # in grace payment, number of weeks is nil 
+        nil, # the transaction  
+        REVISION_CODE[:original_no_payment],
+        PAYMENT_PHASE[:weekly_payment] 
       )
       
       return member_payment

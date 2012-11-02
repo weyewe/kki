@@ -105,6 +105,8 @@ class TransactionActivitiesController < ApplicationController
       :group_loan_id => @weekly_task.group_loan.id 
     })
     
+    current_transaction_activity = TransactionActivity.find_by_id( params[:current_transaction_activity_id] )
+    
     
     begin
       ActiveRecord::Base.transaction do
@@ -115,7 +117,8 @@ class TransactionActivitiesController < ApplicationController
                 @cash,
                 BigDecimal("0"), 
                 1,
-                0)
+                0,
+                current_transaction_activity)
       end
     rescue ActiveRecord::Rollback, ActiveRecord::ActiveRecordError  
       
@@ -233,7 +236,7 @@ class TransactionActivitiesController < ApplicationController
     # weekly_task.has_paid_weekly_payment?(member)  << filter to prevent double member payment
     begin
       ActiveRecord::Base.transaction do
-        @member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment(@member)
+        @member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment(current_user, @member)
       end
     rescue ActiveRecord::ActiveRecordError  
     else
