@@ -253,7 +253,7 @@ class TransactionActivitiesController < ApplicationController
     # weekly_task.has_paid_weekly_payment?(member)  << filter to prevent double member payment
     begin
       ActiveRecord::Base.transaction do
-        @member_payment = @weekly_task.update_weekly_payment_declared_as_no_payment(@member)
+        @member_payment = @weekly_task.update_weekly_payment_declared_as_no_payment(current_user , @member)
       end
     rescue ActiveRecord::ActiveRecordError  
     else

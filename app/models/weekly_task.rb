@@ -543,7 +543,7 @@ class WeeklyTask < ActiveRecord::Base
         
       end
       
-      current_transaction = weekly_task.transactions_for_member(member).first 
+      current_transaction = self.transactions_for_member(member).first 
       return nil if current_transaction.nil? 
       
       current_transaction.revert_transaction_effect(member_payment) 

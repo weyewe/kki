@@ -213,7 +213,7 @@ class TransactionActivity < ActiveRecord::Base
     
     transaction_activity = TransactionActivity.create new_hash 
     transaction_activity.create_setup_entries( admin_fee, initial_savings, deposit, field_worker, member ) 
-    # current_user.active_job_attachment.office
+    # employee.active_job_attachment.office
     
     
     group_loan_membership.deposit = deposit
@@ -424,8 +424,8 @@ class TransactionActivity < ActiveRecord::Base
     end
   end
   
-  def TransactionActivity.create_savings_only_weekly_payment(member,weekly_task, savings_amount,  current_user , revision_transaction)
-    if not TransactionActivity.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, current_user )
+  def TransactionActivity.create_savings_only_weekly_payment(member,weekly_task, savings_amount,  employee , revision_transaction)
+    if not TransactionActivity.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, employee )
       return nil
     end
     
@@ -456,8 +456,8 @@ class TransactionActivity < ActiveRecord::Base
     new_hash = {}
     new_hash[:total_transaction_amount]  = savings_amount
     new_hash[:transaction_case] = TRANSACTION_CASE[:weekly_payment_only_savings]
-    new_hash[:creator_id] = current_user.id 
-    new_hash[:office_id] = current_user.active_job_attachment.office.id
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
     new_hash[:member_id] = member.id
     new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward]
     new_hash[:loan_type] = LOAN_TYPE[:group_loan]
@@ -476,7 +476,7 @@ class TransactionActivity < ActiveRecord::Base
           group_loan,  # the loan product
           LOAN_PRODUCT[:group_loan],
           member, # the member who paid 
-          cash,  #  the cash passed
+          savings_amount,  #  the cash passed
           BigDecimal('0'), # savings withdrawal used
           0, # in grace payment, number of weeks is nil 
           0, # in grace payment, number of weeks is nil 
@@ -487,7 +487,7 @@ class TransactionActivity < ActiveRecord::Base
        end
      end
     
-    transaction_activity.create_only_savings_payment_entry(savings_amount, current_user, member )
+    transaction_activity.create_only_savings_payment_entry(savings_amount, employee, member )
 
     weekly_task.create_weekly_payment_declared_as_only_savings( member, transaction_activity, savings_amount )
 
@@ -495,8 +495,8 @@ class TransactionActivity < ActiveRecord::Base
     return transaction_activity
   end
   
-  def TransactionActivity.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, current_user )
-    if  (not current_user.has_role?(:field_worker, current_user.get_active_job_attachment) ) or
+  def TransactionActivity.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, employee )
+    if  (not employee.has_role?(:field_worker, employee.get_active_job_attachment) ) or
         ( not weekly_task.member_payment_can_be_started?  )
         return false
     else
@@ -701,13 +701,13 @@ class TransactionActivity < ActiveRecord::Base
   end
   
   
-  def approve_payment(current_user)
-    if  not current_user.has_role?(:cashier, current_user.get_active_job_attachment)
+  def approve_payment(employee)
+    if  not employee.has_role?(:cashier, employee.get_active_job_attachment)
       return nil
     end
     
     self.is_approved = true
-    self.approver_id = current_user.id 
+    self.approver_id = employee.id 
     self.save 
   end
   
@@ -1178,7 +1178,9 @@ class TransactionActivity < ActiveRecord::Base
       end
     elsif member_payment.only_savings_payment?
       #  created 1 backlog payment 
-      BacklogPayment.where(:member_payment_id => member_payment.id, :is_cleared => false ).destroy 
+      BacklogPayment.where(:member_payment_id => member_payment.id, :is_cleared => false ).each do |x|
+        x.destroy 
+      end 
       
       #  created 1 weekly payment 
       MemberPayment.where(:transaction_activity_id => self.id).each do |member_payment|
@@ -1244,8 +1246,7 @@ class TransactionActivity < ActiveRecord::Base
           cash,
           savings_withdrawal, 
           number_of_weeks,
-          number_of_backlogs,
-          current_transaction_activity ) 
+          number_of_backlogs  ) 
           # current_transaction_activity can be nil
           # hence, we have to ensure that the week payment is declared as no payment declaration.
           # if it is not declared as no payment, then fuck it... it is fraud transaction 
@@ -1260,8 +1261,10 @@ class TransactionActivity < ActiveRecord::Base
                     savings_withdrawal.nil? or 
                     number_of_weeks.nil? or 
                     number_of_backlogs.nil?  
-                    
+             
+      member = group_loan_membership.member       
       return nil if not weekly_task.has_paid_weekly_payment?(member) 
+      
       
       member_payment =  weekly_task.member_payment_for(member) # will only return member payment for a given week 
       return nil if member_payment.nil? 
@@ -1277,7 +1280,7 @@ class TransactionActivity < ActiveRecord::Base
       # return nil if not current_transaction_activity.nil? and not weekly_task.valid_transaction_activity?( current_transaction_activity )
       
       group_loan_product = group_loan_membership.group_loan_product
-      member = group_loan_membership.member 
+       
       zero_value = BigDecimal("0")
       member = group_loan_membership.member
       
@@ -1352,7 +1355,7 @@ class TransactionActivity < ActiveRecord::Base
         savings_withdrawal, # savings withdrawal used
         number_of_weeks, # in grace payment, number of weeks is nil 
         number_of_backlogs, # in grace payment, number of weeks is nil 
-        transaction_activity.id, # the self 
+        new_transaction.id, # the self 
         revision_code,
         PAYMENT_PHASE[:weekly_payment]
         )
@@ -1360,13 +1363,13 @@ class TransactionActivity < ActiveRecord::Base
       
       
        
-      return new_transaction_activity  
+      return new_transaction  
   end
    
    
    # all payment type ( no payment, normal, only savings) to  only savings
-  def TransactionActivity.update_savings_only_weekly_payment(member,weekly_task, savings_amount,  current_user )
-    if not TransactionActivity.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, current_user )
+  def TransactionActivity.update_savings_only_weekly_payment(member,weekly_task, savings_amount,  employee )
+    if not TransactionActivity.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, employee )
       return nil
     end
     
@@ -1414,6 +1417,7 @@ class TransactionActivity < ActiveRecord::Base
       BacklogPayment.where(:member_payment_id => member_payment.id ).each do |x|
         x.destroy 
       end
+      
       revision_code   = REVISION_CODE[:no_payment][:only_savings] 
       
       member_payment.destroy 
@@ -1424,7 +1428,7 @@ class TransactionActivity < ActiveRecord::Base
     
     revision_transaction = true
     
-    new_transaction = TransactionActivity.create_savings_only_weekly_payment(member,weekly_task, savings_amount,  current_user , revision_transaction )
+    new_transaction = TransactionActivity.create_savings_only_weekly_payment(member,weekly_task, savings_amount,  employee , revision_transaction )
 
     if new_transaction.nil?
       raise ActiveRecord::Rollback, "Call tech support!"  # <<< THIS IS THE SHITE!!!! , cancel all the previous changes 
@@ -1439,11 +1443,11 @@ class TransactionActivity < ActiveRecord::Base
       group_loan,  # the loan product
       LOAN_PRODUCT[:group_loan],
       member, # the member who paid 
-      cash,  #  the cash passed
+      savings_amount,  #  the cash passed
       BigDecimal('0'), # savings withdrawal used
       0, # in grace payment, number of weeks is nil 
       0, # in grace payment, number of weeks is nil 
-      transaction_activity.id, # the self 
+      new_transaction.id, # the self 
       revision_code, #  REVISION_CODE[:original_only_savings],
       PAYMENT_PHASE[:weekly_payment] 
     )  
@@ -1613,8 +1617,8 @@ class TransactionActivity < ActiveRecord::Base
   end
   
   
-  def TransactionActivity.create_basic_weekly_payment(member,weekly_task, current_user )
-    if not self.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, current_user )
+  def TransactionActivity.create_basic_weekly_payment(member,weekly_task, employee )
+    if not self.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, employee )
       return nil
     end
     
@@ -1650,15 +1654,15 @@ class TransactionActivity < ActiveRecord::Base
     new_hash = {}
     new_hash[:total_transaction_amount]  = group_loan_product.total_weekly_payment
     new_hash[:transaction_case] = TRANSACTION_CASE[:weekly_payment_basic]
-    new_hash[:creator_id] = current_user.id 
-    new_hash[:office_id] = current_user.active_job_attachment.office.id
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
     new_hash[:member_id] = member.id
     new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward]
     new_hash[:loan_type] = LOAN_TYPE[:group_loan]
     new_hash[:loan_id] = group_loan_membership.group_loan_id
     
     transaction_activity = TransactionActivity.create new_hash 
-    transaction_activity.create_basic_payment_entries(group_loan_product, current_user, member )
+    transaction_activity.create_basic_payment_entries(group_loan_product, employee, member )
     
     weekly_task.create_basic_weekly_payment( member, transaction_activity, group_loan_product.total_weekly_payment, false)
     
@@ -1720,7 +1724,7 @@ class TransactionActivity < ActiveRecord::Base
   For backlog payments
 =end
 
-  def TransactionActivity.create_backlog_payments(member,group_loan, current_user,
+  def TransactionActivity.create_backlog_payments(member,group_loan, employee,
         cash, savings_withdrawal, number_of_weeks)
    # defensive programming
    # 1. if the savings withdrawal is larger than savings, return nil 
@@ -1769,8 +1773,8 @@ class TransactionActivity < ActiveRecord::Base
    new_hash[:total_transaction_amount] = result_resolve[:total_transaction_amount]
    new_hash[:transaction_case]  = result_resolve[:transaction_case]
    
-   new_hash[:creator_id] = current_user.id 
-   new_hash[:office_id] = current_user.active_job_attachment.office.id
+   new_hash[:creator_id] = employee.id 
+   new_hash[:office_id] = employee.active_job_attachment.office.id
    new_hash[:member_id] = member.id
    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
    new_hash[:loan_id] = group_loan_membership.group_loan_id
@@ -1782,7 +1786,7 @@ class TransactionActivity < ActiveRecord::Base
              savings_withdrawal,
              number_of_weeks, 
              group_loan_product,
-             current_user,
+             employee,
              member
            )
            
@@ -1798,7 +1802,7 @@ class TransactionActivity < ActiveRecord::Base
    
    member.backlog_payments_for_group_loan(group_loan).order("created_at ASC").limit( number_of_weeks ).each do |x|
      x.is_cleared  = true 
-     x.backlog_cleared_declarator_id = current_user.id 
+     x.backlog_cleared_declarator_id = employee.id 
      x.transaction_activity_id_for_backlog_clearance = transaction_activity.id
      x.save
    end
@@ -1841,13 +1845,13 @@ class TransactionActivity < ActiveRecord::Base
     })
   end
   
-  def approve_backlog_payments(current_user)
-    if  not current_user.has_role?(:cashier, current_user.get_active_job_attachment)
+  def approve_backlog_payments(employee)
+    if  not employee.has_role?(:cashier, employee.get_active_job_attachment)
       return nil
     end
     
     self.backlog_payments.each do |backlog_payment|
-      backlog_payment.create_cashier_cash_approval(current_user)
+      backlog_payment.create_cashier_cash_approval(employee)
     end
     
     
@@ -2116,8 +2120,8 @@ class TransactionActivity < ActiveRecord::Base
 =end
 
 
-  def create_independent_savings_entry(savings_amount, current_user, member )
-    cashflow_book = current_user.active_job_attachment.office.cashflow_book
+  def create_independent_savings_entry(savings_amount, employee, member )
+    cashflow_book = employee.active_job_attachment.office.cashflow_book
     savings_only_transaction_entry = self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:independent_savings_deposit], 
                       :amount => savings_amount  ,
@@ -2128,8 +2132,8 @@ class TransactionActivity < ActiveRecord::Base
 
   end
 
-  def create_only_savings_payment_entry(savings_amount, current_user, member )
-    cashflow_book = current_user.active_job_attachment.office.cashflow_book
+  def create_only_savings_payment_entry(savings_amount, employee, member )
+    cashflow_book = employee.active_job_attachment.office.cashflow_book
     savings_only_transaction_entry = self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:no_weekly_payment_only_savings], 
                       :amount => savings_amount  ,
@@ -2262,8 +2266,8 @@ class TransactionActivity < ActiveRecord::Base
  
   end
   
-  def create_extra_savings_entries( balance , current_user , member)
-    cashflow_book = current_user.active_job_attachment.office.cashflow_book
+  def create_extra_savings_entries( balance , employee , member)
+    cashflow_book = employee.active_job_attachment.office.cashflow_book
     saving_entry = self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:extra_weekly_saving], 
                       :amount => balance ,
@@ -2273,8 +2277,8 @@ class TransactionActivity < ActiveRecord::Base
     member.add_extra_savings(balance, SAVING_ENTRY_CODE[:weekly_saving_extra_from_basic_payment], saving_entry) 
   end
   
-  def create_soft_savings_withdrawal_entries( savings_withdrawal, current_user , member)
-    cashflow_book = current_user.active_job_attachment.office.cashflow_book
+  def create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
+    cashflow_book = employee.active_job_attachment.office.cashflow_book
     saving_entry = self.transaction_entries.create( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal], 
                       :amount => savings_withdrawal ,
@@ -2287,98 +2291,98 @@ class TransactionActivity < ActiveRecord::Base
   end
   
   def create_structured_multi_payment_entries(cash, savings_withdrawal, number_of_weeks, 
-            group_loan_product, weekly_task , current_user , member)
-    cashflow_book = current_user.active_job_attachment.office.cashflow_book
+            group_loan_product, weekly_task , employee , member)
+    cashflow_book = employee.active_job_attachment.office.cashflow_book
     balance = cash + savings_withdrawal- (group_loan_product.total_weekly_payment * number_of_weeks)
     
     if self.transaction_case == TRANSACTION_CASE[:weekly_payment_basic]
-     self.create_basic_payment_entries(group_loan_product, current_user, member) 
+     self.create_basic_payment_entries(group_loan_product, employee, member) 
      
     elsif self.transaction_case == TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks]
       (1..number_of_weeks).each do |week_number|
-        self.create_basic_payment_entries(group_loan_product, current_user, member) 
+        self.create_basic_payment_entries(group_loan_product, employee, member) 
       end
      
     elsif self.transaction_case ==  TRANSACTION_CASE[:weekly_payment_single_week_extra_savings]
-     self.create_basic_payment_entries(group_loan_product, current_user, member)
-     self.create_extra_savings_entries( balance , current_user, member )
+     self.create_basic_payment_entries(group_loan_product, employee, member)
+     self.create_extra_savings_entries( balance , employee, member )
     
     elsif self.transaction_case ==  TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks_extra_savings]
-      self.create_extra_savings_entries( balance , current_user , member )
+      self.create_extra_savings_entries( balance , employee , member )
       (1..number_of_weeks).each do |week_number|
-        self.create_basic_payment_entries(group_loan_product, current_user, member) 
+        self.create_basic_payment_entries(group_loan_product, employee, member) 
       end
       
     elsif self.transaction_case == TRANSACTION_CASE[:weekly_payment_single_week_structured_with_soft_savings_withdrawal]
-      self.create_soft_savings_withdrawal_entries( savings_withdrawal, current_user , member)
-      self.create_basic_payment_entries(group_loan_product, current_user, member ) 
+      self.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
+      self.create_basic_payment_entries(group_loan_product, employee, member ) 
       
     elsif self.transaction_case == TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal]
-      self.create_soft_savings_withdrawal_entries( savings_withdrawal, current_user , member)
+      self.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
       (1..number_of_weeks).each do |week_number|
-        self.create_basic_payment_entries(group_loan_product, current_user, member) 
+        self.create_basic_payment_entries(group_loan_product, employee, member) 
       end
       
     elsif self.transaction_case == TRANSACTION_CASE[:weekly_payment_single_week_structured_with_soft_savings_withdrawal_extra_savings]
-      self.create_soft_savings_withdrawal_entries( savings_withdrawal, current_user , member)
-      self.create_basic_payment_entries(group_loan_product, current_user, member ) 
-      self.create_extra_savings_entries( balance , current_user, member )
+      self.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
+      self.create_basic_payment_entries(group_loan_product, employee, member ) 
+      self.create_extra_savings_entries( balance , employee, member )
         
     elsif self.transaction_case == TRANSACTION_CASE[:weekly_payment_structured_multiple_weeks_with_soft_savings_withdrawal_extra_savings] 
-      self.create_soft_savings_withdrawal_entries( savings_withdrawal, current_user , member)
+      self.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
       (1..number_of_weeks).each do |week_number|
-        self.create_basic_payment_entries(group_loan_product, current_user, member) 
+        self.create_basic_payment_entries(group_loan_product, employee, member) 
       end
-      self.create_extra_savings_entries( balance , current_user, member )
+      self.create_extra_savings_entries( balance , employee, member )
     
     end
   end
   
   def create_backlog_payment_entries( cash, savings_withdrawal,  number_of_weeks,  group_loan_product,
-      current_user, member)
+      employee, member)
     # start 
-    cashflow_book = current_user.active_job_attachment.office.cashflow_book
+    cashflow_book = employee.active_job_attachment.office.cashflow_book
     balance = cash + savings_withdrawal- (group_loan_product.total_weekly_payment * number_of_weeks)
     
     if self.transaction_case == TRANSACTION_CASE[:single_backlog_payment_exact_amount]
-     self.create_basic_payment_entries(group_loan_product, current_user, member) 
+     self.create_basic_payment_entries(group_loan_product, employee, member) 
      
     elsif self.transaction_case == TRANSACTION_CASE[:multiple_backlog_payment_exact_amount]
       (1..number_of_weeks).each do |week_number|
-        self.create_basic_payment_entries(group_loan_product, current_user, member) 
+        self.create_basic_payment_entries(group_loan_product, employee, member) 
       end
      
     elsif self.transaction_case ==  TRANSACTION_CASE[:single_backlog_payment_extra_savings]
-     self.create_basic_payment_entries(group_loan_product, current_user, member)
-     self.create_extra_savings_entries( balance , current_user, member )
+     self.create_basic_payment_entries(group_loan_product, employee, member)
+     self.create_extra_savings_entries( balance , employee, member )
     
     elsif self.transaction_case ==  TRANSACTION_CASE[:multiple_backlog_payment_extra_savings]
-      self.create_extra_savings_entries( balance , current_user , member )
+      self.create_extra_savings_entries( balance , employee , member )
       (1..number_of_weeks).each do |week_number|
-        self.create_basic_payment_entries(group_loan_product, current_user, member) 
+        self.create_basic_payment_entries(group_loan_product, employee, member) 
       end
       
     elsif self.transaction_case == TRANSACTION_CASE[:single_backlog_payment_soft_savings_withdrawal]
-      self.create_soft_savings_withdrawal_entries( savings_withdrawal, current_user , member)
-      self.create_basic_payment_entries(group_loan_product, current_user, member ) 
+      self.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
+      self.create_basic_payment_entries(group_loan_product, employee, member ) 
       
     elsif self.transaction_case == TRANSACTION_CASE[:multiple_backlog_payment_soft_savings_withdrawal]
-      self.create_soft_savings_withdrawal_entries( savings_withdrawal, current_user , member)
+      self.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
       (1..number_of_weeks).each do |week_number|
-        self.create_basic_payment_entries(group_loan_product, current_user, member) 
+        self.create_basic_payment_entries(group_loan_product, employee, member) 
       end
       
     elsif self.transaction_case == TRANSACTION_CASE[:single_backlog_payment_soft_savings_withdrawal_extra_savings]
-      self.create_soft_savings_withdrawal_entries( savings_withdrawal, current_user , member)
-      self.create_basic_payment_entries(group_loan_product, current_user, member ) 
-      self.create_extra_savings_entries( balance , current_user, member )
+      self.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
+      self.create_basic_payment_entries(group_loan_product, employee, member ) 
+      self.create_extra_savings_entries( balance , employee, member )
         
     elsif self.transaction_case == TRANSACTION_CASE[:multiple_backlog_payment_soft_savings_withdrawal_extra_savings] 
-      self.create_soft_savings_withdrawal_entries( savings_withdrawal, current_user , member)
+      self.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
       (1..number_of_weeks).each do |week_number|
-        self.create_basic_payment_entries(group_loan_product, current_user, member) 
+        self.create_basic_payment_entries(group_loan_product, employee, member) 
       end
-      self.create_extra_savings_entries( balance , current_user, member )
+      self.create_extra_savings_entries( balance , employee, member )
     
     end
     
