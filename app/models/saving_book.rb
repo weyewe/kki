@@ -2,6 +2,24 @@ class SavingBook < ActiveRecord::Base
   belongs_to :member
   has_many :saving_entries
   
+  def revert_transaction_add_extra_savings(amount)
+    self.total_extra_savings += amount
+    self.total += amount
+    self.save
+  end
+  
+  def revert_transaction_deduct_extra_savings(amount)
+    self.total_extra_savings -= amount
+    self.total -= amount
+    self.save
+  end
+  
+  def revert_transaction_deduct_compulsory_savings(amount)
+    self.total_compulsory_savings -= amount
+    self.total -= amount
+    self.save
+  end
+  
   def update_total(saving_entry, is_extra_savings)
     total_amount = self.total
     total_compulsory_savings = self.total_compulsory_savings

@@ -86,29 +86,59 @@ class TransactionEntry < ActiveRecord::Base
   
   def revert_and_delete
     saving_entry  = self.saving_entry
+    saving_book = saving_entry.saving_book 
     
+    puts "777 te amount is #{self.amount.to_i}"
     case  self.transaction_entry_code
+      
+      
     when TRANSACTION_ENTRY_CODE[:weekly_saving]  # compulsory_savings  
+      
+      puts "777 deleting compulsory, #{self.amount.to_i}"
+      puts "Saving book , compulsory savings before revert: #{saving_book.total_compulsory_savings.to_i}"
       saving_entry.is_deleted = true 
       saving_entry.save 
       
-      saving_book = saving_entry.saving_book
-      saving_book.total_compulsory_savings -= self.amount 
-      saving_book.save  
-    when TRANSACTION_ENTRY_CODE[:extra_weekly_saving] # in 
+      saving_book.revert_transaction_deduct_compulsory_savings( self.amount ) 
+      # saving_book = saving_entry.saving_book
+      #     saving_book.total_compulsory_savings = saving_book.total_compulsory_savings - self.amount 
+      #     saving_book.total = saving_book.total -  self.amount 
+      #     saving_book.save  
+      #     
+      saving_book.reload
+      puts "THe amount of FINAL compulsory savings  after revert is: #{saving_book.total_compulsory_savings}"
+    when TRANSACTION_ENTRY_CODE[:extra_weekly_saving]   
+      puts "777 deleting extra, #{self.amount.to_i}"
       saving_entry.is_deleted = true 
       saving_entry.save 
       
-      saving_book = saving_entry.saving_book
-      saving_book.total_extra_savings -= self.amount 
-      saving_book.save 
+      
+      saving_book.revert_transaction_deduct_extra_savings( self.amount )
+      # saving_book = saving_entry.saving_book
+      # saving_book.total_extra_savings -= self.amount 
+      # saving_book.total -= self.amount 
+      # saving_book.save 
+    when   TRANSACTION_ENTRY_CODE[:no_weekly_payment_only_savings]# in 
+      puts "777 deleting extra, #{self.amount.to_i}"
+      saving_entry.is_deleted = true 
+      saving_entry.save 
+    
+      saving_book.revert_transaction_deduct_extra_savings( self.amount )
+      # saving_book = saving_entry.saving_book
+      # saving_book.total_extra_savings -= self.amount 
+      # saving_book.total -= self.amount 
+      # saving_book.save
     when TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal]  # out 
+      puts "777 adding extra, #{self.amount.to_i}"
       saving_entry.is_deleted = true 
       saving_entry.save 
       
-      saving_book = saving_entry.saving_book
-      saving_book.total_extra_savings += self.amount 
-      saving_book.save
+      saving_book.revert_transaction_add_extra_savings( self.amount )
+      
+      # saving_book = saving_entry.saving_book
+      # saving_book.total_extra_savings += self.amount 
+      # saving_book.total += self.amount 
+      # saving_book.save
     end
     
     

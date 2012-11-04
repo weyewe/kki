@@ -1051,82 +1051,9 @@ class TransactionActivity < ActiveRecord::Base
     
     return transaction_activity
   end 
+   
   
-=begin
-  Weekly Payment Update 
-=end
-
-  # def revert_destroy_transaction_entries_for_extra_savings
-  #   # revert the extra savings effect
-  #   ( extra_savings_addition_transaction_entries + extra_savings_withdrawal_transaction_entries ).each do |te|
-  #     te.is_deleted = true
-  #     te.deleted_datetime = DateTime.now 
-  #     te.save 
-  #     
-  #     saving_entry = te.saving_entry
-  #     saving_entry.is_deleted = true
-  #     saving_entry.save 
-  #   end
-  #   
-  #   
-  #   # revert the savings_withdrawal effect
-  #   # add $$$ 
-  #   
-  #   initial_extra_savings = self.initial_extra_savings_before_current_transaction
-  #   saving_book = self.member.saving_book 
-  #   saving_book.total_extra_savings = initial_extra_savings
-  #   saving_book.save 
-  # end
-  # 
-  # def revert_destroy_transaction_entries_for_payment
-  #   self.transaction_entries.where(:is_deleted => false).each do |te|
-  #     te.is_deleted = true
-  #     te.deleted_datetime = DateTime.now 
-  #     te.save
-  #   end
-  # end
-  # 
-  
-  
-  # unclear the backlog payment ( cancelling the effect) cleared in the current transaction 
-  # destroying the member payments associated with the current transaction 
-  def revert_transaction_effect_in_normal_to_normal
-    # code to create backlog payment
-    # if number_of_backlogs > 0
-    #   
-    #   member.backlog_payments_for_group_loan(group_loan).where(:is_cleared => false ).order("created_at ASC").limit( number_of_backlogs ).each do |x|
-    #      x.is_cleared  = true 
-    #      x.clearance_period = BACKLOG_CLEARANCE_PERIOD[:in_weekly_payment_cycle]
-    #      x.backlog_cleared_declarator_id = employee.id 
-    #      x.transaction_activity_id_for_backlog_clearance = transaction_activity.id
-    #      x.save
-    #      weekly_task.create_backlog_payment(member, transaction_activity, cash, false)
-    #   end 
-    # end
-    # specific for backlog_payment 
-    BacklogPayment.where(:transaction_activity_id_for_backlog_clearance => self.id).each do |x|
-      x.is_cleared  = false  
-      x.clearance_period = nil 
-      x.backlog_cleared_declarator_id =  nil 
-      x.transaction_activity_id_for_backlog_clearance =  nil
-      x.save 
-    end
-    
-    # weekly_task.create_backlog_payment(member, transaction_activity, cash, false) 
-    # create_backlog_payment( member, transaction_activity, cash_passed, is_independent_payment)
-       # self.member_payments.create(
-       #       :transaction_activity_id => transaction_activity.id,
-       #       :member_id => member.id , 
-       #       :cash_passed => cash_passed,
-       #       :week_number => nil ,
-       #       :is_independent_weekly_payment => is_independent_payment
-       #     )
-       
-    # revert destroy backlog payment && weekly payment 
-    MemberPayment.where(:transaction_activity_id => self.id).each do |member_payment|
-      member_payment.destroy 
-    end
-  end
+ 
    
    
     
@@ -1294,6 +1221,7 @@ class TransactionActivity < ActiveRecord::Base
         return nil if current_transaction.nil? 
         
         # we need to revert the transaction effect: member savings withdrawal and extra savings 
+        puts "Reverting the transaction effect"
         current_transaction.revert_transaction_effect(member_payment)
         
         current_transaction.revert_member_payment_effect( member_payment ) 
@@ -1328,7 +1256,8 @@ class TransactionActivity < ActiveRecord::Base
         return nil
       end
       
-      
+      member.reload 
+    
       new_transaction = TransactionActivity.create_generic_weekly_payment(
               weekly_task, 
               group_loan_membership,

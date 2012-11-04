@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+# things to do: verify the post condition. can we assume that it is correct? %__% 
+# can't assume. 
 describe GroupLoan do
   
   puts " I want to live forever\n"
@@ -227,6 +229,12 @@ describe GroupLoan do
         @savings_withdrawal = BigDecimal("0")
         @number_of_weeks = 1 
         @number_of_backlogs = 0 
+        
+        @initial_compulsory_savings = @member.saving_book.total_compulsory_savings
+        @initial_voluntary_savings = @member.saving_book.total_extra_savings
+        # before the weekly payment 
+        # so, if the weekly payment is cancelled, no effect to these 2 
+        
         @first_transaction = TransactionActivity.create_generic_weekly_payment(
           @weekly_task, 
                 @first_glm,
@@ -240,14 +248,16 @@ describe GroupLoan do
       end
       
       
+      
+      ####
+      #  Generic normal pre condition: will rollback if some shit is broken
+      #  Test the post condition! 
+      ####
       it 'shouldnt raise ActiveRecord:Rollback on wrong input if it is the wrong metric' do
         TransactionActivity.where(:loan_type =>  LOAN_TYPE[:group_loan],
           :member_id => @member.id, :is_deleted => true).count.should == 0 
         
-        
-          
-          
-          
+         
         lambda {TransactionActivity.update_generic_weekly_payment(
           @weekly_task, 
           @first_glm,
@@ -258,9 +268,10 @@ describe GroupLoan do
           @number_of_backlogs   
         )}.should raise_error ActiveRecord::Rollback
         
+        
       end
       
-      it 'should cancel all transaction in case of rollback' do 
+      it 'should cancel all transaction in case of rollback (normal-> normal)' do 
         TransactionActivity.where(:loan_type =>  LOAN_TYPE[:group_loan],
           :member_id => @member.id, :is_deleted => true).count.should == 0 
         
@@ -297,7 +308,46 @@ describe GroupLoan do
         MemberPaymentHistory.where(
           :transaction_activity_id => @first_transaction.id 
         ).first.revision_code.should == REVISION_CODE[:original_normal] 
-         
+      end
+      
+      #testing the post condition after normal -> normal 
+      it 'should create the correct amount of savings withdrawal' do
+        
+        extra_savings = BigDecimal("5000")
+        
+        puts "-111 number of weeks #{@number_of_weeks}"
+        puts "initial compulsory savings: #{@initial_compulsory_savings}"
+        puts "initial extra savings: #{@initial_voluntary_savings}"
+        puts "weekly compulsory  savings: #{@first_glm.group_loan_product.min_savings.to_i}"
+        puts "initial compulsory savings (auto added): #{@first_glm.group_loan_product.initial_savings.to_i}"
+        puts "number of weeks: #{@number_of_weeks + 1 }"
+        
+        ActiveRecord::Base.transaction do
+          @second_transaction = TransactionActivity.update_generic_weekly_payment(
+            @weekly_task, 
+            @first_glm,
+            @field_worker,
+            @cash_payment*2 +extra_savings ,
+            BigDecimal('0'), 
+            @number_of_weeks + 1 ,
+            @number_of_backlogs   
+          )
+        end
+        
+        MemberPayment.where(:transaction_activity_id => @second_transaction.id).count.should == 2 
+        @member.reload
+        @final_compulsory_savings = @member.saving_book.total_compulsory_savings
+        @final_voluntary_savings = @member.saving_book.total_extra_savings
+        
+        @compulsory_savings_diff = @final_compulsory_savings - @initial_compulsory_savings
+        puts "-111Compulsory savings diff actual: #{@compulsory_savings_diff.to_i}"
+        puts "-222Compulsory savings diff predicted: #{ 2*@first_glm.group_loan_product.min_savings.to_i}"
+        @compulsory_savings_diff.should == 2*@first_glm.group_loan_product.min_savings
+        
+        (@final_voluntary_savings - @initial_voluntary_savings).should ==  extra_savings
+        
+        # diff in compulsory payment before first transaction == 2 weeks amount 
+        # diff in extra savings = 5,000 
       end
       
       it "should create 2 history if normal -> normal " do
@@ -329,6 +379,28 @@ describe GroupLoan do
         ).first 
         last_member_payment_history.revision_code == REVISION_CODE[:normal][:normal]
       end
+      
+      
+      it 'should cancel all transaction in case of rollback (normal-> only savings)' do 
+        TransactionActivity.where(:loan_type =>  LOAN_TYPE[:group_loan],
+          :member_id => @member.id, :is_deleted => true).count.should == 0 
+        
+        ActiveRecord::Base.transaction do
+          @transaction_activity = TransactionActivity.update_savings_only_weekly_payment(
+            @member,
+            @weekly_task,
+            BigDecimal("0"),
+            @field_worker
+          )
+        end
+        
+        
+      
+        TransactionActivity.where(:loan_type =>  LOAN_TYPE[:group_loan],
+          :member_id => @member.id, :is_deleted => true).count.should == 0 
+        
+      end
+      
       
       it 'should create 2 history if normal -> only savings' do
         @second_transaction =  TransactionActivity.update_savings_only_weekly_payment(

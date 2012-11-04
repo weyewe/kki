@@ -531,6 +531,11 @@ class WeeklyTask < ActiveRecord::Base
   def update_weekly_payment_declared_as_no_payment(employee, member)
     member_payment =  self.member_payment_for(member)
     
+    
+    # if it is not approved by cashier yet 
+    return nil if  not self.can_create_payment?
+     
+    
     if member_payment.no_payment?   
       return nil
     else 
