@@ -7,6 +7,8 @@ class Member < ActiveRecord::Base
   # transaction_book will list all the record of member's transaction 
   has_one :transaction_book
   has_many :backlog_payments
+  
+  has_many :member_payment_histories
 
   belongs_to :office 
   # belongs_to :commune

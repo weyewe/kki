@@ -21,15 +21,22 @@
             <th><%= t 'report_metric.member' %></th>
             <th><%= t 'report_metric.cash_passed' %></th>
             <th><%= t 'report_metric.transaction_case'%></th>
+			<th>Edit History<%#= t 'report_metric.transaction_case'%></th>
           </tr>
         </thead>
         <tbody>
-          <% @transaction_activities.each do |transaction_activity| %>
-          <%#: #{@transaction_activities.inspect}"%>
-            <%= render :partial => "weekly_tasks/transaction_details" , 
-                :locals => {:transaction_activity => transaction_activity}%>
+		  <% @group_loan.active_group_loan_memberships.each do |glm| %>
+			
+		 	<%= render :partial => "weekly_tasks/transaction_details" , 
+                :locals => {
+					:glm => glm,
+					:weekly_task => @weekly_task 
+				}%>
+		  <% end %>
+	
+	
+            
    
-          <% end %>
        
           
 

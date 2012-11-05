@@ -886,6 +886,7 @@ class GroupLoan < ActiveRecord::Base
 =begin
   GRACE PERIOD APPROVAL
 =end
+
  
 
   def pending_approval_grace_period_transactions

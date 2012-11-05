@@ -1,5 +1,6 @@
 class MemberPaymentHistory < ActiveRecord::Base
   
+  belongs_to :member 
   # def MemberPaymentHistory.create_weekly_payment_history_entry(
   #   employee,  # creator 
   #   self,  # period object 
@@ -15,6 +16,23 @@ class MemberPaymentHistory < ActiveRecord::Base
   #   PAYMENT_PHASE[:weekly_payment] 
   # )
   validates_presence_of :member_id, :loan_product_id, :loan_product_type, :revision_code, :payment_phase
+  
+  
+  def MemberPaymentHistory.edit_history_list_count(weekly_task, payment_phase, member )    
+    total_count = MemberPaymentHistory.edit_history_list( weekly_task, payment_phase , member  ).count 
+    
+    return total_count - 1 
+  end
+  
+  def MemberPaymentHistory.edit_history_list( weekly_task, payment_phase, member )     
+    MemberPaymentHistory.where(
+      :weekly_task_id => weekly_task.id ,
+      :member_id =>  member.id, 
+      :payment_phase =>payment_phase 
+    )
+  end
+  
+  
   
   def MemberPaymentHistory.create_weekly_payment_history_entry( employee, weekly_task, 
         loan_product, loan_product_type, member, 
@@ -43,5 +61,9 @@ class MemberPaymentHistory < ActiveRecord::Base
       :payment_phase              => payment_phase
     )
     
+  end
+  
+  
+  def self.effective_weekly_payments(member_id_list, weekly_task) 
   end
 end

@@ -140,6 +140,7 @@ class WeeklyTasksController < ApplicationController
     #                 end
     @transaction_activities  = @weekly_task.group_payment_transactions.order("member_id DESC")
     
+    
     add_breadcrumb "#{t 'process.weekly_payment_pending_approval'}", 'list_pending_weekly_collection_approval_url'
     set_breadcrumb_for @weekly_task, 'details_weekly_collection_url' + "(#{@weekly_task.id})", 
      "#{t 'process.collection_details'}"

@@ -547,12 +547,26 @@ class GroupLoanMembership < ActiveRecord::Base
       return true 
   end
   
+=begin
+  PAYMENT HISTORY 
+=end
+
+  def effective_weekly_payment_history_entry(weekly_task, payment_phase )
+    MemberPaymentHistory.where(
+      :weekly_task_id => weekly_task.id  ,
+      :member_id =>  self.member_id, 
+      :payment_phase => payment_phase
+    ).order("created_at DESC").first 
+  end
+  
   protected
   def destroy_group_loan_subcription
     GroupLoanSubcription.find(:all, :conditions => {
       :group_loan_membership_id => self.id
     }).each {|x| x.destroy }
   end
+  
+
   
   
 end

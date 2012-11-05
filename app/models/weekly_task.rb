@@ -84,14 +84,22 @@ class WeeklyTask < ActiveRecord::Base
   end
   
   def close_weekly_payment(current_user)
-    if self.attendace_marking_closed?
-      self.is_weekly_payment_collection_finalized = true
-      self.weekly_payment_collection_finalizer_id = current_user.id
-      self.weekly_payment_collection_done_time = self.create_current_date_time  
-      self.save
-    else
-      return false 
+    
+    if self.member_payment_not_closed? and 
+              self.member_payment_can_be_closed?
+              
+      if self.attendace_marking_closed?
+        self.is_weekly_payment_collection_finalized = true
+        self.weekly_payment_collection_finalizer_id = current_user.id
+        self.weekly_payment_collection_done_time = self.create_current_date_time  
+        self.save
+      else
+        return false 
+      end
     end
+            
+              
+    
   end
   
   
@@ -222,10 +230,10 @@ class WeeklyTask < ActiveRecord::Base
     transaction_id_list = self.member_payments.
                               where{( member_id.in active_member_id_list) & 
                                     ( is_independent_weekly_payment ==  false )  &
-                                    ( transaction_activity_id.not_eq nil )}.
+                                    ( transaction_activity_id.not_eq nil ) }.
                               map{|x| x.transaction_activity_id }
     
-    TransactionActivity.where(:id => transaction_id_list)
+    TransactionActivity.where(:id => transaction_id_list, :is_deleted => false , :is_canceled => false )
   end
 
   # get all transactions for member that is happening on that weekly task 
