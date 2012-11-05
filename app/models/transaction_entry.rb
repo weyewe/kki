@@ -113,32 +113,19 @@ class TransactionEntry < ActiveRecord::Base
       saving_entry.save 
       
       
-      saving_book.revert_transaction_deduct_extra_savings( self.amount )
-      # saving_book = saving_entry.saving_book
-      # saving_book.total_extra_savings -= self.amount 
-      # saving_book.total -= self.amount 
-      # saving_book.save 
+      saving_book.revert_transaction_deduct_extra_savings( self.amount ) 
     when   TRANSACTION_ENTRY_CODE[:no_weekly_payment_only_savings]# in 
       puts "777 deleting extra, #{self.amount.to_i}"
       saving_entry.is_deleted = true 
       saving_entry.save 
     
-      saving_book.revert_transaction_deduct_extra_savings( self.amount )
-      # saving_book = saving_entry.saving_book
-      # saving_book.total_extra_savings -= self.amount 
-      # saving_book.total -= self.amount 
-      # saving_book.save
+      saving_book.revert_transaction_deduct_extra_savings( self.amount ) 
     when TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal]  # out 
       puts "777 adding extra, #{self.amount.to_i}"
       saving_entry.is_deleted = true 
       saving_entry.save 
       
-      saving_book.revert_transaction_add_extra_savings( self.amount )
-      
-      # saving_book = saving_entry.saving_book
-      # saving_book.total_extra_savings += self.amount 
-      # saving_book.total += self.amount 
-      # saving_book.save
+      saving_book.revert_transaction_add_extra_savings( self.amount ) 
     end
     
     

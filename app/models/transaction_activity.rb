@@ -1081,7 +1081,7 @@ class TransactionActivity < ActiveRecord::Base
         # and reduce the account payable in the cashflow book.. 
     elsif member_payment.only_savings_payment?
       # only extra savings.. revert the effect: delete the saving entry ,delete the transaction entry 
-      self.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:extra_weekly_saving]).each do |te|
+      self.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:no_weekly_payment_only_savings]).each do |te|
         te.revert_and_delete
       end
       # reduce the account payable in the cashflow book 
@@ -1103,7 +1103,7 @@ class TransactionActivity < ActiveRecord::Base
       MemberPayment.where(:transaction_activity_id => self.id).each do |member_payment|
         member_payment.destroy 
       end
-    elsif member_payment.only_savings_payment?
+    elsif member_payment.only_savings_payment? or member_payment.no_payment? 
       #  created 1 backlog payment 
       BacklogPayment.where(:member_payment_id => member_payment.id, :is_cleared => false ).each do |x|
         x.destroy 
@@ -1357,6 +1357,7 @@ class TransactionActivity < ActiveRecord::Base
     
     revision_transaction = true
     
+    member.reload 
     new_transaction = TransactionActivity.create_savings_only_weekly_payment(member,weekly_task, savings_amount,  employee , revision_transaction )
 
     if new_transaction.nil?

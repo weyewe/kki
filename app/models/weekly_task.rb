@@ -552,11 +552,12 @@ class WeeklyTask < ActiveRecord::Base
       return nil if current_transaction.nil? 
       
       current_transaction.revert_transaction_effect(member_payment) 
+      
       current_transaction.revert_member_payment_effect( member_payment )
       current_transaction.is_deleted = true 
       current_transaction.save
       
-      
+      member.reload
       member_payment = self.member_payments.create(
         :transaction_activity_id => nil,
         :member_id => member.id , 

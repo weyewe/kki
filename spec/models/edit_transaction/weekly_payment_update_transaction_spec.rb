@@ -311,16 +311,10 @@ describe GroupLoan do
       end
       
       #testing the post condition after normal -> normal 
-      it 'should create the correct amount of savings withdrawal' do
+      it 'should create the correct amount of savings( compulsory + voluntary ) and backlog payment' do
         
         extra_savings = BigDecimal("5000")
-        
-        puts "-111 number of weeks #{@number_of_weeks}"
-        puts "initial compulsory savings: #{@initial_compulsory_savings}"
-        puts "initial extra savings: #{@initial_voluntary_savings}"
-        puts "weekly compulsory  savings: #{@first_glm.group_loan_product.min_savings.to_i}"
-        puts "initial compulsory savings (auto added): #{@first_glm.group_loan_product.initial_savings.to_i}"
-        puts "number of weeks: #{@number_of_weeks + 1 }"
+         
         
         ActiveRecord::Base.transaction do
           @second_transaction = TransactionActivity.update_generic_weekly_payment(
@@ -334,20 +328,21 @@ describe GroupLoan do
           )
         end
         
-        MemberPayment.where(:transaction_activity_id => @second_transaction.id).count.should == 2 
+        # check the savings diff: compulsory and extra (voluntary)
+        
         @member.reload
         @final_compulsory_savings = @member.saving_book.total_compulsory_savings
         @final_voluntary_savings = @member.saving_book.total_extra_savings
         
-        @compulsory_savings_diff = @final_compulsory_savings - @initial_compulsory_savings
-        puts "-111Compulsory savings diff actual: #{@compulsory_savings_diff.to_i}"
-        puts "-222Compulsory savings diff predicted: #{ 2*@first_glm.group_loan_product.min_savings.to_i}"
+        @compulsory_savings_diff = @final_compulsory_savings - @initial_compulsory_savings 
         @compulsory_savings_diff.should == 2*@first_glm.group_loan_product.min_savings
         
-        (@final_voluntary_savings - @initial_voluntary_savings).should ==  extra_savings
+        (@final_voluntary_savings - @initial_voluntary_savings).should ==  extra_savings 
         
-        # diff in compulsory payment before first transaction == 2 weeks amount 
-        # diff in extra savings = 5,000 
+        # check the member payment 
+        MemberPayment.where(:transaction_activity_id => @second_transaction.id).count.should == 2 
+        
+        # check the backlog payment 
       end
       
       it "should create 2 history if normal -> normal " do
@@ -402,11 +397,12 @@ describe GroupLoan do
       end
       
       
-      it 'should create 2 history if normal -> only savings' do
+      it 'check the post condition normal -> only savings' do
+        savings_amount = BigDecimal("10000")
         @second_transaction =  TransactionActivity.update_savings_only_weekly_payment(
           @member,
           @weekly_task,
-          BigDecimal("10000"),
+          savings_amount,
           @field_worker 
         )
 
@@ -427,10 +423,32 @@ describe GroupLoan do
           :transaction_activity_id => @second_transaction.id 
         ).first 
         last_member_payment_history.revision_code == REVISION_CODE[:normal][:only_savings]
+        
+        
+        
+        member_payment = MemberPayment.where(:transaction_activity_id => @second_transaction.id  ).first
+        BacklogPayment.where(:member_payment_id => member_payment.id ).count.should == 1 
+        member_payment.only_savings_payment?.should be_true 
+        
+        @member.reload 
+        @final_compulsory_savings = @member.saving_book.total_compulsory_savings
+        @final_voluntary_savings = @member.saving_book.total_extra_savings
+        
+        @compulsory_savings_diff = @final_compulsory_savings - @initial_compulsory_savings 
+        @compulsory_savings_diff.should == BigDecimal('0')
+        
+        (@final_voluntary_savings - @initial_voluntary_savings).should ==  savings_amount
+        
       end
       
       it 'should create 2 history if normal -> no payment' do 
-        @member_payment = @weekly_task.update_weekly_payment_declared_as_no_payment(@field_worker , @member)  
+        
+        ActiveRecord::Base.transaction do
+           @member_payment = @weekly_task.update_weekly_payment_declared_as_no_payment(@field_worker , @member)  
+        end
+        
+        
+       
         
         @member_payment.no_payment?.should be_true 
          
@@ -452,6 +470,28 @@ describe GroupLoan do
         
         @first_transaction.reload
         @first_transaction.is_deleted.should be_true 
+        
+        
+        @member.reload 
+        @saving_book = @member.saving_book 
+        @final_compulsory_savings = @saving_book.total_compulsory_savings
+        @final_voluntary_savings = @saving_book.total_extra_savings
+        
+        
+        
+        # diff in compulsory savings
+        @compulsory_savings_diff = @final_compulsory_savings - @initial_compulsory_savings
+      
+        @compulsory_savings_diff.should == BigDecimal("0")
+        
+        # diff in voluntary savings
+        (@final_voluntary_savings - @initial_voluntary_savings).should ==  BigDecimal("0")
+        
+ 
+        
+        # diff in backlog payment 
+        BacklogPayment.where(:member_id => @member.id, :is_cleared => false ).count.should == 1 
+        
       end
     end # end of start with normal 
     
@@ -476,25 +516,36 @@ describe GroupLoan do
         @number_of_weeks = 1 
         @number_of_backlogs = 0 
         
+        @initial_compulsory_savings = @member.saving_book.total_compulsory_savings 
+        @initial_voluntary_savings = @member.saving_book.total_extra_savings 
+        
         @savings_amount = @cash_payment * 0.5   
-        @first_transaction =  TransactionActivity.create_savings_only_weekly_payment(
-          @member,
-          @weekly_task,
-          @savings_amount,
-          @field_worker,
-          false # revision transaction
-        )
+        ActiveRecord::Base.transaction do
+          @first_transaction =  TransactionActivity.create_savings_only_weekly_payment(
+            @member,
+            @weekly_task,
+            @savings_amount,
+            @field_worker,
+            false # revision transaction
+          )
+        end
+        
+        puts "120987 initial savings amount: #{@savings_amount.to_i}"
+        @member.reload 
+        @first_compulsory_savings = @member.saving_book.total_compulsory_savings 
+        @first_voluntary_savings = @member.saving_book.total_extra_savings
+        puts "total extra savings: #{@first_voluntary_savings}"
         
         @first_transaction.should be_valid 
         
         
-        # @savings_only =  cash_payment* 0.9
-        # b = TransactionActivity.update_savings_only_weekly_payment(
-        #   member,
-        #   weekly_task,
-        #   @savings_only,
-        #   @field_worker
-        # )
+        first_compulsory_diff = @first_compulsory_savings - @initial_compulsory_savings 
+        first_compulsory_diff.should == BigDecimal("0")
+
+        first_extra_diff = @first_voluntary_savings - @initial_voluntary_savings 
+        first_extra_diff.should == @savings_amount 
+        
+        puts "First extra diff: #{first_extra_diff}"
         
         
       end
@@ -518,17 +569,24 @@ describe GroupLoan do
       end
       
       it "should create 2 history if only savings -> normal " do
+        extra_savings = BigDecimal("1000")
+        # initial extra savings = @savings_amount 
+        initial_extra_savings = @savings_amount
+        
+        BacklogPayment.where(:member_id => @member.id ).count.should == 1 
         
         
+        ActiveRecord::Base.transaction do
         @second_transaction = TransactionActivity.update_generic_weekly_payment(
           @weekly_task, 
           @first_glm,
           @field_worker,
-          @cash_payment + BigDecimal('1000'),
+          @cash_payment + extra_savings,
           @savings_withdrawal, 
           @number_of_weeks,
           @number_of_backlogs   
         )
+        end
 
 
         @second_transaction.should be_valid 
@@ -548,15 +606,37 @@ describe GroupLoan do
         ).first 
         
         last_member_payment_history.revision_code == REVISION_CODE[:only_savings][:normal]
+        
+        BacklogPayment.where(:member_id => @member.id ).count.should == 0 
+        
+        # check the compulsory savings and voluntary savings
+        # after first transaction, initial compulsory savings is intact
+        #                           extra savings  => increased by (initial_extra_savings)
+        # after first change, diff in extra savings => -intial_extra_savings + extra_savings 
+        # =>                  diff in compulsory savings => + 1 week of compulsory savings 
+        
+        @member.reload 
+        second_compulsory_savings_diff = @member.saving_book.total_compulsory_savings - @initial_compulsory_savings 
+        second_voluntary_savings_diff = @member.saving_book.total_extra_savings - @initial_voluntary_savings 
+        
+         
+        
+        second_compulsory_savings_diff.should == @first_glm.group_loan_product.min_savings 
+        second_voluntary_savings_diff.should ==  extra_savings
       end
       
       it 'should create 2 history if only savings -> only savings' do
+        extra_savings = BigDecimal("1000") 
+        initial_extra_savings = @savings_amount
+        
+        ActiveRecord::Base.transaction do
         @second_transaction =  TransactionActivity.update_savings_only_weekly_payment(
           @member,
           @weekly_task,
-          BigDecimal("10000"),
+          extra_savings,
           @field_worker 
         )
+        end
 
 
         @second_transaction.should be_valid 
@@ -575,6 +655,16 @@ describe GroupLoan do
           :transaction_activity_id => @second_transaction.id 
         ).first 
         last_member_payment_history.revision_code == REVISION_CODE[:only_savings][:only_savings]
+        
+        @member.reload 
+        second_compulsory_savings_diff = @member.saving_book.total_compulsory_savings - @initial_compulsory_savings 
+        second_voluntary_savings_diff = @member.saving_book.total_extra_savings - @initial_voluntary_savings 
+        
+        puts "666 second voluntary savings: #{@member.saving_book.total_extra_savings }" 
+         puts "666 initial voluntary savings: #{@initial_voluntary_savings }" 
+        
+        second_compulsory_savings_diff.should == BigDecimal('0')
+        second_voluntary_savings_diff.should ==  extra_savings
       end
       
       it 'should create 2 history if only savings -> no payment' do 
@@ -600,6 +690,19 @@ describe GroupLoan do
         
         @first_transaction.reload
         @first_transaction.is_deleted.should be_true 
+        
+        @member.reload 
+        second_compulsory_savings_diff = @member.saving_book.total_compulsory_savings - @initial_compulsory_savings 
+        second_voluntary_savings_diff = @member.saving_book.total_extra_savings - @initial_voluntary_savings 
+        
+        puts "666 second voluntary savings: #{@member.saving_book.total_extra_savings }" 
+         puts "666 initial voluntary savings: #{@initial_voluntary_savings }" 
+        
+        second_compulsory_savings_diff.should == BigDecimal('0')
+        second_voluntary_savings_diff.should ==  @initial_voluntary_savings 
+        # the extra savings is removed. hence no more savings
+        
+        BacklogPayment.where(:member_id => @member.id, :is_cleared => false ).count.should == 1 
       end
     end # end of start with only savings 
     
@@ -627,9 +730,16 @@ describe GroupLoan do
         @number_of_backlogs = 0 
         
         @savings_amount = @cash_payment * 0.5   
+        
+        @initial_compulsory_savings = @member.saving_book.total_compulsory_savings 
+        @initial_voluntary_savings = @member.saving_book.total_extra_savings
+        
         @first_member_payment = @weekly_task.create_weekly_payment_declared_as_no_payment(@field_worker , @member)  
         @first_member_payment.no_payment?.should be_true 
          
+        
+        @initial_compulsory_savings.should == @glp.initial_savings 
+        @initial_voluntary_savings.should == BigDecimal('0')
         
         
       end
@@ -655,17 +765,20 @@ describe GroupLoan do
       end
       
       it "should create 2 history if no payment -> normal " do
+        BacklogPayment.where(:member_id => @member.id, :is_cleared => false ).count.should ==1 
         
-        
+        extra_savings =  BigDecimal('1000')
+        ActiveRecord::Base.transaction do
         @second_transaction = TransactionActivity.update_generic_weekly_payment(
           @weekly_task, 
           @first_glm,
           @field_worker,
-          @cash_payment + BigDecimal('1000'),
+          @cash_payment + extra_savings,
           @savings_withdrawal, 
           @number_of_weeks,
           @number_of_backlogs   
         )
+        end
       
       
         @second_transaction.should be_valid  
@@ -685,15 +798,36 @@ describe GroupLoan do
         ).first 
         
         last_member_payment_history.revision_code == REVISION_CODE[:no_payment][:normal]
+        
+        BacklogPayment.where(:member_id => @member.id, :is_cleared => false ).count.should == 0 
+        
+        @member.reload 
+        # check extra savings 
+        final_compulsory_savings = @member.saving_book.total_compulsory_savings 
+        final_voluntary_savings = @member.saving_book.total_extra_savings 
+        
+        compulsory_savings_diff = final_compulsory_savings - @initial_compulsory_savings
+        voluntary_savings_diff = final_voluntary_savings - @initial_voluntary_savings 
+        
+        compulsory_savings_diff.should == @glp.min_savings 
+        voluntary_savings_diff.should == extra_savings 
+        
+        
+        
       end
       
       it 'should create 2 history if no payment -> only savings' do
+        extra_savings = BigDecimal("10000")
+        
+        BacklogPayment.where(:member_id => @member.id).count == 1 
+        ActiveRecord::Base.transaction do
         @second_transaction =  TransactionActivity.update_savings_only_weekly_payment(
           @member,
           @weekly_task,
-          BigDecimal("10000"),
+          extra_savings,
           @field_worker 
         )
+        end
       
       
         @second_transaction.should be_valid 
@@ -710,6 +844,20 @@ describe GroupLoan do
           :transaction_activity_id => @second_transaction.id 
         ).first 
         last_member_payment_history.revision_code == REVISION_CODE[:no_payment][:only_savings]
+        
+        BacklogPayment.where(:member_id => @member.id).count == 1 
+        @member.reload 
+        # check extra savings 
+        final_compulsory_savings = @member.saving_book.total_compulsory_savings 
+        final_voluntary_savings = @member.saving_book.total_extra_savings 
+        
+        compulsory_savings_diff = final_compulsory_savings - @initial_compulsory_savings
+        voluntary_savings_diff = final_voluntary_savings - @initial_voluntary_savings 
+        
+        compulsory_savings_diff.should == BigDecimal('0')
+        voluntary_savings_diff.should == extra_savings
+        
+        
       end
       
       it 'should create 2 history if no payment -> no payment' do 
