@@ -559,6 +559,23 @@ class GroupLoanMembership < ActiveRecord::Base
     ).order("created_at DESC").first 
   end
   
+=begin
+  Independent Payment 
+=end
+  def unapproved_independent_payments
+    
+    TransactionActivity.where(
+      :member_id => self.member_id , 
+      :loan_type => LOAN_TYPE[:group_loan],  # if we have personal-periodic loan... loan type is not a problem any more
+      :loan_id => self.group_loan_id, 
+      :transaction_case =>  (INDEPENDENT_PAYMENT_START..INDEPENDENT_PAYMENT_END)  ,
+      :is_approved => false , 
+      :is_deleted => false, 
+      :is_canceled => false 
+    )
+  
+  end
+  
   protected
   def destroy_group_loan_subcription
     GroupLoanSubcription.find(:all, :conditions => {

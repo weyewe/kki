@@ -39,4 +39,24 @@ class MemberPayment < ActiveRecord::Base
                         :weekly_task => {:group_loan_id => weekly_task.group_loan_id}).length != 0 
   end
   
+  
+=begin
+  Only one dangling independent payment allowed 
+=end
+
+# hooked to the weekly task 
+  def MemberPayment.any_independent_payment_pending_approval?(member)
+    transaction_activity_id_list = MemberPayment.where( 
+       :member_id => member.id , 
+       :has_paid => true , 
+       :week_number =>nil,
+       :is_independent_weekly_payment => true 
+     ).map {|x| x.transaction_activity_id}
+     
+     TransactionActivity.where(:id =>transaction_activity_id_list, 
+          :is_approved => false, 
+          :is_deleted => false, 
+          :is_canceled => false   ).count != 0 
+  end
+  
 end

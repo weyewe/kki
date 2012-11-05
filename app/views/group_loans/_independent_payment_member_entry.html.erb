@@ -4,4 +4,31 @@
   <td><%= group_loan_membership.member.address  %></td>
   <!-- <td><%#= group_loan_membership.total_backlogs.count %></td> -->
   <td><%= group_loan_membership.unpaid_backlogs.count %></td>
+
+	<% total_unapproved_independent_payment = group_loan_membership.unapproved_independent_payments.count  %>
+
+  
+
+	<% if total_unapproved_independent_payment == 0  %> 
+		<td>   
+			<span class='label label-warning'><%= total_unapproved_independent_payment %></span> 
+		</td>
+		
+		<td>   
+			<%= link_to "#{t 'process.create_payment'}",
+			root_url , 
+			:class => "btn btn-mini"  %>
+		</td>
+	<% else %>
+		
+		<td>   
+			<span class='label label-warning'><%= total_unapproved_independent_payment %></span> 
+		</td>
+		<td>   
+			<%= link_to "#{t 'process.edit_payment'}",
+		      root_url , 
+		      :class => "btn btn-mini"  %>
+		</td>
+	<% end %>
+  
 </tr>

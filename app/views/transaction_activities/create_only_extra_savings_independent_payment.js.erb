@@ -5,10 +5,15 @@ $(document).ready(function(){
   <% if @transaction_activity.nil? %>
     header_html = "<h3>Extra Savings  payment FAIL</h3>";
     body_html = "<p>Check the payment value</p>";
+	<% if MemberPayment.any_independent_payment_pending_approval?(@member) %>
+	body_html = body_html + "<p>Previous Independent Payment pending approval</p>"; 
+	<% end %>
   <% else %>
     header_html = "<h3>Extra savings payment  is SUCCESS</h3>";
     body_html = "<p><h3><%= t 'report_metric.member' %>: <%= @member.name %></h3></p>"  + 
               "<p><%= t 'variable.amount' %>: <%= print_money(@transaction_activity.total_transaction_amount) %></p>";
+
+	
   <% end %>
   
   summonModalHTML( header_html , 

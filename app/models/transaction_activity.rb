@@ -721,7 +721,18 @@ class TransactionActivity < ActiveRecord::Base
     return nil if amount <= zero_value 
     return nil if not  employee.has_role?(:field_worker, employee.get_active_job_attachment)
     
+    # if there is un approved independent payment, don't allow further creation '
+    
+    
+ 
+    
     member = group_loan_membership.member 
+    
+    
+    if MemberPayment.any_independent_payment_pending_approval?(member)
+      return nil
+    end
+    
     group_loan = group_loan_membership.group_loan 
     weekly_task = group_loan.currently_executed_weekly_task
     return nil if weekly_task.nil? 
@@ -780,6 +791,10 @@ class TransactionActivity < ActiveRecord::Base
     return nil if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
     return nil if savings_withdrawal > member.saving_book.total_extra_savings
     
+    
+    if MemberPayment.any_independent_payment_pending_approval?(member)
+      return nil
+    end
     
     total_amount_paid = cash + savings_withdrawal
     total_payable = ( number_of_weeks + number_of_backlogs)  * group_loan_product.total_weekly_payment  
@@ -973,10 +988,7 @@ class TransactionActivity < ActiveRecord::Base
     # transaction_amount  == money exchanging hands 
     # make it easier for the cashier to count the $$$, given from the fieldworker
     new_hash[:total_transaction_amount] = cash 
-    new_hash[:transaction_case]  = result_resolve
-    
-    # puts "!!@@!^@&!&@^&!^&@!!@&^@!&^ the result resolve:#{ result_resolve}\n"*10
-    
+    new_hash[:transaction_case]  = result_resolve    
     new_hash[:creator_id] = employee.id 
     new_hash[:office_id] = employee.active_job_attachment.office.id
     new_hash[:member_id] = member.id
