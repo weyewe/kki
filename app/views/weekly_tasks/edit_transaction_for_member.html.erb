@@ -22,19 +22,24 @@
 		<% if @member_payment.is_full_payment? %>
 			<%= render :partial => "weekly_tasks/edit_payment/full_payment_info", :locals => {
 				:member_payment => @member_payment, 
-				:weekly_task => @weekly_task 
+				:weekly_task => @weekly_task ,
+				:member => @member,
+				:transaction_activity => @transaction_activity
 			} %>
 			
 		<% elsif @member_payment.only_savings_payment? %>
 			<%= render :partial => "weekly_tasks/edit_payment/only_savings_info", :locals => {
 				:member_payment => @member_payment, 
-				:weekly_task => @weekly_task 
+				:weekly_task => @weekly_task ,
+				:member => @member,
+				:transaction_activity => @transaction_activity
 			} %>
 			
 		<% elsif  @member_payment.no_payment?  %>
 			<%= render :partial => "weekly_tasks/edit_payment/no_payment_info", :locals => {
 				:member_payment => @member_payment, 
-				:weekly_task => @weekly_task 
+				:weekly_task => @weekly_task ,
+				:member => @member
 			} %>
 			
 		<% end %>
@@ -44,11 +49,32 @@
   <% has_paid_weekly_payment = @weekly_task.has_paid_weekly_payment?(@member)  %>
 
 	<ul class="nav nav-tabs" id="tab">
-
-		<li class="active"><a data-toggle="tab" href="#single_extra_savings"><strong><%= t 'guide.single_week_extra_savings'%></strong></a></li>
-		<li class=""><a data-toggle="tab" href="#only_savings_payment"><strong><%=  t 'status.only_savings'  %></strong></a></li>
+			
+		<% if @member_payment.no_payment? or ( 
+			@member_payment.is_full_payment? and not @transaction_activity.nil? and  @transaction_activity.basic_single_week_extra_savings_weekly_payment?(@weekly_task) ) %>
+			<li class="active">
+		<% else %>
+			<li>
+		<% end %>
+			<a data-toggle="tab" href="#single_extra_savings"><strong><%= t 'guide.single_week_extra_savings'%></strong></a>
+		</li>
 		
-		<li class="">
+		<% if @member_payment.only_savings_payment? %> 
+			<li class="active">
+		<% else %>
+			<li>
+		<% end %>
+			<a data-toggle="tab" href="#only_savings_payment">
+				<strong><%=  t 'status.only_savings'  %></strong>
+			</a>
+		</li>
+		
+		<% if @member_payment.is_full_payment? and   not @transaction_activity.nil? and  @transaction_activity.multiple_structured_weeks_weekly_payment?(@weekly_task)  %>
+			<li class="active">
+		<% else %>
+			<li class="">
+		<% end %>
+		
 			<a data-toggle="tab" href="#structured_multiple_payment">
 				<strong>
 					<%= t 'guide.multiple_weeks_and_structured_payment'%>
@@ -56,7 +82,7 @@
 			</a>
 		</li>
 		
-		<% if has_paid_weekly_payment == true %>
+		<% if has_paid_weekly_payment == true and not @member_payment.no_payment? %>
 			<li class=""><a data-toggle="tab" href="#no_payment"><strong><%= t 'trigger.no_payment_declaration'%></strong></a></li>
 		<% end %>
 	</ul>
@@ -70,13 +96,17 @@
     <%= render :partial => "weekly_tasks/edit_payment/single_week_extra_savings", :locals => {
       :has_paid_weekly_payment => has_paid_weekly_payment,
 		:member_payment => @member_payment,
-		:weekly_task => @weekly_task 
+		:weekly_task => @weekly_task ,
+		:member => @member,
+		:transaction_activity => @transaction_activity
     } %>
     
     <%= render :partial => "weekly_tasks/edit_payment/only_savings_payment", :locals => {
       :has_paid_weekly_payment => has_paid_weekly_payment	,
 			:member_payment => @member_payment,
-			:weekly_task => @weekly_task
+			:weekly_task => @weekly_task,
+			:member => @member,
+			:transaction_activity => @transaction_activity
       } %>
       
 	 
@@ -84,14 +114,17 @@
     <%= render :partial => "weekly_tasks/edit_payment/structured_multiple_payment" , :locals => {
       :has_paid_weekly_payment => has_paid_weekly_payment	,
 			:member_payment => @member_payment,
-			:weekly_task => @weekly_task
+			:weekly_task => @weekly_task,
+			:member => @member,
+			:transaction_activity => @transaction_activity
     }%>
 
-	<% if has_paid_weekly_payment == true %>
+	<% if has_paid_weekly_payment == true  and not @member_payment.no_payment?%>
    	   <%= render :partial => "weekly_tasks/edit_payment/no_payment" , :locals => {
 	        :has_paid_weekly_payment => has_paid_weekly_payment,
 				:member_payment => @member_payment,
-				:weekly_task => @weekly_task
+				:weekly_task => @weekly_task,
+				:member => @member
 	      }%>
 	<% end %>
   </div>

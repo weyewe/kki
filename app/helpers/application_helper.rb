@@ -800,6 +800,10 @@ module ApplicationHelper
           {
             :controller => "weekly_tasks",
             :action => "special_weekly_payment_for_member"
+          },
+          {
+            :controller => "weekly_tasks",
+            :action => 'edit_transaction_for_member'
           }
         ]
       }, 

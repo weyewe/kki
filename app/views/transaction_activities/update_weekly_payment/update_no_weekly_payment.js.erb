@@ -7,7 +7,7 @@ $(document).ready(function(){
     body_html = "<p>There is payment declaration for the given week</p>";
     
   <% else %>
-    header_html = "<h3>No Payment declaration  is SUCCESS</h3>";
+    header_html = "<h3>No payment declaration  is SUCCESS</h3>";
     body_html = "<p><h3><%= t 'report_metric.member' %>: <%= @member.name %></h3>"+
                 "<%= t 'report_metric.week' %> <%= @weekly_task.week_number %>, "+
               "is declared as NO PAYMENT ";

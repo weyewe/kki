@@ -1,0 +1,27 @@
+
+
+$(document).ready(function(){
+  
+                
+  
+    
+  var body_html; 
+  var header_html;
+  
+    
+  <% if not @transaction_activity.nil? %>  
+    <% transaction_activity_details = 
+      escape_javascript( render :partial => "transaction_activities/weekly_payment_period_summary", :locals => {
+        :transaction_activity => @transaction_activity 
+      } ) %>
+    body_html = '<%= transaction_activity_details %>';
+    header_html = "<h3><%= t 'notification.transaction_for_member' %> <%= @member.name %> <%= t 'notification.transaction_successful' %></h3>"
+  <% else %>
+    body_html = "<p><%= t 'notification.error_in_creating_transaction'%></p>";
+     header_html = "<h3><%= t 'notification.transaction_for_member' %> <%= @member.name %> <%= t 'notification.transaction_fail' %></h3>"
+  <% end %>
+  
+  summonModalHTML( header_html , 
+              body_html, 
+                "myModal");
+});

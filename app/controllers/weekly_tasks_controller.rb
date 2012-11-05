@@ -102,10 +102,12 @@ class WeeklyTasksController < ApplicationController
     
     @member_payment =  @weekly_task.member_payment_for(@member)
     
-    # if @weekly_task.has_paid_weekly_payment?(@member) 
-    #      redirect_to make_member_payment_url(@group_loan, @weekly_task)
-    #    end
-    #    
+    @transaction_activity = nil 
+    if not @member_payment.no_payment?
+      @transaction_activity = TransactionActivity.find_by_id  @member_payment.transaction_activity_id
+    end
+    
+    
     
     add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_payment_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 

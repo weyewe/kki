@@ -556,7 +556,8 @@ class WeeklyTask < ActiveRecord::Base
         
       end
       
-      current_transaction = self.transactions_for_member(member).first 
+      current_transaction = self.transactions_for_member(member).order("created_at DESC").first 
+      current_transaction = TransactionActivity.find_by_id( member_payment.transaction_activity_id )
       return nil if current_transaction.nil? 
       
       current_transaction.revert_transaction_effect(member_payment) 

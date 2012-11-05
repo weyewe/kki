@@ -1,6 +1,7 @@
-<% transaction_activity = weekly_task.transactions_for_member(member) %>
+<%# transaction_activity = weekly_task.transactions_for_member(member).order("created_at DESC").first %>
 
-<% if member_payment.is_full_payment? and  transaction_activity.basic_single_week_extra_savings_weekly_payment?(weekly_task)  %>
+<% if member_payment.no_payment? or ( 
+	member_payment.is_full_payment? and  transaction_activity.basic_single_week_extra_savings_weekly_payment?(weekly_task) ) %>
 <div class="row-fluid tab-pane fade  active in pane_wrapper" id="single_extra_savings" >
 <% else %>
 <div class="row-fluid tab-pane fade   in pane_wrapper" id="single_extra_savings" >
@@ -13,13 +14,13 @@
       :method => :post, :id => "form_single_extra_savings_payment", 
       :class => "prevent_double_submit"  do  %>
 <!-- check whether the transaction activity is nil.. if it is nil, the original payment == no payment declaration -->
-		<% if transaction_activity.nil? %>
-			<%= hidden_field_tag 'current_transaction_activity_id',
+		<%# if transaction_activity.nil? %>
+			<%#= hidden_field_tag 'current_transaction_activity_id',
 		          ''  %>
-		<% else %>
-			<%= hidden_field_tag 'current_transaction_activity_id',
+		<%# else %>
+			<%#= hidden_field_tag 'current_transaction_activity_id',
 		          transaction_activity.id  %>
-		<% end %> 
+		<%# end %> 
       <table cellpadding="0" cellspacing="0" border="0" 
             class=" table table-striped table-bordered" >
         <thead>

@@ -117,8 +117,7 @@ class TransactionActivitiesController < ApplicationController
                 @cash,
                 BigDecimal("0"), 
                 1,
-                0,
-                current_transaction_activity)
+                0 )
       end
     rescue ActiveRecord::Rollback, ActiveRecord::ActiveRecordError  
       
@@ -126,6 +125,7 @@ class TransactionActivitiesController < ApplicationController
       puts "Invalid data asshole!!!!"
     else
     end 
+    render :file => 'transaction_activities/create_single_week_extra_savings_weekly_payment'
   end
   
   
@@ -169,6 +169,8 @@ class TransactionActivitiesController < ApplicationController
     rescue ActiveRecord::ActiveRecordError ,ActiveRecord::Rollback 
     else
     end 
+    
+    render :file => 'transaction_activities/create_savings_only_as_weekly_payment'
   end
   
   def create_structured_multiple_payment
@@ -228,6 +230,8 @@ class TransactionActivitiesController < ApplicationController
     rescue ActiveRecord::ActiveRecordError  
     else
     end 
+    
+    render :file => 'transaction_activities/create_structured_multiple_payment.js.erb'
   end
   
 
@@ -258,6 +262,10 @@ class TransactionActivitiesController < ApplicationController
     rescue ActiveRecord::ActiveRecordError  
     else
     end 
+    
+    render :file => 'transaction_activities/create_no_weekly_payment.js.erb'
+    
+    
   end
   
   

@@ -63,8 +63,9 @@ class TransactionActivity < ActiveRecord::Base
     return total_amount
   end
   
-  def number_of_weeks_paid
-  end
+  # def number_of_weeks_paid
+  #   MemberPayment.where(:transaction_activity_id => self.id ).count 
+  # end
   
   
   def number_of_backlogs_paid_in_weekly_cycle
@@ -1119,14 +1120,14 @@ class TransactionActivity < ActiveRecord::Base
    
   
   def extra_savings_withdrawal_transaction_entries
-    self.transaction_entries.create( 
+    self.transaction_entries.where( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal],  
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
                       )
   end
 
   def extra_savings_withdrawal_amount
-    return self.transaction_entries.create( 
+    return self.transaction_entries.where( 
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal],  
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
                       ).sum("amount")
@@ -1151,16 +1152,20 @@ class TransactionActivity < ActiveRecord::Base
   end
   
   def number_of_weeks_paid
-    self.member_payments.where{
+    current_transaction = self 
+    MemberPayment.where{
       (is_independent_weekly_payment.eq false ) & 
-      (week_number.not_eq nil) # not backlog payment
+      (week_number.not_eq nil) & # not backlog payment 
+      (transaction_activity_id.eq current_transaction.id  )
     }.count 
   end
   
   def number_of_backlogs_paid 
-    self.member_payments.where{
+    current_transaction = self 
+    MemberPayment.where{
       (is_independent_weekly_payment.eq false ) & 
-      (week_number.eq nil) # backlog payment. the week number is nil because the week itself is declared as no payment 
+      (week_number.eq nil) & # backlog payment. the week number is nil because the week itself is declared as no payment 
+      (transaction_activity_id.eq current_transaction.id  )
     }.count
   end 
   
@@ -1433,7 +1438,22 @@ class TransactionActivity < ActiveRecord::Base
     return ( prependix + content ) .to_i 
   end
   
+  def single_extra_savings_weekly_payment?
+    self.number_of_weekly_payments_paid ==1 && 
+    self.transaction_entries.where(:transaction_entry_code=> TRANSACTION_ENTRY_CODE[:extra_weekly_saving]).count != 0 
+  end
   
+  
+  def multiple_structured_weeks_weekly_payment?(weekly_task)
+    # if there is backlog, return true
+    # if there is savings withdrawal return true 
+    
+    # if it is just single week extra savings, return fasle
+    return false if self.single_extra_savings_weekly_payment? 
+    return false if self.only_savings_weekly_payment? 
+    
+    return true 
+  end
   
   def basic_single_week_extra_savings_weekly_payment?(weekly_task)
     if not self.single_extra_savings_weekly_payment?

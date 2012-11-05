@@ -1,9 +1,9 @@
-<% transaction_activity = weekly_task.transactions_for_member(member) %>
+<%# transaction_activity = weekly_task.transactions_for_member(member) %>
 <div class="alert alert-block">  
 	<span class="label label-warning"><%= t 'status.only_savings' %></span><br />
-	<strong>Cash</strong>: <%= print_money( transaction_activity.amount) %><br />
+	<strong>Cash</strong>: <%= print_money( transaction_activity.total_transaction_amount) %><br />
 	<strong><%= t 'variable.duration' %></strong>: <%=  transaction_activity.number_of_weeks_paid %><br />
-	<strong>Backlogs  ></strong>: <br /> <%= transaction_activity.number_of_backlogs_paid%>
+	<strong>Backlogs  </strong>: <%= transaction_activity.number_of_backlogs_paid%> <br /> 
 	<strong><%= t 'variable.savings_withdrawal' %></strong>: <%= print_money( transaction_activity.extra_savings_withdrawal_amount)%> <br />
 	<strong><%= t 'variable.extra_savings'%></strong>: <%= print_money( transaction_activity.extra_savings_addition_amount)%>
 </div> 

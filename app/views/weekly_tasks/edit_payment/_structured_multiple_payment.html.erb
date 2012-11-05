@@ -1,10 +1,10 @@
-<% transaction_activity = weekly_task.transactions_for_member(member) %>
+<%# transaction_activity = weekly_task.transactions_for_member(member) %>
 
 
-<% if member_payment.is_full_payment? and  not transaction_activity.basic_single_week_extra_savings_weekly_payment?(weekly_task)  %>
-<div class="row-fluid tab-pane fade  in pane_wrapper" id="structured_multiple_payment" >
+<% if member_payment.is_full_payment? and   transaction_activity.multiple_structured_weeks_weekly_payment?(weekly_task)  %>
+<div class="row-fluid tab-pane fade active  in pane_wrapper" id="structured_multiple_payment" >
 <% else %>
-<div class="row-fluid tab-pane fade active in pane_wrapper" id="structured_multiple_payment" >
+<div class="row-fluid tab-pane fade  in pane_wrapper" id="structured_multiple_payment" >
 <% end %>
 
 
@@ -14,13 +14,13 @@
     <%= form_tag update_structured_multiple_payment_url(@weekly_task, @member) , 
       :method => :post, :id => "structured_multiple_form",
       :class => "prevent_double_submit"  do  %>
-      	<% if transaction_activity.nil? %>
-			<%= hidden_field_tag 'previous_transaction_activity_id',
+      	<%# if transaction_activity.nil? %>
+			<%#= hidden_field_tag 'previous_transaction_activity_id',
 		          ''  %>
-		<% else %>
-			<%= hidden_field_tag 'previous_transaction_activity_id',
+		<%# else %>
+			<%#= hidden_field_tag 'previous_transaction_activity_id',
 		          transaction_activity.id  %>
-		<% end %>
+		<%# end %>
       
     <table cellpadding="0" cellspacing="0" border="0" 
           class="table table-striped table-bordered" id="example">
