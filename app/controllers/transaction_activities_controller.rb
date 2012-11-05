@@ -301,29 +301,29 @@ class TransactionActivitiesController < ApplicationController
 =begin
   MORE PAYMENT (WEEKLY_PAYMENT)
 =end
-  def create_only_extra_savings_payment
-    @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
-    @member  = Member.find_by_id params[:member_id]
-    @group_loan_membership = @weekly_task.group_loan.get_membership_for_member( @member )
-    @savings_only = BigDecimal.new( params[:oes_cash_amount])
-    
-    
-    begin
-      ActiveRecord::Base.transaction do
-        @transaction_activity = TransactionActivity.create_weekly_extra_savings_only( 
-          @weekly_task, 
-          @group_loan_membership, 
-          current_user, 
-          @savings_only  )
-      end
-    rescue ActiveRecord::ActiveRecordError  
-    else
-    end
-    
-    
-    
-  end
-  
+  # def create_only_extra_savings_payment
+  #   @weekly_task = WeeklyTask.find_by_id( params[:weekly_task_id] )
+  #   @member  = Member.find_by_id params[:member_id]
+  #   @group_loan_membership = @weekly_task.group_loan.get_membership_for_member( @member )
+  #   @savings_only = BigDecimal.new( params[:oes_cash_amount])
+  #   
+  #   
+  #   begin
+  #     ActiveRecord::Base.transaction do
+  #       @transaction_activity = TransactionActivity.create_weekly_extra_savings_only( 
+  #         @weekly_task, 
+  #         @group_loan_membership, 
+  #         current_user, 
+  #         @savings_only  )
+  #     end
+  #   rescue ActiveRecord::ActiveRecordError  
+  #   else
+  #   end
+  #   
+  #   
+  #   
+  # end
+  # 
 =begin
   INDEPENDENT PAYMENT
 =end

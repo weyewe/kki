@@ -927,6 +927,14 @@ class TransactionActivity < ActiveRecord::Base
     return nil if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
     return nil if savings_withdrawal > member.saving_book.total_extra_savings
     
+    # no savings withdrawal is allowed if there is unapproved transaction 
+    if savings_withdrawal > BigDecimal('0')
+      if TransactionActivity.where(:member_id => member.id, :is_deleted => false, :is_canceled => false , 
+                  :is_approved => false).count != 0
+          return nil
+      end
+    end
+    
      # there can only be 1 payment for a given weekly meeting 
     return nil if  weekly_task.transactions_for_member(member).count != 0
    

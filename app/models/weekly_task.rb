@@ -8,6 +8,9 @@ class WeeklyTask < ActiveRecord::Base
   # after_create :create_the_respective_meeting_attendances_and_payment_collections
   
   
+  # extract member payment for this group loan at the week number => weekly_task.week_number 
+  # not necessarily paid in the same week
+  ## it can be paid from the previous week 
   def member_payment_for(member)  
       # MemberPayment.find(:first,:conditions => {
       #   :weekly_task_id => self.id,
@@ -16,7 +19,7 @@ class WeeklyTask < ActiveRecord::Base
       # })
     MemberPayment.joins(:weekly_task).where( :member_id => member.id, 
       :week_number => self.week_number,
-      :weekly_task => {:group_loan_id => self.group_loan_id }   ).first
+      :weekly_task => {:group_loan_id => self.group_loan_id }   ).order("created_at DESC").first
   end
   
   def total_members_present
