@@ -599,7 +599,8 @@ describe GroupLoan do
               @first_glm,
               @field_worker ,
               cash_value*number_of_weeks_1 ,
-              savings_withdrawal )  # it will always paying the backlog. nothing else # no compulsory savings
+              savings_withdrawal,
+              false )  # it will always paying the backlog. nothing else # no compulsory savings
         
       # result_1.should be_nil 
        #      

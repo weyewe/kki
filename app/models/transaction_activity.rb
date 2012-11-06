@@ -1714,6 +1714,31 @@ class TransactionActivity < ActiveRecord::Base
     #    x.save
     # end 
     
+    
+    if transaction_activity.nil?
+      return nil
+    else
+      if revision_transaction == false 
+        MemberPaymentHistory.create_grace_payment_history_entry(
+          employee,  # creator 
+          nil,  # period object 
+          group_loan,  # the loan product
+          LOAN_PRODUCT[:group_loan],
+          member, # the member who paid 
+          cash,  #  the cash passed
+          savings_withdrawal, # savings withdrawal used
+          nil, # in grace payment, number of weeks is nil 
+          nil, # in grace payment, number of weeks is nil 
+          transaction_activity.id, # the self 
+          REVISION_CODE[:original_grace_payment],
+          PAYMENT_PHASE[:grace_payment] 
+        ) 
+      end
+    end
+    
+    
+    
+    
   
     transaction_activity.create_grace_period_payment_transaction_entries(cash, employee, member) 
 
@@ -1737,6 +1762,8 @@ class TransactionActivity < ActiveRecord::Base
     # update the default loan resolution amount 
     group_loan.update_default_payment_in_grace_period
     
+    
+    
     return transaction_activity
   end
   
@@ -1759,6 +1786,8 @@ class TransactionActivity < ActiveRecord::Base
     
     
     default_payment = group_loan_membership.default_payment 
+    group_loan =  group_loan_membership.group_loan
+    member = group_loan_membership.member  
     saving_related_transaction_entry_code_list = [
       
       TRANSACTION_ENTRY_CODE[:grace_period_payment_soft_savings_withdrawal] ,
@@ -1825,6 +1854,22 @@ class TransactionActivity < ActiveRecord::Base
       raise ActiveRecord::Rollback, "Call tech support!"  # <<< THIS IS THE SHITE!!!! 
       return nil 
     end
+    
+    
+    MemberPaymentHistory.create_grace_payment_history_entry(
+      employee,  # creator 
+      nil,  # period object 
+      group_loan,  # the loan product
+      LOAN_PRODUCT[:group_loan],
+      member, # the member who paid 
+      cash,  #  the cash passed
+      savings_withdrawal, # savings withdrawal used
+      nil, # in grace payment, number of weeks is nil 
+      nil, # in grace payment, number of weeks is nil 
+      transaction_activity.id, # the self 
+      REVISION_CODE[:update_grace_payment],
+      PAYMENT_PHASE[:grace_payment] 
+    )
 
     return transaction_activity 
   

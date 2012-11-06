@@ -283,7 +283,7 @@ describe GroupLoan do
               false )
               
       transaction_activity.should be_nil 
-       
+      @second_glm.unapproved_grace_period_payment.should be_nil 
     end
     
     it 'should allow defaultee to create grace payment' do 

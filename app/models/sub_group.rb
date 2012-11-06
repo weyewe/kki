@@ -126,6 +126,7 @@ class SubGroup < ActiveRecord::Base
     active_subgroup_glm_id_list  = active_subgroup_glm.map { |x| x.id  }
     
     sub_group_amount_to_be_shared = BigDecimal("0")
+    # or those where amount to be paid != 0 
     defaultee_default_payment = DefaultPayment.find(:all, :conditions => {
       :group_loan_membership_id => active_subgroup_glm_id_list, 
       :is_defaultee => true 
@@ -138,18 +139,43 @@ class SubGroup < ActiveRecord::Base
     
     sub_group_contribution_amount = sub_group_amount_to_be_shared * ( 50.0/100.0)
     
-    non_defaultee_default_payment = DefaultPayment.find(:all, :conditions => {
-      :group_loan_membership_id => active_subgroup_glm_id_list, 
-      :is_defaultee => false 
-    })
+    # the definition of non defaultee is changed.
+    # now, those defaultee but amount to be paid ==0 is considered as  non defaulete 
+    # non_defaultee_default_payment = DefaultPayment.find(:all, :conditions => {
+    #   :group_loan_membership_id => active_subgroup_glm_id_list, 
+    #   :is_defaultee => false 
+    # })
+    # cleared_defaultee_default_payment = []
+    # DefaultPayment.find(:all, :conditions => {
+    #   :group_loan_membership_id => active_subgroup_glm_id_list,
+    #   :is_defaultee => true 
+    # }).each do |defaultee|
+    #   if defaultee.unpaid_grace_period_amount == BigDecimal('0')
+    #     cleared_defaultee_default_payment << defaultee
+    #   end
+    # end
+    # 
+    non_default_payment = []
+    
+    
+    DefaultPayment.find(:all, :conditions => {
+      :group_loan_membership_id => active_subgroup_glm_id_list
+    }).each do |default_payment|
+      if default_payment.is_defaultee == false or 
+          ( default_payment.is_defaultee == true and default_payment.unpaid_grace_period_amount == BigDecimal('0') ) 
+        non_default_payment << default_payment
+      end
+    end
     
     
     
-    number_of_non_defaultee_in_subgroup = non_defaultee_default_payment.count
+    # definition of non defaultee over here == those that doesn't have unpaid backlogs during grace period + 
+    # those that has paid all grace payment 
+    number_of_non_defaultee_in_subgroup = non_default_payment.count
     if number_of_non_defaultee_in_subgroup  >  0 
       sub_group_contribution_per_non_defaultee = sub_group_contribution_amount / number_of_non_defaultee_in_subgroup
       
-      non_defaultee_default_payment.each do |default_payment|
+      non_default_payment.each do |default_payment|
         default_payment.amount_sub_group_share = sub_group_contribution_per_non_defaultee
         default_payment.save
       end

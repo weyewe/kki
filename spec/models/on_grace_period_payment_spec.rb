@@ -191,7 +191,8 @@ describe GroupLoan do
             glm.member,
             weekly_task,
             0.3*glm.group_loan_product.grace_period_weekly_payment,
-            @field_worker
+            @field_worker,
+            false
           )
           next
         end
@@ -229,7 +230,8 @@ describe GroupLoan do
                 cash_payment,
                 savings_withdrawal, 
                 number_of_weeks,
-                number_of_backlogs
+                number_of_backlogs,
+                false
         )
 
         a.should be_valid 
@@ -332,7 +334,8 @@ describe GroupLoan do
              glm,
              @field_worker,
              cash,
-             savings_withdrawal)
+             savings_withdrawal,
+             false)
       @transaction_activity.should be_valid 
       puts "\n after the grace period payment\n"
     glm.reload

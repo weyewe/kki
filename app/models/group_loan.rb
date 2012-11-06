@@ -1110,6 +1110,9 @@ class GroupLoan < ActiveRecord::Base
     end
   end
 
+
+  # for those defaultee, update the amount of compulsory savings deduction
+  # extra savings deduction, and amount to be shared 
   def update_defaultee_default_payment_savings_deduction
     # puts "Updating the default payment\n"*5
     self.active_group_loan_memberships.each do |glm|
@@ -1130,15 +1133,26 @@ class GroupLoan < ActiveRecord::Base
     
     active_group_glm = self.active_group_loan_memberships.includes(:default_payment)
     active_group_glm_id_list = active_group_glm.map {|x| x.id }
-    non_defaultee_default_payment = DefaultPayment.find(:all, :conditions => {
-      :group_loan_membership_id => active_group_glm_id_list, 
-      :is_defaultee => false 
-    })
-    number_of_non_defaultee_in_group = non_defaultee_default_payment.length
+    # non_defaultee_default_payment = DefaultPayment.find(:all, :conditions => {
+    #   :group_loan_membership_id => active_group_glm_id_list, 
+    #   :is_defaultee => false 
+    # })
+    
+    non_default_payment = [] 
+    DefaultPayment.find(:all, :conditions => {
+      :group_loan_membership_id => active_group_glm_id_list 
+    }).each do |default_payment|
+      if default_payment.is_defaultee == false or 
+          ( default_payment.is_defaultee == true and default_payment.unpaid_grace_period_amount == BigDecimal('0') ) 
+        non_default_payment << default_payment
+      end
+    end
+    
+    number_of_non_defaultee_in_group = non_default_payment.length
     if number_of_non_defaultee_in_group >  0
        group_non_defaultee_contribution = group_contribution / number_of_non_defaultee_in_group
        
-       non_defaultee_default_payment.each do |default_payment|
+       non_default_payment.each do |default_payment|
          default_payment.amount_group_share = group_non_defaultee_contribution
          default_payment.save
        end
@@ -1154,7 +1168,8 @@ class GroupLoan < ActiveRecord::Base
       total_savings = member.saving_book.total
       total_compulsory_savings = member.saving_book.total_compulsory_savings
       total_extra_savings = member.saving_book.total_extra_savings
-      if default_payment.is_defaultee == true
+      # remember, those defaultee that has paid all grace period is treated as non defaultee 
+      if default_payment.is_defaultee == true and default_payment.unpaid_grace_period_amount != BigDecimal('0')
         total_amount = default_payment.amount_of_compulsory_savings_deduction + default_payment.amount_of_extra_savings_deduction
         
         rounded_up_total_amount  = DefaultPayment.rounding_up( total_amount, DEFAULT_PAYMENT_ROUND_UP_VALUE ) 
@@ -1174,7 +1189,8 @@ class GroupLoan < ActiveRecord::Base
         default_payment.amount_paid = default_payment.amount_of_compulsory_savings_deduction  + default_payment.amount_of_extra_savings_deduction
         default_payment.amount_assumed_by_office = BigDecimal("0")
         
-      elsif  default_payment.is_defaultee == false
+      elsif  default_payment.is_defaultee == false or 
+            (default_payment.is_defaultee == true and    default_payment.unpaid_grace_period_amount == BigDecimal('0'))
         total_amount = default_payment.amount_sub_group_share + default_payment.amount_group_share
         rounded_up_total_amount  = DefaultPayment.rounding_up( total_amount , DEFAULT_PAYMENT_ROUND_UP_VALUE) 
         

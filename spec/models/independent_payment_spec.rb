@@ -159,7 +159,7 @@ describe TransactionActivity do
           
           if glm.id == @first_glm.id 
             puts "66666666666 the declaration as no payment"
-            weekly_task.create_weekly_payment_declared_as_no_payment( glm.member )
+            weekly_task.create_weekly_payment_declared_as_no_payment( @field_worker, glm.member )
             next
           end
           
@@ -196,7 +196,8 @@ describe TransactionActivity do
                   cash_payment,
                   savings_withdrawal, 
                   number_of_weeks,
-                  number_of_backlogs
+                  number_of_backlogs,
+                  false
           )
           
           
@@ -248,7 +249,8 @@ describe TransactionActivity do
               @first_glm.group_loan_product.total_weekly_payment, 
               BigDecimal("0"),
               0,
-              1)
+              1,
+              false)
               
       independent_transaction.should be_valid
       
@@ -270,7 +272,7 @@ describe TransactionActivity do
         
         if glm.id == @first_glm.id 
           puts "66666666666 the declaration as no payment"
-          weekly_task.create_weekly_payment_declared_as_no_payment( glm.member )
+          weekly_task.create_weekly_payment_declared_as_no_payment(@field_worker,  glm.member )
           next
         end
         
@@ -307,7 +309,8 @@ describe TransactionActivity do
                 cash_payment,
                 savings_withdrawal, 
                 number_of_weeks,
-                number_of_backlogs
+                number_of_backlogs,
+                false
         )
         
         
@@ -364,7 +367,7 @@ describe TransactionActivity do
           # setup 
           
           if glm.id == @first_glm.id 
-            weekly_task.create_weekly_payment_declared_as_no_payment( glm.member )
+            weekly_task.create_weekly_payment_declared_as_no_payment( @field_worker, glm.member )
             next
           end
           
@@ -401,7 +404,8 @@ describe TransactionActivity do
                   cash_payment,
                   savings_withdrawal, 
                   number_of_weeks,
-                  number_of_backlogs
+                  number_of_backlogs,
+                  false
           )
           
           
@@ -457,7 +461,8 @@ describe TransactionActivity do
               @first_glm.group_loan_product.total_weekly_payment, 
               BigDecimal("0"),
               0,
-              1)
+              1,
+              false)
               
       independent_transaction.should be_nil
     end

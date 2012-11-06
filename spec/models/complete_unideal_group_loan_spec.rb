@@ -214,7 +214,7 @@ describe GroupLoan do
           # present in the weekly meeting. declaring no payment 
           if defaultee_glm_id_list.include?(glm.id)  #   and [1,2,3].include?(weekly_task.week_number)
             weekly_task.mark_attendance_as_present( glm.member, @field_worker )
-            weekly_task.create_weekly_payment_declared_as_no_payment( glm.member )
+            weekly_task.create_weekly_payment_declared_as_no_payment(@field_worker,  glm.member )
             next
           end
           
@@ -251,7 +251,8 @@ describe GroupLoan do
                   cash_payment,
                   savings_withdrawal, 
                   number_of_weeks,
-                  number_of_backlogs
+                  number_of_backlogs,
+                  false
           )
           
           a.should be_valid 

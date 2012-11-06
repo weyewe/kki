@@ -320,7 +320,10 @@ REVISION_CODE = {
   :independent_only_savings => {
     :normal => 43, 
     :only_savings => 44 
-  }
+  },
+  
+  :original_grace_payment => 70,
+  :update_grace_payment => 71 
 }
 
 LOAN_PRODUCT = {

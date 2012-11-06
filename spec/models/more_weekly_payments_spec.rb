@@ -162,7 +162,8 @@ describe TransactionActivity do
                 @first_glm.group_loan_product.total_weekly_payment + BigDecimal("1000"),
                 BigDecimal('0'), 
                 1,
-                0)
+                0,
+                false)
     end
     
     it 'should produce 1 member payment with related to the transaction' do
@@ -170,7 +171,7 @@ describe TransactionActivity do
       @weekly_task.transactions_for_member(@first_glm.member).count.should == 1
     end
     
-    it "should create another member payment if we do more payment (single week payment)" do
+    it "should not create another member payment if we do more payment (single week payment). only 1 non approved weekly payment allowed" do
       @second_transaction_activity = TransactionActivity.create_generic_weekly_payment(
                 @weekly_task, 
                 @first_glm,
@@ -178,15 +179,16 @@ describe TransactionActivity do
                 @first_glm.group_loan_product.total_weekly_payment + BigDecimal("1000"),
                 BigDecimal('0'), 
                 1,
-                0)
-      @second_transaction_activity.should be_valid 
-      @second_member_payment = MemberPayment.where(:transaction_activity_id => @second_transaction_activity.id ).first
-      puts "first weekly_task_id : #{@weekly_task.id}"
-      puts "#{@second_member_payment.inspect}"
-      @weekly_task.transactions_for_member(@first_glm.member).count.should == 2 
+                0,
+                false)
+      @second_transaction_activity.should be_nil 
+      # @second_member_payment = MemberPayment.where(:transaction_activity_id => @second_transaction_activity.id ).first
+      #       puts "first weekly_task_id : #{@weekly_task.id}"
+      #       puts "#{@second_member_payment.inspect}"
+      @weekly_task.transactions_for_member(@first_glm.member).count.should == 1 
     end
     
-    it "should create another member payment if we do more payment (single week payment)" do
+    it "should create another member payment if we do more payment (single week payment). WRONG. no such thing as more payment." do
       @second_transaction_activity = TransactionActivity.create_generic_weekly_payment(
                 @weekly_task, 
                 @first_glm,
@@ -194,15 +196,16 @@ describe TransactionActivity do
                 @first_glm.group_loan_product.total_weekly_payment + BigDecimal("1000"),
                 BigDecimal('0'), 
                 1,
-                0)
-      @second_transaction_activity.should be_valid 
-      @second_member_payment = MemberPayment.where(:transaction_activity_id => @second_transaction_activity.id ).first
-      puts "first weekly_task_id : #{@weekly_task.id}"
-      puts "#{@second_member_payment.inspect}"
-      @weekly_task.transactions_for_member(@first_glm.member).count.should == 2 
+                0, 
+                false)
+      @second_transaction_activity.should be_nil
+      # @second_member_payment = MemberPayment.where(:transaction_activity_id => @second_transaction_activity.id ).first
+      # puts "first weekly_task_id : #{@weekly_task.id}"
+      # puts "#{@second_member_payment.inspect}"
+      @weekly_task.transactions_for_member(@first_glm.member).count.should == 1
     end
     
-    it "should create n member payment if we N multiple weeks payment" do
+    it "should create n member payment if we N multiple weeks payment. WRONG! there can only be 1 weekly payment." do
       @second_transaction_activity = TransactionActivity.create_generic_weekly_payment(
                 @weekly_task, 
                 @first_glm,
@@ -210,12 +213,13 @@ describe TransactionActivity do
                 2*@first_glm.group_loan_product.total_weekly_payment + BigDecimal("1000"),
                 BigDecimal('0'), 
                 2,
-                0)
-      @second_transaction_activity.should be_valid 
-      MemberPayment.where(:transaction_activity_id => @second_transaction_activity.id ).
-                    count.should == 2 
+                0, 
+                false )
+      @second_transaction_activity.should be_nil  
+      # MemberPayment.where(:transaction_activity_id => @second_transaction_activity.id ).
+      #                  count.should == 0
   
-      @weekly_task.transactions_for_member(@first_glm.member).count.should == 2
+      @weekly_task.transactions_for_member(@first_glm.member).count.should == 1
     end
 
     
@@ -251,7 +255,8 @@ describe TransactionActivity do
               cash_payment,
               savings_withdrawal, 
               number_of_weeks,
-              number_of_backlogs)
+              number_of_backlogs,
+              false)
         else
           a = TransactionActivity.create_generic_weekly_payment(
               @weekly_task, 
@@ -260,7 +265,8 @@ describe TransactionActivity do
               glp.total_weekly_payment*2 ,
               savings_withdrawal, 
               2,
-              number_of_backlogs)
+              number_of_backlogs,
+              false)
         end
 
 
@@ -298,7 +304,8 @@ describe TransactionActivity do
           @first_glm.group_loan_product.total_weekly_payment*number_of_weeks ,
           BigDecimal("0"), 
           number_of_weeks,
-          0)
+          0,
+          false)
           
       transaction_activity.should be_valid 
       
@@ -319,7 +326,8 @@ describe TransactionActivity do
           @first_glm.group_loan_product.total_weekly_payment*number_of_weeks ,
           BigDecimal("0"), 
           number_of_weeks,
-          0)
+          0,
+          false)
           
       transaction_activity.should be_nil
     end
@@ -357,9 +365,10 @@ describe TransactionActivity do
               cash_payment,
               savings_withdrawal, 
               number_of_weeks,
-              number_of_backlogs)
+              number_of_backlogs,
+              false)
         else
-          a = @weekly_task.create_weekly_payment_declared_as_no_payment(@first_glm.member)
+          a = @weekly_task.create_weekly_payment_declared_as_no_payment(@field_worker, @first_glm.member)
         end
 
 
@@ -389,7 +398,8 @@ describe TransactionActivity do
           @first_glm.group_loan_product.total_weekly_payment*number_of_weeks ,
           BigDecimal("0"), 
           number_of_weeks,
-          0)
+          0,
+          false)
           
       transaction_activity_weekly_payment.should be_valid
           
@@ -400,11 +410,12 @@ describe TransactionActivity do
           @first_glm.group_loan_product.total_weekly_payment*number_of_weeks ,
           BigDecimal("0"), 
           0,
-          number_of_backlogs)
+          number_of_backlogs,
+          false)
           
-      transaction_activity_backlog_payment.should be_valid
+      transaction_activity_backlog_payment.should be_nil # the transaction_activity weekly payment has to be approved
       
-      @weekly_task.transactions_for_member(@first_glm.member).count.should == 2 
+      @weekly_task.transactions_for_member(@first_glm.member).count.should == 1 
     end
     
     it "should have 1 transaction if we pay the week payment and backlog payment together" do
@@ -419,7 +430,8 @@ describe TransactionActivity do
           @first_glm.group_loan_product.total_weekly_payment*( number_of_weeks + number_of_backlogs )  ,
           BigDecimal("0"), 
           number_of_weeks,
-          number_of_backlogs)
+          number_of_backlogs,
+          false)
      
           
       transaction_activity.should be_valid
@@ -455,7 +467,8 @@ describe TransactionActivity do
           @first_glm.group_loan_product.total_weekly_payment*( number_of_weeks + number_of_backlogs )  ,
           BigDecimal("0"), 
           number_of_weeks,
-          number_of_backlogs)
+          number_of_backlogs,
+          false)
       
       transaction_activity.should be_nil 
       
@@ -473,7 +486,8 @@ describe TransactionActivity do
           @first_glm.group_loan_product.total_weekly_payment*( number_of_weeks + number_of_backlogs )  ,
           BigDecimal("0"), 
           number_of_weeks,
-          number_of_backlogs)
+          number_of_backlogs,
+          false)
       
       transaction_activity.should be_nil
     end
