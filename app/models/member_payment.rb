@@ -18,17 +18,20 @@ class MemberPayment < ActiveRecord::Base
     #  
   def is_full_payment? 
     (only_savings == false ) && (no_payment == false ) && 
-    (not transaction_activity_id.nil? )
+    (not transaction_activity_id.nil? ) && 
+     (week_number != nil)   # independent payment: can be full payment.
   end
   
   def only_savings_payment?
     (has_paid == true ) && (only_savings == true ) && (no_payment == false ) && 
-     (not transaction_activity_id.nil? )
+     (not transaction_activity_id.nil? ) && 
+      (week_number != nil) && (is_independent_weekly_payment == false ) # the true case is handled by only_savings_independent_payment?
   end
   
   def no_payment? 
     (has_paid == false ) && (only_savings == false ) && (no_payment == true ) &&  
-     ( transaction_activity_id.nil? )
+     ( transaction_activity_id.nil? ) && 
+      (week_number != nil) && (is_independent_weekly_payment == false )
   end
   
   def only_savings_independent_payment? 

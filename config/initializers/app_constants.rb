@@ -139,8 +139,8 @@ TRANSACTION_ENTRY_CODE = {
   :late_payment_fine => 7 ,
   :extra_weekly_saving => 8, 
   :no_weekly_payment_only_savings => 9,
-  :grace_period_payment => 66, ,
-  :only_savings_independent_payment => 70, # during group loan.. member can only pay for independent payment 
+  :grace_period_payment => 66, 
+  :only_savings_independent_payment => 80, # during group loan.. member can only pay for independent payment 
   
   
   # all transaction from company to the member
@@ -301,7 +301,7 @@ REVISION_CODE = {
   :original_no_payment => 13 ,
   
   :original_independent_only_savings => 30,
-  :original_independent_normal => 31
+  :original_independent_normal => 31,
   
   :independent_normal => {
     :normal => 41,

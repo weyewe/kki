@@ -141,22 +141,10 @@ class TransactionActivity < ActiveRecord::Base
     if self.is_approved == true 
       return nil
     end
-    
-    # self.backlogs_associated.each do |backlog|
-    #    backlog.backlog_payment_approver_id = employee.id 
-    #    backlog.is_cashier_approved = true 
-    #    
-    #    backlog.save 
-    #  end
+     
     self.is_approved = true 
     self.save
-    
   end
-  
-  
-  
-  
-
   
   def TransactionActivity.create_independent_savings( member, amount, field_worker )
     
@@ -181,7 +169,6 @@ class TransactionActivity < ActiveRecord::Base
     
     
     return transaction_activity
-    
   end
   
   def self.create_setup_payment( admin_fee, initial_savings, deposit, field_worker, group_loan_membership )
@@ -197,7 +184,6 @@ class TransactionActivity < ActiveRecord::Base
       return nil
     end
     
-
     member = group_loan_membership.member 
     # group_loan = group_loan_membership.group_loan 
     
@@ -226,9 +212,7 @@ class TransactionActivity < ActiveRecord::Base
     
     # member.add_savings(initial_savings, SAVING_ENTRY_CODE[:initial_setup_saving]) done in the transaction
     
-    return transaction_activity 
-    # group_loan.update_setup_deposit( group_loan_membership.deposit )
-    # how can we create the transaction entries ?
+    return transaction_activity  
   end
   
   def self.execute_automatic_loan_disbursement( group_loan_membership , employee) 
@@ -260,19 +244,19 @@ class TransactionActivity < ActiveRecord::Base
    #  end
    
    if not group_loan_membership.final_loan_disbursement_attendance.nil? and 
-      group_loan_membership.final_loan_disbursement_attendance != true 
+       group_loan_membership.final_loan_disbursement_attendance != true 
      return nil
    end
+  
+  puts "After the fourth one"
+  group_loan_product = group_loan_membership.group_loan_product
+  member = group_loan_membership.member
+  
+  initial_savings = group_loan_product.initial_savings
+  
+  
     
-    puts "After the fourth one"
-    group_loan_product = group_loan_membership.group_loan_product
-    member = group_loan_membership.member
-    
-    initial_savings = group_loan_product.initial_savings
-    
-    
-    
-    old_payment =  TransactionActivity.find(:first, :conditions => {
+  old_payment =  TransactionActivity.find(:first, :conditions => {
       :member_id => member.id, 
       :loan_type => LOAN_TYPE[:group_loan],
       :loan_id => group_loan_membership.group_loan_id,
@@ -447,13 +431,7 @@ class TransactionActivity < ActiveRecord::Base
     if not past_transaction_activity.nil?
       return past_transaction_activity
     end
-    
-    
-    
-    
-  
-    
-    
+     
     new_hash = {}
     new_hash[:total_transaction_amount]  = savings_amount
     new_hash[:transaction_case] = TRANSACTION_CASE[:weekly_payment_only_savings]
@@ -503,6 +481,8 @@ class TransactionActivity < ActiveRecord::Base
     else
       return true
     end
+  end
+    
 
   
   def TransactionActivity.create_weekly_extra_savings_only( weekly_task, 
@@ -554,6 +534,7 @@ class TransactionActivity < ActiveRecord::Base
     self.approver_id = employee.id 
     self.save 
   end
+  
   
   
 =begin
@@ -760,6 +741,7 @@ class TransactionActivity < ActiveRecord::Base
       end
       # reduce the account payable in the cashflow book 
     elsif member_payment.only_savings_independent_payment?
+      puts "1234 in the revert transaction effect, only savings independent payment "
       self.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:only_savings_independent_payment]).each do |te|
         te.revert_and_delete
       end
@@ -1165,12 +1147,26 @@ class TransactionActivity < ActiveRecord::Base
       pending_approval_independent_payment = group_loan_membership.unapproved_independent_payment 
       return nil if pending_approval_independent_payment.nil?
       
-      member_payment = MemberPayment.where(:transaction_activity_id =>pending_approval_independent_payment.id )
+      member_payment = MemberPayment.where(:transaction_activity_id =>pending_approval_independent_payment.id ).first
       
+      
+      puts "------- analysis of member payment\n"
+      if member_payment.only_savings_independent_payment?
+        puts "IT IS TRUE< ONLY savings independent payment"
+      end
       weekly_task = member_payment.weekly_task 
       
       pending_approval_independent_payment.revert_transaction_effect(member_payment)
+      # pending_approval_independent_payment.transaction_entries.each do |te|
+      #   te.revert_and_delete
+      # end
+      
       pending_approval_independent_payment.revert_member_payment_effect(member_payment)
+      
+      # MemberPayment.where(:transaction_activity_id => pending_approval_independent_payment.id).each do |member_payment|
+      #   member_payment.destroy 
+      # end
+      
       pending_approval_independent_payment.is_deleted = true 
       pending_approval_independent_payment.save
 
@@ -1188,8 +1184,10 @@ class TransactionActivity < ActiveRecord::Base
       # if successful, ok good.. 
       # if fails, rollback the whole transaction  
    
-      member.reload 
-    
+      member = group_loan_membership.member
+      member.reload
+      
+      group_loan_membership.reload 
       new_transaction = TransactionActivity.create_only_extra_savings_independent_payment(
               group_loan_membership,
               employee,
@@ -1205,13 +1203,13 @@ class TransactionActivity < ActiveRecord::Base
       MemberPaymentHistory.create_weekly_payment_history_entry(
           employee,  # creator 
           weekly_task,  # period object 
-          group_loan,  # the loan product
+          group_loan_membership.group_loan,  # the loan product
           LOAN_PRODUCT[:group_loan],
           member, # the member who paid 
-          cash,  #  the cash passed
-          savings_withdrawal, # savings withdrawal used
-          number_of_weeks, # in grace payment, number of weeks is nil 
-          number_of_backlogs, # in grace payment, number of weeks is nil 
+          amount,  #  the cash passed
+          BigDecimal('0'), # savings withdrawal used
+          0, # in grace payment, number of weeks is nil 
+          0, # in grace payment, number of weeks is nil 
           new_transaction.id, # the self 
           revision_code,
           PAYMENT_PHASE[:independent_payment]
@@ -1373,24 +1371,7 @@ class TransactionActivity < ActiveRecord::Base
     end
     
     
-    return transaction_activity
-    
-    
-    # not hooked to any weekly payment. 
-    # must be settled on the same day by cashier (approved)
-    # create the member payment (weekly task as nil ) -> for backlog or future week 
-    # approve the transaction activity  <- on the same day. or else, the next weekly payment can't be approved by cashier
-    
-    # can't be done after propose finalization. too bad. 
-    
-    # how about the extra savings? unlikely case? Fuck, just do it. 
-    # special approval as well 3 direct transaction activity approval
-    # 1. Grace payment
-    # 2. Independent Payment : backlog 
-    # 3. Independent Payment : extra savings 
-    #then, what else? done! fucking done! The custom payment!! 
-    # + The withdrawal => do it offline. 
-    # cashier enters one by one, the amount to be returned
+    return transaction_activity 
   end
   
   
@@ -1526,14 +1507,13 @@ class TransactionActivity < ActiveRecord::Base
     return ( prependix + content ) .to_i 
   end
   
-  
 =begin
 ########################################################## 
 ############################# GRACE PERIOD PAYMENT 
 ##########################################################
 =end
   
-  end
+  
   
   def TransactionActivity.resolve_grace_period_transaction_case(
       cash, 
@@ -1776,12 +1756,9 @@ class TransactionActivity < ActiveRecord::Base
         number_of_weeks == '1' and 
         number_of_backlogs == '0'
       return true
-    end
+    end 
     
-    
-    
-    return false 
-    
+    return false  
   end
   
   def TransactionActivity.resolve_transaction_case( cash, savings_withdrawal, extra_savings,
@@ -1834,9 +1811,7 @@ class TransactionActivity < ActiveRecord::Base
     if not self.is_employee_role_correct_and_weekly_task_finalized?( weekly_task, employee )
       return nil
     end
-    
-  
-    
+     
     group_loan = weekly_task.group_loan
     group_loan_membership = GroupLoanMembership.find(:first, :conditions => {
       :group_loan_id => group_loan.id, 
@@ -1849,20 +1824,7 @@ class TransactionActivity < ActiveRecord::Base
     if not past_transaction_activity.nil?
       return past_transaction_activity
     end
-    
-    # old_payment =  TransactionActivity.find(:first, :conditions => {
-    #       :member_id => member.id, 
-    #       :loan_type => LOAN_TYPE[:group_loan],
-    #       :loan_id => group_loan_membership.group_loan_id,
-    #       :transaction_case =>   TRANSACTION_CASE[:weekly_payment_basic]
-    #     })
-    #     if not old_payment.nil?
-    #       return old_payment
-    #     end
-   
-    
-    
-    
+     
     
     new_hash = {}
     new_hash[:total_transaction_amount]  = group_loan_product.total_weekly_payment
@@ -1879,8 +1841,6 @@ class TransactionActivity < ActiveRecord::Base
     
     weekly_task.create_basic_weekly_payment( member, transaction_activity, group_loan_product.total_weekly_payment, false)
     
-    # member.add_savings(group_loan_product.min_savings, 
-    #          SAVING_ENTRY_CODE[:weekly_saving_from_basic_payment])# done in the  create_basic_payment_entries
     
     return transaction_activity 
   end
@@ -1919,20 +1879,7 @@ class TransactionActivity < ActiveRecord::Base
       return true
     end
   end
-    # 
-    # 
-    # def TransactionActivity.is_number_of_weeks_for_structured_multiple_payment_valid?( group_loan, member, number_of_weeks )
-    #   if ( group_loan.remaining_weekly_tasks_count_for_member(member) ) <= 0  or 
-    #     (number_of_weeks > group_loan.remaining_weekly_tasks_count_for_member(member)  ) or
-    #     ( number_of_weeks == 0 )
-    #     return false # no transaction can be done.. even if it is multiple weeks 
-    #     # if you wish, do the backlog payment. When is declared as no payment, it is no payment
-    #   else
-    #     return true
-    #   end
-    # end
-  
-  
+   
 =begin
   For backlog payments
 =end
@@ -2065,9 +2012,7 @@ class TransactionActivity < ActiveRecord::Base
     
     self.backlog_payments.each do |backlog_payment|
       backlog_payment.create_cashier_cash_approval(employee)
-    end
-    
-    
+    end 
   end
   
   def savings_withdrawal_amount
@@ -2354,7 +2299,6 @@ class TransactionActivity < ActiveRecord::Base
                       )
                       
     member.add_extra_savings(savings_amount, SAVING_ENTRY_CODE[:no_weekly_payment_only_savings], savings_only_transaction_entry) 
-
   end
   
   
@@ -2383,15 +2327,9 @@ class TransactionActivity < ActiveRecord::Base
                       )
                       
     member.add_compulsory_savings(initial_savings, SAVING_ENTRY_CODE[:initial_setup_saving]) 
-            
   end
   
-  
-  # transaction_activity.create_loan_disbursement_entries( group_loan_product.loan_amount , 
-  #                     group_loan_product.admin_fee, 
-  #                     group_loan_product.initial_savings,
-  #                     cashier, 
-  #                     group_loan_membership.deduct_setup_payment_from_loan  )
+    
                     
                     
   def create_loan_disbursement_entries( amount , admin_fee, initial_savings, cashier , deduct_setup_payment_from_loan, member ) 
@@ -2435,8 +2373,7 @@ class TransactionActivity < ActiveRecord::Base
                       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:grace_period_payment], 
                       :amount => cash ,
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
-                      )
-                      
+                      )                 
   end
   
   
@@ -2511,7 +2448,6 @@ class TransactionActivity < ActiveRecord::Base
                       
     # update member savings , add saving entries 
     member.deduct_extra_savings( savings_withdrawal, SAVING_ENTRY_CODE[:soft_withdraw_to_pay_basic_weekly_payment],saving_entry )
-    
   end
   
   def create_structured_multi_payment_entries(cash, savings_withdrawal, number_of_weeks, 
@@ -2633,11 +2569,9 @@ class TransactionActivity < ActiveRecord::Base
        # however, when balance is zero, either cash or savings withdrawal must be larger than zero 
       return false
     end
-  
-    
-    return true 
-    
-    
+   
+    return true  
   end
  
 end
+
