@@ -24,6 +24,23 @@ class MemberPaymentsController < ApplicationController
                 "#{t 'process.create_payment'}"
   end
   
+  def edit_independent_payment
+    @office = current_user.active_job_attachment.office
+    @group_loan_membership = GroupLoanMembership.find_by_id params[:group_loan_membership_id]
+    @group_loan = @group_loan_membership.group_loan 
+    @member = @group_loan_membership.member 
+    @group_loan_product = @group_loan_membership.group_loan_product
+    
+    @transaction_activity = @group_loan_membership.unapproved_independent_payment
+    @member_payment = MemberPayment.where(:transaction_activity_id => @transaction_activity.id ).first 
+    
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_independent_weekly_payment_url'
+    set_breadcrumb_for @group_loan, 'select_member_for_independent_weekly_payment_url' + "(#{@group_loan.id})", 
+                "Select Member"
+    set_breadcrumb_for @group_loan, 'edit_independent_payment_url' + "(#{@group_loan_membership.id})", 
+                "Edit #{t 'process.create_payment'}"
+  end
+  
 =begin
   INDEPENDENT PAYMENT APPROVAL 
 =end

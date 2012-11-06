@@ -714,7 +714,7 @@ class TransactionActivity < ActiveRecord::Base
     
     
   def revert_transaction_effect(member_payment)
-    if member_payment.is_full_payment?
+    if member_payment.is_full_payment? or member_payment.is_backlog_full_payment?
       # there are basic payment entries created (multiple week and multiple backlog payments? )
         # for all basic payment entries, 
           # revert the compulsory savings generated 
@@ -750,7 +750,7 @@ class TransactionActivity < ActiveRecord::Base
   end
   
   def revert_member_payment_effect(member_payment)
-    if member_payment.is_full_payment?
+    if member_payment.is_full_payment? or member_payment.is_backlog_full_payment?
       # might cleared several member payments (from present and future weekly payment)
       BacklogPayment.where(:transaction_activity_id_for_backlog_clearance => self.id).each do |x|
         x.is_cleared  = false  
@@ -817,7 +817,7 @@ class TransactionActivity < ActiveRecord::Base
   def number_of_weeks_paid
     current_transaction = self 
     MemberPayment.where{
-      (is_independent_weekly_payment.eq false ) & 
+      # (is_independent_weekly_payment.eq false ) & 
       (week_number.not_eq nil) & # not backlog payment 
       (transaction_activity_id.eq current_transaction.id  )
     }.count 

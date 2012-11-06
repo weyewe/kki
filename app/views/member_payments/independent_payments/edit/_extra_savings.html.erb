@@ -1,0 +1,83 @@
+
+<% if not member_payment.only_savings_independent_payment? %>
+<div class="row-fluid tab-pane fade   in pane_wrapper" id="extra_savings" >
+<% else %>
+<div class="row-fluid tab-pane fade  active in pane_wrapper" id="extra_savings" >
+<% end %>
+  <div class="span8">
+    <h2> <%= t 'variable.extra_savings' %></h2><br />
+
+    <%= form_tag  update_only_extra_savings_independent_payment_url(@group_loan_membership) , 
+      :method => :post, :id => "form_only_extra_savings_payment", 
+      :class => "prevent_double_submit"  do  %>
+      <table cellpadding="0" cellspacing="0" border="0" 
+            class=" table table-striped table-bordered" >
+        <thead>
+          <tr>
+            <th colspan="2">Savings Payment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%#= hidden_field_tag 'group_loan_membership_id', '' %>
+        
+          <tr>
+            <td><%= t 'variable.cash_amount' %>:</td>
+            <td><%= text_field_tag 'oes_cash_amount', '' %></td>
+          </tr>
+          
+          <tr>
+            <td></td>
+            <td>
+              <div class="form-actions">
+                <%#= submit_tag "Pay as Savings",  :class => "btn btn-primary exe_special_payment" ,
+                  :disable_with => 'Saving...'%>
+                <button class="btn btn-primary" id="exe_only_extra_savings_payment" type="submit">Pay as Extra Savings</button>
+              </div>
+            </td>
+          </tr>
+
+
+        </tbody>
+      </table>
+    <% end %>
+    
+    
+   
+    
+  </div> 
+    
+    
+    
+  <div class="span4">
+    <table cellpadding="0" cellspacing="0" border="0" 
+          class="table table-striped table-bordered" id="example">
+      <thead>
+        <tr><th colspan="2" style="text-align:center;"><%= t 'guide.current_savings'%></th></tr>
+      </thead>
+      <tbody>
+          <tr>
+            <td><%= t 'variable.total_savings'%></td>
+            <td id="total_principal"><%= print_money(@member.total_savings)%> </td>
+          </tr>
+          
+          <tr>
+            <td><%= t 'report_metric.compulsory_savings'%></td>
+            <td id="total_principal"><%= print_money(@member.saving_book.total_compulsory_savings)%> </td>
+          </tr>
+          
+          <tr>
+            <td><%= t 'variable.voluntary_savings' %></td>
+            <td id="total_principal"><%= print_money(@member.saving_book.total_extra_savings)%> </td>
+          </tr>
+      </tbody>
+    </table>
+    
+  </div><!--/span-->
+  
+</div><!--/row-->
+
+
+
+
+
+

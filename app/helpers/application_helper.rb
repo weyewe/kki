@@ -822,6 +822,10 @@ module ApplicationHelper
           {
             :controller => "member_payments",
             :action => "make_independent_payment"
+          },
+          {
+            :controller => "member_payments",
+            :action => "edit_independent_payment"
           }
         ]
       },

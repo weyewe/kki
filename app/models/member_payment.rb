@@ -22,6 +22,22 @@ class MemberPayment < ActiveRecord::Base
      (week_number != nil)   # independent payment: can be full payment.
   end
   
+  def is_backlog_full_payment?
+    (only_savings == false ) && (no_payment == false ) && 
+    (not transaction_activity_id.nil? )
+    
+  end
+  
+  # def is_backlog_payment?
+  #   self.member_payments.create(
+  #     :transaction_activity_id => transaction_activity.id,
+  #     :member_id => member.id , 
+  #     :cash_passed => cash_passed,
+  #     :week_number => nil ,
+  #     :is_independent_weekly_payment => is_independent_payment
+  #   )
+  # end
+  # 
   def only_savings_payment?
     (has_paid == true ) && (only_savings == true ) && (no_payment == false ) && 
      (not transaction_activity_id.nil? ) && 

@@ -1,33 +1,35 @@
 <tr id="select_member_independent_payment-<%= group_loan_membership.id %>">
-  <td><%= link_to   group_loan_membership.member.name, make_independent_payment_url(group_loan_membership)  %></td>
+  <td><%=    group_loan_membership.member.name  %></td>
   <td><%= group_loan_membership.sub_group.number %></td>
   <td><%= group_loan_membership.member.address  %></td>
   <!-- <td><%#= group_loan_membership.total_backlogs.count %></td> -->
   <td><%= group_loan_membership.unpaid_backlogs.count %></td>
 
-	<% total_unapproved_independent_payment = group_loan_membership.unapproved_independent_payments.count  %>
 
-  
+  <% unapproved_independent_payment = group_loan_membership.unapproved_independent_payment %>
 
-	<% if total_unapproved_independent_payment == 0  %> 
+	<% if unapproved_independent_payment.nil?   %> 
 		<td>   
-			<span class='label label-warning'><%= total_unapproved_independent_payment %></span> 
+			<span class='label label-warning'> 0 </span> 
 		</td>
 		
-		<td>   
+		<td colspan=2>   
 			<%= link_to "#{t 'process.create_payment'}",
-			root_url , 
+			make_independent_payment_url(group_loan_membership)  , 
 			:class => "btn btn-mini"  %>
 		</td>
 	<% else %>
 		
 		<td>   
-			<span class='label label-warning'><%= total_unapproved_independent_payment %></span> 
+			<span class='label label-warning'>1</span> 
 		</td>
 		<td>   
 			<%= link_to "#{t 'process.edit_payment'}",
-		      root_url , 
+		      edit_independent_payment_url(group_loan_membership) , 
 		      :class => "btn btn-mini"  %>
+		</td>
+		<td>
+			<%= print_money(unapproved_independent_payment.total_transaction_amount)%>
 		</td>
 	<% end %>
   

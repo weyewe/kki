@@ -1,0 +1,108 @@
+<div class="span9 content">
+  <%= create_guide("#{t 'process.independent_payment'}", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b>" + "<br />" + 
+        "#{t 'report_metric.member' }: <b>#{@member.name}</b>" + "<br />" +
+        "#{t 'guide.min_weekly_payment'}: <b>#{print_money(@group_loan_product.total_weekly_payment)}</b>" + "<br />" + 
+        "#{t 'guide.remaining_weekly_payment'}: <b>#{@group_loan.remaining_weekly_tasks_count_for_member(@member)}</b>" + "<br />" + 
+        "#{t 'report_metric.unpaid_backlogs'}: <b>#{@group_loan_membership.unpaid_backlogs.count}</b>").html_safe %>
+        
+  
+  
+  
+    
+    
+				<%# transaction_activity = weekly_task.transactions_for_member(member).order("created_at DESC").first  %>
+				
+
+
+	<% if not  @member_payment.only_savings_independent_payment? %>
+		<%= render :partial => 'member_payments/independent_payments/edit/full_payment' , :locals => {
+			:member_payment => @member_payment,  
+			:member => @member,
+			:transaction_activity => @transaction_activity
+		} %>
+	<% else %>
+		<%= render :partial => 'member_payments/independent_payments/edit/only_savings', :locals => {
+			:member_payment => @member_payment,  
+			:member => @member,
+			:transaction_activity => @transaction_activity
+		} %>
+	<% end %>
+
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
+  <% if flash[:notice] %>
+    <div class="alert alert-success">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Well done!</strong> <%= flash[:notice].html_safe %>
+    </div>
+  <% end %>
+  
+  <% if flash[:error] %>
+    <div class="alert alert-error">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Create Failure!</strong> Please fill in all required (*) fields.
+    </div>
+  <% end %>
+  
+  
+
+  
+    <ul class="nav nav-tabs" id="tab">
+			<% if  @member_payment.only_savings_independent_payment? %>
+      	<li class="active">
+			<% else %>
+				<li>
+			<% end %>
+				<a data-toggle="tab" href="#extra_savings"><strong><%= t 'variable.extra_savings'%></strong></a>
+			</li>
+			
+			<% if  not @member_payment.only_savings_independent_payment? %>
+      	<li class="active">
+			<% else %>
+				<li>
+			<% end %>
+        <a data-toggle="tab" href="#structured_multiple_independent_payment">
+          <strong>
+            <%= t 'guide.multiple_weeks_and_structured_payment'%>
+          </strong>
+        </a>
+      </li>
+    </ul>
+  
+  <div class="tab-content" id="myTabContent">
+    
+    <%= render :partial => "member_payments/independent_payments/edit/extra_savings", :locals => {
+			:member_payment => @member_payment 
+			}  %>
+    <%= render :partial => "member_payments/independent_payments/edit/structured_multiple_independent_payment"	, 
+			:locals => {
+				:member_payment => @member_payment 
+				} %>
+
+
+  
+  </div>
+  
+  
+  <div class="modal" id="myModal" style="display:none;">
+     <div class="modal-header">
+       <a class="close" data-dismiss="modal">×</a>
+       <h3>Modal header</h3>
+     </div>
+     <div class="modal-body">
+       <p>One fine body…</p>
+     </div>
+     <div class="modal-footer"> 
+       <%= link_to "#{ t 'trigger.close' }", select_member_for_independent_weekly_payment_url(@group_loan), :class => "btn"%>
+     </div>
+   </div>
+  
+  
+   <hr />
+</div><!--/span-->
+
+
+<% content_for :additional_js do %>
+  <%= javascript_include_tag "weekly_special_payment" %>
+<% end %>

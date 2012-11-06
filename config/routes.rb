@@ -193,10 +193,18 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_independent_weekly_payment' => "group_loans#select_group_loan_for_independent_weekly_payment", :as => :select_group_loan_for_independent_weekly_payment
   match 'select_member_for_independent_weekly_payment/:group_loan_id' => "group_loans#select_member_for_independent_weekly_payment", :as => :select_member_for_independent_weekly_payment
   match 'make_independent_payment/:group_loan_membership_id' => "member_payments#make_independent_payment", :as => :make_independent_payment
+  
+  match 'edit_independent_payment/:group_loan_membership_id' => "member_payments#edit_independent_payment", :as => :edit_independent_payment
 
   match 'transaction_activity/create_only_extra_savings_independent_payment/:group_loan_membership_id' => 'transaction_activities#create_only_extra_savings_independent_payment', :as => :create_only_extra_savings_independent_payment, :method => :post
+  match 'transaction_activity/update_only_extra_savings_independent_payment/:group_loan_membership_id' => 'transaction_activities#update_only_extra_savings_independent_payment', :as => :update_only_extra_savings_independent_payment, :method => :post
+  
+  
+  
   match 'transaction_activity/create_structured_multiple_independent_payment/:group_loan_membership_id' => 'transaction_activities#create_structured_multiple_independent_payment', :as => :create_structured_multiple_independent_payment, :method => :post
-
+  match 'transaction_activity/update_structured_multiple_independent_payment/:group_loan_membership_id' => 'transaction_activities#update_structured_multiple_independent_payment', :as => :update_structured_multiple_independent_payment, :method => :post
+  
+  
   # Independent payment approval 
   match 'select_group_loan_to_approve_independent_payment' => 'group_loans#select_group_loan_to_approve_independent_payment', :as => :select_group_loan_to_approve_independent_payment 
   match 'list_of_independent_payment/:group_loan_id' => 'member_payments#list_of_independent_payment', :as => :list_of_independent_payment

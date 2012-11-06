@@ -357,7 +357,7 @@ class TransactionActivitiesController < ApplicationController
     
     begin
       ActiveRecord::Base.transaction do
-        @transaction_activity= TransactionActivity.create_only_extra_savings_independent_payment( 
+        @transaction_activity= TransactionActivity.update_only_extra_savings_independent_payment( 
           @group_loan_membership, 
           current_user, 
           cash  )
@@ -365,11 +365,37 @@ class TransactionActivitiesController < ApplicationController
     rescue ActiveRecord::ActiveRecordError  
     else
     end
-    
+    render :file => 'transaction_activities/create_only_extra_savings_independent_payment.js.erb'
   end
   
   
   def create_structured_multiple_independent_payment
+    @group_loan_membership = GroupLoanMembership.find_by_id params[:group_loan_membership_id]
+    @group_loan = @group_loan_membership.group_loan
+    @member = @group_loan_membership.member 
+    
+    cash = BigDecimal.new( params[:smf_cash] )
+    savings_withdrawal = BigDecimal.new( params[:smf_savings_withdrawal] )
+    number_of_weeks = params[:smf_weeks].to_i
+    number_of_backlogs = params[:smf_backlogs].to_i
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.create_generic_independent_payment(
+                @group_loan_membership,
+                current_user,
+                cash, 
+                savings_withdrawal,
+                number_of_weeks,
+                number_of_backlogs,
+                false)
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end 
+  end
+  
+  def update_structured_multiple_independent_payment
   
     @group_loan_membership = GroupLoanMembership.find_by_id params[:group_loan_membership_id]
     @group_loan = @group_loan_membership.group_loan
@@ -380,10 +406,9 @@ class TransactionActivitiesController < ApplicationController
     number_of_weeks = params[:smf_weeks].to_i
     number_of_backlogs = params[:smf_backlogs].to_i
     
-    
     begin
       ActiveRecord::Base.transaction do
-        @transaction_activity = TransactionActivity.create_generic_independent_payment(
+        @transaction_activity = TransactionActivity.update_generic_independent_payment(
                 @group_loan_membership,
                 current_user,
                 cash, 
@@ -393,10 +418,9 @@ class TransactionActivitiesController < ApplicationController
       end
     rescue ActiveRecord::ActiveRecordError  
     else
-    end
+    end 
     
-    
-    
+    render :file => 'transaction_activities/create_structured_multiple_independent_payment.js.erb'
   end
   
   def approve_independent_payment_transaction_activity
