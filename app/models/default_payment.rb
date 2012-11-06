@@ -14,6 +14,12 @@ class DefaultPayment < ActiveRecord::Base
     self.save 
   end
   
+  def cancel_update_paid_grace_period_amount(amount)
+    self.paid_grace_period_amount -= amount
+    self.save
+  end
+  
+  
   def calculate_grace_period_amount
     glm = self.group_loan_membership
     glp  = glm.group_loan_product

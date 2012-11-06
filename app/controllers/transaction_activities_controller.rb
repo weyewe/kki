@@ -461,7 +461,7 @@ class TransactionActivitiesController < ApplicationController
   GRACE  PERIOD PAYMENT
 =end
 
-  def create_transcation_activity_for_grace_period_payment
+  def create_transaction_activity_for_grace_period_payment
     @group_loan_membership = GroupLoanMembership.find_by_id( params[:group_loan_membership_id] )
     @member=  @group_loan_membership.member
     cash = BigDecimal(params[:smf_cash])
@@ -474,14 +474,32 @@ class TransactionActivitiesController < ApplicationController
                 @group_loan_membership,
                 current_user,
                 cash,
-                savings_withdrawal )
+                savings_withdrawal,
+                false  )
       end
     rescue ActiveRecord::ActiveRecordError  
     else
-    end
+    end 
+  end
+  
+  def update_transaction_activity_for_grace_period_payment
+    @group_loan_membership = GroupLoanMembership.find_by_id( params[:group_loan_membership_id] )
+    @member=  @group_loan_membership.member
+    cash = BigDecimal(params[:smf_cash])
+    number_of_backlogs = params[:smf_weeks].to_i
+    savings_withdrawal = BigDecimal(params[:smf_savings_withdrawal])
     
-    
-    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity = TransactionActivity.update_generic_grace_period_payment(
+                @group_loan_membership,
+                current_user,
+                cash,
+                savings_withdrawal  )
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end 
   end
   
 =begin
@@ -493,18 +511,9 @@ class TransactionActivitiesController < ApplicationController
     
     
     # @pending_approval_transactions = @group_loan.pending_approval_grace_period_transactions
-    
-    
-    begin
-      ActiveRecord::Base.transaction do
-        @grace_period_transactions = @group_loan.pending_approval_grace_period_transactions
-      end
-    rescue ActiveRecord::ActiveRecordError  
-    else
-    end
-    
-    
-    
+     
+    @grace_period_transactions = @group_loan.pending_approval_grace_period_transactions
+ 
     
     add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_grace_period_payment_approval_url'
     set_breadcrumb_for @group_loan, 'select_pending_grace_period_payment_to_be_approved_url' + "(#{@group_loan.id})", 

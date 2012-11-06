@@ -510,6 +510,20 @@ class GroupLoanMembership < ActiveRecord::Base
     unapproved_independent_payments.order("created_at DESC").first 
   end
   
+  def unapproved_grace_period_payment
+   
+    TransactionActivity.where(
+      :member_id => self.member_id , 
+      :loan_type => LOAN_TYPE[:group_loan],  # if we have personal-periodic loan... loan type is not a problem any more
+      :loan_id => self.group_loan_id, 
+      :transaction_case =>  (GRACE_PERIOD_PAYMENT_START..GRACE_PERIOD_PAYMENT_END)  ,
+      :is_approved => false , 
+      :is_deleted => false, 
+      :is_canceled => false 
+    ).order("created_at DESC").first 
+    
+  end
+  
   protected
   def destroy_group_loan_subcription
     GroupLoanSubcription.find(:all, :conditions => {

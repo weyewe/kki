@@ -132,6 +132,11 @@ class TransactionEntry < ActiveRecord::Base
       saving_entry.save 
       
       saving_book.revert_transaction_add_extra_savings( self.amount ) 
+    else
+      # for those that doesn't affect the member' savings
+      # we haven't done the accounting for the KKI 
+     
+      
     end
     
     

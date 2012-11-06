@@ -108,6 +108,40 @@ class TransactionActivity < ActiveRecord::Base
     return total_amount 
   end
   
+   
+  def grace_payment_extra_savings_amount
+    extra_savings_entries = self.transaction_entries.where( :transaction_entry_code => TRANSACTION_ENTRY_CODE[:grace_period_payment_extra_savings] )
+    total_amount = BigDecimal("0")
+    
+    extra_savings_entries.each do |te|
+      total_amount += te.amount
+    end
+    return total_amount
+  end
+  
+  def savings_withdrawal_amount
+    savings_withdrawal_entry = self.transaction_entries.
+                            where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal])
+    if savings_withdrawal_entry.length != 0 
+      return savings_withdrawal_entry.first.amount
+    else
+      return BigDecimal("0")
+    end
+  end
+  
+    # TRANSACTION_ENTRY_CODE[:grace_period_payment] ,
+    # TRANSACTION_ENTRY_CODE[:grace_period_payment_soft_savings_withdrawal] ,
+    # TRANSACTION_ENTRY_CODE[:grace_period_payment_extra_savings]
+  def grace_payment_savings_withdrawal_amount
+    savings_withdrawal_entry = self.transaction_entries.
+                            where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:grace_period_payment_soft_savings_withdrawal])
+    if savings_withdrawal_entry.length != 0 
+      return savings_withdrawal_entry.first.amount
+    else
+      return BigDecimal("0")
+    end
+  end
+  
   def number_of_weekly_payments_paid
     MemberPayment.find(:all, :conditions => {
       :transaction_activity_id => self.id ,
@@ -1554,8 +1588,10 @@ class TransactionActivity < ActiveRecord::Base
           group_loan_membership,
           employee,
           cash,
-          savings_withdrawal)
+          savings_withdrawal,
+          revision_transaction)
           
+    puts "7123 entrance"
     
     group_loan = group_loan_membership.group_loan 
     group_loan_product = group_loan_membership.group_loan_product 
@@ -1564,18 +1600,45 @@ class TransactionActivity < ActiveRecord::Base
     zero_value = BigDecimal("0")
     
     # if glm is non active, return nil
+    puts "7123 glm active"
     if group_loan_membership.is_active == false
       return nil
     end
+    #in grace period, no more notion of unpaid backlogs
+    puts "7123 not defaultee"
+    if group_loan_membership.default_payment.is_defaultee == false 
+      return nil
+    end
     
+    puts "7123 wrong role"
     if not employee.has_role?(:field_worker, employee.active_job_attachment )
       return nil
     end
     #  check if it grace period 
+    puts "7123 in grace period"
     if not group_loan.is_grace_period?
       return nil
     end
     
+    # THERE CAN ONLY BE  1 un approved grace period payment 
+    puts "7123 there is pending approval transaction"
+    pending_transaction = group_loan_membership.unapproved_grace_period_payment
+    if revision_transaction == false 
+      if not pending_transaction.nil?
+        puts "9999 pending transaction is not nil "
+        return nil
+      end
+    end
+    
+    
+    # no savings withdrawal is allowed if there is unapproved transaction 
+    puts "7123 bad savings withdrawal"
+    if savings_withdrawal > BigDecimal('0')
+      if TransactionActivity.where(:member_id => member.id, :is_deleted => false, :is_canceled => false , 
+                  :is_approved => false).count != 0
+          return nil
+      end
+    end
     
     
     # check the number_of_backlogs < actual unpaid backlogs 
@@ -1584,16 +1647,19 @@ class TransactionActivity < ActiveRecord::Base
     # end
     
     # check if savings withdrawal > saving_book.extra_savings 
+    puts "7123 total extra savings < saving withdrawla"
     if member.saving_book.total_extra_savings < savings_withdrawal
       return nil
     end
     
     
     # check if cash and savings withdrawal >= 0 
+    puts "7123 bad cash input"
     if cash < zero_value or savings_withdrawal < zero_value 
       return nil
     end
     
+    puts "7123 no payment at all "
     if cash == zero_value && savings_withdrawal == zero_value
       return nil
     end
@@ -1652,11 +1718,13 @@ class TransactionActivity < ActiveRecord::Base
     transaction_activity.create_grace_period_payment_transaction_entries(cash, employee, member) 
 
     if savings_withdrawal > zero_value 
-      transaction_activity.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
+      # transaction_activity.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
+      transaction_activity.create_grace_payment_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
     end
     
     if extra_savings > zero_value
-      transaction_activity.create_extra_savings_entries(extra_savings, employee, member )
+      # transaction_activity.create_extra_savings_entries(extra_savings, employee, member )
+      transaction_activity.create_extra_savings_from_grace_payment_entries(extra_savings, employee, member )
     end
     
     #  update the default_payment.unpaid_grace_period_amount 
@@ -1670,6 +1738,96 @@ class TransactionActivity < ActiveRecord::Base
     group_loan.update_default_payment_in_grace_period
     
     return transaction_activity
+  end
+  
+  def TransactionActivity.update_generic_grace_period_payment(
+          group_loan_membership,
+          employee,
+          cash,
+          savings_withdrawal )
+  
+    return nil if group_loan_membership.nil? or employee.nil? or 
+            cash.nil?  or savings_withdrawal.nil? 
+            
+          
+        
+    pending_approval_grace_payment = group_loan_membership.unapproved_grace_period_payment
+    
+    if (pending_approval_grace_payment).nil?
+      return nil
+    end
+    
+    
+    default_payment = group_loan_membership.default_payment 
+    saving_related_transaction_entry_code_list = [
+      
+      TRANSACTION_ENTRY_CODE[:grace_period_payment_soft_savings_withdrawal] ,
+      TRANSACTION_ENTRY_CODE[:grace_period_payment_extra_savings] 
+     ]
+    
+   
+    pending_approval_grace_payment.transaction_entries.where( 
+                      :transaction_entry_code => saving_related_transaction_entry_code_list).each do |te|
+      te.revert_and_delete 
+    end 
+    
+    pending_approval_grace_payment.transaction_entries.where( 
+                      :transaction_entry_code =>TRANSACTION_ENTRY_CODE[:grace_period_payment] ).each do |te|
+      te.is_deleted = true
+      te.deleted_datetime = DateTime.now 
+      te.save
+    end
+    
+    
+=begin
+    total_payable = default_payment.unpaid_grace_period_amount
+    total_payable = default_payment.unpaid_grace_period_amount
+    total_amount_paid = cash + savings_withdrawal
+    
+    
+    if total_amount_paid < total_payable  
+      default_payment.update_paid_grace_period_amount( total_amount_paid  )
+    else
+      default_payment.update_paid_grace_period_amount( total_payable  )
+    end
+=end
+
+    zero_value = BigDecimal('0')
+    past_savings_withdrawal = pending_approval_grace_payment.grace_payment_savings_withdrawal_amount 
+    past_cash = pending_approval_grace_payment.total_transaction_amount
+    past_extra_savings = pending_approval_grace_payment.grace_payment_extra_savings_amount
+    
+    deduction_paid_grace_period_amount = BigDecimal('0')
+    if past_extra_savings > zero_value 
+      deduction_paid_grace_period_amount = past_savings_withdrawal + past_cash - past_extra_savings
+    else
+      deduction_paid_grace_period_amount = past_savings_withdrawal + past_cash
+    end
+    
+    
+    
+    
+    default_payment.cancel_update_paid_grace_period_amount( deduction_paid_grace_period_amount )
+    # =>                -> on the default_payment.update_paid_grace_period_amount
+    
+    # try to create the transaction
+    # rollback if it is nil 
+    
+    transaction_activity = TransactionActivity.create_generic_grace_period_payment(
+            group_loan_membership,
+            employee,
+            cash,
+            savings_withdrawal,
+            true )
+    
+
+    if transaction_activity.nil?
+      raise ActiveRecord::Rollback, "Call tech support!"  # <<< THIS IS THE SHITE!!!! 
+      return nil 
+    end
+
+    return transaction_activity 
+  
   end
   
   
@@ -2015,15 +2173,9 @@ class TransactionActivity < ActiveRecord::Base
     end 
   end
   
-  def savings_withdrawal_amount
-    savings_withdrawal_entry = self.transaction_entries.
-                            where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal])
-    if savings_withdrawal_entry.length != 0 
-      return savings_withdrawal_entry.first.amount
-    else
-      return BigDecimal("0")
-    end
-  end
+  
+  
+  
   
   
 =begin
@@ -2438,6 +2590,17 @@ class TransactionActivity < ActiveRecord::Base
     member.add_extra_savings(balance, SAVING_ENTRY_CODE[:only_savings_independent_payment], saving_entry)
   end
   
+  def create_extra_savings_from_grace_payment_entries( balance , employee , member)
+    cashflow_book = employee.active_job_attachment.office.cashflow_book
+    saving_entry = self.transaction_entries.create( 
+                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:grace_period_payment_extra_savings], 
+                      :amount => balance ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+                      )
+                      
+    member.add_extra_savings(balance, SAVING_ENTRY_CODE[:extra_savings_from_grace_payment], saving_entry)
+  end
+  
   def create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
     cashflow_book = employee.active_job_attachment.office.cashflow_book
     saving_entry = self.transaction_entries.create( 
@@ -2448,6 +2611,18 @@ class TransactionActivity < ActiveRecord::Base
                       
     # update member savings , add saving entries 
     member.deduct_extra_savings( savings_withdrawal, SAVING_ENTRY_CODE[:soft_withdraw_to_pay_basic_weekly_payment],saving_entry )
+  end
+  
+  def create_grace_payment_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
+    cashflow_book = employee.active_job_attachment.office.cashflow_book
+    saving_entry = self.transaction_entries.create( 
+                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:grace_period_payment_soft_savings_withdrawal], 
+                      :amount => savings_withdrawal ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
+                      )
+                      
+    # update member savings , add saving entries 
+    member.deduct_extra_savings( savings_withdrawal, SAVING_ENTRY_CODE[:soft_withdraw_to_pay_grace_payment],saving_entry )
   end
   
   def create_structured_multi_payment_entries(cash, savings_withdrawal, number_of_weeks, 

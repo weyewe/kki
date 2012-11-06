@@ -140,7 +140,11 @@ TRANSACTION_ENTRY_CODE = {
   :extra_weekly_saving => 8, 
   :no_weekly_payment_only_savings => 9,
   :grace_period_payment => 66, 
-  :only_savings_independent_payment => 80, # during group loan.. member can only pay for independent payment 
+  :grace_period_payment_soft_savings_withdrawal => 67, 
+  :grace_period_payment_extra_savings => 68, 
+  
+  
+  :only_savings_independent_payment => 80, # during group loan.. member can only pay for independent payment  
   
   
   # all transaction from company to the member
@@ -177,6 +181,11 @@ SAVING_ENTRY_CODE = {
   :only_savings_independent_payment => 70, 
   
   :soft_withdraw_to_pay_basic_weekly_payment => 100, 
+  
+  
+  :soft_withdraw_to_pay_grace_payment => 150, 
+  :extra_savings_from_grace_payment => 151, 
+  
   
   :soft_withdraw_for_default_payment => 200,
   :weekly_saving_extra_from_default_payment => 250,

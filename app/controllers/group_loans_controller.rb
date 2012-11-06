@@ -225,7 +225,7 @@ class GroupLoansController < ApplicationController
     
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
-    @group_loan_memberships = @group_loan.active_group_loan_memberships 
+    @group_loan_memberships = @group_loan.active_group_loan_memberships.order("sub_group_id DESC, created_at ASC") 
    
     add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_grace_period_payment_url'
     set_breadcrumb_for @group_loan, 'default_members_for_grace_period_payment_url' + "(#{@group_loan.id})", 
