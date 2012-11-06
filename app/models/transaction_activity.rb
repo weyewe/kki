@@ -503,164 +503,7 @@ class TransactionActivity < ActiveRecord::Base
     else
       return true
     end
-  end
-  
-  def TransactionActivity.resolve_grace_period_transaction_case(
-      cash, 
-      savings_withdrawal, 
-      extra_savings 
-    )
-    
-    prependix= "666"  # backlog payment during grace period 
-    content = "" 
-    zero_value = BigDecimal("0")
-    
-    if cash > zero_value
-      content << 1.to_s
-    else
-      content << 0.to_s
-    end
-    
-    if savings_withdrawal > zero_value
-      content << 1.to_s
-    else
-      content << 0.to_s
-    end
-    
-    if extra_savings > zero_value
-      content << 1.to_s 
-    else
-      content << 0.to_s 
-    end
-    
-    
-    
-    return ( prependix + content ) .to_i 
-  end
-  
-  
-  
-  def TransactionActivity.create_generic_grace_period_payment(
-          group_loan_membership,
-          employee,
-          cash,
-          savings_withdrawal)
-          
-    
-    group_loan = group_loan_membership.group_loan 
-    group_loan_product = group_loan_membership.group_loan_product 
-    member = group_loan_membership.member 
-    default_payment = group_loan_membership.default_payment 
-    zero_value = BigDecimal("0")
-    
-    # if glm is non active, return nil
-    if group_loan_membership.is_active == false
-      return nil
-    end
-    
-    if not employee.has_role?(:field_worker, employee.active_job_attachment )
-      return nil
-    end
-    #  check if it grace period 
-    if not group_loan.is_grace_period?
-      return nil
-    end
-    
-    
-    
-    # check the number_of_backlogs < actual unpaid backlogs 
-    # if number_of_backlogs <= 0 or ( number_of_backlogs >  group_loan_membership.unpaid_backlogs.count  )
-    #   return nil
-    # end
-    
-    # check if savings withdrawal > saving_book.extra_savings 
-    if member.saving_book.total_extra_savings < savings_withdrawal
-      return nil
-    end
-    
-    
-    # check if cash and savings withdrawal >= 0 
-    if cash < zero_value or savings_withdrawal < zero_value 
-      return nil
-    end
-    
-    if cash == zero_value && savings_withdrawal == zero_value
-      return nil
-    end
-    
-    
-    
-    # if (cash + savings_withdrawal) < default_payment.unpaid_grace_period_amount
-    
-    total_payable = default_payment.unpaid_grace_period_amount
-    total_amount_paid = cash + savings_withdrawal
-    # check if cash + savings_withdrawal >= number_of_backlogs * group_loan_product.grace_period_weekly_payment
- 
-    
-    extra_savings = total_amount_paid - total_payable 
-    
-    new_hash = {}
-    
-  
-    result_resolve = self.resolve_grace_period_transaction_case(
-      cash, 
-      savings_withdrawal, 
-      extra_savings
-    )
-    # this shit starts with 666
-    
-    
-    # transaction_amount  == money exchanging hands 
-    # make it easier for the cashier to count the $$$, given from the fieldworker
-    new_hash[:total_transaction_amount] = cash 
-    new_hash[:transaction_case]  = result_resolve
-    
-    # puts "!!@@!^@&!&@^&!^&@!!@&^@!&^ the result resolve:#{ result_resolve}\n"*10
-    
-    new_hash[:creator_id] = employee.id 
-    new_hash[:office_id] = employee.active_job_attachment.office.id
-    new_hash[:member_id] = member.id
-    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
-    new_hash[:loan_id] = group_loan_membership.group_loan_id
-    
-    # then, create the entries
-    # 
-    
-    transaction_activity = TransactionActivity.create new_hash
-    
-    # IN GRACE PERIOD, NO NOTION ABOUT BACKLOG PAYMENT ANYMORE 
-    # creating the backlog payment 
-    # member.backlog_payments_for_group_loan(group_loan).where(:is_cleared => false ).order("created_at ASC").limit( number_of_backlogs ).each do |x|
-    #    x.is_cleared  = true 
-    #    x.clearance_period = BACKLOG_CLEARANCE_PERIOD[:in_grace_period]
-    #    x.backlog_cleared_declarator_id = employee.id 
-    #    x.transaction_activity_id_for_backlog_clearance = transaction_activity.id
-    #    x.save
-    # end 
-    
-  
-    transaction_activity.create_grace_period_payment_transaction_entries(cash, employee, member) 
 
-    if savings_withdrawal > zero_value 
-      transaction_activity.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
-    end
-    
-    if extra_savings > zero_value
-      transaction_activity.create_extra_savings_entries(extra_savings, employee, member )
-    end
-    
-    #  update the default_payment.unpaid_grace_period_amount 
-    if total_amount_paid < total_payable  
-      default_payment.update_paid_grace_period_amount( total_amount_paid  )
-    else
-      default_payment.update_paid_grace_period_amount( total_payable  )
-    end
-    
-    # update the default loan resolution amount 
-    group_loan.update_default_payment_in_grace_period
-    
-    return transaction_activity
-  end
   
   def TransactionActivity.create_weekly_extra_savings_only( weekly_task, 
     group_loan_membership, employee, amount  )
@@ -712,203 +555,7 @@ class TransactionActivity < ActiveRecord::Base
     self.save 
   end
   
-  def TransactionActivity.create_only_extra_savings_independent_payment(
-      group_loan_membership,
-      employee,
-      amount )
-    zero_value = BigDecimal("0")
-    return nil if group_loan_membership.nil? or employee.nil? or amount.nil? 
-    return nil if amount <= zero_value 
-    return nil if not  employee.has_role?(:field_worker, employee.get_active_job_attachment)
-    
-    # if there is un approved independent payment, don't allow further creation '
-    
-    
- 
-    
-    member = group_loan_membership.member 
-    
-    
-    if MemberPayment.any_independent_payment_pending_approval?(member)
-      return nil
-    end
-    
-    group_loan = group_loan_membership.group_loan 
-    weekly_task = group_loan.currently_executed_weekly_task
-    return nil if weekly_task.nil? 
-    
-    transaction_case = self.resolve_independent_payment_transaction_case(
-      amount, 
-      BigDecimal('0'), 
-      amount, 
-      0,
-      0
-    )
   
-    
-    new_hash = {}
-    new_hash[:total_transaction_amount]  = amount
-    new_hash[:transaction_case] = transaction_case
-    new_hash[:creator_id] = employee.id 
-    new_hash[:office_id] = employee.active_job_attachment.office.id
-    new_hash[:member_id] = member.id 
-    new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward]
-    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
-    new_hash[:loan_id] = group_loan_membership.group_loan_id
-    
-    
-    transaction_activity = TransactionActivity.create new_hash 
-    transaction_activity.create_extra_savings_entries( amount , employee, member )
-    #  create member payment
-    
-    weekly_task.create_extra_savings_only_independent_payment( member, transaction_activity, amount) 
-    
-    return transaction_activity
-  end
-  
-  def TransactionActivity.create_generic_independent_payment(
-          group_loan_membership,
-          employee,
-          cash, 
-          savings_withdrawal,
-          number_of_weeks,
-          number_of_backlogs)
-    group_loan = group_loan_membership.group_loan
-    group_loan_product = group_loan_membership.group_loan_product
-    member = group_loan_membership.member 
-    zero_value = BigDecimal("0") 
-      
-    return nil if group_loan_membership.nil? or
-                  employee.nil? or 
-                  cash.nil? or
-                  savings_withdrawal.nil? or 
-                  number_of_weeks.nil? or 
-                  number_of_backlogs.nil?
-                  
-    
-    return nil if not WeeklyTask.valid_duration?( group_loan_membership, number_of_weeks, number_of_backlogs)
-    return nil if group_loan_membership.is_active == false 
-    return nil if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
-    return nil if savings_withdrawal > member.saving_book.total_extra_savings
-    
-    
-    if MemberPayment.any_independent_payment_pending_approval?(member)
-      return nil
-    end
-    
-    total_amount_paid = cash + savings_withdrawal
-    total_payable = ( number_of_weeks + number_of_backlogs)  * group_loan_product.total_weekly_payment  
-    
-    return nil if total_amount_paid <  total_payable
-    
-    extra_savings = total_amount_paid - total_payable
-    weekly_task = group_loan.currently_executed_weekly_task
-    
-    return nil if weekly_task.nil?
-    new_hash = {}
-    
-  
-    result_resolve = self.resolve_independent_payment_transaction_case(
-      cash, 
-      savings_withdrawal, 
-      extra_savings, 
-      number_of_weeks,
-      number_of_backlogs
-    )
-    
-    
-    # transaction_amount  == money exchanging hands 
-    # make it easier for the cashier to count the $$$, given from the fieldworker
-    new_hash[:total_transaction_amount] = cash 
-    new_hash[:transaction_case]  = result_resolve
-    
-    new_hash[:creator_id] = employee.id 
-    new_hash[:office_id] = employee.active_job_attachment.office.id
-    new_hash[:member_id] = member.id
-    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
-    new_hash[:loan_id] = group_loan_membership.group_loan_id
-    
-    # then, create the entries
-    # 
-    
-    transaction_activity = TransactionActivity.create new_hash
-    
- 
- #no weekly task. only take the group loan info from transaction activity
-    # if number_of_weeks > 0 
-    #   weekly_task.create_independent_group_weekly_payment( member, transaction_activity, number_of_weeks, cash)
-    # end
-    
-    # if number_of_weeks == 1 
-    #   weekly_task.create_independent_group_single_week_payment( member, transaction_activity, cash)
-    # elsif number_of_weeks > 1 
-    #   weekly_task.create_independent_group_multiple_weeks_payment( member, transaction_activity, number_of_weeks, cash)
-    # end
-    
-    
-    if number_of_weeks == 1 
-      weekly_task.create_basic_weekly_payment( member, transaction_activity, cash, true )
-    elsif number_of_weeks > 1 
-      weekly_task.create_multiple_weeks_payment( member, transaction_activity, number_of_weeks, cash, true )
-    end
-    
-    
-    
- 
-    
-    
-    
-    if number_of_backlogs > 0
-      
-      member.backlog_payments_for_group_loan(group_loan).where(:is_cleared => false ).order("created_at ASC").limit( number_of_backlogs ).each do |x|
-         x.is_cleared  = true 
-         x.clearance_period = BACKLOG_CLEARANCE_PERIOD[:in_weekly_payment_cycle]
-         x.backlog_cleared_declarator_id = employee.id 
-         x.transaction_activity_id_for_backlog_clearance = transaction_activity.id
-         x.save
-         weekly_task.create_backlog_payment( member, transaction_activity, cash,true )
-      end 
-    end
-    
-    # creating the transaction entries
-    # create transaction entries: basic entry, savings withdrawal, extra savings 
-    # or even the backlog entries 
-    # 1. according to the number_of_weeks, create basic weekly payment entries 
-    # 2 . according to the number of backlogs, create backlog payment
-    (number_of_weeks + number_of_backlogs).times do |x|
-      transaction_activity.create_basic_payment_entries(group_loan_product, employee, member) 
-    end
-    
-    # 3. according to the savings withdrawal, create savings withdrawal entry
-    if savings_withdrawal > zero_value 
-      transaction_activity.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
-    end
-    
-    # 4 . according to the extra savings, create extra savings
-    if extra_savings > zero_value
-      transaction_activity.create_extra_savings_entries(extra_savings, employee, member )
-    end
-    
-    
-    return transaction_activity
-    
-    
-    # not hooked to any weekly payment. 
-    # must be settled on the same day by cashier (approved)
-    # create the member payment (weekly task as nil ) -> for backlog or future week 
-    # approve the transaction activity  <- on the same day. or else, the next weekly payment can't be approved by cashier
-    
-    # can't be done after propose finalization. too bad. 
-    
-    # how about the extra savings? unlikely case? Fuck, just do it. 
-    # special approval as well 3 direct transaction activity approval
-    # 1. Grace payment
-    # 2. Independent Payment : backlog 
-    # 3. Independent Payment : extra savings 
-    #then, what else? done! fucking done! The custom payment!! 
-    # + The withdrawal => do it offline. 
-    # cashier enters one by one, the amount to be returned
-  end
   
   def TransactionActivity.create_generic_weekly_payment(
           weekly_task, 
@@ -1313,9 +960,6 @@ class TransactionActivity < ActiveRecord::Base
         revision_code,
         PAYMENT_PHASE[:weekly_payment]
         )
-      
-      
-      
        
       return new_transaction  
   end
@@ -1411,6 +1055,298 @@ class TransactionActivity < ActiveRecord::Base
  
     return new_transaction
   end
+  
+  
+  
+=begin
+##################################################################################
+######################################### INDEPENDENT PAYMENT
+##################################################################################
+=end
+  def TransactionActivity.create_only_extra_savings_independent_payment(
+      group_loan_membership,
+      employee,
+      amount,
+      revision_transaction )
+    zero_value = BigDecimal("0")
+    return nil if group_loan_membership.nil? or employee.nil? or amount.nil? 
+    return nil if amount <= zero_value 
+    return nil if not  employee.has_role?(:field_worker, employee.get_active_job_attachment)
+    
+    # if there is un approved independent payment, don't allow further creation '
+    
+    
+ 
+    
+    member = group_loan_membership.member 
+    
+    
+    if MemberPayment.any_independent_payment_pending_approval?(member)
+      return nil
+    end
+    
+    group_loan = group_loan_membership.group_loan 
+    weekly_task = group_loan.currently_executed_weekly_task
+    return nil if weekly_task.nil? 
+    
+    transaction_case = self.resolve_independent_payment_transaction_case(
+      amount, 
+      BigDecimal('0'), 
+      amount, 
+      0,
+      0
+    )
+  
+    
+    new_hash = {}
+    new_hash[:total_transaction_amount]  = amount
+    new_hash[:transaction_case] = transaction_case
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
+    new_hash[:member_id] = member.id 
+    new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward]
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
+    
+    
+    transaction_activity = TransactionActivity.create new_hash 
+    transaction_activity.create_extra_savings_entries( amount , employee, member )
+    #  create member payment
+    
+    weekly_task.create_extra_savings_only_independent_payment( member, transaction_activity, amount) 
+    # create the payment history 
+    
+    if not revision_transaction
+      MemberPaymentHistory.create_weekly_payment_history_entry(
+        employee,  # creator 
+        weekly_task,  # period object 
+        group_loan,  # the loan product
+        LOAN_PRODUCT[:group_loan],
+        member, # the member who paid 
+        amount,  #  the cash passed
+        BigDecimal('0'), # savings withdrawal used
+        0, # in independent payment only savings, number of weeks is nil 
+        0, # in independent payment only savings, number of weeks is nil 
+        transaction_activity.id, # the self 
+        REVISION_CODE[:original_independent_only_savings],
+        PAYMENT_PHASE[:independent_payment]
+        )
+    end
+    
+    return transaction_activity
+  end
+  
+  
+  def TransactionActivity.update_only_extra_savings_independent_payment(
+      group_loan_membership,
+      employee,
+      amount, 
+      transaction_activity )
+          # current_transaction_activity can be nil
+          # hence, we have to ensure that the week payment is declared as no payment declaration.
+          # if it is not declared as no payment, then fuck it... it is fraud transaction 
+          
+      # setup the pre condition 
+      
+      # extract the current un approved independent payment, not deleted nor canceled 
+      
+      # revert the effect of previous transaction: cash and member payment 
+      
+      # extract the revision code 
+      
+      # delete the current transaction 
+      
+      # create the new one
+      # if successful, ok good.. 
+      # if fails, rollback the whole transaction  
+       
+      current_transaction = weekly_task.transactions_for_member(member).first 
+      
+      new_transaction = nil
+      revision_code = nil 
+       
+      
+      member.reload 
+    
+      new_transaction = TransactionActivity.create_generic_weekly_payment(
+              weekly_task, 
+              group_loan_membership,
+              employee,
+              cash,
+              savings_withdrawal, 
+              number_of_weeks,
+              number_of_backlogs,
+              true )
+
+      if new_transaction.nil?
+        raise ActiveRecord::Rollback, "Call tech support!"  # <<< THIS IS THE SHITE!!!! 
+        return nil 
+      end
+      
+      
+      MemberPaymentHistory.create_weekly_payment_history_entry(
+        employee,  # creator 
+        weekly_task,  # period object 
+        group_loan,  # the loan product
+        LOAN_PRODUCT[:group_loan],
+        member, # the member who paid 
+        cash,  #  the cash passed
+        savings_withdrawal, # savings withdrawal used
+        number_of_weeks, # in grace payment, number of weeks is nil 
+        number_of_backlogs, # in grace payment, number of weeks is nil 
+        new_transaction.id, # the self 
+        revision_code,
+        PAYMENT_PHASE[:weekly_payment]
+        )
+       
+      return new_transaction  
+  end
+  
+  
+  
+  def TransactionActivity.create_generic_independent_payment(
+          group_loan_membership,
+          employee,
+          cash, 
+          savings_withdrawal,
+          number_of_weeks,
+          number_of_backlogs)
+    group_loan = group_loan_membership.group_loan
+    group_loan_product = group_loan_membership.group_loan_product
+    member = group_loan_membership.member 
+    zero_value = BigDecimal("0") 
+      
+    return nil if group_loan_membership.nil? or
+                  employee.nil? or 
+                  cash.nil? or
+                  savings_withdrawal.nil? or 
+                  number_of_weeks.nil? or 
+                  number_of_backlogs.nil?
+                  
+    
+    return nil if not WeeklyTask.valid_duration?( group_loan_membership, number_of_weeks, number_of_backlogs)
+    return nil if group_loan_membership.is_active == false 
+    return nil if not employee.has_role?(:field_worker, employee.get_active_job_attachment)
+    return nil if savings_withdrawal > member.saving_book.total_extra_savings
+    
+    
+    if MemberPayment.any_independent_payment_pending_approval?(member)
+      return nil
+    end
+    
+    total_amount_paid = cash + savings_withdrawal
+    total_payable = ( number_of_weeks + number_of_backlogs)  * group_loan_product.total_weekly_payment  
+    
+    return nil if total_amount_paid <  total_payable
+    
+    extra_savings = total_amount_paid - total_payable
+    weekly_task = group_loan.currently_executed_weekly_task
+    
+    return nil if weekly_task.nil?
+    new_hash = {}
+    
+  
+    result_resolve = self.resolve_independent_payment_transaction_case(
+      cash, 
+      savings_withdrawal, 
+      extra_savings, 
+      number_of_weeks,
+      number_of_backlogs
+    )
+    
+    
+    # transaction_amount  == money exchanging hands 
+    # make it easier for the cashier to count the $$$, given from the fieldworker
+    new_hash[:total_transaction_amount] = cash 
+    new_hash[:transaction_case]  = result_resolve
+    
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
+    
+    # then, create the entries
+    # 
+    
+    transaction_activity = TransactionActivity.create new_hash
+    
+ 
+ #no weekly task. only take the group loan info from transaction activity
+    # if number_of_weeks > 0 
+    #   weekly_task.create_independent_group_weekly_payment( member, transaction_activity, number_of_weeks, cash)
+    # end
+    
+    # if number_of_weeks == 1 
+    #   weekly_task.create_independent_group_single_week_payment( member, transaction_activity, cash)
+    # elsif number_of_weeks > 1 
+    #   weekly_task.create_independent_group_multiple_weeks_payment( member, transaction_activity, number_of_weeks, cash)
+    # end
+    
+    
+    if number_of_weeks == 1 
+      weekly_task.create_basic_weekly_payment( member, transaction_activity, cash, true )
+    elsif number_of_weeks > 1 
+      weekly_task.create_multiple_weeks_payment( member, transaction_activity, number_of_weeks, cash, true )
+    end
+    
+    
+    
+ 
+    
+    
+    
+    if number_of_backlogs > 0
+      
+      member.backlog_payments_for_group_loan(group_loan).where(:is_cleared => false ).order("created_at ASC").limit( number_of_backlogs ).each do |x|
+         x.is_cleared  = true 
+         x.clearance_period = BACKLOG_CLEARANCE_PERIOD[:in_weekly_payment_cycle]
+         x.backlog_cleared_declarator_id = employee.id 
+         x.transaction_activity_id_for_backlog_clearance = transaction_activity.id
+         x.save
+         weekly_task.create_backlog_payment( member, transaction_activity, cash,true )
+      end 
+    end
+    
+    # creating the transaction entries
+    # create transaction entries: basic entry, savings withdrawal, extra savings 
+    # or even the backlog entries 
+    # 1. according to the number_of_weeks, create basic weekly payment entries 
+    # 2 . according to the number of backlogs, create backlog payment
+    (number_of_weeks + number_of_backlogs).times do |x|
+      transaction_activity.create_basic_payment_entries(group_loan_product, employee, member) 
+    end
+    
+    # 3. according to the savings withdrawal, create savings withdrawal entry
+    if savings_withdrawal > zero_value 
+      transaction_activity.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
+    end
+    
+    # 4 . according to the extra savings, create extra savings
+    if extra_savings > zero_value
+      transaction_activity.create_extra_savings_entries(extra_savings, employee, member )
+    end
+    
+    
+    return transaction_activity
+    
+    
+    # not hooked to any weekly payment. 
+    # must be settled on the same day by cashier (approved)
+    # create the member payment (weekly task as nil ) -> for backlog or future week 
+    # approve the transaction activity  <- on the same day. or else, the next weekly payment can't be approved by cashier
+    
+    # can't be done after propose finalization. too bad. 
+    
+    # how about the extra savings? unlikely case? Fuck, just do it. 
+    # special approval as well 3 direct transaction activity approval
+    # 1. Grace payment
+    # 2. Independent Payment : backlog 
+    # 3. Independent Payment : extra savings 
+    #then, what else? done! fucking done! The custom payment!! 
+    # + The withdrawal => do it offline. 
+    # cashier enters one by one, the amount to be returned
+  end
 
   
   def TransactionActivity.resolve_independent_payment_transaction_case( cash, savings_withdrawal, extra_savings,
@@ -1458,6 +1394,181 @@ class TransactionActivity < ActiveRecord::Base
     return ( prependix + content ) .to_i 
   end
   
+  
+=begin
+########################################################## 
+############################# GRACE PERIOD PAYMENT 
+##########################################################
+=end
+  
+  end
+  
+  def TransactionActivity.resolve_grace_period_transaction_case(
+      cash, 
+      savings_withdrawal, 
+      extra_savings 
+    )
+    
+    prependix= "666"  # backlog payment during grace period 
+    content = "" 
+    zero_value = BigDecimal("0")
+    
+    if cash > zero_value
+      content << 1.to_s
+    else
+      content << 0.to_s
+    end
+    
+    if savings_withdrawal > zero_value
+      content << 1.to_s
+    else
+      content << 0.to_s
+    end
+    
+    if extra_savings > zero_value
+      content << 1.to_s 
+    else
+      content << 0.to_s 
+    end
+    
+    
+    
+    return ( prependix + content ) .to_i 
+  end
+  
+  
+  
+  def TransactionActivity.create_generic_grace_period_payment(
+          group_loan_membership,
+          employee,
+          cash,
+          savings_withdrawal)
+          
+    
+    group_loan = group_loan_membership.group_loan 
+    group_loan_product = group_loan_membership.group_loan_product 
+    member = group_loan_membership.member 
+    default_payment = group_loan_membership.default_payment 
+    zero_value = BigDecimal("0")
+    
+    # if glm is non active, return nil
+    if group_loan_membership.is_active == false
+      return nil
+    end
+    
+    if not employee.has_role?(:field_worker, employee.active_job_attachment )
+      return nil
+    end
+    #  check if it grace period 
+    if not group_loan.is_grace_period?
+      return nil
+    end
+    
+    
+    
+    # check the number_of_backlogs < actual unpaid backlogs 
+    # if number_of_backlogs <= 0 or ( number_of_backlogs >  group_loan_membership.unpaid_backlogs.count  )
+    #   return nil
+    # end
+    
+    # check if savings withdrawal > saving_book.extra_savings 
+    if member.saving_book.total_extra_savings < savings_withdrawal
+      return nil
+    end
+    
+    
+    # check if cash and savings withdrawal >= 0 
+    if cash < zero_value or savings_withdrawal < zero_value 
+      return nil
+    end
+    
+    if cash == zero_value && savings_withdrawal == zero_value
+      return nil
+    end
+    
+    
+    
+    # if (cash + savings_withdrawal) < default_payment.unpaid_grace_period_amount
+    
+    total_payable = default_payment.unpaid_grace_period_amount
+    total_amount_paid = cash + savings_withdrawal
+    # check if cash + savings_withdrawal >= number_of_backlogs * group_loan_product.grace_period_weekly_payment
+ 
+    
+    extra_savings = total_amount_paid - total_payable 
+    
+    new_hash = {}
+    
+  
+    result_resolve = self.resolve_grace_period_transaction_case(
+      cash, 
+      savings_withdrawal, 
+      extra_savings
+    )
+    # this shit starts with 666
+    
+    
+    # transaction_amount  == money exchanging hands 
+    # make it easier for the cashier to count the $$$, given from the fieldworker
+    new_hash[:total_transaction_amount] = cash 
+    new_hash[:transaction_case]  = result_resolve
+    
+    # puts "!!@@!^@&!&@^&!^&@!!@&^@!&^ the result resolve:#{ result_resolve}\n"*10
+    
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = group_loan_membership.group_loan_id
+    
+    # then, create the entries
+    # 
+    
+    transaction_activity = TransactionActivity.create new_hash
+    
+    # IN GRACE PERIOD, NO NOTION ABOUT BACKLOG PAYMENT ANYMORE 
+    # creating the backlog payment 
+    # member.backlog_payments_for_group_loan(group_loan).where(:is_cleared => false ).order("created_at ASC").limit( number_of_backlogs ).each do |x|
+    #    x.is_cleared  = true 
+    #    x.clearance_period = BACKLOG_CLEARANCE_PERIOD[:in_grace_period]
+    #    x.backlog_cleared_declarator_id = employee.id 
+    #    x.transaction_activity_id_for_backlog_clearance = transaction_activity.id
+    #    x.save
+    # end 
+    
+  
+    transaction_activity.create_grace_period_payment_transaction_entries(cash, employee, member) 
+
+    if savings_withdrawal > zero_value 
+      transaction_activity.create_soft_savings_withdrawal_entries( savings_withdrawal, employee , member)
+    end
+    
+    if extra_savings > zero_value
+      transaction_activity.create_extra_savings_entries(extra_savings, employee, member )
+    end
+    
+    #  update the default_payment.unpaid_grace_period_amount 
+    if total_amount_paid < total_payable  
+      default_payment.update_paid_grace_period_amount( total_amount_paid  )
+    else
+      default_payment.update_paid_grace_period_amount( total_payable  )
+    end
+    
+    # update the default loan resolution amount 
+    group_loan.update_default_payment_in_grace_period
+    
+    return transaction_activity
+  end
+  
+  
+  
+  
+  
+=begin
+########################################################## 
+############################# UTILITY METHOD
+##########################################################
+=end
   def single_extra_savings_weekly_payment?
     self.number_of_weekly_payments_paid ==1 && 
     self.transaction_entries.where(:transaction_entry_code=> TRANSACTION_ENTRY_CODE[:extra_weekly_saving]).count != 0 

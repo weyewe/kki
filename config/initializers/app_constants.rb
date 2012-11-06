@@ -296,7 +296,20 @@ REVISION_CODE = {
   
   :original_normal => 11,
   :original_only_savings => 12,
-  :original_no_payment => 13 
+  :original_no_payment => 13 ,
+  
+  :original_independent_only_savings => 30,
+  :original_independent_normal => 31
+  
+  :independent_normal => {
+    :normal => 41,
+    :only_savings => 42
+  },
+  
+  :independent_only_savings => {
+    :normal => 43, 
+    :only_savings => 44 
+  }
 }
 
 LOAN_PRODUCT = {

@@ -340,6 +340,26 @@ class TransactionActivitiesController < ApplicationController
         @transaction_activity= TransactionActivity.create_only_extra_savings_independent_payment( 
           @group_loan_membership, 
           current_user, 
+          cash, false   )
+      end
+    rescue ActiveRecord::ActiveRecordError  
+    else
+    end
+    
+  end
+  
+  def update_only_extra_savings_independent_payment
+    @group_loan_membership = GroupLoanMembership.find_by_id params[:group_loan_membership_id]
+    @group_loan = @group_loan_membership.group_loan
+    @member = @group_loan_membership.member
+    
+    cash = BigDecimal.new( params[:oes_cash_amount] )
+    
+    begin
+      ActiveRecord::Base.transaction do
+        @transaction_activity= TransactionActivity.create_only_extra_savings_independent_payment( 
+          @group_loan_membership, 
+          current_user, 
           cash  )
       end
     rescue ActiveRecord::ActiveRecordError  
