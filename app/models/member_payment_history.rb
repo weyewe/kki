@@ -18,6 +18,8 @@ class MemberPaymentHistory < ActiveRecord::Base
   validates_presence_of :member_id, :loan_product_id, :loan_product_type, :revision_code, :payment_phase
   
   
+  
+  
   def MemberPaymentHistory.edit_history_list_count(weekly_task, payment_phase, member )    
     total_count = MemberPaymentHistory.edit_history_list( weekly_task, payment_phase , member  ).count 
     

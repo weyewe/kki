@@ -30,7 +30,8 @@
 
 		<td><span class="label label-important">No Payment</span>		</td>
 
-		<td> <%= MemberPaymentHistory.edit_history_list_count( weekly_task, PAYMENT_PHASE[:weekly_payment], glm.member )   %></td>
+		<td> 
+		<%= MemberPaymentHistory.edit_history_list_count( weekly_task, PAYMENT_PHASE[:weekly_payment], glm.member )   %></td>
 	<% end %>
 	
 </tr>

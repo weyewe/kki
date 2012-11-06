@@ -4,7 +4,9 @@
   <td><%= member.name  %></td>
   <td><%= independent_payment.transaction_case %></td>
   <td><%= print_money(independent_payment.total_transaction_amount) %></td>
-	<td>Edit History </td>
+	<td>
+		 <%= MemberPaymentHistory.edit_history_list_count( weekly_task, PAYMENT_PHASE[:independent_payment], member )   %>
+	</td>
 
 
   

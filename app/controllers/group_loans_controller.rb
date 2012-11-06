@@ -186,7 +186,7 @@ class GroupLoansController < ApplicationController
   def select_member_for_independent_weekly_payment
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
-    @glm_list = @group_loan.active_group_loan_memberships.order("sub_group_id ASC")
+    @glm_list = @group_loan.active_group_loan_memberships.order("sub_group_id DESC, created_at ASC")
     
     @deadline_weekly_task = @group_loan.currently_executed_weekly_task
    

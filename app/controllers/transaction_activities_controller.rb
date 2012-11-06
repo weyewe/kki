@@ -428,6 +428,12 @@ class TransactionActivitiesController < ApplicationController
     @action_role = params[:action_role].to_i
     @action_value = params[:action_value].to_i
     
+    weekly_task_id = MemberPaymentHistroy.where(
+        :transaction_activity_id => @transaction_activity.id 
+          )
+          
+    @weekly_weekly_task.find_by_id(weekly_task_id )
+    
     if @action_role == APPROVER_ROLE
       if @action_value == TRUE_CHECK
         

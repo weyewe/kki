@@ -24,7 +24,11 @@
         <tbody>
           <% @independent_payments.each do |independent_payment| %>
             <%= render :partial => "member_payments/independent_payment_entry" , 
-                :locals => {:independent_payment => independent_payment}%>
+                :locals => {
+										:independent_payment => independent_payment,
+										:weekly_task => @pending_approval_weekly_task
+	
+										}%>
    
           <% end %>
        
