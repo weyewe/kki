@@ -139,14 +139,15 @@ TRANSACTION_ENTRY_CODE = {
   :late_payment_fine => 7 ,
   :extra_weekly_saving => 8, 
   :no_weekly_payment_only_savings => 9,
-  :grace_period_payment => 66, 
+  :grace_period_payment => 66, ,
+  :only_savings_independent_payment => 70, # during group loan.. member can only pay for independent payment 
   
   
   # all transaction from company to the member
   :return_deposit => 101, 
   :soft_savings_withdrawal => 200,
   :hard_saving_withdrawal => 201 ,
-  :independent_savings_deposit => 250,  ## awesome, member starts  to save!
+  :independent_savings_deposit => 250,  ##awesome, member starts  to save! #not independent payment.. has nothing to do with group loan 
   :loan_disbursement => 300,
   :total_loan_disbursement_amount => 301,
   :setup_fee_deduction_from_disbursement_amount => 310,
@@ -173,6 +174,7 @@ SAVING_ENTRY_CODE = {
   :weekly_saving_extra_from_basic_payment => 3 ,
   :independent_savings_deposit => 4, 
   :no_weekly_payment_only_savings => 5 ,
+  :only_savings_independent_payment => 70, 
   
   :soft_withdraw_to_pay_basic_weekly_payment => 100, 
   

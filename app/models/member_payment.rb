@@ -31,6 +31,11 @@ class MemberPayment < ActiveRecord::Base
      ( transaction_activity_id.nil? )
   end
   
+  def only_savings_independent_payment? 
+     (has_paid == true ) && (only_extra_savings == true ) && 
+     (week_number == nil) && (is_independent_weekly_payment == true )
+  end
+  
   
   def MemberPayment.has_made_payment_for( weekly_task, week_number, member )
     # if it exists, can't be done.. has to be paid through backlog payment 
@@ -58,5 +63,7 @@ class MemberPayment < ActiveRecord::Base
           :is_deleted => false, 
           :is_canceled => false   ).count != 0 
   end
+  
+ 
   
 end
