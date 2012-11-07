@@ -23,9 +23,14 @@ class MemberPayment < ActiveRecord::Base
   end
   
   def is_backlog_full_payment?
-    (only_savings == false ) && (no_payment == false ) && 
+    (only_savings == false ) && (no_payment == false ) &&  (only_extra_savings == false ) && 
     (not transaction_activity_id.nil? )
     
+  end
+  
+  def only_savings_independent_payment? 
+     (has_paid == true ) && (only_extra_savings == true ) && 
+     (week_number == nil) && (is_independent_weekly_payment == true )
   end
   
   # def is_backlog_payment?
@@ -50,10 +55,7 @@ class MemberPayment < ActiveRecord::Base
       (week_number != nil) && (is_independent_weekly_payment == false )
   end
   
-  def only_savings_independent_payment? 
-     (has_paid == true ) && (only_extra_savings == true ) && 
-     (week_number == nil) && (is_independent_weekly_payment == true )
-  end
+  
   
   
   def MemberPayment.has_made_payment_for( weekly_task, week_number, member )

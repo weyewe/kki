@@ -180,6 +180,8 @@ class TransactionActivity < ActiveRecord::Base
     self.save
   end
   
+  
+  # only FOR TESTING!
   def TransactionActivity.create_independent_savings( member, amount, field_worker )
     
     # member.add_savings()
@@ -201,7 +203,12 @@ class TransactionActivity < ActiveRecord::Base
     transaction_activity = TransactionActivity.create new_hash 
     transaction_activity.create_independent_savings_entry( amount, field_worker, member )
     
+    # this independent savings is only used in the testing.. 
+    # real life.. no such thing
+    # 
     
+    transaction_activity.is_approved = true
+    transaction_activity.save 
     return transaction_activity
   end
   
@@ -748,7 +755,15 @@ class TransactionActivity < ActiveRecord::Base
     
     
   def revert_transaction_effect(member_payment)
+    puts "IN REVERT\n"*10
     if member_payment.is_full_payment? or member_payment.is_backlog_full_payment?
+      puts "IN FULL PAYMENT"
+      
+      if member_payment.is_full_payment? 
+        puts "because of the full payment"
+      elsif member_payment.is_backlog_full_payment?
+        puts "because of the backlog full payment"
+      end
       # there are basic payment entries created (multiple week and multiple backlog payments? )
         # for all basic payment entries, 
           # revert the compulsory savings generated 
@@ -769,12 +784,14 @@ class TransactionActivity < ActiveRecord::Base
         end
         # and reduce the account payable in the cashflow book.. 
     elsif member_payment.only_savings_payment?
+      puts "IN ONLY SAVINGS PAYMENT"
       # only extra savings.. revert the effect: delete the saving entry ,delete the transaction entry 
       self.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:no_weekly_payment_only_savings]).each do |te|
         te.revert_and_delete
       end
       # reduce the account payable in the cashflow book 
     elsif member_payment.only_savings_independent_payment?
+    
       puts "1234 in the revert transaction effect, only savings independent payment "
       self.transaction_entries.where(:transaction_entry_code => TRANSACTION_ENTRY_CODE[:only_savings_independent_payment]).each do |te|
         te.revert_and_delete
@@ -1632,7 +1649,7 @@ class TransactionActivity < ActiveRecord::Base
     
     
     # no savings withdrawal is allowed if there is unapproved transaction 
-    puts "7123 bad savings withdrawal"
+    puts "7123 bad savings withdrawal, un approved previous transaction activity "
     if savings_withdrawal > BigDecimal('0')
       if TransactionActivity.where(:member_id => member.id, :is_deleted => false, :is_canceled => false , 
                   :is_approved => false).count != 0
