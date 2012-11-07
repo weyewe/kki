@@ -1,14 +1,14 @@
 
 
-<% last_payment_history_entry = glm.effective_weekly_payment_history_entry(weekly_task,
- 	PAYMENT_PHASE[:weekly_payment]) %>
+<% transaction_activity = glm.unapproved_group_weekly_payment  %>
 <% member_payment = weekly_task.member_payment_for(glm.member ) %>
-<% transaction_activity = TransactionActivity.find_by_id last_payment_history_entry.transaction_activity_id  %>
 
 <% puts "666  the glm id is #{glm.id}\n"*100 %>
 <% puts "weekly task id is #{weekly_task.id}"%>
 <tr>
-  	<% if not member_payment.no_payment? %>
+	
+		<% if member_payment.weekly_task.week_number ==  member_payment.week_number and 
+				member_payment.is_independent_weekly_payment ==false  %> 
 	  
 		<td> 
 			<%= transaction_activity.id  %> 
@@ -20,7 +20,7 @@
 		<td><%=  transaction_activity.transaction_case %></td>
 
 		<td> <%= MemberPaymentHistory.edit_history_list_count( weekly_task, PAYMENT_PHASE[:weekly_payment], glm.member )   %></td>
-	<% else %>
+	<% elsif member_payment.no_payment? %>
 		<td> 
 			<span class="label label-important">No Payment</span>		
 		</td>
@@ -35,16 +35,3 @@
 	<% end %>
 	
 </tr>
-
-<!-- 
-<tr id="transaction_activity-<%#= transaction_activity %>">
-  
-
-  <td><%#= transaction_activity.id  %></td>
-  <td><%#= transaction_activity.member.name %></td>
-  <td><%#= print_money( transaction_activity.total_transaction_amount ) %></td>
-
-  <td><%#=  transaction_activity.transaction_case %></td>
- 
-  <td> <%#= MemberPaymentHistory.edit_history_list_count( transaction_activity )   %></td>
-</tr> -->

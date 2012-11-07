@@ -74,19 +74,19 @@ class WeeklyTasksController < ApplicationController
     @weekly_task = WeeklyTask.find_by_id params[:weekly_task_id]
     @group_loan_product = @group_loan_membership.group_loan_product
     
-    @transaction_activity = @group_loan_membership.unapproved_independent_payment
-    
-    @actual_extra_savings = @member.saving_book.total_extra_savings -
-                          @transaction_activity.independent_payment_extra_savings_amount + 
-                          @transaction_activity.savings_withdrawal_amount 
-                          
-    @backlog_paid =  @transaction_activity.number_of_backlogs_paid_in_weekly_cycle  
-    @week_paid  = @transaction_activity.number_of_weeks_paid 
-    
-    @actual_payable_backlogs = @group_loan_membership.unpaid_backlogs.count + @backlog_paid
-    @actual_payable_weeks = @group_loan.remaining_weekly_tasks_count_for_member(@member)  + @week_paid
-    
-    @member_payment = MemberPayment.where(:transaction_activity_id => @transaction_activity.id ).first
+    # @transaction_activity = @group_loan_membership.unapproved_independent_payment
+    #    
+    #    @actual_extra_savings = @member.saving_book.total_extra_savings -
+    #                          @transaction_activity.independent_payment_extra_savings_amount + 
+    #                          @transaction_activity.savings_withdrawal_amount 
+    #                          
+    #    @backlog_paid =  @transaction_activity.number_of_backlogs_paid_in_weekly_cycle  
+    #    @week_paid  = @transaction_activity.number_of_weeks_paid 
+    #    
+    #    @actual_payable_backlogs = @group_loan_membership.unpaid_backlogs.count + @backlog_paid
+    #    @actual_payable_weeks = @group_loan.remaining_weekly_tasks_count_for_member(@member)  + @week_paid
+    #    
+    #    @member_payment = MemberPayment.where(:transaction_activity_id => @transaction_activity.id ).first
     
     
     
@@ -117,7 +117,7 @@ class WeeklyTasksController < ApplicationController
     @transaction_activity = @group_loan_membership.unapproved_group_weekly_payment
     
     @actual_extra_savings = @member.saving_book.total_extra_savings -
-                          @transaction_activity.extra_savings_amount + 
+                          @transaction_activity.extra_savings_addition_amount + 
                           @transaction_activity.savings_withdrawal_amount 
                           
     @backlog_paid =  @transaction_activity.number_of_backlogs_paid_in_weekly_cycle  

@@ -480,19 +480,19 @@ class GroupLoanMembership < ActiveRecord::Base
   PAYMENT HISTORY 
 =end
 
-  def effective_weekly_payment_history_entry(weekly_task, payment_phase )
-    MemberPaymentHistory.where(
-      :weekly_task_id => weekly_task.id  ,
-      :member_id =>  self.member_id, 
-      :payment_phase => payment_phase
-    ).order("created_at DESC").first 
-  end
+  # def effective_weekly_payment_history_entry(weekly_task, payment_phase )
+  #   MemberPaymentHistory.where(
+  #     :weekly_task_id => weekly_task.id  ,
+  #     :member_id =>  self.member_id, 
+  #     :payment_phase => payment_phase
+  #   ).order("created_at DESC").first 
+  # end
   
 =begin
   Independent Payment 
 =end
   def unapproved_group_weekly_payments
-    TransactionActivity.where(
+    result_list = TransactionActivity.where(
       :member_id => self.member_id , 
       :loan_type => LOAN_TYPE[:group_loan],  # if we have personal-periodic loan... loan type is not a problem any more
       :loan_id => self.group_loan_id, 
@@ -501,6 +501,20 @@ class GroupLoanMembership < ActiveRecord::Base
       :is_deleted => false, 
       :is_canceled => false 
     )
+    
+    if result_list.length == 0 
+       result_list = TransactionActivity.where(
+         :member_id => self.member_id , 
+         :loan_type => LOAN_TYPE[:group_loan],  # if we have personal-periodic loan... loan type is not a problem any more
+         :loan_id => self.group_loan_id, 
+         :transaction_case =>  TRANSACTION_CASE[:weekly_payment_only_savings]  ,
+         :is_approved => false , 
+         :is_deleted => false, 
+         :is_canceled => false 
+       )
+    end
+    
+    return result_list 
   end
   
   def unapproved_group_weekly_payment

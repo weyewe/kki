@@ -150,15 +150,19 @@ class TransactionActivity < ActiveRecord::Base
     
   end
   
-  def extra_savings_amount
-    extra_savings_entries = self.transaction_entries.where( :transaction_entry_code => TRANSACTION_ENTRY_CODE[:extra_weekly_saving] )
-    total_amount = BigDecimal("0")
-    
-    extra_savings_entries.each do |te|
-      total_amount += te.amount
-    end
-    return total_amount 
-  end
+  # def extra_savings_amount
+  #   extra_savings_entries = self.transaction_entries.where( :transaction_entry_code => [
+  #     TRANSACTION_ENTRY_CODE[:no_weekly_payment_only_savings],
+  #      TRANSACTION_ENTRY_CODE[:extra_weekly_saving] 
+  #     ])
+  #     
+  #   total_amount = BigDecimal("0")
+  #   
+  #   extra_savings_entries.each do |te|
+  #     total_amount += te.amount
+  #   end
+  #   return total_amount 
+  # end
   
    
   def grace_payment_extra_savings_amount
@@ -951,14 +955,23 @@ class TransactionActivity < ActiveRecord::Base
   
   def extra_savings_addition_transaction_entries 
     self.transaction_entries.where( 
-                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:extra_weekly_saving],  
+                      :transaction_entry_code => [
+                          TRANSACTION_ENTRY_CODE[:no_weekly_payment_only_savings],
+                           TRANSACTION_ENTRY_CODE[:extra_weekly_saving] 
+                          ],  
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       )
   end
   
   def extra_savings_addition_amount
+    
+    
+    
     return self.transaction_entries.where( 
-                      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:extra_weekly_saving],  
+                      :transaction_entry_code => [
+                          TRANSACTION_ENTRY_CODE[:no_weekly_payment_only_savings],
+                           TRANSACTION_ENTRY_CODE[:extra_weekly_saving] 
+                          ],  
                       :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
                       ).sum("amount")
   end
