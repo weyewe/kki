@@ -844,6 +844,10 @@ module ApplicationHelper
           {
             :controller => "group_loans",
             :action => 'grace_period_payment_calculator'
+          },
+          {
+            :controller => "group_loans",
+            :action => 'edit_grace_period_payment_calculator'
           }
         ]
       },

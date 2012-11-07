@@ -491,6 +491,23 @@ class GroupLoanMembership < ActiveRecord::Base
 =begin
   Independent Payment 
 =end
+  def unapproved_group_weekly_payments
+    TransactionActivity.where(
+      :member_id => self.member_id , 
+      :loan_type => LOAN_TYPE[:group_loan],  # if we have personal-periodic loan... loan type is not a problem any more
+      :loan_id => self.group_loan_id, 
+      :transaction_case =>  (BASIC_WEEKLY_PAYMENT_START..BASIC_WEEKLY_PAYMENT_END)  ,
+      :is_approved => false , 
+      :is_deleted => false, 
+      :is_canceled => false 
+    )
+  end
+  
+  def unapproved_group_weekly_payment
+    unapproved_group_weekly_payments.order("created_at DESC").first 
+    
+  end
+
   def unapproved_independent_payments
     
     # by the implemented logic, there can only be 1 unapproved independent payments 
@@ -523,6 +540,8 @@ class GroupLoanMembership < ActiveRecord::Base
     ).order("created_at DESC").first 
     
   end
+  
+
   
   protected
   def destroy_group_loan_subcription

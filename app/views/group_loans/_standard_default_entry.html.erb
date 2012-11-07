@@ -11,9 +11,9 @@
   
   
   <td>
-    <% if default_payment.is_defaultee == true %>
+    <% if not default_payment.is_actual_non_defaultee? %>
       <span class="label label-important"><%= t 'status.defaultee' %></span>
-    <% elsif default_payment.is_defaultee == false  %>
+    <% elsif default_payment.is_actual_non_defaultee?  %>
       <span class="label label-success"><%= t 'status.non_defaultee' %></span>
     <% end %>
   </td>

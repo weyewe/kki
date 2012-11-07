@@ -255,6 +255,45 @@ class GroupLoansController < ApplicationController
           "#{t 'process.input_payment'}"           
   end
   
+  def edit_grace_period_payment_calculator
+    @office = current_user.active_job_attachment.office
+    @group_loan_membership = GroupLoanMembership.find_by_id(params[:group_loan_membership_id])
+    @group_loan = @group_loan_membership.group_loan 
+    
+    @member  = @group_loan_membership.member 
+    @unpaid_backlogs_count = @group_loan_membership.unpaid_backlogs.count 
+    @group_loan_product = @group_loan_membership.group_loan_product
+    @amount_per_backlog_in_grace_period = @group_loan_product.grace_period_weekly_payment
+    
+    @pending_approval_grace_payment = @group_loan_membership.unapproved_grace_period_payment
+    
+    if @group_loan_membership.default_payment.unpaid_grace_period_amount == BigDecimal("0") and 
+        @pending_approval_grace_payment.nil? 
+      redirect_to default_members_for_grace_period_payment_url(@group_loan)
+      return 
+    end
+     
+     
+    
+    
+    
+    ### only for edit
+    @unpaid_grace_payment_adjusted = @group_loan_membership.default_payment.unpaid_grace_period_amount.to_i + 
+			@pending_approval_grace_payment.grace_payment_savings_withdrawal_amount.to_i +
+			@pending_approval_grace_payment.total_transaction_amount.to_i	-
+			@pending_approval_grace_payment.grace_payment_extra_savings_amount.to_i
+			
+		@total_available_extra_savings =   @member.saving_book.total_extra_savings.to_i +
+			@pending_approval_grace_payment.grace_payment_savings_withdrawal_amount.to_i -
+			@pending_approval_grace_payment.grace_payment_extra_savings_amount.to_i
+    
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_grace_period_payment_url'
+    set_breadcrumb_for @group_loan, 'default_members_for_grace_period_payment_url' + "(#{@group_loan.id})", 
+                "#{t 'process.grace_period_payment'}"
+    set_breadcrumb_for @group_loan, 'edit_grace_period_payment_calculator_url' + "(#{@group_loan_membership.id})", 
+          "#{t 'process.input_payment'}"           
+  end
+  
 =begin
   Approve GRACE PERIOD PAYMENT 
 =end
@@ -284,8 +323,13 @@ class GroupLoansController < ApplicationController
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @group_loan_membership_id = @group_loan.preserved_active_group_loan_memberships.map{|x| x.id }
+    
+    # order("sub_group_id DESC, created_at ASC") 
+    # @default_payments = DefaultPayment.where(
+    #    :group_loan_membership_id => @group_loan_membership_id).order("created_at ASC").includes(:group_loan_membership)
+      
     @default_payments = DefaultPayment.where(
-      :group_loan_membership_id => @group_loan_membership_id).order("created_at ASC").includes(:group_loan_membership)
+      :group_loan_membership_id => @group_loan_membership_id).order("group_loan_memberships.sub_group_id DESC, group_loan_memberships.created_at ASC").includes(:group_loan_membership)
     
     @total_defaultee = @default_payments.where(:is_defaultee => true ).count
     
@@ -387,7 +431,7 @@ class GroupLoansController < ApplicationController
   def mark_financial_education_attendance
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
-    @group_loan_memberships = @group_loan.group_loan_memberships.includes(:member).order("created_at DESC")
+    @group_loan_memberships = @group_loan.group_loan_memberships.includes(:member).order("sub_group_id DESC, created_at ASC")
     
     add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_financial_education_meeting_attendance_url'
     set_breadcrumb_for @group_loan, 'mark_financial_education_attendance_url' + "(#{@group_loan.id})", 
@@ -435,7 +479,7 @@ class GroupLoansController < ApplicationController
   def mark_loan_disbursement_attendance
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
-    @group_loan_memberships = @group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.includes(:member).order("created_at DESC")
+    @group_loan_memberships = @group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.includes(:member).order("sub_group_id DESC, created_at ASC")
     
     add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_loan_disbursement_meeting_attendance_url'
     set_breadcrumb_for @group_loan, 'mark_loan_disbursement_attendance_url' + "(#{@group_loan.id})", 

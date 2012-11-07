@@ -48,10 +48,43 @@ class TransactionActivity < ActiveRecord::Base
     Member.find_by_id( self.member_id )
   end
   
+  def grace_payment_savings_withdrawal_amount
+    transaction_entries = self.transaction_entries.where(
+      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:grace_period_payment_soft_savings_withdrawal] ,
+      :is_deleted => false 
+    )
+    
+    total_amount = BigDecimal("0")
+    
+    transaction_entries.each do |te|
+      total_amount += te.amount
+    end
+    
+    return total_amount
+  end
+  
+  def grace_payment_extra_savings_amount
+    transaction_entries = self.transaction_entries.where(
+      :transaction_entry_code => TRANSACTION_ENTRY_CODE[:grace_period_payment_extra_savings] ,
+      :is_deleted => false 
+    )
+    
+    total_amount = BigDecimal("0")
+    
+    transaction_entries.each do |te|
+      total_amount += te.amount
+    end
+    
+    return total_amount
+  end
+  
+  
+  
   def savings_withdrawal_amount
     transaction_entries = self.transaction_entries.where(
       :transaction_entry_code => TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal],
-      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
+      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward],
+      :is_deleted => false 
     )
     
     total_amount = BigDecimal("0")
@@ -583,7 +616,52 @@ class TransactionActivity < ActiveRecord::Base
 ######################################### WEEKLY PAYMENT
 ##################################################################################
 =end
+  def TransactionActivity.can_create_savings_withdrawal_for_group_weekly_payment?(group_loan_membership , revision_transaction)
+    # no savings withdrawal is allowed if there is unapproved transaction 
+    pending_approval_group_weekly_payment = group_loan_membership.unapproved_group_weekly_payment
+    pending_approval_transactions_id_list = TransactionActivity.where(:member_id => group_loan_membership.member_id, 
+                        :is_deleted => false, 
+                        :is_canceled => false , 
+                        :is_approved => false).map{|x| x.id }
+        
   
+    # case when savings withdrawal is rejected
+    # if weekly payment edit 
+      # 1. if there is no other pending approval, only itself == allow 
+      # 2. if there is other pending approval , not itself == not allow
+      
+    # If weekly payment creation
+      # 1. if there is other pending approval, not itself -> not allow
+      # 2. if there is no other pending approval.. allow 
+
+                
+    if revision_transaction == true
+      if pending_approval_transactions_id_list.length > 1
+        return false
+      elsif pending_approval_transactions_id_list.length == 1 and pending_approval_group_weekly_payment.nil?
+        return false 
+      elsif pending_approval_transactions_id_list.length == 1 and  
+          pending_approval_transactions_id_list.first != pending_approval_group_weekly_payment.id
+        return false
+      elsif pending_approval_transactions_id_list.length == 1 and  
+          pending_approval_transactions_id_list.first == pending_approval_group_weekly_payment.id
+          # please proceed to the group weekly payment revision  
+          return true 
+      end
+
+    elsif revision_transaction == false  # new weekly payment creation
+      if pending_approval_transactions_id_list.length > 1
+        return false
+      elsif pending_approval_transactions_id_list.length == 1 and pending_approval_group_weekly_payment.nil?
+        return false
+      elsif pending_approval_transactions_id_list.length == 1 and  
+          pending_approval_transactions_id_list.first != pending_approval_group_weekly_payment.id
+        return false
+      end
+    end
+    
+    return true 
+  end
   
   def TransactionActivity.create_generic_weekly_payment(
           weekly_task, 
@@ -618,11 +696,16 @@ class TransactionActivity < ActiveRecord::Base
     return nil if savings_withdrawal > member.saving_book.total_extra_savings
     
     # no savings withdrawal is allowed if there is unapproved transaction 
+    pending_approval_group_weekly_payment = group_loan_membership.unapproved_group_weekly_payment
+    pending_approval_transactions_id_list = TransactionActivity.where(:member_id => member.id, 
+                        :is_deleted => false, 
+                        :is_canceled => false , 
+                        :is_approved => false).map{|x| x.id }
+                        
     if savings_withdrawal > BigDecimal('0')
-      if TransactionActivity.where(:member_id => member.id, :is_deleted => false, :is_canceled => false , 
-                  :is_approved => false).count != 0
-          return nil
-      end
+      if not TransactionActivity.can_create_savings_withdrawal_for_group_weekly_payment?(group_loan_membership ,revision_transaction)
+        return nil
+      end 
     end
     
      # there can only be 1 payment for a given weekly meeting 
@@ -1600,6 +1683,56 @@ class TransactionActivity < ActiveRecord::Base
   end
   
   
+  def TransactionActivity.can_create_savings_withdrawal_for_group_grace_payment?(group_loan_membership , revision_transaction)
+    # no savings withdrawal is allowed if there is unapproved transaction 
+    pending_approval_group_grace_payment = group_loan_membership.unapproved_grace_period_payment
+    pending_approval_transactions_id_list = TransactionActivity.where(:member_id => group_loan_membership.member_id, 
+                        :is_deleted => false, 
+                        :is_canceled => false , 
+                        :is_approved => false).map{|x| x.id }
+      
+    puts "THe list length: #{pending_approval_transactions_id_list.length}"
+    
+  
+    # case when savings withdrawal is rejected
+    # if weekly payment edit 
+      # 1. if there is no other pending approval, only itself == allow 
+      # 2. if there is other pending approval , not itself == not allow
+      
+    # If weekly payment creation
+      # 1. if there is other pending approval, not itself -> not allow
+      # 2. if there is no other pending approval.. allow 
+
+                
+    if revision_transaction == true
+      if pending_approval_transactions_id_list.length > 1
+        return false
+      elsif pending_approval_transactions_id_list.length == 1 and pending_approval_group_grace_payment.nil?
+        return false 
+      elsif pending_approval_transactions_id_list.length == 1 and  
+          pending_approval_transactions_id_list.first != pending_approval_group_grace_payment.id
+        return false
+      elsif pending_approval_transactions_id_list.length == 1 and  
+          pending_approval_transactions_id_list.first == pending_approval_group_grace_payment.id
+          # please proceed to the group weekly payment revision  
+          return true 
+      end
+
+    elsif revision_transaction == false  # new weekly payment creation
+      if pending_approval_transactions_id_list.length > 1
+        return false
+      elsif pending_approval_transactions_id_list.length == 1 and pending_approval_group_grace_payment.nil?
+        return false
+      elsif pending_approval_transactions_id_list.length == 1 and  
+          pending_approval_transactions_id_list.first != pending_approval_group_grace_payment.id
+        return false
+      end
+    end
+    
+    return true 
+  end
+  
+  
   
   def TransactionActivity.create_generic_grace_period_payment(
           group_loan_membership,
@@ -1651,10 +1784,13 @@ class TransactionActivity < ActiveRecord::Base
     # no savings withdrawal is allowed if there is unapproved transaction 
     puts "7123 bad savings withdrawal, un approved previous transaction activity "
     if savings_withdrawal > BigDecimal('0')
-      if TransactionActivity.where(:member_id => member.id, :is_deleted => false, :is_canceled => false , 
-                  :is_approved => false).count != 0
-          return nil
+      if not TransactionActivity.can_create_savings_withdrawal_for_group_grace_payment?(group_loan_membership , revision_transaction)
+        return nil
       end
+      # if TransactionActivity.where(:member_id => member.id, :is_deleted => false, :is_canceled => false , 
+      #                   :is_approved => false).count != 0
+      #           return nil
+      #       end
     end
     
     
@@ -1838,6 +1974,8 @@ class TransactionActivity < ActiveRecord::Base
     end
 =end
 
+    pending_approval_grace_payment.is_deleted = true
+    pending_approval_grace_payment.save 
     zero_value = BigDecimal('0')
     past_savings_withdrawal = pending_approval_grace_payment.grace_payment_savings_withdrawal_amount 
     past_cash = pending_approval_grace_payment.total_transaction_amount

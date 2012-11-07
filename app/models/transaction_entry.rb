@@ -126,12 +126,26 @@ class TransactionEntry < ActiveRecord::Base
     
       saving_book.revert_transaction_deduct_extra_savings( self.amount )
       
+    
     when TRANSACTION_ENTRY_CODE[:soft_savings_withdrawal]  # out 
       puts "777 adding extra, #{self.amount.to_i}"
       saving_entry.is_deleted = true 
       saving_entry.save 
       
       saving_book.revert_transaction_add_extra_savings( self.amount ) 
+    when TRANSACTION_ENTRY_CODE[:grace_period_payment_soft_savings_withdrawal]  
+      puts "777 adding extra, #{self.amount.to_i}"
+      saving_entry.is_deleted = true 
+      saving_entry.save 
+      
+      saving_book.revert_transaction_add_extra_savings( self.amount )
+      
+    when TRANSACTION_ENTRY_CODE[:grace_period_payment_extra_savings]  
+      saving_entry.is_deleted = true 
+      saving_entry.save 
+    
+      saving_book.revert_transaction_deduct_extra_savings( self.amount )
+      
     else
       # for those that doesn't affect the member' savings
       # we haven't done the accounting for the KKI 

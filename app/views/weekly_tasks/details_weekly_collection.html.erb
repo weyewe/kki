@@ -4,7 +4,7 @@
         "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
         "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b>" + "<br />" + 
         "#{t 'variable.week'}: <b>#{print_money(@weekly_task.week_number)}</b>" + "<br />" + 
-        "#{t 'guide.total_amount'}: <b>#{print_money(@weekly_task.total_cash_received)}</b>" + "<br />" + 
+        "#{t 'guide.total_amount'}: <b>#{print_money( @weekly_task.group_payment_transactions.sum("total_transaction_amount") )}</b>" + "<br />" + 
         "#{t 'guide.total_transactions'}: <b>#{print_money(@transaction_activities.count)}</b>").html_safe %>
   
   <%= create_breadcrumb(@breadcrumbs).html_safe %>

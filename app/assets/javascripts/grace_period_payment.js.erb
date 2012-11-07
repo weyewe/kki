@@ -11,18 +11,35 @@ $(document).ready(function(){
    The structured_multiple calculator
    */
    $("#gp_simulate_structured_payment").live('click', function(){
-     var cash = newParseInt( $("#sp_calc_cash").attr("value") );
-     var stated_savings_withdrawal = newParseInt( $("#sp_calc_savings_withdraw").attr("value") );
-     
-     var remaining_grace_period_amount = newParseInt( $("#remaining_grace_period_amount").attr("value") );
-     var total_savings = newParseInt( $("#sp_total_savings_amount").attr("value") ); //the total extra savings
-     var savings_withdrawal; 
-     
-     if( total_savings - stated_savings_withdrawal   >= 0 ){
-       savings_withdrawal = stated_savings_withdrawal;
-     }else{
-       savings_withdrawal = total_savings;
-     }
+	 		// base info
+			var total_savings = newParseInt( $("#sp_total_savings_amount").attr("value") ); //the total extra savings
+			var remaining_grace_period_amount = newParseInt( $("#remaining_grace_period_amount").attr("value") );
+				// 		
+				// if( $("#edit_payment").length != 0  ){
+				// 	// edit case 
+				// 	total_savings  = total_savings + 
+				// 								newParseInt( $("#savings_withdrawal_amount_adjustment").attr("value") ) -  
+				// 								newParseInt( $("#extra_savings_amount_adjustment").attr("value") ) ;
+				// 								
+				// 								// unpaid 
+				// 	remaining_grace_period_amount = remaining_grace_period_amount + 
+				// 																newParseInt( $("#cash_payment_amount_adjustment").attr("value") ) + 
+				// 																newParseInt( $("#savings_withdrawal_amount_adjustment").attr("value") ) - 
+				// 																newParseInt( $("#extra_savings_amount_adjustment").attr("value") )  ;
+				// }
+
+			
+			 
+			// input from user
+			var cash = newParseInt( $("#sp_calc_cash").attr("value") );
+			var stated_savings_withdrawal = newParseInt( $("#sp_calc_savings_withdraw").attr("value") );
+			 
+			var savings_withdrawal;  
+			if( total_savings - stated_savings_withdrawal   >= 0 ){
+				savings_withdrawal = stated_savings_withdrawal;
+			}else{
+				savings_withdrawal = total_savings;
+			}
      
      
      var total_payment = cash + savings_withdrawal; 

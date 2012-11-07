@@ -5,6 +5,23 @@ class DefaultPayment < ActiveRecord::Base
     
   attr_protected :amount_subgroup_share, :amount_group_share, :amount_paid, :is_grace_period_initialized
   
+  
+=begin
+   EDIT GRACE PERIOD PAYMENT + ADJUSTed to non approved payment 
+=end
+  
+  # => use case: during edit grace period payment 
+  # def adjusted_unpaid_grace_period_amount
+  #   group_loan_membership = self.group_loan_membership
+  #   pending_approval_grace_period = group_loan_membership.unapproved_grace_period_payment
+  #     
+  #   return unpaid_grace_period_amount  + 
+  #           pending_approval_grace_period.grace_payment_savings_withdrawal_amount + 
+  #           pending_approval_grace_period.total_transaction_amount - 
+  #           pending_approval_grace_period.grace_payment_extra_savings_amount
+  # end
+  
+  
   def unpaid_grace_period_amount
     total_grace_period_amount - paid_grace_period_amount
   end
@@ -113,4 +130,6 @@ class DefaultPayment < ActiveRecord::Base
     self.transaction_id = transaction_activity.id 
     self.save
   end
+  
+
 end

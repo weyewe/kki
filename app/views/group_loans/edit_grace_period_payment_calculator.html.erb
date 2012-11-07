@@ -1,14 +1,15 @@
 <div class="span9 content">
-  <%= create_guide("Grace Payment", 
+  <%= create_guide("Edit Grace Payment", 
         "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
         "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b>" + "<br />" + 
-        "#{ t 'report_metric.member' }: <b>#{@member.name}</b>" + "<br />" + 
-        "Number of Transactions: <b>#{@group_loan_membership.grace_period_payments.count}</b>" + "<br />" + 
-        "#{t 'guide.grace_period_unpaid_amount'}: <b>#{print_money(@group_loan_membership.default_payment.unpaid_grace_period_amount)}</b>"   ).html_safe %>
+        "#{ t 'report_metric.member' }: <b>#{@member.name}</b>" + "<br />" +   
+        "#{t 'guide.grace_period_unpaid_amount'}: <b>#{print_money(@group_loan_membership.default_payment.unpaid_grace_period_amount)}</b>"  + 
+							" (#{print_money(@unpaid_grace_payment_adjusted)})"    ).html_safe %>
         
-  
-  
-  
+   
+
+				
+
     
   <%= create_breadcrumb(@breadcrumbs).html_safe %>
   <% if flash[:notice] %>
@@ -33,7 +34,7 @@
     <div class="row-fluid tab-pane fade active in pane_wrapper" id="structured_multiple_payment" >
       <div class="span8">
 
-        <%= form_tag  create_transaction_activity_for_grace_period_payment_url(@group_loan_membership) , 
+        <%= form_tag  update_transaction_activity_for_grace_period_payment_url(@group_loan_membership) , 
           :method => :post, :id => "structured_multiple_form" ,
           :class => "prevent_double_submit" do  %>
 
@@ -144,9 +145,12 @@
 
               <tr>
                 <td><%= t 'variable.voluntary_savings' %></td>
-                <td id="total_principal"><%= print_money(@member.saving_book.total_extra_savings)%> </td>
+                <td id="total_principal"><%= print_money(@member.saving_book.total_extra_savings)%> 
+											(<%= print_money(@total_available_extra_savings) %>) 
+								</td>
                 <%= hidden_field_tag 'sp_total_savings_amount',
-                    @member.saving_book.total_extra_savings.to_i %>
+                    @total_available_extra_savings
+ 										%>
               </tr>
           </tbody>
         </table>
@@ -160,7 +164,7 @@
           <tbody>
 
               <%= hidden_field_tag 'remaining_grace_period_amount',
-                  @group_loan_membership.default_payment.unpaid_grace_period_amount.to_i %>
+                 @unpaid_grace_payment_adjusted	%>
           
               <tr>
                 <td><b>Cash</b></td>

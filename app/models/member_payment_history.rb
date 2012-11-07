@@ -36,34 +36,6 @@ class MemberPaymentHistory < ActiveRecord::Base
   
   
   
-  def MemberPaymentHistory.create_grace_payment_history_entry( employee, weekly_task, 
-        loan_product, loan_product_type, member, 
-        cash,
-        savings_withdrawal,
-        number_of_weeks,
-        number_of_backlogs,
-        transaction_id,
-        revision_code,
-        payment_phase) 
-        
-   
-    
-    MemberPaymentHistory.create(
-      :weekly_task_id             => nil , 
-      :member_id                  => member.id ,
-      :loan_product_id            => loan_product.id ,
-      :loan_product_type          => loan_product_type,
-      :cash                       => cash,
-      :savings_withdrawal         => savings_withdrawal,
-      :number_of_weeks            => nil,
-      :number_of_backlog => nil,
-      :creator_id                 => employee.id ,
-      :transaction_activity_id    => transaction_id,
-      :revision_code              => revision_code,
-      :payment_phase              => payment_phase
-    )
-    
-  end
   
   def MemberPaymentHistory.create_weekly_payment_history_entry( employee, weekly_task, 
         loan_product, loan_product_type, member, 
@@ -96,5 +68,59 @@ class MemberPaymentHistory < ActiveRecord::Base
   
   
   def self.effective_weekly_payments(member_id_list, weekly_task) 
+  end
+  
+  
+  
+=begin
+  GRACE PAYMENT HISTORY 
+=end
+
+  def MemberPayment.grace_payment_history_count(group_loan_membership) 
+    MemberPayment.grace_payment_history_list(group_loan_membership).count - 1 
+  end
+  
+  
+  def MemberPayment.grace_payment_history_list(group_loan_membership)
+  
+    
+    MemberPaymentHistory.where(
+      :weekly_task_id             => nil , 
+      :member_id                  => group_loan_membership.member_id ,
+      :loan_product_id            => group_loan_membership.group_loan_id ,
+      :loan_product_type          => LOAN_PRODUCT[:group_loan],     
+      :payment_phase              => PAYMENT_PHASE[:grace_payment] 
+    )
+    
+    
+  end
+  
+  def MemberPaymentHistory.create_grace_payment_history_entry( employee, weekly_task, 
+        loan_product, loan_product_type, member, 
+        cash,
+        savings_withdrawal,
+        number_of_weeks,
+        number_of_backlogs,
+        transaction_id,
+        revision_code,
+        payment_phase) 
+        
+   
+    
+    MemberPaymentHistory.create(
+      :weekly_task_id             => nil , 
+      :member_id                  => member.id ,
+      :loan_product_id            => loan_product.id ,
+      :loan_product_type          => loan_product_type,
+      :cash                       => cash,
+      :savings_withdrawal         => savings_withdrawal,
+      :number_of_weeks            => nil,
+      :number_of_backlog => nil,
+      :creator_id                 => employee.id ,
+      :transaction_activity_id    => transaction_id,
+      :revision_code              => revision_code,
+      :payment_phase              => payment_phase
+    )
+    
   end
 end

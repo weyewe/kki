@@ -20,34 +20,19 @@
         <%=  t 'variable.savings_withdrawal' %>
       </td>
       <td>
-        <b><%= print_money( transaction_activity.savings_withdrawal_amount ) %></b>
+        <b><%= print_money( transaction_activity.grace_payment_savings_withdrawal_amount ) %></b>
       </td>
     </tr>
     
-    <tr>
-      <td>
-        <%= t 'report_metric.number_of_backlogs_paid'%>
-      </td>
-      <td>
-        <b><%=   transaction_activity.number_of_backlogs_paid %></b>
-      </td>
-    </tr>
     
-    <tr>
-      <td>
-        <%= t 'report_metric.backlogs_paid_amount'%>
-      </td>
-      <td>
-        <b><%=   print_money( transaction_activity.grace_period_backlogs_paid_amount )  %></b>
-      </td>
-    </tr>
+     
     
     <tr>
       <td>
         <%= t 'variable.extra_savings'%>
       </td>
       <td>
-        <b><%= print_money( transaction_activity.extra_savings_amount ) %></b>
+        <b><%= print_money( transaction_activity.grace_payment_extra_savings_amount ) %></b>
       </td>
     </tr>
     

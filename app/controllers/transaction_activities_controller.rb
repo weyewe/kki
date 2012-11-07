@@ -218,14 +218,14 @@ class TransactionActivitiesController < ApplicationController
     
     begin
       ActiveRecord::Base.transaction do
-        @transaction_activity = TransactionActivity.create_generic_weekly_payment(
+        @transaction_activity = TransactionActivity.update_generic_weekly_payment(
         @weekly_task,
                 @group_loan_membership,
                 current_user,
                 cash,
                 savings_withdrawal,
                 number_of_weeks,  
-                number_of_backlogs , false )
+                number_of_backlogs   )
       end
     rescue ActiveRecord::ActiveRecordError  
     else
@@ -428,11 +428,11 @@ class TransactionActivitiesController < ApplicationController
     @action_role = params[:action_role].to_i
     @action_value = params[:action_value].to_i
     
-    weekly_task_id = MemberPaymentHistroy.where(
+    weekly_task_id = MemberPaymentHistory.where(
         :transaction_activity_id => @transaction_activity.id 
           )
           
-    @weekly_weekly_task.find_by_id(weekly_task_id )
+    @weekly_task = WeeklyTask.find_by_id(weekly_task_id )
     
     if @action_role == APPROVER_ROLE
       if @action_value == TRUE_CHECK
@@ -500,6 +500,8 @@ class TransactionActivitiesController < ApplicationController
     rescue ActiveRecord::ActiveRecordError  
     else
     end 
+    
+    render :file => 'transaction_activities/create_transaction_activity_for_grace_period_payment.js.erb'
   end
   
 =begin
@@ -512,7 +514,7 @@ class TransactionActivitiesController < ApplicationController
     
     # @pending_approval_transactions = @group_loan.pending_approval_grace_period_transactions
      
-    @grace_period_transactions = @group_loan.pending_approval_grace_period_transactions
+    @grace_period_transactions = @group_loan.pending_approval_grace_period_transactions.where(:is_deleted => false, :is_canceled => false )
  
     
     add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_grace_period_payment_approval_url'

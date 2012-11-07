@@ -1,4 +1,5 @@
- 
+
+<% unapproved_grace_period_payment= group_loan_membership.unapproved_grace_period_payment %>
 
 <% if group_loan_membership.unpaid_backlogs.count != 0  %>
   <% member= group_loan_membership.member %>
@@ -9,15 +10,30 @@
     <td><%= group_loan_membership.grace_period_payments.count  %></td>
     <td><%= print_money(group_loan_membership.default_payment.unpaid_grace_period_amount)%></td>
     <td>
-    <% if group_loan_membership.default_payment.unpaid_grace_period_amount == BigDecimal("0")%>
-      <span class="label label-success"><%= t 'status.complete' %></span>
-    <% else %>
-      <%= link_to "#{t 'process.create_payment'}",
-        grace_period_payment_calculator_url(group_loan_membership), :class => "btn" %>
-    <% end %>
+	    <% if group_loan_membership.default_payment.unpaid_grace_period_amount == BigDecimal("0")%>
+	      <span class="label label-success"><%= t 'status.complete' %></span>
+				<%= link_to "#{t 'process.edit_payment'}",
+	        edit_grace_period_payment_calculator_url(group_loan_membership), :class => "btn" %>
+	    <% elsif not  unapproved_grace_period_payment.nil?  %>
+	      <%= link_to "#{t 'process.edit_payment'}",
+	        edit_grace_period_payment_calculator_url(group_loan_membership), :class => "btn" %>
+	    <% elsif unapproved_grace_period_payment.nil?  %>
+				<%= link_to "#{t 'process.create_payment'}",
+		      grace_period_payment_calculator_url(group_loan_membership), :class => "btn" %>
+			<% end %> 
     
     
-    </th>
+    </td>
+		<td>
+			<% if group_loan_membership.default_payment.unpaid_grace_period_amount == BigDecimal("0")%>
+	      <span class="label label-success"><%= t 'status.complete' %></span>
+	    <% elsif not  unapproved_grace_period_payment.nil?  %>
+	      <%= print_money(unapproved_grace_period_payment.total_transaction_amount)  %>
+	    <% elsif unapproved_grace_period_payment.nil?  %>
+				<%= print_money(BigDecimal("0"))%>
+			<% end %>
+		</td>
+			
   <tr>
 <% end %>
 

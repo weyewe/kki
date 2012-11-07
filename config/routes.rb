@@ -180,7 +180,10 @@ Debita46::Application.routes.draw do
   match 'select_group_loan_for_grace_period_payment' => "group_loans#select_group_loan_for_grace_period_payment", :as => :select_group_loan_for_grace_period_payment
   match 'default_members_for_grace_period_payment/:group_loan_id' => "group_loans#default_members_for_grace_period_payment", :as => :default_members_for_grace_period_payment
   match 'grace_period_payment_calculator/:group_loan_membership_id' => "group_loans#grace_period_payment_calculator", :as => :grace_period_payment_calculator
+  match 'edit_grace_period_payment_calculator/:group_loan_membership_id' => "group_loans#edit_grace_period_payment_calculator", :as => :edit_grace_period_payment_calculator
+  
   match 'create_transaction_activity_for_grace_period_payment/:group_loan_membership_id' => 'transaction_activities#create_transaction_activity_for_grace_period_payment', :as => :create_transaction_activity_for_grace_period_payment, :method => :post
+  match 'update_transaction_activity_for_grace_period_payment/:group_loan_membership_id' => 'transaction_activities#update_transaction_activity_for_grace_period_payment', :as => :update_transaction_activity_for_grace_period_payment, :method => :post
 
   
   # Cashier approves grace period payment 
