@@ -31,8 +31,7 @@ class MemberPaymentsController < ApplicationController
     @member = @group_loan_membership.member 
     @group_loan_product = @group_loan_membership.group_loan_product
     
-    @transaction_activity = @group_loan_membership.unapproved_independent_payment
-    @member_payment = MemberPayment.where(:transaction_activity_id => @transaction_activity.id ).first 
+    
     
     add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_independent_weekly_payment_url'
     set_breadcrumb_for @group_loan, 'select_member_for_independent_weekly_payment_url' + "(#{@group_loan.id})", 

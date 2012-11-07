@@ -2,7 +2,7 @@
 <div class="alert alert-block">  
 	<span class="label label-success"><%= t 'status.paid'%></span><br />
 	<strong>Cash</strong>: <%= print_money( transaction_activity.total_transaction_amount) %><br />
-	<strong><%= t 'variable.duration' %></strong>: <%=  transaction_activity.number_of_weeks_paid %><br />
+	<strong><%= t 'variable.duration' %></strong>: <%=  transaction_activity.number_of_weeks_paid  %><br />
 	<strong>Backlogs</strong>:  <%= transaction_activity.number_of_backlogs_paid_in_weekly_cycle%><br />
 	<strong><%= t 'variable.savings_withdrawal' %></strong>: <%= print_money( transaction_activity.extra_savings_withdrawal_amount)%> <br />
 	<strong><%= t 'variable.extra_savings'%></strong>: <%= print_money( transaction_activity.extra_savings_addition_amount)%>

@@ -67,7 +67,11 @@
           
           <tr>
             <td><%= t 'variable.voluntary_savings' %></td>
-            <td id="total_principal"><%= print_money(@member.saving_book.total_extra_savings)%> </td>
+            <td id="total_principal">
+								<%= print_money(@member.saving_book.total_extra_savings) %> 
+								
+								( <%= print_money(@actual_extra_savings) %>  ) 
+						</td>
           </tr>
       </tbody>
     </table>

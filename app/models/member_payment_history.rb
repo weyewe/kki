@@ -76,12 +76,12 @@ class MemberPaymentHistory < ActiveRecord::Base
   GRACE PAYMENT HISTORY 
 =end
 
-  def MemberPayment.grace_payment_history_count(group_loan_membership) 
-    MemberPayment.grace_payment_history_list(group_loan_membership).count - 1 
+  def MemberPaymentHistory.grace_payment_history_count(group_loan_membership) 
+    MemberPaymentHistory.grace_payment_history_list(group_loan_membership).count - 1 
   end
   
   
-  def MemberPayment.grace_payment_history_list(group_loan_membership)
+  def MemberPaymentHistory.grace_payment_history_list(group_loan_membership)
   
     
     MemberPaymentHistory.where(

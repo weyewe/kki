@@ -110,20 +110,25 @@ $(document).ready(function(){
    The structured_multiple calculator
    */
    $("#sp_simulate_structured_payment").live('click', function(){
+	
+	
+			// USER INPUT 
      var cash = newParseInt( $("#sp_calc_cash").attr("value") );
      var number_of_weeks = newParseInt( $("#sp_calc_weeks").attr("value") );
      var number_of_backlogs = newParseInt( $("#sp_calc_backlog_weeks").attr("value") );
-     var combined_number_of_weeks_and_backlogs_payment = number_of_weeks + number_of_backlogs ; 
-     
-     
+     var combined_number_of_weeks_and_backlogs_payment = number_of_weeks + number_of_backlogs ;  
      var stated_savings_withdrawal = newParseInt( $("#sp_calc_savings_withdraw").attr("value") );
+
+		// BASE INFO , adjusted to EDIT
      var basic_weekly_payment_amount = newParseInt( $("#basic_weekly_payment_amount").attr("value") );
-     var total_savings = newParseInt( $("#sp_total_savings_amount").attr("value") );
-     var savings_withdrawal; 
+     var total_savings = newParseInt( $("#sp_total_savings_amount").attr("value") ); 
      var total_payable_weeks = newParseInt( $("#total_payable_weeks").attr("value")    );
      var total_payable_backlogs = newParseInt( $("#total_payable_backlogs").attr("value")    ); 
      var combined_number_of_weeks = total_payable_weeks + total_payable_backlogs;
      
+
+		var savings_withdrawal; 
+
      if( total_savings - stated_savings_withdrawal   >= 0 ){
        savings_withdrawal = stated_savings_withdrawal;
      }else{
@@ -236,7 +241,7 @@ $(document).ready(function(){
    
    
    /*
-    ONLY EXTRA SAVINGS 
+    ONLY EXTRA SAVINGS   + INDEPENDENT ONLY EXTRA SAVINGS 
    */
    
 

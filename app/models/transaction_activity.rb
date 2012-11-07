@@ -126,9 +126,28 @@ class TransactionActivity < ActiveRecord::Base
     number_of_backlogs_paid_in_weekly_cycle * group_loan_membership.group_loan_product.total_weekly_payment
   end
   
-  def grace_period_backlogs_paid_amount
-    group_loan_membership = self.group_loan_membership
-    number_of_backlogs_paid * group_loan_membership.group_loan_product.grace_period_weekly_payment
+  # def grace_period_backlogs_paid_amount
+  #   group_loan_membership = self.group_loan_membership
+  #   number_of_backlogs_paid * group_loan_membership.group_loan_product.grace_period_weekly_payment
+  # end
+  
+=begin
+  independent payment
+=end
+  def independent_payment_extra_savings_amount
+    
+    extra_savings_entries = self.transaction_entries.where( :transaction_entry_code => [
+      TRANSACTION_ENTRY_CODE[:extra_weekly_saving],
+      TRANSACTION_ENTRY_CODE[:only_savings_independent_payment] 
+      ] )
+    total_amount = BigDecimal("0")
+    
+    extra_savings_entries.each do |te|
+      total_amount += te.amount
+    end
+    return total_amount
+    
+    
   end
   
   def extra_savings_amount
@@ -948,6 +967,12 @@ class TransactionActivity < ActiveRecord::Base
     self.member.saving_book.total_extra_savings  - self.extra_savings_addition_amount + self.extra_savings_withdrawal_amount 
   end
   
+=begin
+  INDEPENDENT 
+=end 
+
+
+  
   def number_of_weeks_paid
     current_transaction = self 
     MemberPayment.where{
@@ -957,14 +982,14 @@ class TransactionActivity < ActiveRecord::Base
     }.count 
   end
   
-  def number_of_backlogs_paid 
-    current_transaction = self 
-    MemberPayment.where{
-      (is_independent_weekly_payment.eq false ) & 
-      (week_number.eq nil) & # backlog payment. the week number is nil because the week itself is declared as no payment 
-      (transaction_activity_id.eq current_transaction.id  )
-    }.count
-  end 
+  # def number_of_backlogs_paid 
+  #   current_transaction = self 
+  #   MemberPayment.where{
+  #     (is_independent_weekly_payment.eq false ) & 
+  #     (week_number.eq nil) & # backlog payment. the week number is nil because the week itself is declared as no payment 
+  #     (transaction_activity_id.eq current_transaction.id  )
+  #   }.count
+  # end 
   
   
   # all transaction type (normal, only savings, and no payment) to generic

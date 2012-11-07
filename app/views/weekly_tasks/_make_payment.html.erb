@@ -40,9 +40,11 @@
 	  <td>
 		<!-- has paid weekly payment: 2 cases
 		1. paid in the past week
-		2. paid in this week  -->
+		2. paid in this week 
+		3. paid in independent payment  -->
 		
-		<% if member_payment.weekly_task.week_number ==  member_payment.week_number %>
+		<% if member_payment.weekly_task.week_number ==  member_payment.week_number and 
+				member_payment.is_independent_weekly_payment ==false  %>
 		<!-- paid in this week. can only be edited  -->
 			<%= link_to "#{t 'process.edit_payment'}",
 		      edit_transaction_for_member_url(group_loan, weekly_task, member), 
@@ -70,37 +72,17 @@
  
   
   
-
-    <!-- back log payment  -->
-     <!-- <td style="text-align:center;">50,000.00</td> -->
-
-    <!-- Special Payment -->
-
-
-    <!-- <%# if weekly_task.has_paid_weekly_payment?(member)  %>
-    <td>
-
-      <%= link_to "#{t 'trigger.more_payment'}",
-      special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
-      :class => "btn", 
-      :id => "make_basic_payment-#{member.id}"  %>
-
-    </td>
-    <%# else %>
-    <td>
-      <%= link_to "#{t 'process.create_payment'}",
-      special_weekly_payment_for_member_url(group_loan, weekly_task, member), 
-      :class => "btn", 
-      :id => "make_basic_payment-#{member.id}"  %>
-    </td>
-    <%# end %> -->
-
-    <!-- No payment -->
-       
-       <!-- No payment -->
        
  
  
-  <td> <%= print_money( weekly_task.transactions_for_member(member).sum("total_transaction_amount") ) %></td>
+  <td> 
+		
+		<% unapproved_group_weekly_payment = group_loan_membership.unapproved_group_weekly_payment %>
+		<% if  unapproved_group_weekly_payment.nil? %>
+			<%= print_money( BigDecimal('0'))%>
+		<% else %>
+			<%= print_money(group_loan_membership.unapproved_group_weekly_payment.total_transaction_amount 	) %>
+		<% end %>
+	</td>
     
 </tr>

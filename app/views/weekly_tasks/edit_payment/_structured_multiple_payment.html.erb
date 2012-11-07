@@ -150,9 +150,12 @@
           
           <tr>
             <td><%= t 'variable.voluntary_savings' %></td>
-            <td id="total_principal"><%= print_money(@member.saving_book.total_extra_savings)%> </td>
+            <td id="total_principal">
+							<%= print_money(@member.saving_book.total_extra_savings)%> 
+							( <%= print_money(@actual_extra_savings) %>  ) 
+						</td>
             <%= hidden_field_tag 'sp_total_savings_amount',
-                @member.saving_book.total_extra_savings.to_i %>
+                @actual_extra_savings.to_i %>
           </tr>
       </tbody>
     </table>
@@ -168,10 +171,10 @@
           <%= hidden_field_tag 'basic_weekly_payment_amount',
               @group_loan_product.total_weekly_payment.to_i %>
           <%= hidden_field_tag 'total_payable_weeks',
-             @group_loan.remaining_weekly_tasks_count_for_member(@member)  %>
+             @actual_payable_weeks  %>
              
           <%= hidden_field_tag 'total_payable_backlogs',
-            @group_loan_membership.unpaid_backlogs.count %>
+            @actual_payable_backlogs %>
           <tr>
             <td><b>Cash</b></td>
             <td id="total_cash">

@@ -248,7 +248,7 @@ class WeeklyTask < ActiveRecord::Base
                                     ( transaction_activity_id.not_eq nil )}.
                               map{|x| x.transaction_activity_id }
     
-    TransactionActivity.where(:id => transaction_id_list, :is_deleted => false )
+    TransactionActivity.where(:id => transaction_id_list, :is_deleted => false, :is_canceled => false  )
   end
   
   def valid_transaction_activity?( transaction_activity )

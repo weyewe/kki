@@ -74,10 +74,21 @@ class WeeklyTasksController < ApplicationController
     @weekly_task = WeeklyTask.find_by_id params[:weekly_task_id]
     @group_loan_product = @group_loan_membership.group_loan_product
     
-    # if @weekly_task.has_paid_weekly_payment?(@member) 
-    #      redirect_to make_member_payment_url(@group_loan, @weekly_task)
-    #    end
-    #    
+    @transaction_activity = @group_loan_membership.unapproved_independent_payment
+    
+    @actual_extra_savings = @member.saving_book.total_extra_savings -
+                          @transaction_activity.independent_payment_extra_savings_amount + 
+                          @transaction_activity.savings_withdrawal_amount 
+                          
+    @backlog_paid =  @transaction_activity.number_of_backlogs_paid_in_weekly_cycle  
+    @week_paid  = @transaction_activity.number_of_weeks_paid 
+    
+    @actual_payable_backlogs = @group_loan_membership.unpaid_backlogs.count + @backlog_paid
+    @actual_payable_weeks = @group_loan.remaining_weekly_tasks_count_for_member(@member)  + @week_paid
+    
+    @member_payment = MemberPayment.where(:transaction_activity_id => @transaction_activity.id ).first
+    
+    
     
     add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_payment_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_weekly_payment_url' + "(#{@group_loan.id})", 
@@ -102,11 +113,27 @@ class WeeklyTasksController < ApplicationController
     
     @member_payment =  @weekly_task.member_payment_for(@member)
     
-    @transaction_activity = nil 
-    if not @member_payment.no_payment?
-      @transaction_activity = TransactionActivity.find_by_id  @member_payment.transaction_activity_id
-    end
     
+    @transaction_activity = @group_loan_membership.unapproved_group_weekly_payment
+    
+    @actual_extra_savings = @member.saving_book.total_extra_savings -
+                          @transaction_activity.extra_savings_amount + 
+                          @transaction_activity.savings_withdrawal_amount 
+                          
+    @backlog_paid =  @transaction_activity.number_of_backlogs_paid_in_weekly_cycle  
+    @week_paid  = @transaction_activity.number_of_weeks_paid 
+    
+    @actual_payable_backlogs = @group_loan_membership.unpaid_backlogs.count + @backlog_paid
+    @actual_payable_weeks = @group_loan.remaining_weekly_tasks_count_for_member(@member)  + @week_paid
+    
+    @member_payment = MemberPayment.where(:transaction_activity_id => @transaction_activity.id ).first
+    
+        # 
+        # @transaction_activity = nil 
+        # if not @member_payment.no_payment?
+        #   @transaction_activity = TransactionActivity.find_by_id  @member_payment.transaction_activity_id
+        # end
+        # 
     
     
     add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_payment_path'

@@ -896,21 +896,12 @@ class GroupLoan < ActiveRecord::Base
                               :loan_id => self.id, 
                               :loan_type => LOAN_TYPE[:group_loan],
                               :transaction_case => (GRACE_PERIOD_PAYMENT_START..GRACE_PERIOD_PAYMENT_END),
-                              :is_approved => false   )
+                              :is_approved => false ,
+                              :is_deleted => false ,
+                              :is_canceled => false   )
                               
                               
-    # transaction_activity_id_list = []
-    # BacklogPayment.where(:clearance_period => BACKLOG_CLEARANCE_PERIOD[:in_grace_period], 
-    #   :is_cashier_approved => false,
-    #   :group_loan_id => self.id,
-    #   :is_cleared => true  ).each do |backlog|
-    #   
-    #   transaction_activity_id_list << backlog.transaction_activity_id_for_backlog_clearance
-    # end
-    # transaction_activity_id_list
-    # transaction_activity_id_list.uniq! 
-    # 
-    # TransactionActivity.where(:id => transaction_activity_id_list)
+    
   end
   
   def grace_period_transactions

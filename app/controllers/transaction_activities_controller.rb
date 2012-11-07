@@ -430,7 +430,7 @@ class TransactionActivitiesController < ApplicationController
     
     weekly_task_id = MemberPaymentHistory.where(
         :transaction_activity_id => @transaction_activity.id 
-          )
+          ).first.weekly_task_id
           
     @weekly_task = WeeklyTask.find_by_id(weekly_task_id )
     
