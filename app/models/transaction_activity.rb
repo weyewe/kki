@@ -1854,6 +1854,7 @@ class TransactionActivity < ActiveRecord::Base
     
     
     default_payment.cancel_update_paid_grace_period_amount( deduction_paid_grace_period_amount )
+    group_loan_membership.reload 
     # =>                -> on the default_payment.update_paid_grace_period_amount
     
     # try to create the transaction

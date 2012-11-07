@@ -523,6 +523,8 @@ class TransactionActivitiesController < ApplicationController
   def execute_backlog_payment_transaction_approval_by_cashier
     @transaction_activity  = TransactionActivity.find_by_id params[:entity_id]
     
+    
+    
     begin
       ActiveRecord::Base.transaction do
         @transaction_activity.approve_grace_period_payment( current_user ) 

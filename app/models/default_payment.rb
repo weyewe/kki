@@ -14,6 +14,11 @@ class DefaultPayment < ActiveRecord::Base
     self.save 
   end
   
+  def is_actual_non_defaultee?
+    self.is_defaultee == false or 
+          (self.is_defaultee == true and    self.unpaid_grace_period_amount == BigDecimal('0'))
+  end
+  
   def cancel_update_paid_grace_period_amount(amount)
     self.paid_grace_period_amount -= amount
     self.save

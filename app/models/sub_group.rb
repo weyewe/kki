@@ -161,8 +161,8 @@ class SubGroup < ActiveRecord::Base
     DefaultPayment.find(:all, :conditions => {
       :group_loan_membership_id => active_subgroup_glm_id_list
     }).each do |default_payment|
-      if default_payment.is_defaultee == false or 
-          ( default_payment.is_defaultee == true and default_payment.unpaid_grace_period_amount == BigDecimal('0') ) 
+      if default_payment.is_actual_non_defaultee? # default_payment.is_defaultee == false or 
+      #           ( default_payment.is_defaultee == true and default_payment.unpaid_grace_period_amount == BigDecimal('0') ) 
         non_default_payment << default_payment
       end
     end

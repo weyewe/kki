@@ -1142,8 +1142,8 @@ class GroupLoan < ActiveRecord::Base
     DefaultPayment.find(:all, :conditions => {
       :group_loan_membership_id => active_group_glm_id_list 
     }).each do |default_payment|
-      if default_payment.is_defaultee == false or 
-          ( default_payment.is_defaultee == true and default_payment.unpaid_grace_period_amount == BigDecimal('0') ) 
+      if default_payment.is_actual_non_defaultee? # default_payment.is_defaultee == false or 
+      #           ( default_payment.is_defaultee == true and default_payment.unpaid_grace_period_amount == BigDecimal('0') ) 
         non_default_payment << default_payment
       end
     end
@@ -1169,7 +1169,7 @@ class GroupLoan < ActiveRecord::Base
       total_compulsory_savings = member.saving_book.total_compulsory_savings
       total_extra_savings = member.saving_book.total_extra_savings
       # remember, those defaultee that has paid all grace period is treated as non defaultee 
-      if default_payment.is_defaultee == true and default_payment.unpaid_grace_period_amount != BigDecimal('0')
+      if not default_payment.is_actual_non_defaultee? # default_payment.is_defaultee == true and default_payment.unpaid_grace_period_amount != BigDecimal('0')
         total_amount = default_payment.amount_of_compulsory_savings_deduction + default_payment.amount_of_extra_savings_deduction
         
         rounded_up_total_amount  = DefaultPayment.rounding_up( total_amount, DEFAULT_PAYMENT_ROUND_UP_VALUE ) 
@@ -1189,8 +1189,7 @@ class GroupLoan < ActiveRecord::Base
         default_payment.amount_paid = default_payment.amount_of_compulsory_savings_deduction  + default_payment.amount_of_extra_savings_deduction
         default_payment.amount_assumed_by_office = BigDecimal("0")
         
-      elsif  default_payment.is_defaultee == false or 
-            (default_payment.is_defaultee == true and    default_payment.unpaid_grace_period_amount == BigDecimal('0'))
+      elsif  default_payment.is_actual_non_defaultee?
         total_amount = default_payment.amount_sub_group_share + default_payment.amount_group_share
         rounded_up_total_amount  = DefaultPayment.rounding_up( total_amount , DEFAULT_PAYMENT_ROUND_UP_VALUE) 
         
