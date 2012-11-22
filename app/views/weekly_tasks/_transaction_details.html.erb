@@ -11,13 +11,23 @@
 				member_payment.is_independent_weekly_payment ==false  %> 
 	  
 		<td> 
-			<%= transaction_activity.id  %> 
+			<% if not transaction_activity.nil? %>
+				<%= transaction_activity.id  %> 
+			<% end %>
 		</td>
 
 		<td><%= glm.member.name %></td>
-		<td><%= print_money( transaction_activity.total_transaction_amount ) %></td>
+		<td>
+			<% if not transaction_activity.nil? %>
+				<%= print_money( transaction_activity.total_transaction_amount ) %>
+			<% end %>
+		</td>
 
-		<td><%=  transaction_activity.transaction_case %></td>
+		<td>
+			<% if not transaction_activity.nil? %>
+				<%=  transaction_activity.transaction_case %>
+			<% end %>
+		</td>
 
 		<td> <%= MemberPaymentHistory.edit_history_list_count( weekly_task, PAYMENT_PHASE[:weekly_payment], glm.member )   %></td>
 	<% elsif member_payment.no_payment? %>
