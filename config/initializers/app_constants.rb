@@ -56,6 +56,7 @@ DEV_EMAIL = "w.yunnal@gmail.com"
 
 TRUE_CHECK = 1
 FALSE_CHECK = 0
+SPECIAL_NOTICE_CHECK = -1 
 
 PROPOSER_ROLE = 0 
 APPROVER_ROLE = 1 
@@ -234,7 +235,8 @@ ATTENDANCE_STATUS = {
   :unmarked => 0 , 
   :present_on_time => 1 , 
   :present_late => 2 , 
-  :absent => 3 
+  :absent => 3 ,
+  :notice => 4 
 }
 
 DEFAULT_PAYMENT_ROUND_UP_VALUE = BigDecimal("500")
@@ -331,3 +333,9 @@ LOAN_PRODUCT = {
   :personal_loan => 2 , 
   :savings_account  => 3 
 }
+
+
+LOCAL_TIME_ZONE = "Jakarta"
+# complete list, check here
+# ActiveSupport::TimeZone.all.map(&:name)
+

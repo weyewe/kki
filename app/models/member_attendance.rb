@@ -22,4 +22,8 @@ class MemberAttendance < ActiveRecord::Base
     self.attendance_status == ATTENDANCE_STATUS[:present_on_time]
   end
   
+  def is_notice?
+    self.attendance_status == ATTENDANCE_STATUS[:notice]
+  end
+  
 end

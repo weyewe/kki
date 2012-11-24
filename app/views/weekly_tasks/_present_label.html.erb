@@ -2,4 +2,6 @@
   <span class="label label-warning">Late</span>
 <% elsif member_attendance.is_on_time? %>
   <span class="label label-success"><%= t 'status.present'%></span>
+<% elsif member_attendance.is_notice? %>
+	<span class="label label-warning">Izin</span>
 <% end %>

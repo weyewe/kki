@@ -7,7 +7,7 @@
     <% end %>
   </td>
   <td><%= group_loan.get_commune %></td>
-  <td><%= group_loan.members.count %></td>
+  <td><%= group_loan.active_group_loan_memberships.count %></td>
   <td><%= group_loan.total_backlogs %></td>
   <td><%= group_loan.total_resolved_backlogs %></td>
 </tr>

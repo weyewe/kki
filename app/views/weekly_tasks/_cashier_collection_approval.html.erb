@@ -5,7 +5,12 @@
   <td><%= weekly_task.week_number %></td>
 
   <td><%=  weekly_task.weekly_payment_collection_finalizer_id %></td>
-  <td><%=  weekly_task.weekly_payment_collection_done_time %></td>
+
+	<% finish_time = weekly_task.weekly_payment_collection_done_time.in_time_zone(LOCAL_TIME_ZONE) %>
+  <td>
+		<%=  "#{finish_time.day}/#{finish_time.month}/#{finish_time.year}" %> <br />
+		<%=  "#{finish_time.hour}:#{finish_time.min}:#{finish_time.sec}" %> 
+	</td>
   <!-- expected cash -->
   <td><%=  link_to print_money( weekly_task.group_payment_transactions.sum("total_transaction_amount") ), details_weekly_collection_url(weekly_task) %></td>
   

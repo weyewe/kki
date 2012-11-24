@@ -158,7 +158,8 @@ class WeeklyTask < ActiveRecord::Base
       return false
     elsif [
           ATTENDANCE_STATUS[:present_on_time] , 
-          ATTENDANCE_STATUS[:present_late]
+          ATTENDANCE_STATUS[:present_late],
+          ATTENDANCE_STATUS[:notice]
         ].include?(member_attendance.attendance_status )
       return true 
     end
@@ -180,6 +181,10 @@ class WeeklyTask < ActiveRecord::Base
   
   def mark_attendance_as_absent( member, current_user )
     mark_member_attendance( member, current_user,ATTENDANCE_STATUS[:absent]  )
+  end
+  
+  def mark_attendance_as_notice( member, current_user )
+    mark_member_attendance( member, current_user,ATTENDANCE_STATUS[:notice]  )
   end
   
   def mark_member_attendance( member , current_user, attendance_status)

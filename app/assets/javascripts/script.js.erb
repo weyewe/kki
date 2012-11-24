@@ -248,9 +248,11 @@ $(document).ready(function() {
        action_role = <%= PROPOSER_ROLE %>;
        if($this.hasClass("true_check")){
           action_value = <%= TRUE_CHECK %>;
-        }else{
+       }else if($this.hasClass("special_notice")){
+					action_value = <%= SPECIAL_NOTICE_CHECK %>; 
+			 }else{
           action_value = <%= FALSE_CHECK %>;
-        }
+       }
      }else if( $this.hasClass("approve") ){
        action_role = <%= APPROVER_ROLE %>;
        //  approver can approve or reject.. if it is FALSE_CHECK -> reject action. vice versa
