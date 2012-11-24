@@ -15,7 +15,7 @@ class WeeklyTasksController < ApplicationController
   
   def mark_attendance
     setup_for_weekly_task_fulfillment_details
-    @group_loan_memberships = @group_loan.active_group_loan_memberships
+    # @group_loan_memberships = @group_loan.active_group_loan_memberships
     add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_weekly_meeting_attendance_marking_path'
     set_breadcrumb_for @group_loan, 'select_weekly_meeting_for_attendance_marking_path' + "(#{@group_loan.id})", 
                 "#{t 'process.select_week'}"
@@ -206,7 +206,7 @@ class WeeklyTasksController < ApplicationController
     @office = current_user.active_job_attachment.office
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @weekly_task = WeeklyTask.find_by_id params[:weekly_task_id]
-    @group_loan_memberships = @group_loan.active_group_loan_memberships.order("sub_group_id DESC, created_at ASC").includes(:member)
+    @group_loan_memberships = @group_loan.active_group_loan_memberships.order("sub_group_id ASC, sub_group_update_datetime ASC").includes(:member)
   end
   
   def setup_for_weekly_meeting_task_closing

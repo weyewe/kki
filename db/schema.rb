@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121102045208) do
+ActiveRecord::Schema.define(:version => 20121124021056) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
@@ -125,6 +125,7 @@ ActiveRecord::Schema.define(:version => 20121102045208) do
     t.boolean  "is_compulsory_savings_migrated",                                             :default => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "sub_group_update_datetime"
   end
 
   create_table "group_loan_products", :force => true do |t|

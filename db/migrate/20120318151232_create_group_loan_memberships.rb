@@ -27,6 +27,7 @@ class CreateGroupLoanMemberships < ActiveRecord::Migration
       
       t.boolean :deduct_setup_payment_from_loan , :default => false 
       t.integer :sub_group_id 
+      # t.datetime :sub_group_update_datetime 
       
       
       t.boolean :is_attending_financial_lecture

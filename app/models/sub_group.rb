@@ -70,12 +70,14 @@ class SubGroup < ActiveRecord::Base
     
     
     group_loan_membership.sub_group_id = self.id 
+    group_loan_membership.sub_group_update_datetime = DateTime.now 
     group_loan_membership.save  
   end
   
   def remove_member(member )
     group_loan_membership = self.get_group_loan_membership( member ) 
     group_loan_membership.sub_group_id = nil
+    group_loan_membership.sub_group_update_datetime = nil 
     group_loan_membership.save
   end
   
