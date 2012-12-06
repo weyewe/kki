@@ -10,13 +10,22 @@
 			(custom)
 		<% end %>
 	</td>
-  <td>
-    <% if group_loan.is_default_payment_resolution_approved == true %>
-      <span class="label label-success"><%= t 'status.approved' %></span>
-    <% elsif group_loan.is_default_payment_resolution_approved == false %>
-      <a href="#" class="btn propose action prevent_double_submit"
+	
+	<% if group_loan.is_default_payment_resolution_approved == true %>
+		<td colspan='2'>
+			<span class="label label-success"><%= t 'status.approved' %></span>
+		</td>
+	<% else %>
+		<td>
+			<a href="#" class="btn propose action true_check prevent_double_submit"
         id="group_loan_to_be_executed-<%= group_loan.id %>"><%= t 'trigger.execute' %></a>
-    <% end %>
-  </td>
+		</td>
+		
+		<td>
+			<a href="#" class="btn propose action  prevent_double_submit"
+        id="group_loan_to_be_executed-<%= group_loan.id %>"><%= t 'trigger.cancel' %></a>
+		</td>
+	<% end %>
+
 </tr>
 

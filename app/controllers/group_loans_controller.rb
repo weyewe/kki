@@ -405,7 +405,20 @@ class GroupLoansController < ApplicationController
   
   def execute_default_resolution
     @group_loan = GroupLoan.find_by_id params[:entity_id]
-    @group_loan.execute_default_payment_execution( current_user ) 
+    
+    @action = params[:action_value].to_i
+    
+    if @action == TRUE_CHECK
+      # @transaction.approve_backlog_payments(current_user) 
+      puts "YEAH< GONNA EXECUTE DEFAULT PAYMENT EXECUTION"
+      # @group_loan.execute_default_payment_execution( current_user ) 
+    elsif 
+      @action == FALSE_CHECK
+      
+      puts "SIBE KIA, NOT EXECUTING DEFAULT PAYMENT EXECUTION"
+      @group_loan.cancel_default_payment_proposal( current_user ) 
+    end
+    # 
   end
   
 =begin

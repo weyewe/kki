@@ -1326,6 +1326,22 @@ class GroupLoan < ActiveRecord::Base
     self.save 
   end
   
+  def cancel_default_payment_proposal(employee)
+    if not employee.has_role?(:cashier, employee.active_job_attachment)
+      return nil
+    end
+    
+    if self.is_default_payment_resolution_approved == true 
+      return nil
+    end
+    
+    self.is_default_payment_resolution_proposed = false
+    self.is_custom_default_payment_resolution = false
+    self.default_payment_proposer_id = nil 
+    self.save 
+    
+  end
+  
   def execute_default_payment_execution( employee ) 
     if not employee.has_role?(:cashier, employee.active_job_attachment)
       return nil
