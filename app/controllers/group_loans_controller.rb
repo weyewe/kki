@@ -324,10 +324,7 @@ class GroupLoansController < ApplicationController
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
     @group_loan_membership_id = @group_loan.preserved_active_group_loan_memberships.map{|x| x.id }
     
-    # order("sub_group_id DESC, created_at ASC") 
-    # @default_payments = DefaultPayment.where(
-    #    :group_loan_membership_id => @group_loan_membership_id).order("created_at ASC").includes(:group_loan_membership)
-      
+     
     @default_payments = DefaultPayment.where(
       :group_loan_membership_id => @group_loan_membership_id).order("group_loan_memberships.sub_group_id DESC, group_loan_memberships.created_at ASC").includes(:group_loan_membership)
     
@@ -338,25 +335,63 @@ class GroupLoansController < ApplicationController
       @total_default_payment_to_be_paid += dp.amount_to_be_paid
     end
     
-    # actually,total_payment= DefaultPayment.where(:group_loan_membership_id => active_glm_id_list).sum("amount_paid")
-    # total amount assumed by office = DefaultPayment.where(:group_loan_membership_id => active_glm_id_list, :is_default => true ).sum("total_grace_period_amount") - 
-    #  DefaultPayment.where(:group_loan_membership_id => active_glm_id_list, :is_default => true ).sum("paid_grace_period_amount")
-    
-    
-    # if @group_loan.is_default_payment_resolution_approved == false 
-    #   @office_loss = @group_loan.unpaid_grace_period_amount - DefaultPayment.where(:group_loan_membership_id => @group_loan.active_glm_id_list, :is_default => true ).sum("paid_grace_period_amount")
-    # else
-    #   @office_loss = @group_loan.deducted_grace_period_amount - @group_loan.unpaid_grace_period_amount 
-    # end
-    # 
     add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_loan_default_resolution_path'
     set_breadcrumb_for @group_loan, 'standard_default_resolution_schema_url' + "(#{@group_loan.id})", 
                 "#{t 'process.standard_default_resolution'}"
   end
   
+   
   def execute_propose_standard_default_resolution
     @group_loan = GroupLoan.find_by_id params[:entity_id]
     @group_loan.propose_default_payment_execution(current_user)
+  end
+  
+  
+  def custom_default_resolution_schema
+    @office = current_user.active_job_attachment.office
+    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+    @group_loan_membership_id = @group_loan.preserved_active_group_loan_memberships.map{|x| x.id }
+    
+     
+    @default_payments = DefaultPayment.where(
+      :group_loan_membership_id => @group_loan_membership_id).order("group_loan_memberships.sub_group_id DESC, group_loan_memberships.created_at ASC").includes(:group_loan_membership)
+    
+    @total_defaultee = @default_payments.where(:is_defaultee => true ).count
+    
+    @total_default_payment_to_be_paid = BigDecimal("0")
+    @default_payments.each do |dp|
+      @total_default_payment_to_be_paid += dp.amount_to_be_paid
+    end
+    
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_for_loan_default_resolution_path'
+    set_breadcrumb_for @group_loan, 'custom_default_resolution_schema_url' + "(#{@group_loan.id})", 
+                "#{t 'process.custom_default_resolution'}"
+  end
+  
+  def execute_propose_custom_default_resolution
+    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+    @glm_payment_pair_list = [] 
+    @total_amount = BigDecimal('0')
+    params[:payment].each do |name, amount |
+      glm_id = name.split("_")[1].to_i
+      amount = BigDecimal(amount)
+      @glm_payment_pair_list << {
+       :glm_id =>  glm_id,
+       :amount => amount
+      }
+      @total_amount += amount 
+    end
+    
+    
+    @payment_params = params[:payment]
+    @group_loan.propose_custom_default_payment_execution(current_user, @glm_payment_pair_list)
+    
+    
+    #  to replace the form
+    @group_loan_membership_id = @group_loan.preserved_active_group_loan_memberships.map{|x| x.id } 
+    @default_payments = DefaultPayment.where(
+      :group_loan_membership_id => @group_loan_membership_id).order("group_loan_memberships.sub_group_id DESC, group_loan_memberships.created_at ASC").includes(:group_loan_membership)
+      
   end
   
   

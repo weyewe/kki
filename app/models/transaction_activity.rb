@@ -2445,7 +2445,7 @@ class TransactionActivity < ActiveRecord::Base
     puts "8821 amount to be paid: #{amount_to_be_paid}"
     # deduce transaction_case 
     
-    if default_payment.is_defaultee == false and amount_to_be_paid > member.saving_book.total_compulsory_savings
+    if default_payment.is_actual_non_defaultee? == true and amount_to_be_paid > member.saving_book.total_compulsory_savings
       puts "666 total compulsory savings: #{member.saving_book.total_compulsory_savings.to_s}"
       puts "666 to be paid: #{amount_to_be_paid.to_s}"
       puts "666 not enough money, boom boom is deafultee = false"
@@ -2453,7 +2453,7 @@ class TransactionActivity < ActiveRecord::Base
       return nil
     end
     
-    if default_payment.is_defaultee == true and  amount_to_be_paid > member.saving_book.total 
+    if default_payment.is_actual_non_defaultee? == false  and  amount_to_be_paid > member.saving_book.total 
       puts "777 total  savings: #{member.saving_book.total.to_s}"
       puts "777 to be paid: #{amount_to_be_paid.to_s}"
       puts "777 not enough money, is deafultee = false"
@@ -2493,6 +2493,75 @@ class TransactionActivity < ActiveRecord::Base
     # the savings deduction is done in the transaction entry
     # transaction_activity.create_auto_default_payment_resolution_entries( default_payment) 
     transaction_activity.create_default_payment_resolution_transaction_entries(default_payment , member)
+    return transaction_activity
+  end
+  
+  def TransactionActivity.create_custom_default_payment_resolution( default_payment,  employee  ) 
+    # flow: field worker propose default payment resolution : standard or custom (if custom, use the number as well ) 
+    
+    # then, the cashier approves
+    
+    if not employee.has_role?(:cashier, employee.active_job_attachment)
+      puts "666 no role"
+      return nil 
+    end
+    
+    glm = default_payment.group_loan_membership 
+    member = glm.member 
+    
+    
+    amount_to_be_paid = default_payment.custom_amount
+
+    
+    puts "8821 amount to be paid: #{amount_to_be_paid}"
+    # deduce transaction_case 
+    
+    # if default_payment.is_actual_non_defaultee? == true and amount_to_be_paid > member.saving_book.total_compulsory_savings
+    #   puts "666 total compulsory savings: #{member.saving_book.total_compulsory_savings.to_s}"
+    #   puts "666 to be paid: #{amount_to_be_paid.to_s}"
+    #   puts "666 not enough money, boom boom is deafultee = false"
+    #   
+    #   return nil
+    # end
+    # 
+    # if default_payment.is_actual_non_defaultee? == false and  amount_to_be_paid > member.saving_book.total 
+    #   puts "777 total  savings: #{member.saving_book.total.to_s}"
+    #   puts "777 to be paid: #{amount_to_be_paid.to_s}"
+    #   puts "777 not enough money, is deafultee = false"
+    #   puts "777 compulsory savings to be deducted = #{default_payment.amount_of_compulsory_savings_deduction.to_s}"
+    #   puts "777 voluntary savings to be deducted = #{default_payment.amount_of_extra_savings_deduction.to_s}"
+    #   return nil
+    # end
+    
+    if amount_to_be_paid > member.saving_book.total_compulsory_savings 
+      return nil
+    end
+ 
+    
+     
+    transaction_case = TRANSACTION_CASE[:default_payment_resolution_compulsory_savings_deduction_custom_amount]
+    
+    
+    # through compulsory savings deduction. No cash payment 
+    new_hash = {}
+    new_hash[:total_transaction_amount] = BigDecimal("0") #no hard money flowing 
+    new_hash[:transaction_case]  = transaction_case #  TRANSACTION_CASE[:default_payment_resolution_compulsory_savings_deduction_standard_amount]
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] = glm.group_loan_id
+    new_hash[:is_approved] = true
+    new_hash[:approver_id] = employee.id
+
+    transaction_activity = TransactionActivity.create new_hash
+    
+    
+    default_payment.set_default_amount_deducted(amount_to_be_paid,  transaction_activity)
+    # member.deduct_savings( default_payment.amount_paid, SAVING_ENTRY_CODE[:soft_withdraw_for_default_payment] , transaction_entry )
+    # the savings deduction is done in the transaction entry
+    # transaction_activity.create_auto_default_payment_resolution_entries( default_payment) 
+    transaction_activity.create_custom_default_payment_resolution_transaction_entries(default_payment , member)
     return transaction_activity
   end
   
@@ -2602,6 +2671,17 @@ class TransactionActivity < ActiveRecord::Base
         create_default_payment_transaction_entry(  TRANSACTION_ENTRY_CODE[:default_payment_compulsory_savings_deduction], compulsory_savings)
       end
     end
+  end
+  
+  def create_custom_default_payment_resolution_transaction_entries( default_payment, member)
+    member = default_payment.group_loan_membership.member
+    compulsory_savings = member.saving_book.total_compulsory_savings
+    extra_savings = member.saving_book.total_extra_savings 
+    total_savings = member.saving_book.total 
+    amount_to_be_paid = default_payment.amount_paid  
+
+     
+    create_default_payment_transaction_entry( TRANSACTION_ENTRY_CODE[:default_payment_compulsory_savings_deduction], amount_to_be_paid)
   end
     
     

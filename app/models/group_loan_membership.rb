@@ -32,7 +32,7 @@ class GroupLoanMembership < ActiveRecord::Base
     if default_payment.is_defaultee == true 
       
       total_amount = default_payment.unpaid_grace_period_amount
-      puts "POST payment, unpaid grace period amount: #{total_amount}"
+      puts "POST payment, default_payment unpaid grace period amount: #{total_amount}"
       
       
       

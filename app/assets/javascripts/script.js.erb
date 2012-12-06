@@ -406,6 +406,29 @@ $(document).ready(function() {
          }
        }
      });
+
+		$(".ajax-form").live("submit", function(){
+	    var $form = $(this);  
+	    // $form.showLoading();
+
+			$form.showLoading();
+			// $form.spin(false);
+
+	    $.ajax({
+	      url: $form.attr("action"),
+	      type: "POST",
+	      data: $form.serialize(),
+	      dataType: 'script',
+	      success: function(response){
+	        // 
+	        // $form.clearForm();
+	        // $entry_link.hideLoading();
+	      }
+	    });
+
+	    return false ; 
+	  });
+
      
      
 });

@@ -1,0 +1,27 @@
+
+	<table cellpadding="0" cellspacing="0" border="0" 
+	      class="table table-striped table-bordered" id="example">
+	  <thead>
+	    <tr>
+	      <th><%= t 'report_metric.member' %></th>
+	      <th><%= t 'variable.total_savings'%></th>
+	      <th><%= t 'report_metric.compulsory_savings'%></th>
+	      <th><%= t 'variable.voluntary_savings' %></th>
+	      <th><%= t 'report_metric.default_status'%></th>
+	      <th><%= t 'report_metric.unpaid_amount' %></th>
+	      <th>Defaultee Savings Deduction</th>
+      
+	      <th>Custom Amount</th> 
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <% default_payments.each do |dp| %>
+	      <%= render :partial => "group_loans/custom_default_summary_entry" ,  :locals => {
+					:default_payment => dp,
+					:payment_params => payment_params ,
+					:group_loan => group_loan
+				}%>
+	    <% end %>
+	  </tbody>
+	</table>
+ 

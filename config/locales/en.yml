@@ -228,6 +228,7 @@ en:
     
     
     standard_default_resolution: "Standard Default Resolution"
+    custom_default_resolution: "Custom Default Resolution"
     total_grace_payment: "Total Grace Payment"
     weekly_collection_details: "Weekly Collection Details"
     

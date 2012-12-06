@@ -231,6 +231,7 @@ id:
     
     
     standard_default_resolution: "Penyelesaian Tunggakan Standar"
+    custom_default_resolution: "Penyelesaian Tunggakan Khusus"
     total_grace_payment: "Jumlah Pembayaran Khusus"
     weekly_collection_details: "Detil Cicilan Mingguan"
     

@@ -1,0 +1,89 @@
+
+<div class="span9 content">
+  <%= create_guide("#{t 'process.custom_default_resolution'}", 
+        "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
+        "#{t 'guide.group_loan'}: <b>#{@group_loan.name}</b> "  + "<br />" + 
+        "#{t 'guide.total_defaultee'}: <b>#{@total_defaultee}</b>" + "<br />" + 
+        "#{t 'guide.total_default_amount'}: <b>#{print_money(@group_loan.unpaid_grace_period_amount )}</b>"   ).html_safe %>
+        
+        <!-- + "<br />" + 
+          "Office Loss: <b>#{print_money(@office_loss)}</b>" -->
+  
+  <%= create_breadcrumb(@breadcrumbs).html_safe %>
+  
+  
+   
+  <div class="row-fluid">
+    <div id="data_list">
+	
+			<% if @group_loan. is_default_payment_resolution_proposed == false %> 
+				<%= render :partial => 'group_loans/custom_default_resolution_form', :locals => {
+					:payment_params => @payment_params, 
+					:group_loan => @group_loan ,
+					:default_payments => @default_payments 
+				}%>
+			<% else %>
+				<%= render :partial => 'group_loans/custom_default_resolution_summary', :locals => {
+					:payment_params => @payment_params, 
+					:group_loan => @group_loan ,
+					:default_payments => @default_payments 
+				}%>
+			<% end %>
+			
+
+
+    </div><!-- end of #data_list -->
+  </div>
+  
+  
+  <%#= render :partial => "group_loans/propose_standard_default_resolution", :locals => {
+    :group_loan => @group_loan
+  }%>
+  
+
+
+   
+ 
+  
+  <div class=" hidden" id="approve_propose_form_wrapper">
+    <%= form_for GroupLoan.new, :url => execute_propose_standard_default_resolution_url   do |f| %>
+      <%= hidden_field_tag 'entity_id' , ''  %>
+      <%= hidden_field_tag 'action_role', '' %>
+      <%= hidden_field_tag 'action_value', '' %>
+    <% end %>
+  </div>
+  
+  
+  
+  <div class="modal" id="myModal" style="display:none;">
+     <div class="modal-header">
+       <a class="close" data-dismiss="modal">×</a>
+       <h3>Modal header</h3>
+     </div>
+     <div class="modal-body">
+       <p>One fine body…</p>
+     </div>
+     <div class="modal-footer">
+       <a href="#" class="btn modal-closer"><%= t 'trigger.close' %></a>
+       <!-- <a href="#" class="btn btn-primary">Save changes</a> -->
+     </div>
+   </div>
+   
+   
+
+</div><!--/span-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

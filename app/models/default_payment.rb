@@ -125,7 +125,7 @@ class DefaultPayment < ActiveRecord::Base
   
   def set_default_amount_deducted(amount , transaction_activity  )
     
-    # self.amount_paid = amount 
+    self.amount_paid = amount 
     self.is_paid = true 
     self.transaction_id = transaction_activity.id 
     self.save

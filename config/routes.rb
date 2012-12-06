@@ -223,7 +223,7 @@ Debita46::Application.routes.draw do
   match 'standard_default_resolution_schema/:group_loan_id' => 'group_loans#standard_default_resolution_schema', :as => :standard_default_resolution_schema
   match 'custom_default_resolution_schema/:group_loan_id' => 'group_loans#custom_default_resolution_schema', :as => :custom_default_resolution_schema
   match 'execute_propose_standard_default_resolution' => 'group_loans#execute_propose_standard_default_resolution', :as => :execute_propose_standard_default_resolution, :method => :post
-  
+  match 'execute_propose_custom_default_resolution/:group_loan_id' => 'group_loans#execute_propose_custom_default_resolution', :as => :execute_propose_custom_default_resolution , :method => :post
 =begin
   Loan Default RESOLUTION : EXECUTION by Cashier 
 =end

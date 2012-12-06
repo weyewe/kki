@@ -864,6 +864,10 @@ module ApplicationHelper
             :action => 'standard_default_resolution_schema'
           },
           {
+            :controller => "group_loans",
+            :action => 'custom_default_resolution_schema'
+          },
+          {
             :controller => "default_payments",
             :action => 'payment_for_default_resolution'
           }

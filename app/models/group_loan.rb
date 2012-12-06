@@ -1248,99 +1248,62 @@ class GroupLoan < ActiveRecord::Base
     
     return total_sum
   end
-  
-  def propose_default_payment_execution_custom_value(employee, glm_amount_pair)
-    if not employee.has_role?(:field_worker, employee.active_job_attachment)
-      puts "wrong role"
-      return nil
-    end
-    
-    
-    # all glm must be non defaultee 
-    
-    # total amount in the glm amount pair must be at least equal to the total suggested amount
-    
-    # each custom amount must be in 500 denomination -> not implemented yet 
-    
-    # the custom amount must be equal or bigger than the total compulsory savings
-    
-    # the sum of total amount by non defaultee
-    min_shared_default_payment = self.min_shared_default_payment 
-    
-    active_glm = self.active_group_loan_memberships.includes(:default_payment, :member )
-    active_glm_id_list = active_glm.collect {|x| x.id }
-    proposed_glm_id_list = []
-    
    
+  
+  def propose_custom_default_payment_execution(employee, glm_payment_pair_list)
     
-    glm_amount_pair.each do |key, value|
-      proposed_glm_id_list << key 
+    if not employee.has_role?(:field_worker, employee.active_job_attachment)
+      return nil
     end
     
-    if ( proposed_glm_id_list.length != active_glm_id_list.length )  or 
-        ( (proposed_glm_id_list - active_glm_id_list).length != 0  ) or 
-        ( (active_glm_id_list  - proposed_glm_id_list).length != 0  )
-        puts "wrong glm list "
+    if self.pending_approval_grace_period_transactions.count != 0 
       return nil
     end
     
     
-    total_proposed_custom_value = BigDecimal("0")
-    
-    active_glm.each do |glm|
-      default_payment = glm.default_payment
+    glm_list = self.active_group_loan_memberships.map{|x| x.id } 
+    glm_list_from_params = [] 
+    total_amount= BigDecimal('0')
+    glm_payment_pair_list.map do |x| 
+      glm_list_from_params << x[:glm_id]
+      total_amount += x[:amount]
+      glm = self.active_group_loan_memberships.where( :id =>x[:glm_id] ) .first
       
-      custom_amount = glm_amount_pair[glm.id]
-      
-      
-      if default_payment.is_defaultee == false 
-        
-        if custom_amount < BigDecimal("0") or custom_amount.nil?  or 
-            custom_amount > glm.member.saving_book.total_compulsory_savings
-            puts "wrong custom amount value"
-          return nil
-        end
-        
-        total_proposed_custom_value += custom_amount
-        # default_payment.set_custom_amount( custom_amount ) # not touching the DB in this calculation 
-      elsif default_payment.is_defaultee == true 
-        # the amount deducted from compulsory savings for defaultee is
-        # => default_payment.total_amount 
-        # => this value can't be changed in the custom mode 
-        if custom_amount != default_payment.total_amount 
-          puts "custom_amount != total_amount"
-          return nil
-        end
-      end
+      return nil if glm.member.saving_book.total_compulsory_savings < x[:amount] 
     end
     
-    if total_proposed_custom_value < min_shared_default_payment
-      # all default_payment.custom_amount == nil 
-      puts "total proposed < total_shared "
-      return nil
+    # all active glm must be in the list
+    return nil if (glm_list - glm_list_from_params).length != 0 
+    return nil if self.unpaid_grace_period_amount !=  total_amount
+    
+    
+    glm_payment_pair_list.map do |x|  
+      glm = self.active_group_loan_memberships.where( :id =>x[:glm_id] )  
+      default_payment = DefaultPayment.find_by_group_loan_membership_id x[:glm_id]
+      default_payment.custom_amount = x[:amount]
+      default_payment.save 
     end
     
+    # check whether it has the project assignment 
+    self.is_default_payment_resolution_proposed = true
+    self.default_payment_proposer_id = employee.id 
+    self.is_custom_default_payment_resolution = true 
+    self.save 
     
-    
-    active_glm.each do |glm|
-      default_payment = glm.default_payment
-      custom_amount = glm_amount_pair[glm.id]
-      
-      if default_payment.is_defaultee == false 
-        default_payment.set_custom_amount( custom_amount ) # not touching the DB in this calculation 
-      end
-    end
-    
-    propose_default_payment_execution(employee)
-    
-    # returning true, if it is successful
-    return true 
   end
 
   def total_amount_deducted_for_default_payment_resolution
     total_amount = BigDecimal("0")
     self.active_group_loan_memberships.includes(:default_payment).each do |glm|
       total_amount += glm.default_payment.amount_to_be_paid
+    end
+    return total_amount
+  end
+  
+  def total_amount_deducted_for_custom_default_payment_resolution
+    total_amount = BigDecimal("0")
+    self.active_group_loan_memberships.includes(:default_payment).each do |glm|
+      total_amount += glm.default_payment.custom_amount
     end
     return total_amount
   end
@@ -1379,14 +1342,14 @@ class GroupLoan < ActiveRecord::Base
     
     #  if there is stil unapproved independent payment? 
     
-    # if self.unpaid_backlogs.count >  0 
-      self.active_group_loan_memberships.includes(:default_payment).each do |glm|
-        default_payment = glm.default_payment 
-        # if default_payment.amount_to_be_paid !=  BigDecimal("0")
-          transaction_activity = TransactionActivity.create_default_payment_resolution( default_payment,  employee  ) 
-        # end
+    self.active_group_loan_memberships.includes(:default_payment).each do |glm|
+      default_payment = glm.default_payment 
+      if self.is_custom_default_payment_resolution == false 
+        transaction_activity = TransactionActivity.create_default_payment_resolution( default_payment,  employee  ) 
+      else
+        transaction_activity = TransactionActivity.create_custom_default_payment_resolution( default_payment,  employee  ) 
       end
-    # end
+    end
     
     
     # self.active_group_loan_memberships.each do |glm|

@@ -1,0 +1,35 @@
+$(document).ready(function(){
+	
+	$("#custom_form_propose").hideLoading();
+	
+	<% if @group_loan.is_default_payment_resolution_proposed == true %>
+		alert("booom. proposed custom  TRUE");
+		<% new_form = escape_javascript( render :partial => 'group_loans/custom_default_resolution_summary', :locals => {
+			:payment_params => @payment_params, 
+			:group_loan => @group_loan ,
+			:default_payments => @default_payments 
+		}) %>  
+		
+		
+		
+	<% else %>
+		<% new_form = escape_javascript( render :partial => 'group_loans/custom_default_resolution_form', :locals => {
+			:payment_params => @payment_params, 
+			:group_loan => @group_loan ,
+			:default_payments => @default_payments 
+		}) %>
+	  
+		<% if @group_loan.pending_approval_grace_period_transactions.count != 0  %>
+			alert("Ada beberapa pembayaran yang belum di approve")
+		<% end %> 
+		
+		<% if @group_loan.unpaid_grace_period_amount !=  @total_amount %>
+			alert("Jumlah pembayaran (<%= print_money(@total_amount) %>) tidak " + 
+							"sesuai dengan hutang (<%= print_money(@group_loan.unpaid_grace_period_amount)%>) ")
+		<% end %>
+	<% end %>
+	
+	
+	$("#custom_form_propose").replaceWith('<%= new_form %>')
+	
+});

@@ -58,7 +58,7 @@ describe GroupLoan do
         
     # create the subcription 
     @group_loan.group_loan_memberships.each do |glm|
-      GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
+      GroupLoanSubcription.create_or_change( @group_loan_product_a.id  ,  glm.id  )
     end
     
     
@@ -190,17 +190,11 @@ describe GroupLoan do
     
   end # end of "testing the post conditions"  context 
   
-  context "start doing the weekly transaction. basic payment all the way" do 
-   
-    
-    it "should do the final case #2: unpaid backlogs at the end of grace period. distribute the pain to all non defaultee members" do
-      # strategy: take 50% out from each subgroup. paying only once. The rest is shared among other members. hehe.. looks good
-      
-      
-      
-      defaultee_glm_list = @first_sub_group.active_group_loan_memberships[0..1] + @second_sub_group.active_group_loan_memberships[0..1]
-      defaultee_glm_id_list = defaultee_glm_list.collect {|x| x.id }
-      puts "the list: #{defaultee_glm_id_list}"
+  context "Preparing custom payment" do 
+    before(:each) do
+      @defaultee_glm_list = @first_sub_group.active_group_loan_memberships[0..1] + @second_sub_group.active_group_loan_memberships[0..1]
+      @defaultee_glm_id_list = @defaultee_glm_list.collect {|x| x.id }
+      puts "the list: #{@defaultee_glm_id_list}"
       
       # now we have 4.. each of them only pay once for weekly payment
       
@@ -212,7 +206,8 @@ describe GroupLoan do
           # setup 
           
           # present in the weekly meeting. declaring no payment 
-          if defaultee_glm_id_list.include?(glm.id)  #   and [1,2,3].include?(weekly_task.week_number)
+          if @defaultee_glm_id_list.include?(glm.id)  and #   and [1,2,3].include?(weekly_task.week_number)
+              weekly_task.week_number == @group_loan.weekly_tasks.count 
             weekly_task.mark_attendance_as_present( glm.member, @field_worker )
             weekly_task.create_weekly_payment_declared_as_no_payment(@field_worker,  glm.member )
             next
@@ -296,108 +291,213 @@ describe GroupLoan do
         weekly_task.is_weekly_payment_collection_finalized.should be_true 
         weekly_task.is_weekly_payment_approved_by_cashier.should be_true 
       end
-      
-      # after doing weekly payment cycle -> on the last weekly payment approval, 
-      # default payments are created 
-      
+    end
+    
+    it 'should produces 4xnumber of weeks unpaid grace period' do
+      @defaultee_glm_list.each do |glm|
+        glm.reload
+        glm.unpaid_backlogs.count.should ==  1 
+      end
+    end
+    
+    it 'should not be able to do group loan closing' do
       closing_result = @group_loan.close_group_loan(@branch_manager)
       closing_result.should be_nil
-     
-      
-      defaultee_glm_list.each do |glm|
-        glm.reload
-        glm.unpaid_backlogs.count.should == @group_loan.total_weeks 
-      end
-      
-      # getting the amount to be deducted, standard schema 
-      
-      @group_loan.reload
-      
-      deduction_hash = {} 
-      initial_compulsory_savings_before_default_payment_hash = {}
-      @group_loan.active_group_loan_memberships.each do |glm|
-        if glm.default_payment.is_defaultee == false 
-          deduction_hash[glm.id] = glm.default_payment.amount_of_compulsory_savings_deduction
-          initial_compulsory_savings_before_default_payment_hash[glm.id] = glm.member.saving_book.total_compulsory_savings
-        end
-      end
+    end
+    
+    it 'should produce enough compulsory savings' do
+      puts '#############################################'
+      puts '#############################################'
+      puts '#############################################'
       
       
-      # testing copy paste code 
-      @group_loan.reload
-      @group_loan.propose_default_payment_execution( @field_worker ) # cashier is notified
-      @group_loan.is_default_payment_resolution_proposed.should be_true 
-      @group_loan.reload
-      @group_loan.execute_default_payment_execution( @cashier ) 
-      @group_loan.is_default_payment_resolution_approved.should be_true 
-      
-      
-      puts "\n\n********** deduction analytics"*5
-      deduction_hash.each do |key,value|
-        
-        puts "The glm id : #{key}"
-        glm = GroupLoanMembership.find_by_id key 
-      
-        initial_compulsory_savings = initial_compulsory_savings_before_default_payment_hash[key]
-        puts "111 initial_compulsory savings: #{initial_compulsory_savings}"
-        final_compulsory_savings = glm.member.saving_book.total_compulsory_savings
-        puts "111 final compulsory_savings: #{final_compulsory_savings}"
-        puts "glm.default_payment.amount_of_compulsory_savings_deduction : #{glm.default_payment.amount_of_compulsory_savings_deduction.to_s}"
-        compulsory_savings_diff = initial_compulsory_savings - final_compulsory_savings
-        puts "111 expected- diff : #{compulsory_savings_diff}"
-      
-        compulsory_savings_diff.should == deduction_hash[key]
-        
-      end
-      
-      
-      extra_savings_before_group_loan_closing = []
-      compulsory_savings_before_group_loan_closing = []
-      
-      @group_loan.reload
-      
-      initial_extra_savings_hash_pre_closing = {}
-      initial_compulsory_savings_hash_pre_closing = {}
+      puts "Total unpaid grace period amount: #{@group_loan.unpaid_grace_period_amount.to_i}"
+      sum = BigDecimal('0')
       @group_loan.active_group_loan_memberships.order("created_at ASC").each do |glm|
-        initial_extra_savings_hash_pre_closing[glm.id] = glm.member.saving_book.total_extra_savings 
-        initial_compulsory_savings_hash_pre_closing[glm.id] = glm.member.saving_book.total_compulsory_savings
+        glp = glm.group_loan_product
+        
+        puts "glm #{glm.id}'s total compulsory savings : #{glm.member.saving_book.total_compulsory_savings.to_i}"
+        sum += glm.member.saving_book.total_compulsory_savings
       end
       
+      puts "Total available compulsory savings: #{sum.to_i}"
+    end
     
+    
+    # we should make the glm - custom amount 
+    context 'creating custom payment' do
       
-      @group_loan.close_group_loan(@branch_manager)
-      @group_loan.is_closed.should be_true 
+      # Total unpaid grace period amount: 112000
+      # glm 1652's total compulsory savings : 35000
+      # glm 1653's total compulsory savings : 35000
+      # glm 1654's total compulsory savings : 35000
+      # glm 1655's total compulsory savings : 35000
+      # glm 1656's total compulsory savings : 40000
+      # glm 1657's total compulsory savings : 40000
+      # glm 1658's total compulsory savings : 40000
       
-      #check -> extra savings diff should be the amount of final_compulsory savings 
+      # only payable using compulsory savings... how ? 
+      it 'should allow custom proposal if the amount if just right'  do
+        payment = [
+          BigDecimal('20000'),
+          BigDecimal('20000'),
+          BigDecimal('10000'),  # 50000
+          BigDecimal('20000'), # 70000
+          BigDecimal("20000"), # 90000
+          BigDecimal("10000"), #100,000
+          BigDecimal('12000')  # 112,000
+        ]
+        @glm_payment_pair_list = []
+        count = 0
+        
+        @group_loan.active_group_loan_memberships.order('created_at ASC').each do |glm | 
+          @glm_payment_pair_list << {
+           :glm_id =>  glm.id,
+           :amount => payment[count]
+          } 
+          count +=1 
+        end
+        
+        @group_loan.propose_custom_default_payment_execution(@field_worker, @glm_payment_pair_list) 
+        
+        @group_loan.is_default_payment_resolution_proposed.should be_true 
+        @group_loan.is_custom_default_payment_resolution.should be_true  
+      end
       
       
-      @group_loan.reload
+      it 'should not allow custom proposal total custom amount > total unpaid' do
+        payment = [
+          BigDecimal('20000'),
+          BigDecimal('20000'),
+          BigDecimal('10000'),  # 50000
+          BigDecimal('20000'), # 70000
+          BigDecimal("20000"), # 90000
+          BigDecimal("10000"), #100,000
+          BigDecimal('20000')  # 120,000
+        ]
+        @glm_payment_pair_list = []
+        count = 0
+        
+        @group_loan.active_group_loan_memberships.order('created_at ASC').each do |glm | 
+          @glm_payment_pair_list << {
+           :glm_id =>  glm.id,
+           :amount => payment[count]
+          } 
+          count +=1 
+        end
+        
+        @group_loan.propose_custom_default_payment_execution(@field_worker, @glm_payment_pair_list) 
+        
+        @group_loan.is_default_payment_resolution_proposed.should be_false 
+        @group_loan.is_custom_default_payment_resolution.should be_false
+      end
       
+      it 'should not allow custom proposal total custom amount < total unpaid' do
+        payment = [
+          BigDecimal('20000'),
+          BigDecimal('20000'),
+          BigDecimal('10000'),  # 50000
+          BigDecimal('20000'), # 70000
+          BigDecimal("20000"), # 90000
+          BigDecimal("10000"), #100,000
+          BigDecimal('10000')  # 110,000
+        ]
+        @glm_payment_pair_list = []
+        count = 0
+        
+        @group_loan.active_group_loan_memberships.order('created_at ASC').each do |glm | 
+          @glm_payment_pair_list << {
+           :glm_id =>  glm.id,
+           :amount => payment[count]
+          } 
+          count +=1 
+        end
+        
+        @group_loan.propose_custom_default_payment_execution(@field_worker, @glm_payment_pair_list) 
+        
+        @group_loan.is_default_payment_resolution_proposed.should be_false 
+        @group_loan.is_custom_default_payment_resolution.should be_false
+      end
+    end
+   
+     
+    context 'custom payment post condition' do
+      before(:each) do
+        @payment = [
+          BigDecimal('20000'),
+          BigDecimal('20000'),
+          BigDecimal('10000'),  # 50000
+          BigDecimal('20000'), # 70000
+          BigDecimal("20000"), # 90000
+          BigDecimal("10000"), #100,000
+          BigDecimal('12000')  # 112,000
+        ]
+        @glm_payment_pair_list = []
+        count = 0
+        @initial_compulsory_savings_list = []
+        @group_loan.active_group_loan_memberships.order('created_at ASC').each do |glm | 
+          @glm_payment_pair_list << {
+           :glm_id =>  glm.id,
+           :amount => @payment[count]
+          } 
+          
+          @initial_compulsory_savings_list << glm.member.saving_book.total_compulsory_savings 
+          count +=1 
+        end
+        
+        @group_loan.propose_custom_default_payment_execution(@field_worker, @glm_payment_pair_list) 
+      end
       
-      @group_loan.active_group_loan_memberships.each  do |glm|
-        extra_savings_after_closing = glm.member.saving_book.total_extra_savings 
-
-        diff = extra_savings_after_closing - initial_extra_savings_hash_pre_closing[glm.id]
-
-        puts "expected diff in extra savings: #{diff}"
-        diff.should == initial_compulsory_savings_hash_pre_closing[glm.id]
+      it 'should have updated the custom amount on the default payment' do
+        count = 0 
+        @group_loan.active_group_loan_memberships.order('created_at ASC').each do |glm |  
+          default_payment = glm.default_payment 
+          default_payment.custom_amount.should == @payment[count]
+          count += 1 
+        end
+      end 
+      
+      context 'post confirmation by cashier' do
+        before(:each) do  
+          @group_loan.execute_default_payment_execution( @cashier ) 
+        end
+        
+        
+        it 'should have been default_payment executed' do
+          @group_loan.is_default_payment_resolution_approved.should be_true 
+        end
+        
+        it 'should produces the right number of transaction activities, with transaction-case: custom default payment resolution' do
+          TransactionActivity.where(
+            :transaction_case => TRANSACTION_CASE[:default_payment_resolution_compulsory_savings_deduction_custom_amount] ,
+            :loan_type => LOAN_TYPE[:group_loan] , 
+            :loan_id => @group_loan.id ,
+            :is_approved => true  
+          ).count.should == @group_loan.active_group_loan_memberships.count 
+        end
+        
+        it 'should mark all default payment as paid' do
+          @group_loan.active_group_loan_memberships.each do |glm|
+            default_payment = glm.default_payment
+            default_payment.is_paid.should be_true 
+          end
+        end
+        
+        it "should deduct the member's compulsory savings by the custom amount " do
+          count = 0 
+          @group_loan.reload
+          @group_loan.active_group_loan_memberships.order("created_at ASC"). each do |glm|
+            delta =  @initial_compulsory_savings_list[count]  -  glm.member.saving_book.total_compulsory_savings
+            delta.should == @payment[count]
+            count += 1 
+          end
+        end 
       end
     end
     
- 
     
     
-    it 'should do the case #2c: unpaid backlogs at the end' + 
-      'pay the grace payment that will result in default payment update  ' + 
-      'update the distribution of defaults to non defaultee'  do
-    end
-      
-      
     
-    
-    it "should do the final case #3: unpaid backlogs at the end of grace period. distribute the pain to all non defaultee members. CUSTOM-schema" do
-      puts " SHIT SHIT "
-    end
     
     
    
