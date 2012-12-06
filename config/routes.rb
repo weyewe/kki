@@ -34,10 +34,15 @@ Debita46::Application.routes.draw do
     resources :member_attendances
     resources :member_payments
   end
+  
+  match 'new_voluntary_savings_adjustment' => "savings_entries#new_voluntary_savings_adjustment", :as => :new_voluntary_savings_adjustment
 
 =begin
   Loan Officer Routes
 =end
+  
+  match 'update_member/:member_id' => 'members#update_member', :as => :update_member, :method => :post 
+
   match 'select_group_loan_to_assign_non_commune_constrained_member' => "group_loans#select_group_loan_to_assign_non_commune_constrained_member", :as => :select_group_loan_to_assign_non_commune_constrained_member
   match 'select_commune_for_group_loan_assignment/:group_loan_id' => "communes#select_commune_for_group_loan_assignment", :as => :select_commune_for_group_loan_assignment
   match 'list_members_in_commune/:commune_id/for_group_loan_membership_assignment/:group_loan_id' => "communes#list_members_in_commune", :as => :list_members_in_commune
@@ -136,6 +141,8 @@ Debita46::Application.routes.draw do
   match 'execute_loan_disbursement_attendance_marking' => 'group_loan_memberships#execute_loan_disbursement_attendance_marking', :as => :execute_loan_disbursement_attendance_marking, :method => :post 
   match 'propose_finalization_for_loan_disbursement' => "group_loans#propose_finalization_for_loan_disbursement", :as => :propose_finalization_for_loan_disbursement , :method => :post
   
+  match 'edit_member_attendance/:weekly_task_id/for_member/:member_id' => 'member_attendances#edit_member_attendance', :as => :edit_member_attendance 
+  match 'update_member_attendance/:weekly_task_id/for_member/:member_id' => 'member_attendances#update_member_attendance', :as => :update_member_attendance, :method => :post 
   # => the loan inspector part
   match 'select_group_loan_for_loan_disbursement_attendance_finalization' =>  "group_loans#select_group_loan_for_loan_disbursement_attendance_finalization", :as => :select_group_loan_for_loan_disbursement_attendance_finalization
   match 'finalize_loan_disbursement_attendance/:group_loan_id' => "group_loans#finalize_loan_disbursement_attendance", :as => :finalize_loan_disbursement_attendance

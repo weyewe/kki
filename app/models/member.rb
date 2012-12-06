@@ -1,4 +1,5 @@
 class Member < ActiveRecord::Base
+  attr_protected :id 
   has_many :group_loans, :through => :group_loan_memberships
   has_many :group_loan_memberships
   

@@ -11,17 +11,43 @@ class MembersController < ApplicationController
     @new_member.creator_id  = current_user.id 
     @new_member.office_id = @office.id 
     
-    if @new_member.save
-      flash[:notice] = "The new member has been created." + 
-                    " To see the list, click <a href='#data_list'>here</a>."
-      redirect_to new_member_url 
-    else
-      flash[:error] = "Hey, do something better"
-      render :file => "members/new"
-    end
+    @new_member.save
+    @has_no_errors  = @new_member.errors.messages.length == 0
     
+    
+    respond_to do |format|
+      format.html  do
+        if @has_no_errors == true 
+          flash[:notice] = "The new member has been created." + 
+                        " To see the list, click <a href='#data_list'>here</a>."
+          redirect_to new_member_url 
+        else
+          flash[:error] = "Hey, do something better"
+          render :file => "members/new"
+        end
+      end
+      
+      
+      format.js  do 
+      end
+    end 
   end
   
+  
+  
+  def edit
+    
+    setup_members
+    @member = Member.find_by_id params[:id]
+  end
+  
+  def update_member
+    setup_members
+    @member = Member.find_by_id params[:member_id]
+    
+    @member.update_attributes(params[:member])
+    @has_no_errors  = @member.errors.messages.length == 0
+  end
 =begin
   Savings Withdrawal, hard cash 
 =end
@@ -52,7 +78,7 @@ class MembersController < ApplicationController
   protected
   def setup_members
     @office = current_user.active_job_attachment.office
-    @office_members = @office.members
+    @office_members = @office.members.order("created_at ASC")
     @all_communes = @office.all_communes_under_management
   end
 end

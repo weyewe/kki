@@ -1,0 +1,18 @@
+<% commune = Commune.find_by_id object.commune_id %>
+<% village = commune.village %>
+<% subdistrict = village.subdistrict %>
+
+<tr id='entry-<%= object.id %>'>
+  <td><%= object.name %></td>
+  <td><%= object.id_card_no %></td>
+  <td><%= subdistrict.name %></td>
+  <td><%= village.name %></td>
+  <td><%= commune.number %></td>
+  <td><%= object.neighborhood_no  %></td>
+
+
+	<td>
+		<%= link_to "Edit", edit_member_url(object), 
+			:class =>"edit_entry modal-toggler", :style => "cursor:pointer; text-decoration:none;" %> 
+	</td>
+</tr>

@@ -13,6 +13,14 @@
         <%= render :partial => "weekly_tasks/present_label", :locals => {
           :member_attendance => member_attendance 
         }%>
+				
+				
+				<!-- self.has_attendance(member) -->
+				<% if not weekly_task.is_weekly_payment_collection_finalized %>
+					| 
+					<%= link_to "Edit", edit_member_attendance_url(weekly_task, member), 
+						:class =>"edit_entry modal-toggler", :style => "cursor:pointer; text-decoration:none;" %>
+				<% end %> 
         
       <% else %>
         <a href="#" class="btn propose action true_check"

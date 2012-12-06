@@ -1,0 +1,51 @@
+
+<div class="span9 content">
+  <%= create_guide("#{t 'process.add_new_member'}",  
+        "#{t 'guide.office'}: #{@office.name}" + "<br />"    +  
+        "#{t 'guide.total_office_members'}: #{@office.members.count} " ).html_safe %>
+  
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+  <% if flash[:notice] %>
+    <div class="alert alert-success">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong><%= t 'notification.well_done'%></strong> 
+    </div>
+  <% end %>
+  
+  <% if flash[:error] %>
+    <div class="alert alert-error">
+      <a data-dismiss="alert" class="close">×</a>
+      <strong>Create Failure!</strong> Please fill in all fields.
+    </div>
+  <% end %>
+  
+  
+  <div class="row-fluid">
+    <div class="span12">
+      We are going to search for the member! yipiiie
+     
+      
+    </div> 
+      
+      
+      
+    
+  </div><!--/row-->
+  
+
+</div><!--/span-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

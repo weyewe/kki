@@ -1,0 +1,38 @@
+$(document).ready(function(){
+	  
+	$("#new_object").hideLoading();
+	<% if @new_member.persisted? %>
+	
+	// draw new form 
+		<% new_form = escape_javascript(  render :partial => "members/new_object_form", :locals => {
+	    :new_object => Member.new , 
+			:url => members_url 
+	  })%>
+	
+		alert("Peminjam <%= @new_member.name %> telah tersimpan");
+		<% new_entry = escape_javascript(  render :partial => "members/entry", :locals => {
+	    :object => @new_member  
+	  })%>
+
+		$("#tableView tbody").append('<%= new_entry  %>');
+		
+	// alert that it is saved 
+	<% else %>
+		// draw the new form
+		<% new_form = escape_javascript(  render :partial => "members/new_object_form", :locals => {
+	    :new_object => @new_member , 
+			:url => members_url(@new_member)  
+	  })%>
+		 
+		
+	
+	<% end %>
+		
+ 
+
+	$("#new_object").replaceWith('<%= new_form  %>');
+	
+	// $("#editEntry .modal-body").append('<%= new_form %>');
+	
+	jQuery('.prevent_double_submit').preventDoubleSubmit();
+});

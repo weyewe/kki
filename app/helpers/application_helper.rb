@@ -406,6 +406,16 @@ module ApplicationHelper
             :action => 'select_closed_group_loan_for_history'
           }
         ]
+      },
+      {
+        :title => "Voluntary Savings Adjustment",
+        :destination_link => "new_voluntary_savings_adjustment_url",
+        :conditions => [
+          {
+            :controller => 'savings_entries',
+            :action => 'new_voluntary_savings_adjustment'
+          }
+        ]
       }
     ]
   }

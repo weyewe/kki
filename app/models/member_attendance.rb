@@ -26,4 +26,25 @@ class MemberAttendance < ActiveRecord::Base
     self.attendance_status == ATTENDANCE_STATUS[:notice]
   end
   
+  def is_absent?
+    self.attendance_status == ATTENDANCE_STATUS[:absent]
+  end
+  
+  
+  def self.all_selectable_attendance_status 
+    # ATTENDANCE_STATUS = {
+    #   :unmarked => 0 , 
+    #   :present_on_time => 1 , 
+    #   :present_late => 2 , 
+    #   :absent => 3 ,
+    #   :notice => 4 
+    # } 
+    result = [
+      ["Hadir" , ATTENDANCE_STATUS[:present_on_time] ],
+      [ "Terlambat" , ATTENDANCE_STATUS[:present_late]  ],
+      [ "Izin" , ATTENDANCE_STATUS[:notice] ]  ,
+      [ "Tidak Hadir" , ATTENDANCE_STATUS[:absent] ]  
+    ]
+    return result 
+  end
 end

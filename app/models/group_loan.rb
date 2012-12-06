@@ -1270,6 +1270,7 @@ class GroupLoan < ActiveRecord::Base
       glm = self.active_group_loan_memberships.where( :id =>x[:glm_id] ) .first
       
       return nil if glm.member.saving_book.total_compulsory_savings < x[:amount] 
+      return nil if x[:amount]  < BigDecimal('0')
     end
     
     # all active glm must be in the list

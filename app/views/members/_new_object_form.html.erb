@@ -1,0 +1,47 @@
+<% if new_object.persisted? %>
+	<% id = 'edit_object'%>
+<% else %>
+	<% id = 'new_object'%>
+<% end %>
+
+ 
+<%= simple_form_for(new_object, :url => url, :method => :post , 
+				:html => {:class => "form-horizontal prevent_double_submit ajax-form   no_content_form",
+	        :id => "#{id}"}) do |f| %>
+
+
+  <%= f.input :name , :input_html => {:class => "input-xlarge span5"}, 
+   :label => "Nama" %>
+
+  <%= f.input :id_card_no, :input_html => {:class => "input-xlarge span5"},
+  :label => "No KTP", :hint => "tidak usah pakai titik. langsung saja 234329439843928"%>
+
+  <%#= f.input :commune_id, :input_html => { :class => "input-xlarge span5" },
+  :hint => "Pilih Desa-Kelurahan ---- RW", :label => "RW" %>
+  
+  <%= f.input :commune_id, :hint => "Pilih Kecamatan, Desa-Kelurahan ---- RW", :label => "RW" do %>
+    <%= f.select :commune_id, 
+        @all_communes %>
+  <% end %>
+  
+  
+  
+  <%= f.input :neighborhood_no, :input_html => { :class => "input-xlarge span5" },
+  :hint => "Nomor RT", :label => "RT" %>
+
+
+  <%= f.input :address, :input_html => {:rows => 5, :class => "input-xlarge span5" },
+        :label => "Alamat Lengkap"%>
+
+  <div class="form-actions">
+	
+		<% if new_object.persisted? %>
+			<%= f.button :submit , :class => "btn btn-primary", :value=> "Update Peminjam" %>
+		<% else %>
+			<%= f.button :submit , :class => "btn btn-primary", :value=> "#{t 'trigger.create_member'}" %>
+		<% end %>
+		
+		
+    
+  </div>
+<% end %>

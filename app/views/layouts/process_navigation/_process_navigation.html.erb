@@ -3,7 +3,7 @@
      
 
       <% if current_user.has_role?(:branch_manager, current_user.active_job_attachment) %>
-        <%= get_process_nav( :branch_manager , params ).html_safe %> 
+        <%= get_process_nav( :branch_manager , params ).html_safe %>  
       <% end %>
       
       <% if current_user.has_role?(:loan_officer, current_user.active_job_attachment) %>
