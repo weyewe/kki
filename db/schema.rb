@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121124021056) do
+ActiveRecord::Schema.define(:version => 20130109012431) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
@@ -126,6 +126,8 @@ ActiveRecord::Schema.define(:version => 20121124021056) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.datetime "sub_group_update_datetime"
+    t.decimal  "withdrawn_disbursed_savings",                  :precision => 9, :scale => 2, :default => 0.0
+    t.decimal  "saved_disbursed_savings",                      :precision => 9, :scale => 2, :default => 0.0
   end
 
   create_table "group_loan_products", :force => true do |t|
@@ -193,6 +195,15 @@ ActiveRecord::Schema.define(:version => 20121124021056) do
     t.decimal  "group_loan_loss",                                          :precision => 11, :scale => 2, :default => 0.0
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "is_savings_disbursement_started",                                                         :default => false
+    t.integer  "savings_disbursement_starter_id"
+    t.datetime "savings_disbursement_started_at"
+    t.boolean  "is_savings_disbursement_finalization_proposed",                                           :default => false
+    t.integer  "savings_disbursement_finalization_proposer_id"
+    t.datetime "savings_disbursement_finalization_proposed_at"
+    t.boolean  "is_savings_disbursement_finalized",                                                       :default => false
+    t.integer  "savings_disbursement_finalizer_id"
+    t.datetime "savings_disbursement_finalized_at"
   end
 
   create_table "islands", :force => true do |t|

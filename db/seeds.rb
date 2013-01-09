@@ -214,7 +214,7 @@ puts "Done creating user. Gonna create job_attachment"
 
 puts "Done creating the blank slate user  user and the job attachment "
 
-
+if not Rails.env.production? 
 =begin
   Gonna add roles to the job attachment 
 =end
@@ -284,3 +284,4 @@ end
 puts " member creation is done "
 
 
+end 

@@ -260,6 +260,29 @@ Debita46::Application.routes.draw do
   match 'execute_backlog_payment_approval_by_cashier' => "backlog_payments#execute_backlog_payment_approval_by_cashier", :as => :execute_backlog_payment_approval_by_cashier, :method => :post
   
 =begin
+  POST GROUP LOAN CLOSE processes: 
+  1. savings disbursement => cashier
+  2. savings disbursement finalization  propose=> field worker
+  3. savings disbursement finalization approval = cashier
+  DONE 
+=end
+  # savings disbursement by cashier
+  match 'select_group_loan_for_savings_disbursement_start' => 'group_loans#select_group_loan_for_savings_disbursement_start', :as => :select_group_loan_for_savings_disbursement_start
+  match 'execute_savings_disbursement_start' => "group_loans#execute_savings_disbursement_start", :as => :execute_savings_disbursement_start, :method => :post
+  
+  # savings disbursement finalization propose by field worker  
+  match 'select_group_loan_to_propose_savings_disbursement_finalization' => 'group_loans#select_group_loan_to_propose_savings_disbursement_finalization', :as => :select_group_loan_to_propose_savings_disbursement_finalization
+  match 'add_details_to_propose_savings_disbursement_finalization/:group_loan_id' => 'group_loans#add_details_to_propose_savings_disbursement_finalization', :as => :add_details_to_propose_savings_disbursement_finalization
+  match 'execute_propose_savings_disbursement_finalization/:group_loan_id' => 'group_loans#execute_propose_savings_disbursement_finalization', :as => :execute_propose_savings_disbursement_finalization, :method => :post
+  
+  # savings disbursement finalization finalization by cashier
+  match 'select_group_loan_for_savings_disbursement_finalization' => 'group_loans#select_group_loan_for_savings_disbursement_finalization', :as => :select_group_loan_for_savings_disbursement_finalization
+  match 'finalize_savings_disbursement' => 'group_loans#finalize_savings_disbursement', :as => :finalize_savings_disbursement, :method => :post 
+  match 'reject_savings_disbursement_finalization_proposal' => 'group_loans#reject_savings_disbursement_finalization_proposal', :as => :reject_savings_disbursement_finalization_proposal, :method => :post
+  
+  
+  
+=begin
   SAVINGS WITHDRAWAL
 =end
   match 'search_member_for_savings_withdrawal' => 'members#search_member_for_savings_withdrawal', :as => :search_member_for_savings_withdrawal

@@ -649,6 +649,27 @@ module ApplicationHelper
           }
         ]
       }
+      # ,
+      # {
+      #   :title => "Pengembalian Tabungan",
+      #   :destination_link => 'select_group_loan_for_savings_disbursement_start_url',
+      #   :conditions => [
+      #     {
+      #       :controller => 'group_loans',
+      #       :action => 'select_group_loan_for_savings_disbursement_start'
+      #     } 
+      #   ]
+      # },
+      # {
+      #   :title => "Finalisasi Pengembalian Tabungan",
+      #   :destination_link => 'select_group_loan_for_savings_disbursement_finalization_url',
+      #   :conditions => [
+      #     {
+      #       :controller => 'group_loans',
+      #       :action => 'select_group_loan_for_savings_disbursement_finalization'
+      #     } 
+      #   ]
+      # }
     ]
   }
   
@@ -883,6 +904,22 @@ module ApplicationHelper
           }
         ]
       }
+      # ,
+      # # gonna be savings disbursement 
+      # {
+      #   :title => "Pengembalian Tabungan",
+      #   :destination_link => 'select_group_loan_to_propose_savings_disbursement_finalization_url',
+      #   :conditions => [
+      #     {
+      #       :controller => 'group_loans',
+      #       :action => 'select_group_loan_to_propose_savings_disbursement_finalization'
+      #     },
+      #     {
+      #       :controller => "group_loans",
+      #       :action => 'add_details_to_propose_savings_disbursement_finalization'
+      #     } 
+      #   ]
+      # }
     ]
   }
   

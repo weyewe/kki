@@ -1380,5 +1380,17 @@ class GroupLoan < ActiveRecord::Base
     self.save
   end
   
+=begin
+  Specific for SAVINGS DISBURSEMENT
+=end
+  def total_disbursed_savings
+  end
+  
+  def total_withdrawn_disbursed_savings
+  end
+  
+  def total_saved_disbursed_savings
+  end
+  
   
 end

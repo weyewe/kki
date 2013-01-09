@@ -700,6 +700,12 @@ class GroupLoansController < ApplicationController
     @active_group_loans = @office.active_group_loans
   end
 
+=begin
+  Disbursing the Savings from group loan
+=end
+  def select_group_loan_to_propose_savings_disbursement_finalization
+    @group_loans = @office.pending_savings_disbursement_finalization 
+  end
 
   
   protected
