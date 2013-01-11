@@ -126,7 +126,8 @@ TRANSACTION_CASE = {
   
   :independent_savings_deposit => 500,
   
-  :port_compulsory_savings_during_group_loan_closing => 600
+  :port_compulsory_savings_during_group_loan_closing => 600,
+  :group_loan_savings_disbursement => 610
   
 }
 
@@ -166,7 +167,8 @@ TRANSACTION_ENTRY_CODE = {
   
   :default_loan_resolution_compulsory_savings_withdrawal => 600,
   
-  :port_remaining_compulsory_savings_on_group_loan_close => 700
+  :port_remaining_compulsory_savings_on_group_loan_close => 700,
+  :group_loan_savings_disbursement => 710 
   
 }
 
@@ -197,7 +199,8 @@ SAVING_ENTRY_CODE = {
   :deduct_compulsory_savings_for_default_payment => 401,
   :deduct_extra_savings_for_default_payment => 402,
   
-  :deduct_extra_savings_for_cash_savings_withdrawal => 500
+  :deduct_extra_savings_for_cash_savings_withdrawal => 500,
+  :group_loan_savings_disbursement =>   510
   
  
   

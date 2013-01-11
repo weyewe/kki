@@ -344,8 +344,12 @@ class GroupLoan < ActiveRecord::Base
   end
   
   def preserved_active_group_loan_memberships
-    ( active_group_loan_memberships  + self.group_loan_memberships.where(:is_active => false , 
-    :deactivation_case => GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]) ) .sort_by{|x| x.sub_group_id}
+    # ( active_group_loan_memberships  + self.group_loan_memberships.where(:is_active => false , 
+    # :deactivation_case => GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]) ) .sort_by{|x| x.sub_group_id}
+    # 
+    # 
+    self.group_loan_memberships.where(:is_active => false , 
+    :deactivation_case => GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]) .sort_by{|x| x.sub_group_id}
   end
   
   def non_active_group_loan_memberships
@@ -1011,22 +1015,25 @@ class GroupLoan < ActiveRecord::Base
     end
     
     if  self.is_default_payment_resolution_approved == true   
-      self.active_group_loan_memberships.each do |glm|
-        if glm.is_compulsory_savings_migrated == false 
-          glm.migrate_compulsory_savings_to_extra_savings(current_user) # find all transactions associated with this group loan
-          glm.is_active = false
-          glm.deactivation_case =  GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
-          glm.save
+      ActiveRecord::Base.transaction do
+        self.active_group_loan_memberships.each do |glm|
+          if glm.is_compulsory_savings_migrated == false 
+            glm.migrate_compulsory_savings_to_extra_savings(current_user) # find all transactions associated with this group loan
+            glm.is_active = false
+            glm.deactivation_case =  GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]
+            glm.save
+          end
+          # move it over  -> from compulsory to extra 
         end
-        # move it over  -> from compulsory to extra 
+      
+      
+        self.is_closed = true 
+        self.is_grace_period = false
+        self.group_loan_closer_id = current_user.id
+        self.save
       end
-      
-      
-      self.is_closed = true 
-      self.is_grace_period = false
-      self.group_loan_closer_id = current_user.id
-      self.save
     end
+    
   end
   
   
@@ -1391,6 +1398,79 @@ class GroupLoan < ActiveRecord::Base
   
   def total_saved_disbursed_savings
   end
+  
+  # what does it do? create N transaction_activities with the accompanying saving entries..
+  # flush out all the voluntary savings . Where N == those inactive because of group loan closing 
+  def start_group_loan_savings_disbursement( employee  ) 
+    # check whether the group loan's office is the emploee's active job attachment
+    # check whether it is disbursed
+    # check whether the group loan has been closed 
+    # if nothing else.. execute! 
+    # post result == 0 voluntary savings, 0 compulsory savings. 0 total_savings 
+    
+    return nil if self.is_closed == false 
+    return nil if not employee.has_role?(:cashier, employee.active_job_attachment)
+    return nil if self.is_savings_disbursement_started == true 
+    
+    
+    ActiveRecord::Base.transaction do
+      self.preserved_active_group_loan_memberships.each do |glm|
+          # glm.execute_savings_disbursement(employee) # find all transactions associated with this group loan
+        TransactionActivity.execute_group_loan_savings_disbursement(glm, employee)
+      end
+      
+      
+      self.is_savings_disbursement_started = true 
+      self.savings_disbursement_starter_id = employee.id
+      self.savings_disbursement_started_at = DateTime.now 
+      self.save
+    end 
+  end
+  
+  def propose_savings_disbursement_finalization(employee, glm_savings_disbursement_saved_list)
+    
+    return nil if not employee.has_role?(:field_worker, employee.active_job_attachment)
+    return nil if not self.is_savings_disbursement_started  
+    return nil if self.is_savings_disbursement_finalization_proposed
+    return nil if self.is_savings_disbursement_finalized
+    
+    
+    
+    
+    glm_list = self.preserved_active_group_loan_memberships.map{|x| x.id } 
+    glm_list_from_params = [] 
+    total_amount= BigDecimal('0')
+    
+    glm_savings_disbursement_saved_list.map do |x| 
+      glm_list_from_params << x[:glm_id]
+      total_amount += x[:amount]
+      glm = self.group_loan_memberships.where(:id => x[:glm_id] ).first
+      # glm = self.preserved_active_group_loan_memberships.where( :id =>x[:glm_id] ) .first
+      
+      return nil if not glm_list.include?( glm.id )
+      return nil if glm.savings_disbursement_amount < x[:amount] 
+      return nil if x[:amount]  < BigDecimal('0')
+    end
+    
+    # all active glm must be in the list
+    return nil if (glm_list - glm_list_from_params).length != 0 
+     
+    
+    glm_savings_disbursement_saved_list.map do |x|  
+      glm = self.group_loan_memberships.where(:id => x[:glm_id] ).first # self.preserved_active_group_loan_memberships.where( :id =>x[:glm_id] )  
+      glm.saved_disbursed_savings = x[:amount]
+      glm.save 
+    end
+    
+    # check whether it has the project assignment 
+    self.is_savings_disbursement_finalization_proposed = true
+    self.savings_disbursement_finalization_proposer_id = employee.id 
+    self.savings_disbursement_finalization_proposed_at = DateTime.now  
+    self.save 
+    
+  end
+  
+  
   
   
 end

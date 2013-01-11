@@ -1,0 +1,30 @@
+<%= simple_form_for(group_loan, :url =>  execute_propose_savings_disbursement_finalization_url(group_loan) , 
+				:html => {:class => 'form-horizontal ajax-form', :id => "custom_form_propose" } 	) do |f| %>
+
+  
+  
+
+
+	<table cellpadding="0" cellspacing="0" border="0" 
+	      class="table table-striped table-bordered" id="example">
+	  <thead>
+	    <tr>
+	      <th><%= t 'report_metric.member' %></th>
+	      <th>Pengembalian Tabungan</th> 
+	      <th>Yang Ditabung Ulang</th> 
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <% group_loan.preserved_active_group_loan_memberships.each do |glm| %>
+	      <%= render :partial => "group_loans/savings_disbursement_entry" ,  :locals => {
+					:glm => glm ,
+					:payment_params => payment_params
+				}%>
+	    <% end %>
+	  </tbody>
+	</table>
+
+	<div class="form-actions">
+	  <%= f.button :submit , :class => "btn btn-primary", :value=> "Ajukan Finalisasi Pengembalian Tabungan" %>
+	</div>
+<% end %>

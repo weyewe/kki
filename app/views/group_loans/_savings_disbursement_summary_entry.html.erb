@@ -1,0 +1,20 @@
+ 
+<% group_loan_membership = glm  %>
+<% member = group_loan_membership.member %>
+<% saving_book = member.saving_book %>
+<tr id="glm_<%= group_loan_membership.id%>">
+  <td><%= member.name %></td>
+  <td><%= print_money(group_loan_membership.savings_disbursement_amount) %></td> 
+  
+    
+  
+  <td>  
+	 	<%= print_money( group_loan_membership.withdrawn_disbursed_savings) %>
+  </td>
+
+	<td>
+		<%= print_money( group_loan_membership.saved_disbursed_savings )%>
+	</td>
+  
+   
+</tr>

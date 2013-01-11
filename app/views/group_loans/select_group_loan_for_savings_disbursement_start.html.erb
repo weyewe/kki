@@ -1,6 +1,6 @@
 
 <div class="span9 content">
-  <%= create_guide("Finalisasi Pengembalian Tabungan", 
+  <%= create_guide("Eksekusi Pengembalian Tabungan", 
         "#{t 'guide.office'}: <b>#{@office.name}</b>" + "<br />" + 
         "Total pending pengembalian: <b>#{@group_loans.count}</b> ").html_safe %>
   
@@ -17,14 +17,13 @@
             <th><%= t 'report_metric.group_name' %></th>
             <th>Lokasi RW</th>
             <th>Total Member</th>
-						<th>Pengembalian Tabungan</th> 
-						<th>Ditabung Ulang</th> 
-            
+						<th>Total Pengembalian</th>
+            <th>Aksi</th>  
           </tr>
         </thead>
         <tbody>
           <% @group_loans.each do |group_loan| %>
-            <%= render :partial => "group_loans/pending_savings_disbursement_finalization" , 
+            <%= render :partial => "group_loans/start_savings_disbursement_entry" , 
                 :locals => {:group_loan => group_loan}%> 
           <% end %>
        
@@ -36,7 +35,7 @@
   </div>
   
   <div class=" hidden" id="approve_propose_form_wrapper">
-    <%= form_for GroupLoan.new, :url => execute_start_group_loan_url   do |f| %>
+    <%= form_for GroupLoan.new, :url => execute_savings_disbursement_start_url   do |f| %>
       <%= hidden_field_tag 'entity_id' , ''  %>
       <%= hidden_field_tag 'action_role', '' %>
       <%= hidden_field_tag 'action_value', '' %>

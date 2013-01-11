@@ -649,28 +649,27 @@ module ApplicationHelper
             :action => "select_pending_backlog_to_be_approved"
           }
         ]
+      },
+      {
+        :title => "Pengembalian Tabungan",
+        :destination_link => 'select_group_loan_for_savings_disbursement_start_url',
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_savings_disbursement_start'
+          } 
+        ]
+      },
+      {
+        :title => "Finalisasi Pengembalian Tabungan",
+        :destination_link => 'select_group_loan_for_savings_disbursement_finalization_url',
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_for_savings_disbursement_finalization'
+          } 
+        ]
       }
-      # ,
-      # {
-      #   :title => "Pengembalian Tabungan",
-      #   :destination_link => 'select_group_loan_for_savings_disbursement_start_url',
-      #   :conditions => [
-      #     {
-      #       :controller => 'group_loans',
-      #       :action => 'select_group_loan_for_savings_disbursement_start'
-      #     } 
-      #   ]
-      # },
-      # {
-      #   :title => "Finalisasi Pengembalian Tabungan",
-      #   :destination_link => 'select_group_loan_for_savings_disbursement_finalization_url',
-      #   :conditions => [
-      #     {
-      #       :controller => 'group_loans',
-      #       :action => 'select_group_loan_for_savings_disbursement_finalization'
-      #     } 
-      #   ]
-      # }
     ]
   }
   
@@ -904,23 +903,22 @@ module ApplicationHelper
             :action => 'payment_for_default_resolution'
           }
         ]
+      },
+      # gonna be savings disbursement 
+      {
+        :title => "Pengembalian Tabungan",
+        :destination_link => 'select_group_loan_to_propose_savings_disbursement_finalization_url',
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_propose_savings_disbursement_finalization'
+          },
+          {
+            :controller => "group_loans",
+            :action => 'add_details_to_propose_savings_disbursement_finalization'
+          } 
+        ]
       }
-      # ,
-      # # gonna be savings disbursement 
-      # {
-      #   :title => "Pengembalian Tabungan",
-      #   :destination_link => 'select_group_loan_to_propose_savings_disbursement_finalization_url',
-      #   :conditions => [
-      #     {
-      #       :controller => 'group_loans',
-      #       :action => 'select_group_loan_to_propose_savings_disbursement_finalization'
-      #     },
-      #     {
-      #       :controller => "group_loans",
-      #       :action => 'add_details_to_propose_savings_disbursement_finalization'
-      #     } 
-      #   ]
-      # }
     ]
   }
   

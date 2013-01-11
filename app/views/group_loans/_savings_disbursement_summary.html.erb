@@ -1,0 +1,20 @@
+
+<table cellpadding="0" cellspacing="0" border="0" 
+      class="table table-striped table-bordered" id="example">
+  <thead>
+    <tr>
+      <th><%= t 'report_metric.member' %></th>
+      <th><%= t 'variable.total_savings'%></th>  
+      <th>Jumlah yang ditarik</th>
+      <th>Jumlah yang ditabung</th> 
+    </tr>
+  </thead>
+  <tbody>
+    <% group_loan.preserved_active_group_loan_memberships.each do |glm| %>
+      <%= render :partial => "group_loans/savings_disbursement_summary_entry" ,  :locals => {
+				:glm => glm  ,
+				:payment_params => payment_params
+			}%>
+    <% end %>
+  </tbody>
+</table>

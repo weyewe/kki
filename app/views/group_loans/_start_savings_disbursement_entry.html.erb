@@ -1,10 +1,11 @@
 
 <tr id="entry-<%= group_loan.id %>">
   <td> 
-    <%= link_to group_loan.name , add_details_to_propose_savings_disbursement_finalization_url( group_loan )%>
+    <%= group_loan.name %>
   </td>
   <td><%= group_loan.get_commune %></td>
   <td><%= group_loan.preserved_active_group_loan_memberships.count %></td> 
 	<td><%= print_money( group_loan.total_disbursed_savings ) %></td>
-	<td><%= print_money( group_loan.total_saved_disbursed_savings ) %></td>
+	<td><a href="#" class="btn propose action true_check prevent_double_submit"
+    id="start_group_loan_savings_disbursement-<%= group_loan.id %>"><%= t 'trigger.execute' %></a></td> 
 </tr>

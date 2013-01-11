@@ -555,6 +555,22 @@ class GroupLoanMembership < ActiveRecord::Base
     
   end
   
+=begin
+  PROPOSE SAVING DISBURSEMENT FINALIZATION
+=end
+  def savings_disbursement_amount
+    TransactionActivity.where(
+      :transaction_case => TRANSACTION_CASE[:group_loan_savings_disbursement], 
+      :loan_type => LOAN_TYPE[:group_loan],
+      :loan_id => self.group_loan_id ,
+      :member_id => self.member_id 
+    ).sum("total_transaction_amount")
+  end
+  
+  def withdrawn_disbursed_savings
+    savings_disbursement_amount - saved_disbursed_savings
+  end
+  
 
   
   protected

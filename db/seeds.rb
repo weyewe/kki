@@ -270,18 +270,196 @@ commune       = first_village.communes.first
   # auto create group name 
 puts "create the member"
 TOTAL_MEMBER_COUNT = 8    
-member_hash = {}   
+member_hash = [] 
 (1..TOTAL_MEMBER_COUNT).each do |x|
-  member_hash[x] = Member.create :name => "Member #{x}", 
+  member =   Member.create :name => "Member #{x}", 
                 :id_card_no => "1233435253#{x}",  :village_id => first_village.id,
                 :commune_id => commune.id, :neighborhood_no => x,
                 :address => "Jalan Tikus Gang 33252 no 55 #{x}",
                 :creator_id => loan_officer.id,
                 :office_id => cilincing_office.id
+                
+  member_hash << member
 end            
   
 
 puts " member creation is done "
+group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
+   :commune_id => commune }, branch_manager)
+   
+puts "Group loan is created"
+
+puts "BANZAI< GROUP LOAN IS #{group_loan.class}"
 
 
+member_hash.each do |member|
+  puts "BANZAI< MEMBER IS #{member.class}"
+  GroupLoanMembership.create_membership( loan_officer, member, group_loan)
+end
+
+puts "Done creating glm"
+
+
+group_loan.add_assignment(:field_worker, field_worker)
+group_loan.add_assignment(:loan_inspector, branch_manager)
+
+puts "Done add assignment to group loan"
+group_loan_products_array = [
+          group_loan_product_a,
+          group_loan_product_b,
+          group_loan_product_c
+          ]
+          
+group_loan.group_loan_memberships.each do |glm|
+  GroupLoanSubcription.create_or_change( group_loan_products_array[rand(3)].id  ,  glm.id  )
+end
+
+puts "done adding group loan subcription"
+
+sub_group_count = 2 
+SubGroup.set_sub_groups( group_loan, sub_group_count )
+first_sub_group = group_loan.sub_groups[0]
+second_sub_group =  group_loan.sub_groups[1]
+
+puts "done creating subgroup"
+count = 0 
+member_hash.each do |member|
+  if count%2 == 0 
+    first_sub_group.add_member( member )
+  elsif count%2 == 1 
+    second_sub_group.add_member( member )
+  end
+  count = count + 1 
+end
+
+puts "done adding member to subgroup"
+
+group_loan.execute_propose_finalization( loan_officer )
+
+puts "done propose finalization"
+
+group_loan.start_group_loan( branch_manager )
+puts "done start group loan"
+
+group_loan.group_loan_memberships.each do |glm|
+  glm.mark_financial_education_attendance( field_worker, true, group_loan  )
+end
+
+group_loan.propose_financial_education_attendance_finalization( field_worker) 
+
+puts "Done financial education attendance"
+
+group_loan.finalize_financial_attendance_summary(branch_manager)
+group_loan.reload   # refresh the data  from db
+
+puts "Finalize financial education"
+
+group_loan.membership_to_receive_loan_disbursement.each do |glm|  
+  glm.mark_loan_disbursement_attendance( field_worker, true, group_loan  )
+end
+
+
+group_loan.propose_loan_disbursement_attendance_finalization(field_worker)
+group_loan.reload 
+
+
+
+group_loan.group_loan_memberships.each do |glm|
+  # important.. by default, set it to deduct setup fee from laon disbursment 
+  glm.deduct_setup_payment_from_loan = true
+  glm.save 
+  TransactionActivity.execute_loan_disbursement( glm , field_worker )
+  # the column has_received_disbursement is checked 
+end
+
+
+group_loan.finalize_loan_disbursement_attendance_summary(branch_manager )
+
+group_loan.execute_finalize_loan_disbursement(cashier)
+puts "finalized loan disbursement"
+
+
+group_loan.weekly_tasks.order("week_number ASC").each do |weekly_task|  
+  group_loan.active_group_loan_memberships.includes(:member).each do |glm| 
+
+
+    member =  glm.member 
+    saving_book = member.saving_book
+    initial_total_savings                = saving_book.total 
+    initial_extra_savings                = saving_book.total_extra_savings
+    initial_compulsory_savings           = saving_book.total_compulsory_savings
+
+    glp = glm.group_loan_product
+
+
+
+    #  mark member attendance  # the order doesn't matter 
+    weekly_task.mark_attendance_as_present( glm.member, field_worker )
+    # do payment 
+    weekly_task = group_loan.currently_executed_weekly_task
+
+    
+    cash_payment = glp.total_weekly_payment
+    savings_withdrawal = BigDecimal("0")
+    number_of_weeks = 1 
+    number_of_backlogs = 0 
+    a = TransactionActivity.create_generic_weekly_payment(
+      weekly_task, 
+      glm,
+      field_worker,
+      cash_payment,
+      savings_withdrawal, 
+      number_of_weeks,
+      number_of_backlogs,
+      false
+    )
+
+
+
+
+
+    saving_book.reload
+
+    final_total_savings      = saving_book.total 
+    final_extra_savings      = saving_book.total_extra_savings
+    final_compulsory_savings = saving_book.total_compulsory_savings
+    diff = final_total_savings - initial_total_savings
+    diff_extra_savings = final_extra_savings - initial_extra_savings
+    diff_compulsory_savings = final_compulsory_savings - initial_compulsory_savings
+
+
+
+  end
+  weekly_task.close_weekly_meeting(field_worker)
+  weekly_task.close_weekly_payment( field_worker )
+  weekly_task.approve_weekly_payment_collection( cashier ) 
+end
+
+
+
+puts "Done with all weekly payments"
+
+group_loan.reload
+group_loan.propose_default_payment_execution( field_worker )
+
+puts "Done with default payment execution propose"
+
+group_loan.execute_default_payment_execution( cashier ) 
+
+puts "Default payment executed by cashier"
+
+group_loan.close_group_loan(branch_manager)
+
+puts "Group loan is closed by branch manager"
+
+puts "HAHAUEHEUAHUEHOAHUAEHRAE WE ARE DONE " if group_loan.is_closed? 
+
+###############################
+###############
+############### => End of development only seeds 
+###############
+################################
+
+
+group_loan.start_group_loan_savings_disbursement(cashier)
 end 

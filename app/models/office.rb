@@ -207,6 +207,12 @@ class Office < ActiveRecord::Base
     self.group_loans.where(:is_started => true , :is_closed => true )
   end
   
+  def pending_savings_disbursement 
+    self.group_loans.where(:is_started => true , 
+                    :is_closed => true, 
+                    :is_savings_disbursement_finalized => false   )
+  end
+  
   def pending_savings_disbursement_finalization
     self.group_loans.where(:is_started => true , 
                     :is_closed => true, 

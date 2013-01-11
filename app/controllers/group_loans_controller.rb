@@ -698,17 +698,104 @@ class GroupLoansController < ApplicationController
   def select_group_loan_for_backlog_payment_approval
     @office = current_user.active_job_attachment.office
     @active_group_loans = @office.active_group_loans
+    
   end
 
 =begin
   Disbursing the Savings from group loan
 =end
-  def select_group_loan_to_propose_savings_disbursement_finalization
-    @group_loans = @office.pending_savings_disbursement_finalization 
+
+  def select_group_loan_for_savings_disbursement_start
+    setup_group_loan_for_flushing_voluntary_savings 
+    add_breadcrumb "Pending Pengembalian Tabungan", 'select_group_loan_for_savings_disbursement_start_url'
   end
+  
+  def execute_savings_disbursement_start
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
+    @action_role = params[:action_role].to_i
+    @action_value = params[:action_value].to_i
+    
+    @group_loan.start_group_loan_savings_disbursement( current_user ) 
+
+   
+    respond_to do |format|
+      format.html {  redirect_to root_url }
+      format.js 
+    end
+  end
+
+  def select_group_loan_to_propose_savings_disbursement_finalization
+    setup_group_loan_for_flushing_voluntary_savings
+    add_breadcrumb "Pending Pengembalian Tabungan", 'select_group_loan_to_propose_savings_disbursement_finalization_url'
+  end
+  
+  def add_details_to_propose_savings_disbursement_finalization
+    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+    @office = current_user.active_job_attachment.office
+    @payment_params = nil 
+    add_breadcrumb "Pending Pengembalian Tabungan", 'select_group_loan_to_propose_savings_disbursement_finalization_url'
+    set_breadcrumb_for @group_loan, 'add_details_to_propose_savings_disbursement_finalization_url' + "(#{@group_loan.id})", 
+                "Lengkapi Pengembalian Tabungan"
+  end
+  
+  # def execute_propose_custom_default_resolution
+  #   @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+  #   @glm_payment_pair_list = [] 
+  #   @total_amount = BigDecimal('0')
+  #   params[:payment].each do |name, amount |
+  #     glm_id = name.split("_")[1].to_i
+  #     amount = BigDecimal(amount)
+  #     @glm_payment_pair_list << {
+  #      :glm_id =>  glm_id,
+  #      :amount => amount
+  #     }
+  #     @total_amount += amount 
+  #   end
+  #   
+  #   
+  #   @payment_params = params[:payment]
+  #   @group_loan.propose_custom_default_payment_execution(current_user, @glm_payment_pair_list)
+  #   
+  #   
+  #   #  to replace the form
+  #   @group_loan_membership_id = @group_loan.preserved_active_group_loan_memberships.map{|x| x.id } 
+  #   @default_payments = DefaultPayment.where(
+  #     :group_loan_membership_id => @group_loan_membership_id).order("group_loan_memberships.sub_group_id DESC, group_loan_memberships.created_at ASC").includes(:group_loan_membership)
+  #     
+  # end
+  
+  def execute_propose_savings_disbursement_finalization
+    @group_loan = GroupLoan.find_by_id params[:group_loan_id]
+    @glm_savings_disbursement_saved_list = [] 
+    @total_amount = BigDecimal('0')
+    params[:payment].each do |name, amount |
+      glm_id = name.split("_")[1].to_i
+      amount = BigDecimal(amount)
+      @glm_savings_disbursement_saved_list << {
+       :glm_id =>  glm_id,
+       :amount => amount
+      }
+      @total_amount += amount 
+    end
+    
+    @payment_params = params[:payment]
+    @group_loan.propose_savings_disbursement_finalization(current_user, @glm_savings_disbursement_saved_list)
+  end
+  
+  def select_group_loan_for_savings_disbursement_finalization
+    setup_group_loan_for_flushing_voluntary_savings
+    add_breadcrumb "Finalisasi Pengembalian Tabungan", 'select_group_loan_for_savings_disbursement_finalization_url'
+  end
+  
+  
 
   
   protected
+  
+  def setup_group_loan_for_flushing_voluntary_savings
+    @office = current_user.active_job_attachment.office
+    @group_loans = @office.pending_savings_disbursement
+  end
   
   def setup_group_loan_for_weekly_task
     @office = current_user.active_job_attachment.office

@@ -1,0 +1,25 @@
+$(document).ready(function(){
+	
+	$("#custom_form_propose").hideLoading();
+	
+	<% if @group_loan.is_savings_disbursement_finalization_proposed == true %>
+ 		<% new_form = escape_javascript( render :partial => 'group_loans/savings_disbursement_summary', :locals => {
+			:payment_params => @payment_params, 
+			:group_loan => @group_loan  
+		}) %>  
+		
+		
+		
+	<% else %>
+		<% new_form = escape_javascript( render :partial => 'group_loans/savings_disbursement_finalization_form', :locals => {
+				:payment_params => @payment_params, 
+				:group_loan => @group_loan
+		}) %>
+	  
+	 
+	<% end %>
+	
+	
+	$("#custom_form_propose").replaceWith('<%= new_form %>')
+	
+});

@@ -1,0 +1,34 @@
+ 
+<% group_loan_membership = glm  %>
+<% member = group_loan_membership.member %>
+<% saving_book = member.saving_book %>
+<tr id="glm_<%= group_loan_membership.id%>">
+  <td><%= member.name %></td>
+  <td><%= print_money(group_loan_membership.savings_disbursement_amount) %></td> 
+  
+    
+  
+  <td> 
+		<%= value = '' %>
+		<% if not payment_params.nil? %>
+			<% value =  payment_params["custom_#{group_loan_membership.id}"]  %>
+			<input id="custom_<%= group_loan_membership.id %>" 
+						name="payment[custom_<%= group_loan_membership.id %>]" type="text" value="<%= value.to_i %>">
+						
+			<% if group_loan_membership.savings_disbursement_amount.to_i < value.to_i %> 
+			<br />
+				Tidak boleh lebih dari <%= print_money( group_loan_membership.savings_disbursement_amount) %>
+			<% end %> 
+		<% else %>
+		
+			<input id="custom_<%= group_loan_membership.id %>" 
+						name="payment[custom_<%= group_loan_membership.id %>]" type="text" value="">
+					
+		<% end %> 
+		
+	    
+	 	
+  </td>
+  
+   
+</tr>
