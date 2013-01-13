@@ -15,6 +15,7 @@
   
 =end
 
+require 'transaction_activity_savings_account' # patching transaction activity.. special for savings account method
 class TransactionActivity < ActiveRecord::Base
   has_many :transaction_entries 
   belongs_to :office 

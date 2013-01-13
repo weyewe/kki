@@ -128,7 +128,8 @@ TRANSACTION_CASE = {
   
   :port_compulsory_savings_during_group_loan_closing => 600,
   :group_loan_savings_disbursement => 610, 
-  :save_group_loan_disbursed_savings => 700
+  :save_group_loan_disbursed_savings => 700,
+  :add_savings_account => 701
   
 }
 
@@ -172,7 +173,8 @@ TRANSACTION_ENTRY_CODE = {
   :group_loan_savings_disbursement => 710,
   
   # re-save the disbursed savings =>  
-  :save_group_loan_disbursed_savings => 711 
+  :save_group_loan_disbursed_savings => 711,
+  :add_savings_account => 712
   
 }
 
@@ -209,7 +211,8 @@ SAVING_ENTRY_CODE = {
   # the real savings account  => with monthly interest
   # we HOLD the transaction entry from 700 - 799 , special for those going in
   # and going out from SAVINGS_ACCOUNT
-  :save_group_loan_disbursed_savings => 700 
+  :save_group_loan_disbursed_savings => 700 ,
+  :add_savings_account => 701 
 }
  
 SAVING_CASE = {
@@ -283,6 +286,9 @@ INDEPENDENT_PAYMENT_END = 888300000 # max+ 88811122
 GRACE_PERIOD_PAYMENT_START = 666000  # cash , savings_withdrawal, extra_savings
 GRACE_PERIOD_PAYMENT_END =   666200  # max= 666 1112 
 
+SAVINGS_ACCOUNT_START = 701  # add savings account 
+SAVINGS_ACCOUNT_END   = 750  # whatever 
+MIN_SAVINGS_ACCOUNT_AMOUNT = BigDecimal("100")
 
 =begin
   MEMBER PAYMENT HISTORY 

@@ -208,10 +208,7 @@ class Member < ActiveRecord::Base
       :transaction_entry_id => saving_transaction_entry.id,
       :savings_case => SAVING_CASE[:savings_account]
     )
-    
-    puts "amount from the shite: #{saving_amount.to_s}"
-    puts "Inside the member.add_savings_account: amount:#{saving_entry.amount.to_s}"
-    puts "\n"
+     
     
     self.saving_book.update_total_savings_account( saving_entry )
     return saving_entry
