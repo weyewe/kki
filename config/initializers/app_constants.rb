@@ -129,7 +129,8 @@ TRANSACTION_CASE = {
   :port_compulsory_savings_during_group_loan_closing => 600,
   :group_loan_savings_disbursement => 610, 
   :save_group_loan_disbursed_savings => 700,
-  :add_savings_account => 701
+  :add_savings_account => 701,
+  :withdraw_savings_account => 702 
   
 }
 
@@ -286,7 +287,7 @@ INDEPENDENT_PAYMENT_END = 888300000 # max+ 88811122
 GRACE_PERIOD_PAYMENT_START = 666000  # cash , savings_withdrawal, extra_savings
 GRACE_PERIOD_PAYMENT_END =   666200  # max= 666 1112 
 
-SAVINGS_ACCOUNT_START = 701  # add savings account 
+SAVINGS_ACCOUNT_START = 700  # add savings account 
 SAVINGS_ACCOUNT_END   = 750  # whatever 
 MIN_SAVINGS_ACCOUNT_AMOUNT = BigDecimal("100")
 

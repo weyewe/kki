@@ -68,6 +68,23 @@ describe SavingBook do
     transaction_activity.is_approved.should be_true 
   end
   
+  it 'should be deletable if it is not confirmed yet' do
+    transaction_activity = TransactionActivity.add_savings_account( @cashier, @first_member , BigDecimal('50000'))
+    transaction_activity.should be_valid
+    transaction_activity.persisted?.should be_true 
+    
+    transaction_activity.delete_savings_account_transaction( @cashier ) 
+    transaction_activity.persisted?.should be_false 
+  end
+  
+  it 'should not be deletable if it is confirmed' do
+    transaction_activity = TransactionActivity.add_savings_account( @cashier, @first_member , BigDecimal('50000'))
+    transaction_activity.confirm_savings_account_addition(@cashier) 
+    
+    transaction_activity.delete_savings_account_transaction(@cashier)
+    transaction_activity.persisted?.should be_true 
+  end
+  
   context "post confirm transaction activity" do
     before(:each) do
       @initial_savings_account_amount = @first_member.saving_book.total_savings_account 
