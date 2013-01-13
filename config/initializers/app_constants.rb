@@ -175,7 +175,8 @@ TRANSACTION_ENTRY_CODE = {
   
   # re-save the disbursed savings =>  
   :save_group_loan_disbursed_savings => 711,
-  :add_savings_account => 712
+  :add_savings_account => 712,
+  :withdraw_savings_account => 713
   
 }
 
@@ -213,7 +214,8 @@ SAVING_ENTRY_CODE = {
   # we HOLD the transaction entry from 700 - 799 , special for those going in
   # and going out from SAVINGS_ACCOUNT
   :save_group_loan_disbursed_savings => 700 ,
-  :add_savings_account => 701 
+  :add_savings_account => 701 ,
+  :withdraw_savings_account => 702
 }
  
 SAVING_CASE = {

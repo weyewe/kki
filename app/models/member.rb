@@ -213,6 +213,25 @@ class Member < ActiveRecord::Base
     self.saving_book.update_total_savings_account( saving_entry )
     return saving_entry
   end
+  
+  def withdraw_savings_account(saving_amount, saving_entry_code, saving_transaction_entry )
+    # self.create_saving( saving_amount, 
+        # saving_entry_code, 
+        # SAVING_ACTION_TYPE[:debit] ,
+        # saving_transaction_entry, true)
+    saving_entry =  SavingEntry.create(
+      :saving_book_id => self.saving_book.id , 
+      :saving_entry_code => saving_entry_code,
+      :amount => saving_amount,
+      :saving_action_type => SAVING_ACTION_TYPE[:credit] ,
+      :transaction_entry_id => saving_transaction_entry.id,
+      :savings_case => SAVING_CASE[:savings_account]
+    )
+     
+    
+    self.saving_book.update_total_savings_account( saving_entry )
+    return saving_entry
+  end
  
   
   protected

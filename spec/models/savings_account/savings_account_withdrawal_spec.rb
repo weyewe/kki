@@ -97,15 +97,44 @@ describe SavingBook do
   
   context "post deduction (confirmation)" do
     before(:each) do
+      @first_member.reload 
+      @withdrawal_amount = @savings_amount - BigDecimal("10000")
+      
+      @transaction_activity = TransactionActivity.withdraw_savings_account( @cashier, @first_member ,  @withdrawal_amount ) 
+      @initial_total_savings_account = @first_member.saving_book.total_savings_account 
+      @transaction_activity.confirm_savings_account_withdrawal( @cashier )
+      @first_member.reload 
     end
     
-    it 'should produce transaction activity with outward (credit)'
+    it 'should produce transaction activity with outward (credit)' do
+      @transaction_activity.should be_valid 
+      @transaction_activity.transaction_action_type.should == TRANSACTION_ACTION_TYPE[:outward] 
+      @transaction_activity.transaction_case.should == TRANSACTION_CASE[:withdraw_savings_account]
+    end
     
-    it 'should produce the accompanying transaction entry'
+    it 'should produce the accompanying transaction entry' do
+      @transaction_activity.transaction_entries.length.should == 1 
+      @transaction_entry = @transaction_activity.transaction_entries.first 
+      @transaction_entry.transaction_entry_code.should ==  TRANSACTION_ENTRY_CODE[:withdraw_savings_account]
+      @transaction_entry.amount.should == @transaction_activity.total_transaction_amount 
+      
+      @transaction_entry.transaction_entry_action_type.should ==  TRANSACTION_ENTRY_ACTION_TYPE[:outward]
+    end
     
-    it 'should produce the saving_entry to deduct the total_savings_account'
+    it 'should produce the saving_entry to deduct the total_savings_account' do
+      @transaction_entry = @transaction_activity.transaction_entries.first 
+      @saving_entry = @transaction_entry.saving_entry 
+      @saving_entry.saving_action_type.should == SAVING_ACTION_TYPE[:credit] 
+      @saving_entry.savings_case.should == SAVING_CASE[:savings_account]
+    end
     
-    it 'should deduct the total savings account' 
+    it 'should deduct the total savings account'  do
+      
+       @final_total_savings_account = @first_member.saving_book.total_savings_account 
+       diff =   @initial_total_savings_account  - @final_total_savings_account
+       
+       diff.should == @withdrawal_amount
+    end
   end
     
    

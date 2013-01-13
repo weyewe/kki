@@ -105,6 +105,17 @@ class TransactionActivity < ActiveRecord::Base
     self.create_savings_account_withdrawal_entry
   end
   
+  def create_savings_account_withdrawal_entry
+    amount = self.total_transaction_amount 
+    transaction_entry = self.transaction_entries.create( 
+                      :transaction_entry_code =>  TRANSACTION_ENTRY_CODE[:withdraw_savings_account] , 
+                      :amount => amount   ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:outward]
+                      )
+         
+    member.withdraw_savings_account(amount, SAVING_ENTRY_CODE[:withdraw_savings_account] , transaction_entry  )
+  end
+  
   # produce interest? => from the company to the members 
   
   
