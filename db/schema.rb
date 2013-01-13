@@ -11,13 +11,13 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130109012431) do
+ActiveRecord::Schema.define(:version => 20130111091400) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
     t.integer  "job_attachment_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",        :null => false
+    t.datetime "updated_at",        :null => false
   end
 
   create_table "backlog_payments", :force => true do |t|
@@ -33,31 +33,31 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.integer  "backlog_type"
     t.integer  "backlog_payment_approver_id"
     t.boolean  "is_cashier_approved",                           :default => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                       :null => false
+    t.datetime "updated_at",                                                       :null => false
   end
 
   create_table "cashflow_book_entries", :force => true do |t|
     t.integer  "cashflow_book_id"
     t.integer  "entry_type"
     t.decimal  "amount"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
   end
 
   create_table "cashflow_books", :force => true do |t|
     t.integer  "office_id"
     t.decimal  "total_incoming_to_date", :precision => 13, :scale => 2, :default => 0.0
     t.decimal  "total_outgoing_to_date", :precision => 13, :scale => 2, :default => 0.0
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                             :null => false
+    t.datetime "updated_at",                                                             :null => false
   end
 
   create_table "communes", :force => true do |t|
     t.string   "number"
     t.integer  "village_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "default_payments", :force => true do |t|
@@ -80,23 +80,23 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.boolean  "is_defaultee",                                                          :default => false
     t.integer  "payment_approver_id"
     t.boolean  "is_cashier_approved",                                                   :default => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                                               :null => false
+    t.datetime "updated_at",                                                                               :null => false
   end
 
   create_table "geo_scopes", :force => true do |t|
     t.integer  "office_id"
     t.integer  "subdistrict_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
   end
 
   create_table "group_loan_assignments", :force => true do |t|
     t.integer  "user_id"
     t.integer  "group_loan_id"
     t.integer  "assignment_type", :default => 0
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                     :null => false
+    t.datetime "updated_at",                     :null => false
   end
 
   create_table "group_loan_memberships", :force => true do |t|
@@ -123,8 +123,8 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.boolean  "is_active",                                                                  :default => true
     t.integer  "deactivation_case"
     t.boolean  "is_compulsory_savings_migrated",                                             :default => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                                                    :null => false
+    t.datetime "updated_at",                                                                                    :null => false
     t.datetime "sub_group_update_datetime"
     t.decimal  "withdrawn_disbursed_savings",                  :precision => 9, :scale => 2, :default => 0.0
     t.decimal  "saved_disbursed_savings",                      :precision => 9, :scale => 2, :default => 0.0
@@ -139,15 +139,15 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.decimal  "initial_savings", :precision => 9, :scale => 2, :default => 0.0
     t.integer  "total_weeks"
     t.integer  "office_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                     :null => false
+    t.datetime "updated_at",                                                     :null => false
   end
 
   create_table "group_loan_subcriptions", :force => true do |t|
     t.integer  "group_loan_membership_id"
     t.integer  "group_loan_product_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",               :null => false
+    t.datetime "updated_at",               :null => false
   end
 
   create_table "group_loans", :force => true do |t|
@@ -193,8 +193,8 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.decimal  "default_payment_value_before_defaultee_savings_deduction", :precision => 11, :scale => 2, :default => 0.0
     t.decimal  "default_payment_to_be_shared_among_non_defaultee",         :precision => 11, :scale => 2, :default => 0.0
     t.decimal  "group_loan_loss",                                          :precision => 11, :scale => 2, :default => 0.0
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                                                                 :null => false
+    t.datetime "updated_at",                                                                                                 :null => false
     t.boolean  "is_savings_disbursement_started",                                                         :default => false
     t.integer  "savings_disbursement_starter_id"
     t.datetime "savings_disbursement_started_at"
@@ -208,16 +208,16 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
 
   create_table "islands", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "job_attachments", :force => true do |t|
     t.integer  "office_id"
     t.integer  "user_id"
     t.boolean  "is_active",  :default => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
   end
 
   create_table "member_attendances", :force => true do |t|
@@ -225,8 +225,8 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.integer  "attendance_status",    :default => 0
     t.integer  "attendance_marker_id"
     t.integer  "member_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                          :null => false
+    t.datetime "updated_at",                          :null => false
   end
 
   create_table "member_payment_histories", :force => true do |t|
@@ -242,8 +242,8 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.integer  "transaction_activity_id"
     t.integer  "revision_code"
     t.integer  "payment_phase"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                              :null => false
+    t.datetime "updated_at",                                                              :null => false
   end
 
   create_table "member_payments", :force => true do |t|
@@ -257,8 +257,8 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.decimal  "cash_passed",                   :precision => 9, :scale => 2, :default => 0.0
     t.integer  "week_number"
     t.boolean  "is_independent_weekly_payment",                               :default => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                                     :null => false
+    t.datetime "updated_at",                                                                     :null => false
   end
 
   create_table "members", :force => true do |t|
@@ -270,35 +270,35 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.text     "address"
     t.integer  "creator_id"
     t.integer  "office_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
   end
 
   create_table "offices", :force => true do |t|
     t.string   "name"
     t.integer  "regency_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "provinces", :force => true do |t|
     t.string   "name"
     t.integer  "island_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "regencies", :force => true do |t|
     t.string   "name"
     t.integer  "province_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
   end
 
   create_table "roles", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "saving_books", :force => true do |t|
@@ -306,8 +306,9 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.decimal  "total_compulsory_savings", :precision => 11, :scale => 2, :default => 0.0
     t.decimal  "total_extra_savings",      :precision => 11, :scale => 2, :default => 0.0
     t.integer  "member_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                               :null => false
+    t.datetime "updated_at",                                                               :null => false
+    t.decimal  "total_savings_account",    :precision => 11, :scale => 2, :default => 0.0
   end
 
   create_table "saving_entries", :force => true do |t|
@@ -316,9 +317,16 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.integer  "saving_action_type"
     t.integer  "transaction_entry_id"
     t.decimal  "amount",               :precision => 11, :scale => 2, :default => 0.0
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                             :null => false
+    t.datetime "updated_at",                                                             :null => false
     t.boolean  "is_deleted",                                          :default => false
+    t.boolean  "is_interest_charged",                                 :default => false
+    t.integer  "savings_case",                                        :default => 1
+  end
+
+  create_table "savings_accounts", :force => true do |t|
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "sub_groups", :force => true do |t|
@@ -328,20 +336,20 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.decimal  "sub_group_total_default_payment_amount",               :precision => 10, :scale => 2, :default => 0.0
     t.decimal  "sub_group_default_payment_contribution_amount",        :precision => 10, :scale => 2, :default => 0.0
     t.decimal  "actual_sub_group_default_payment_contribution_amount", :precision => 10, :scale => 2, :default => 0.0
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                                                           :null => false
+    t.datetime "updated_at",                                                                                           :null => false
   end
 
   create_table "subdistricts", :force => true do |t|
     t.string   "name"
     t.integer  "regency_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "timeline_activities", :force => true do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "transaction_activities", :force => true do |t|
@@ -354,8 +362,8 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.integer  "transaction_case"
     t.integer  "loan_type"
     t.integer  "loan_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                                      :null => false
+    t.datetime "updated_at",                                                                      :null => false
     t.boolean  "is_approved",                                                  :default => false
     t.integer  "approver_id"
     t.integer  "parent_transaction_activity_id"
@@ -379,16 +387,16 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.integer  "transaction_activity_id"
     t.integer  "revision_code"
     t.integer  "payment_phase"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                                 :null => false
+    t.datetime "updated_at",                                                                 :null => false
   end
 
   create_table "transaction_books", :force => true do |t|
     t.integer  "member_id"
     t.integer  "creator_id"
     t.decimal  "total",      :precision => 12, :scale => 2, :default => 0.0
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                 :null => false
+    t.datetime "updated_at",                                                 :null => false
   end
 
   create_table "transaction_entries", :force => true do |t|
@@ -398,8 +406,8 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.decimal  "amount",                        :precision => 9, :scale => 2, :default => 0.0
     t.integer  "transaction_entry_action_type"
     t.integer  "cashflow_book_entry_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                                     :null => false
+    t.datetime "updated_at",                                                                     :null => false
     t.boolean  "is_deleted",                                                  :default => false
     t.datetime "deleted_datetime"
   end
@@ -417,8 +425,8 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
     t.string   "authentication_token"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                             :null => false
+    t.datetime "updated_at",                             :null => false
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
@@ -428,8 +436,8 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.string   "name"
     t.integer  "subdistrict_id"
     t.string   "postal_code"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",     :null => false
+    t.datetime "updated_at",     :null => false
   end
 
   create_table "weekly_tasks", :force => true do |t|
@@ -443,8 +451,8 @@ ActiveRecord::Schema.define(:version => 20130109012431) do
     t.integer  "weekly_payment_collection_finalizer_id"
     t.boolean  "is_weekly_payment_approved_by_cashier",  :default => false
     t.integer  "weekly_payment_approver_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                :null => false
+    t.datetime "updated_at",                                                :null => false
   end
 
 end

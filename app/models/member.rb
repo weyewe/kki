@@ -135,6 +135,10 @@ class Member < ActiveRecord::Base
   end
   
   
+  
+=begin
+  FOR THE CORE, non product : loan or savings 
+=end
   def create_saving( saving_amount, saving_entry_code, saving_action_type, saving_transaction_entry, is_extra_savings)
     saving_entry =  SavingEntry.create(
       :saving_book_id => self.saving_book.id , 
@@ -145,8 +149,11 @@ class Member < ActiveRecord::Base
     )
     
     
-    self.saving_book.update_total( saving_entry ,is_extra_savings)
+    self.saving_book.update_total( saving_entry, is_extra_savings)
     return saving_entry
+  end
+  
+  def deduct_saving
   end
   
   
@@ -183,6 +190,32 @@ class Member < ActiveRecord::Base
     backlog_payments_for_group_loan(group_loan).count 
   end
   
+  
+=begin
+  SPECIAL FOR SAVINGS ACCOUNT
+=end
+
+  def add_savings_account(saving_amount, saving_entry_code, saving_transaction_entry )
+    # self.create_saving( saving_amount, 
+        # saving_entry_code, 
+        # SAVING_ACTION_TYPE[:debit] ,
+        # saving_transaction_entry, true)
+    saving_entry =  SavingEntry.create(
+      :saving_book_id => self.saving_book.id , 
+      :saving_entry_code => saving_entry_code,
+      :amount => saving_amount,
+      :saving_action_type => SAVING_ACTION_TYPE[:debit] ,
+      :transaction_entry_id => saving_transaction_entry.id,
+      :savings_case => SAVING_CASE[:savings_account]
+    )
+    
+    puts "amount from the shite: #{saving_amount.to_s}"
+    puts "Inside the member.add_savings_account: amount:#{saving_entry.amount.to_s}"
+    puts "\n"
+    
+    self.saving_book.update_total_savings_account( saving_entry )
+    return saving_entry
+  end
  
   
   protected

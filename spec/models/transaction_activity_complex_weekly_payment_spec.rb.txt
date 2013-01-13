@@ -37,7 +37,7 @@ describe TransactionActivity do
     #
     
     @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", 
-              :commune_id => @group_loan_commune }, @branch_manager)
+              :commune_id => @group_loan_commune.id }, @branch_manager)
 
     @members.each do |member|
       GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)

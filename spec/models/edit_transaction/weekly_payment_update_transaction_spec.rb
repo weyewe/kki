@@ -67,7 +67,7 @@ describe GroupLoan do
     #this shit will trigger the creation of kalibaru village, cilincing subdistrict 
     
     # @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
-    #          :commune_id => @group_loan_commune }, @branch_manager)
+    #          :commune_id => @group_loan_commune.id }, @branch_manager)
     
     # we need several members in a given commune   DONE 
     
@@ -85,7 +85,7 @@ describe GroupLoan do
     puts "we are in the creation of seeds members. Total member #{@members.count}\n"*10
      
     @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
-       :commune_id => @group_loan_commune }, @branch_manager)
+       :commune_id => @group_loan_commune.id }, @branch_manager)
        
        
     @members.each do |member|

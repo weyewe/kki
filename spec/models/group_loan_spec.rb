@@ -32,7 +32,7 @@ describe GroupLoan do
     #this shit will trigger the creation of kalibaru village, cilincing subdistrict 
     
     # @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
-    #          :commune_id => @group_loan_commune }, @branch_manager)
+    #          :commune_id => @group_loan_commune.id }, @branch_manager)
     
     # we need several members in a given commune   DONE 
     @members = FactoryGirl.create_list(:member_of_first_rw_office_cilincing, 8, creator_id: @loan_officer.id,
@@ -64,7 +64,7 @@ describe GroupLoan do
   context "group loan membership assignment" do 
     before(:each) do
       @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
-               :commune_id => @group_loan_commune }, @branch_manager)
+               :commune_id => @group_loan_commune.id }, @branch_manager)
     end
     
     it "should create membership through group loan memberships" do
@@ -94,7 +94,7 @@ describe GroupLoan do
   
   context "group loan proposal" do
     before(:each) do
-      @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune }, @branch_manager)
+      @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune.id }, @branch_manager)
 
       @members.each do |member|
         GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
@@ -180,7 +180,7 @@ describe GroupLoan do
   
   context "group loan approval" do 
     before(:each) do
-      @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune }, @branch_manager)
+      @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune.id }, @branch_manager)
 
       @members.each do |member|
         GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
@@ -220,7 +220,7 @@ describe GroupLoan do
   
   context "financial_education lecture attendance finalization" do
     before(:each) do
-      @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune }, @branch_manager)
+      @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune.id }, @branch_manager)
 
       @members.each do |member|
         GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)
@@ -381,7 +381,7 @@ describe GroupLoan do
     # it "should only allow group loan attendance finalization if the the financial lecture attendance has been finalized"
     # done in the group loan membership
     before(:each) do
-      @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune }, @branch_manager)
+      @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11", :commune_id => @group_loan_commune.id }, @branch_manager)
 
       @members.each do |member|
         GroupLoanMembership.create_membership( @loan_officer, member, @group_loan)

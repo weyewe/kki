@@ -32,14 +32,14 @@ describe GroupLoan do
     #this shit will trigger the creation of kalibaru village, cilincing subdistrict 
     
     # @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
-    #          :commune_id => @group_loan_commune }, @branch_manager)
+    #          :commune_id => @group_loan_commune.id }, @branch_manager)
     
     # we need several members in a given commune   DONE 
     @members = FactoryGirl.create_list(:member_of_first_rw_office_cilincing, 10, creator_id: @loan_officer.id,
      commune_id: @group_loan_commune.id , office_id: @office.id )
      
     @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
-       :commune_id => @group_loan_commune }, @branch_manager)
+       :commune_id => @group_loan_commune.id }, @branch_manager)
        
        
     @members.each do |member|
@@ -404,12 +404,56 @@ describe GroupLoan do
         
         transaction_activities.count.should == 1 
         transaction_activities.first.total_transaction_amount.should == @final_extra_savings_hash_post_closing[glm.id]
+      end 
+    end 
+    
+    context "for propose finalization, some doesn't save"
+    
+    context "propose finalization of savings disbursement: everyone saves" do
+      before(:each) do
+        @group_loan.reload
+        @percentage_saved = 0.1 
+        @glm_savings_disbursement_saved_list = [] 
+        @group_loan.preserved_active_group_loan_memberships.each do |glm|
+          @glm_savings_disbursement_saved_list << {
+            :glm_id  => glm.id ,
+            :amount => glm.savings_disbursement_amount * @percentage_saved
+          }
+        end
+        @group_loan.propose_savings_disbursement_finalization( @field_worker, @glm_savings_disbursement_saved_list)
+        @group_loan.reload 
+      end
+      
+      it 'should be proposed' do
+        @group_loan.is_savings_disbursement_finalization_proposed.should be_true 
+      end
+      
+      it 'should update the group loan membership for the amount saved and withdrawn' do
+        @glm_savings_disbursement_saved_list.each do |element|
+          glm =  GroupLoanMembership.find_by_id element[:glm_id]
+          glm.saved_disbursed_savings.should ==  element[:amount]
+        end 
       end
       
       
-    end
- 
+      context  "finalizing the savings disbursement" do
+        before(:each) do
+          @group_loan.reload
+          @initial_total_savings_account_hash = {} 
+          @group_loan.preserved_active_group_loan_memberships.each do |glm|
+            @initial_total_savings_account_hash[glm.id] = glm.member.saving_book.total_savings_account
+          end
+          
+          @group_loan.finalize_savings_disbursement(@cashier)
+          @group_loan.reload 
+        end
+      
+        
+      end # 
+      
     
-  end
+    end #"propose finalization of savings disbursement"
+    
+  end # "start savings disbursement" 
   
 end

@@ -32,7 +32,7 @@ describe GroupLoanAssignment do
     #this shit will trigger the creation of kalibaru village, cilincing subdistrict 
     
     @group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
-            :commune_id => @group_loan_commune }, @branch_manager)
+            :commune_id => @group_loan_commune.id }, @branch_manager)
     
     # we need several members in a given commune   DONE 
     @members = FactoryGirl.create_list(:member_of_first_rw_office_cilincing, 8, creator_id: @loan_officer.id,

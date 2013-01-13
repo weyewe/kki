@@ -13,6 +13,7 @@ class GroupLoan < ActiveRecord::Base
   
   # belongs_to :group_loan 
   belongs_to :office
+  belongs_to :commune 
   validates_presence_of :name
   
   attr_protected :is_proposed, :group_loan_proposer_id,
@@ -349,7 +350,7 @@ class GroupLoan < ActiveRecord::Base
     # 
     # 
     self.group_loan_memberships.where(:is_active => false , 
-    :deactivation_case => GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]) .sort_by{|x| x.sub_group_id}
+    :deactivation_case => GROUP_LOAN_MEMBERSHIP_DEACTIVATE_CASE[:group_loan_is_closed]) .order("sub_group_id ASC")
   end
   
   def non_active_group_loan_memberships
@@ -1391,12 +1392,19 @@ class GroupLoan < ActiveRecord::Base
   Specific for SAVINGS DISBURSEMENT
 =end
   def total_disbursed_savings
+    TransactionActivity.where(
+      :transaction_case => TRANSACTION_CASE[:group_loan_savings_disbursement], 
+      :loan_type => LOAN_TYPE[:group_loan],
+      :loan_id => self.group_loan_id , 
+    ).sum("total_transaction_amount")
   end
   
   def total_withdrawn_disbursed_savings
+    self.preserved_active_group_loan_memberships.sum("saved_disbursed_savings")
   end
   
-  def total_saved_disbursed_savings
+  def total_saved_disbursed_savings 
+    self.preserved_active_group_loan_memberships.sum("saved_disbursed_savings")
   end
   
   # what does it do? create N transaction_activities with the accompanying saving entries..
@@ -1434,6 +1442,8 @@ class GroupLoan < ActiveRecord::Base
     return nil if self.is_savings_disbursement_finalization_proposed
     return nil if self.is_savings_disbursement_finalized
     
+    # if it is not the related employee to the product return nil 
+    
     
     
     
@@ -1442,31 +1452,58 @@ class GroupLoan < ActiveRecord::Base
     total_amount= BigDecimal('0')
     
     glm_savings_disbursement_saved_list.map do |x| 
-      glm_list_from_params << x[:glm_id]
-      total_amount += x[:amount]
+      
       glm = self.group_loan_memberships.where(:id => x[:glm_id] ).first
       # glm = self.preserved_active_group_loan_memberships.where( :id =>x[:glm_id] ) .first
       
       return nil if not glm_list.include?( glm.id )
       return nil if glm.savings_disbursement_amount < x[:amount] 
       return nil if x[:amount]  < BigDecimal('0')
+      
+      glm_list_from_params << x[:glm_id]
+      total_amount += x[:amount]
     end
     
     # all active glm must be in the list
     return nil if (glm_list - glm_list_from_params).length != 0 
      
+    ActiveRecord::Base.transaction do
+      glm_savings_disbursement_saved_list.map do |x|  
+        glm = self.group_loan_memberships.where(:id => x[:glm_id] ).first # self.preserved_active_group_loan_memberships.where( :id =>x[:glm_id] )  
+        glm.saved_disbursed_savings = x[:amount]
+        glm.withdrawn_disbursed_savings = glm.savings_disbursement_amount - x[:amount]
+        glm.save 
+        
+        puts "The saved_disbursed_savings: #{glm.saved_disbursed_savings }"
+      end
     
-    glm_savings_disbursement_saved_list.map do |x|  
-      glm = self.group_loan_memberships.where(:id => x[:glm_id] ).first # self.preserved_active_group_loan_memberships.where( :id =>x[:glm_id] )  
-      glm.saved_disbursed_savings = x[:amount]
-      glm.save 
+      # check whether it has the project assignment 
+      self.is_savings_disbursement_finalization_proposed = true
+      self.savings_disbursement_finalization_proposer_id = employee.id 
+      self.savings_disbursement_finalization_proposed_at = DateTime.now  
+      self.save 
     end
     
-    # check whether it has the project assignment 
-    self.is_savings_disbursement_finalization_proposed = true
-    self.savings_disbursement_finalization_proposer_id = employee.id 
-    self.savings_disbursement_finalization_proposed_at = DateTime.now  
-    self.save 
+  end
+  
+  def finalize_savings_disbursement(employee)
+    return nil if not employee.has_role?(:cashier, employee.active_job_attachment)
+    return nil if not self.is_savings_disbursement_started  
+    return nil if not self.is_savings_disbursement_finalization_proposed
+    return nil if self.is_savings_disbursement_finalized
+    
+    ActiveRecord::Base.transaction do
+      self.preserved_active_group_loan_memberships.map do |glm|  
+        TransactionActivity.finalize_group_loan_savings_disbursement(glm, employee)
+      end
+    
+      # check whether it has the project assignment 
+      self.is_savings_disbursement_finalization_proposed = true
+      self.savings_disbursement_finalization_proposer_id = employee.id 
+      self.savings_disbursement_finalization_proposed_at = DateTime.now  
+      self.save 
+    end
+    
     
   end
   

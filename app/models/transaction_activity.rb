@@ -2635,6 +2635,8 @@ class TransactionActivity < ActiveRecord::Base
   GROUP LOAN  SAVINGS DISBURSEMENT
 =end
 
+# execute means: giving the total savings from group loan to the field worker
+# passing it out to the corresponding member 
   def TransactionActivity.execute_group_loan_savings_disbursement( glm, employee ) 
     member  = glm.member
     amount = glm.member.saving_book.total
@@ -2653,6 +2655,30 @@ class TransactionActivity < ActiveRecord::Base
     transaction_activity = TransactionActivity.create new_hash
 
     transaction_activity.create_savings_disbursement_entry( amount, member)
+  end
+  
+# finalizing: on savings disbursement, field worker will ask whether the member wants to 
+# save the $$$.. re-saving the disbursed $$ is handled by this method
+  def TransactionActivity.finalize_group_loan_savings_disbursement( glm, employee ) 
+    member  = glm.member
+    amount = glm.saved_disbursed_savings
+    
+    new_hash = {}
+    new_hash[:total_transaction_amount] = glm.saved_disbursed_savings # hard money flowing 
+    new_hash[:transaction_case]  = TRANSACTION_CASE[:save_group_loan_disbursed_savings]
+    new_hash[:creator_id] = employee.id 
+    new_hash[:office_id] = employee.active_job_attachment.office.id
+    new_hash[:member_id] = member.id
+    new_hash[:loan_type] = LOAN_TYPE[:group_loan]
+    new_hash[:loan_id] =  glm.group_loan_id 
+    new_hash[:is_approved] =  true 
+    new_hash[:approver_id] =  employee.id 
+
+    transaction_activity = TransactionActivity.create new_hash
+    
+    puts "glm.saved_disbursed_savings: #{glm.saved_disbursed_savings}"
+
+    transaction_activity.create_save_disbursed_savings_entry( amount, member)
   end
   
   
@@ -2681,6 +2707,17 @@ class TransactionActivity < ActiveRecord::Base
                       )
          
     member.deduct_extra_savings(amount, SAVING_ENTRY_CODE[:group_loan_savings_disbursement] , transaction_entry  ) 
+  end
+  
+  def create_save_disbursed_savings_entry( amount, member)
+    transaction_entry = self.transaction_entries.create( 
+                      :transaction_entry_code =>  TRANSACTION_ENTRY_CODE[:save_group_loan_disbursed_savings] , 
+                      :amount => amount  ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+                      )
+         
+    puts "The amount from transaction_activity#create_save_disbursed_savings_entry: #{amount}"
+    member.add_savings_account(amount, SAVING_ENTRY_CODE[:save_group_loan_disbursed_savings] , transaction_entry  )
   end
 
 =begin
