@@ -86,7 +86,7 @@
 
 
 <% content_for :additional_js do %> 
-  <%= javascript_include_tag "jquery.tokeninput" , "entry_creation"	%> 
+  <%= javascript_include_tag "jquery.tokeninput" , "entry_creation"	, "jquery.msgbox.min" %> 
 	<script type="text/javascript"> 
 	
   $(document).ready(function() { 
@@ -124,7 +124,7 @@
 <% end %>
 
 <% content_for :additional_css do %> 
-  <%= stylesheet_link_tag "token-input", "token-input-facebook" 	%> 
+  <%= stylesheet_link_tag "token-input", "token-input-facebook", "msgbox" 	%> 
 <% end %>
 
 

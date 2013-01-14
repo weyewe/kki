@@ -1,0 +1,35 @@
+<% if new_object.persisted? %>
+	<% id = 'edit_object'%>
+<% else %>
+	<% id = 'new_object'%>
+<% end %>
+
+<%= simple_form_for( new_object, :url => url,
+      :method => :post , 
+      :html => {:class => " prevent_double_submit ajax-form   no_content_form",
+        :id => "#{id}"}) do |f| %>
+
+	 
+
+  	<%= f.input :amount, :as => 'string', 
+				:input_html => { :value => "#{amount}"} %>		
+				
+		<%= f.input :transaction_action_type, :label => "Tipe Transaksi Tabungan" do %>
+	     <%= f.select :transaction_action_type, 
+	         TransactionActivity.all_selectable_action_types %>
+	  <% end %>
+	
+ 
+
+  <div class="form-actions">
+	
+		<% if new_object.persisted? %>
+			<%= f.button :submit , :class => "btn btn-primary", :value=> "Update Savings Account Entry" %>
+		<% else %>
+			<%= f.button :submit , :class => "btn btn-primary", :value=> "Create Savings Account Entry" %>
+		<% end %>
+		
+  </div>
+<% end %>
+
+

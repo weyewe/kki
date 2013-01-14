@@ -2,9 +2,9 @@
  
 
 
-<tr>
+<tr id="entry-<%= transaction_activity.id %>">
   <td><%= print_date( transaction_activity.created_at )%></td>
-  <td><%= transaction_activity.total_transaction_amount %></td> 
+  <td><%= print_money( transaction_activity.total_transaction_amount )  %></td> 
 	<td>
 		<% if transaction_activity.transaction_case ==
 			 TRANSACTION_CASE[:save_group_loan_disbursed_savings] %>
@@ -26,7 +26,14 @@
 		<% if transaction_activity.is_approved? %>
 			N/A
 		<% else %>
-			Batalkan | Edit
+			<%= link_to "Batal", root_url, :class =>"delete_entry", 	
+							:style => "cursor:pointer; text-decoration:none;"  %> 
+							 
+			| 
+			
+			<%= link_to "Edit", edit_savings_account_url(transaction_activity),  	:class =>"edit_entry modal-toggler",
+			 				:style => "cursor:pointer; text-decoration:none;"  %>
+			 
 		<% end %>
 	</td>
 </tr>

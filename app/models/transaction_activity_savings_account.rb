@@ -1,5 +1,18 @@
 class TransactionActivity < ActiveRecord::Base
   
+  
+  def self.all_selectable_action_types
+     result = []
+     
+     
+     
+     result << [ "Penambahan" , 
+                      TRANSACTION_ACTION_TYPE[:inward]]  
+                      
+      result << [ "Penarikan" , 
+                      TRANSACTION_ACTION_TYPE[:outward] ]
+     return result
+  end
 
   def TransactionActivity.has_unapproved_savings_account_transaction?(member)
     TransactionActivity.where(
@@ -34,7 +47,6 @@ class TransactionActivity < ActiveRecord::Base
 =end
 
   def TransactionActivity.add_savings_account( employee, member, amount)
-    return nil if amount <= MIN_SAVINGS_ACCOUNT_AMOUNT 
     return nil if not employee.has_role?(:cashier, employee.get_active_job_attachment)
     return nil if TransactionActivity.has_unapproved_savings_account_transaction?(member)
     return nil if amount < MIN_SAVINGS_ACCOUNT_AMOUNT

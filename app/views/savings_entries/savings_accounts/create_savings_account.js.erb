@@ -1,0 +1,39 @@
+$(document).ready(function(){
+	 
+	var $modal = $("#newEntry"); 
+	var $form = $("form", $modal );
+	$form.hideLoading();
+	
+ 
+
+	
+
+ 
+	
+	<% if not  @object.nil? %>
+		// show the growl. save. done. 
+		<% new_entry = escape_javascript(  render :partial => "savings_entries/savings_accounts/entry", :locals => {
+	    :transaction_activity => @object  
+	  })%>
+		$("#tableview tbody").prepend('<%= new_entry %>');
+		
+		$.msgbox("Pembuatan transaksi sukses. Menunggu konfirmasi.", 
+					{type: "info"});
+		$modal.modal('hide'); 
+		$form.remove();
+	<% else %>
+		<% new_form = escape_javascript(  render :partial => "savings_entries/savings_accounts/new_object_form", :locals => {
+	    :new_object => TransactionActivity.new , 
+			:url => create_savings_account_url(@member),
+			:amount => @amount 
+	  })%>
+	
+		$form.replaceWith('<%= new_form %>');
+		 $.msgbox("Gagal membuat transaksi baru.", 
+					{type: "error"});
+	<% end %>
+	
+	
+	// else, display error.. 
+	jQuery('.prevent_double_submit').preventDoubleSubmit();
+});

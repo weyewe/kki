@@ -2,7 +2,8 @@ $(document).ready(function(){
 	  
 		<% new_form = escape_javascript(  render :partial => "savings_entries/savings_accounts/new_object_form", :locals => {
 	    :new_object => @new_object , 
-			:url => materials_url 
+			:url => create_savings_account_url(@member),
+			:amount => @amount 
 	  })%>
  
 	$("#newEntry .modal-body").append('<%= new_form %>');

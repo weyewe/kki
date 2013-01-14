@@ -50,6 +50,8 @@ Debita46::Application.configure do
                         jquery.tokeninput.js 
                         token-input.css token-input-facebook.css
                         entry_creation.js
+                        
+                        jquery.msgbox.min.js  msgbox.css
   )
                             
                             
