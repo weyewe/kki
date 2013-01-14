@@ -560,9 +560,9 @@ class TransactionActivitiesController < ApplicationController
     
      
     if @transaction_activity.nil?
-      redirect_to input_value_for_cash_savings_withdrawal_url(@member, :error => "There is error", :amount => @amount)
+      redirect_to input_value_for_cash_savings_withdrawal_url(@member.id , :error => "There is error", :amount => @amount)
     else
-      redirect_to input_value_for_cash_savings_withdrawal_url(@member, :amount => @amount)
+      redirect_to input_value_for_cash_savings_withdrawal_url(@member.id , :amount => @amount)
     end
     
   end

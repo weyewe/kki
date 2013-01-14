@@ -12,12 +12,15 @@
 	 
 
   	<%= f.input :amount, :as => 'string', 
-				:input_html => { :value => "#{amount}"} %>		
+				:input_html => { :value => "#{amount.to_i}"} %>		
 				
-		<%= f.input :transaction_action_type, :label => "Tipe Transaksi Tabungan" do %>
-	     <%= f.select :transaction_action_type, 
-	         TransactionActivity.all_selectable_action_types %>
-	  <% end %>
+				
+		<% if not new_object.persisted? %>
+			<%= f.input :transaction_action_type, :label => "Tipe Transaksi Tabungan" do %>
+		     <%= f.select :transaction_action_type, 
+		         TransactionActivity.all_selectable_action_types %>
+		  <% end %>
+		<% end %>
 	
  
 

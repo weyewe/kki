@@ -10,7 +10,7 @@
 
   
     
-    <%= form_tag  update_single_week_extra_savings_weekly_payment_url(@weekly_task, @member) , 
+    <%= form_tag  update_single_week_extra_savings_weekly_payment_url(@weekly_task.id , @member.id) , 
       :method => :post, :id => "form_single_extra_savings_payment", 
       :class => "prevent_double_submit"  do  %>
 <!-- check whether the transaction activity is nil.. if it is nil, the original payment == no payment declaration -->

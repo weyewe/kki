@@ -13,7 +13,7 @@
       </div>
     <% end %>
     
-    <%= form_tag  create_no_weekly_payment_url(@weekly_task, @member) , 
+    <%= form_tag  create_no_weekly_payment_url(@weekly_task.id, @member.id) , 
       :method => :post, :id => "no_payment_form",
       :class => "prevent_double_submit"  do  %>
       <table cellpadding="0" cellspacing="0" border="0" 

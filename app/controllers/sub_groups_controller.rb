@@ -15,9 +15,9 @@ class SubGroupsController < ApplicationController
     if not params[:total_sub_groups].nil?
       SubGroup.set_sub_groups( @group_loan, params[:total_sub_groups].to_i )
       # @group_loan.set_sub_groups( params[:sub_group][:total_sub_groups])
-      redirect_to new_group_loan_sub_group_url(@group_loan, :notice => "Total sub groups is #{params[:total_sub_groups]}")
+      redirect_to new_group_loan_sub_group_url(@group_loan.id , :notice => "Total sub groups is #{params[:total_sub_groups]}")
     else
-      redirect_to new_group_loan_sub_group_url(@group_loan, :error => "Sub Groups Creation Fails")
+      redirect_to new_group_loan_sub_group_url(@group_loan.id , :error => "Sub Groups Creation Fails")
     end
       
   end
@@ -106,7 +106,7 @@ class SubGroupsController < ApplicationController
     elsif membership_decision == FALSE_CHECK
       @sub_group.remove_group_leader
     end
-    redirect_to select_sub_group_leader_from_sub_group_url( @sub_group )
+    redirect_to select_sub_group_leader_from_sub_group_url( @sub_group.id )
   end
   
   

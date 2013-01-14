@@ -1,0 +1,11 @@
+$(document).ready(function(){
+	
+	var $row = $("#entry-<%= @object.id %>")
+	$row.hideLoading(); 
+	
+	$row.remove(); 
+	
+	$.msgbox("Berhasil menghapus transaksi.");
+	 
+	
+});

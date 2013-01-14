@@ -34,7 +34,7 @@
     <div class="row-fluid tab-pane fade active in pane_wrapper" id="structured_multiple_payment" >
       <div class="span8">
 
-        <%= form_tag  update_transaction_activity_for_grace_period_payment_url(@group_loan_membership) , 
+        <%= form_tag  update_transaction_activity_for_grace_period_payment_url(@group_loan_membership.id) , 
           :method => :post, :id => "structured_multiple_form" ,
           :class => "prevent_double_submit" do  %>
 
@@ -219,7 +219,7 @@
        <p>One fine body…</p>
      </div>
      <div class="modal-footer"> 
-       <%= link_to "#{t 'trigger.close'}", default_members_for_grace_period_payment_url(@group_loan), :class => "btn"%>
+       <%= link_to "#{t 'trigger.close'}", default_members_for_grace_period_payment_url(@group_loan.id), :class => "btn"%>
      </div>
    </div>
   

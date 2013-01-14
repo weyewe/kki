@@ -1,7 +1,7 @@
 
 <tr id="entry-<%= group_loan.id %>">
   <td> 
-    <%= link_to group_loan.name , add_details_to_propose_savings_disbursement_finalization_url( group_loan )%>
+    <%= link_to group_loan.name , add_details_to_propose_savings_disbursement_finalization_url( group_loan.id )%>
   </td>
   <td><%= group_loan.get_commune %></td>
   <td><%= group_loan.preserved_active_group_loan_memberships.count %></td> 

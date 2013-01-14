@@ -328,7 +328,8 @@ Debita46::Application.routes.draw do
   match 'generate_savings_account_creation_form_summary' => 'savings_entries#generate_savings_account_creation_form_summary', :as => :generate_savings_account_creation_form_summary, :method => :post 
   match 'new_savings_account/:member_id'   => 'savings_entries#new_savings_account' , :as => :new_savings_account
   match 'create_savings_account/:member_id'   => 'savings_entries#create_savings_account' , :as => :create_savings_account, :method => :post 
-  match 'edit_savings_account/:member_id'   => 'savings_entries#edit_savings_account' , :as => :edit_savings_account 
-  match 'update_savings_account/:member_id'   => 'savings_entries#update_savings_account' , :as => :update_savings_account, :method => :post 
-  match 'delete_savings_account/:member_id'   => 'savings_entries#delete_savings_account' , :as => :delete_savings_account, :method => :post 
+  match 'edit_savings_account/:transaction_activity_id'   => 'savings_entries#edit_savings_account' , :as => :edit_savings_account 
+  match 'update_savings_account/:transaction_activity_id'   => 'savings_entries#update_savings_account' , :as => :update_savings_account, :method => :post 
+  match 'delete_savings_account'   => 'savings_entries#delete_savings_account' , :as => :delete_savings_account, :method => :post 
+  match 'confirm_savings_account/:transaction_activity_id'   => 'savings_entries#confirm_savings_account' , :as => :confirm_savings_account, :method => :post 
 end

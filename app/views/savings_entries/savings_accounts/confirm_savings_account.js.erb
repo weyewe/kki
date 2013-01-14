@@ -1,0 +1,48 @@
+$(document).ready(function(){
+	
+	var $row = $("#entry-<%= @object.id %>" );
+	$row.hideLoading(); 
+ 
+
+	<% if  @object.is_approved?  %>
+ 
+	 
+		
+		<% new_entry = escape_javascript(  render :partial => "savings_entries/savings_accounts/entry", :locals => {
+	    :transaction_activity => @object  
+	  })%>
+
+		$("#entry-<%= @object.id %>").replaceWith('<%= new_entry %>') ;
+		
+		
+		
+	// alert msgbox: success confirming 
+		$.msgbox("Berhasil Konfirmasi Transaksi. "+
+							" Total tabungan: <%= print_money(@member.saving_book.total_savings_account ) %>"   , 
+					{type: "info"});
+						 
+						
+		// update summary
+		<% summary = escape_javascript( render :partial => "savings_entries/savings_accounts/savings_account_summary",
+		 	:locals => {
+	    	:member => @member,  
+	  }) %>
+		var $savings_account_summary  = $("#savings_account_summary");
+	
+		if( $savings_account_summary.length == 0  ){
+			// console.log("savings account length is 0")
+			$("#summary_wrapper").append('<%=  summary %>');
+		}else{
+			$savings_account_summary.replaceWith('<%= summary %>');
+		}
+	<% else %> 
+ 
+	 
+		$.msgbox("Gagal konfirmasi savings account", 
+					{type: "error"});
+	<% end %>
+ 
+	jQuery('.prevent_double_submit').preventDoubleSubmit();
+});
+
+

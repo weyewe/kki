@@ -237,7 +237,7 @@ class GroupLoansController < ApplicationController
     @group_loan_membership = GroupLoanMembership.find_by_id(params[:group_loan_membership_id])
     @group_loan = @group_loan_membership.group_loan 
     if @group_loan_membership.default_payment.unpaid_grace_period_amount == BigDecimal("0")
-      redirect_to default_members_for_grace_period_payment_url(@group_loan)
+      redirect_to default_members_for_grace_period_payment_url(@group_loan.id)
       return 
     end
      
@@ -269,7 +269,7 @@ class GroupLoansController < ApplicationController
     
     if @group_loan_membership.default_payment.unpaid_grace_period_amount == BigDecimal("0") and 
         @pending_approval_grace_payment.nil? 
-      redirect_to default_members_for_grace_period_payment_url(@group_loan)
+      redirect_to default_members_for_grace_period_payment_url(@group_loan.id)
       return 
     end
      
@@ -672,7 +672,7 @@ class GroupLoansController < ApplicationController
     elsif membership_decision == FALSE_CHECK
       @group_loan.remove_group_leader
     end
-    redirect_to select_group_leader_from_member_url(@group_loan)
+    redirect_to select_group_leader_from_member_url(@group_loan.id)
   end
   
   def select_group_loan_to_create_sub_group

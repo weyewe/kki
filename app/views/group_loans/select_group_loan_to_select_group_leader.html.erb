@@ -21,7 +21,7 @@
         <tbody>
           <% @active_group_loans.each do |group_loan| %>
             <tr>
-              <td><%= link_to group_loan.name, select_group_leader_from_member_url(group_loan) %></td>
+              <td><%= link_to group_loan.name, select_group_leader_from_member_url(group_loan.id) %></td>
               <td><%= group_loan.members.count %></td>
               <td><%= extract_member_name( group_loan.group_leader ) %></td>
             </tr>

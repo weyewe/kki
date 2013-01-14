@@ -1,7 +1,7 @@
 
 <% weekly_task = group_loan.currently_pending_approval_weekly_task %>
 <tr>
-  <td><%= link_to group_loan.name , list_of_independent_payment_url(group_loan) %></td>
+  <td><%= link_to group_loan.name , list_of_independent_payment_url(group_loan.id) %></td>
   <td><%= group_loan.get_commune %></td>
   <td><%= weekly_task.week_number %></td>
 

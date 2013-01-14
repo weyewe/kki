@@ -5,7 +5,7 @@
     <h2><%= t 'status.no_payment'%></h2><br />
  
     
-    <%= form_tag  update_no_weekly_payment_url(@weekly_task, @member) , 
+    <%= form_tag  update_no_weekly_payment_url(@weekly_task.id , @member.id ) , 
       :method => :post, :id => "no_payment_form",
       :class => "prevent_double_submit"  do  %>
 	<!-- check whether the transaction activity is nil.. if it is nil, the original payment == no payment declaration -->

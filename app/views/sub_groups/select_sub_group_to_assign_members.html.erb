@@ -22,7 +22,7 @@
         <tbody>
           <% @sub_groups.each do |sub_group| %>
             <tr>
-              <td><%= link_to "#{t 'report_metric.sub_group' }-#{sub_group.number}", assign_member_to_sub_group_url( sub_group) %></td>
+              <td><%= link_to "#{t 'report_metric.sub_group' }-#{sub_group.number}", assign_member_to_sub_group_url( sub_group.id ) %></td>
               <td><%= sub_group.group_loan_memberships.count %></td>
             </tr>
           <% end %>

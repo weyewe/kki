@@ -85,6 +85,14 @@
 </div>
 
 
+<div class="hidden" id="delete_entry_form_wrapper">
+  <%= form_for TransactionActivity.new, :url => delete_savings_account_url , :method => :post   do |f| %>
+    <%= hidden_field_tag 'object_to_destroy_id' , ''  %> 
+  <% end %>
+</div>
+
+
+
 <% content_for :additional_js do %> 
   <%= javascript_include_tag "jquery.tokeninput" , "entry_creation"	, "jquery.msgbox.min" %> 
 	<script type="text/javascript"> 

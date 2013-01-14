@@ -11,7 +11,7 @@
 
   <div class="span8">
     
-    <%= form_tag update_structured_multiple_payment_url(@weekly_task, @member) , 
+    <%= form_tag update_structured_multiple_payment_url(@weekly_task.id , @member.id ) , 
       :method => :post, :id => "structured_multiple_form",
       :class => "prevent_double_submit"  do  %>
       	<%# if transaction_activity.nil? %>

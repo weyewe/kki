@@ -58,6 +58,53 @@ class SavingsEntriesController < ApplicationController
   end
   
   def edit_savings_account
+    @object = TransactionActivity.find_by_id params[:transaction_activity_id]
+    @member = Member.find_by_id @object.member_id 
+    
+    @amount = @object.total_transaction_amount
+    @has_no_errors = @object.errors.messages.length == 0
+    
+    render :file => 'savings_entries/savings_accounts/edit_savings_account' 
+    return 
   end
+  
+  def update_savings_account 
+    @object = TransactionActivity.find_by_id params[:transaction_activity_id]
+    @member = Member.find_by_id @object.member_id
+    @amount = BigDecimal("#{params[:transaction_activity][:amount]}")
+    
+    @object.edit_savings_account_transaction_amount( current_user, @amount )
+    @has_no_errors = @object.errors.messages.length == 0
+    
+    render :file => 'savings_entries/savings_accounts/update_savings_account' 
+    return
+  end
+  
+  def delete_savings_account
+    @object = TransactionActivity.find_by_id params[:object_to_destroy_id]
+    @object.delete_savings_account_transaction(current_user)
+    
+    render :file => 'savings_entries/savings_accounts/delete_savings_account' 
+    return
+  end
+  
+  def confirm_savings_account
+    @object = TransactionActivity.find_by_id params[:transaction_activity_id]
+    @member = Member.find_by_id @object.member_id
+    
+    if @object.transaction_action_type  == TRANSACTION_ACTION_TYPE[:inward]
+      @object.confirm_savings_account_addition( current_user )
+    elsif @object.transaction_action_type  == TRANSACTION_ACTION_TYPE[:outward]
+      @object.confirm_savings_account_withdrawal( current_user ) 
+    end
+    
+    @member.reload 
+    
+    
+    render :file => 'savings_entries/savings_accounts/confirm_savings_account' 
+    return
+  end
+  
+ 
   
 end

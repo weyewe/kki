@@ -31,8 +31,12 @@
 							 
 			| 
 			
-			<%= link_to "Edit", edit_savings_account_url(transaction_activity),  	:class =>"edit_entry modal-toggler",
+			<%= link_to "Edit", edit_savings_account_url(transaction_activity.id),  	:class =>"edit_entry modal-toggler",
 			 				:style => "cursor:pointer; text-decoration:none;"  %>
+			|
+			<%= link_to  "Confirm" , confirm_savings_account_url( transaction_activity.id ), 
+							:class =>"confirm_entry modal-toggler", 
+							:style => "cursor:pointer; text-decoration:none;"   %>
 			 
 		<% end %>
 	</td>

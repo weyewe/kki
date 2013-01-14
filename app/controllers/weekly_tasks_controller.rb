@@ -115,7 +115,7 @@ class WeeklyTasksController < ApplicationController
     
     
     if @weekly_task.is_weekly_payment_approved_by_cashier?  
-      redirect_to select_weekly_meeting_for_weekly_payment_url(@group_loan)
+      redirect_to select_weekly_meeting_for_weekly_payment_url(@group_loan.id)
       return
     end
     

@@ -20,7 +20,7 @@ $(document).ready(function(){
 			if( result == yes_value){ 
 
 				$("#object_to_destroy_id").attr("value", entry_id ); 
-				$row.spin("large", "black"); 
+				$row.showLoading(); 
 
 		    $.ajax({
 		      url: $form.attr("action"),
@@ -125,7 +125,7 @@ $(document).ready(function(){
 				if($form_wrapper.length == 0){
 					$form_wrapper = $("#actionbar");
 				}
-				$form_wrapper.spin("large", "black"); 
+				$form_wrapper.showLoading(); 
 				var $form = $("#confirm_order form");
 				var post_url = $form.attr('action');
 
@@ -157,7 +157,7 @@ $(document).ready(function(){
 			if( result == yes_value){ 
 
 				var $form_wrapper = $("#actionbar");
-				$form_wrapper.spin("large", "black"); 
+				$form_wrapper.showLoading(); 
 				var $form = $("#finalize_order form");
 				var post_url = $form.attr('action');
 
@@ -192,7 +192,7 @@ $(document).ready(function(){
 			if( result == yes_value){ 
 
 				var $form_wrapper = $confirm.parents("tr");
-				$form_wrapper.spin("large", "black"); 
+				$form_wrapper.showLoading(); 
 				var $form = $("#confirm_entry form"); 
 				var post_url = $confirm.attr('href');
 

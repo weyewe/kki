@@ -18,7 +18,7 @@
 				<!-- self.has_attendance(member) -->
 				<% if not weekly_task.is_weekly_payment_collection_finalized %>
 					| 
-					<%= link_to "Edit", edit_member_attendance_url(weekly_task, member), 
+					<%= link_to "Edit", edit_member_attendance_url(weekly_task.id , member.id ), 
 						:class =>"edit_entry modal-toggler", :style => "cursor:pointer; text-decoration:none;" %>
 				<% end %> 
         

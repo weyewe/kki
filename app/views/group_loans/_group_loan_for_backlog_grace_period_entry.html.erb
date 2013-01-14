@@ -1,6 +1,6 @@
  
 <tr>
-  <td><%= link_to group_loan.name, default_members_for_grace_period_payment_url(group_loan) %></td>
+  <td><%= link_to group_loan.name, default_members_for_grace_period_payment_url(group_loan.id) %></td>
   <td><%= group_loan.get_commune %></td>
   <td><%= group_loan.unpaid_backlogs.count %></td>
   <td><%= print_money( group_loan.unpaid_grace_period_amount )  %> </td>

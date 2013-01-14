@@ -1,7 +1,7 @@
 <tr id="group_loan_disbursement-<%= group_loan.id %>">
    
   
-  <td><%= link_to group_loan.name, group_loan_disbursement_recipients_url(group_loan) %></td>
+  <td><%= link_to group_loan.name, group_loan_disbursement_recipients_url(group_loan.id) %></td>
   <td><%= group_loan.get_commune %></td>
   <td><%= group_loan.group_loan_memberships.where(:is_attending_financial_lecture => true).count %></td>
   <!-- total withdrawn amount -->

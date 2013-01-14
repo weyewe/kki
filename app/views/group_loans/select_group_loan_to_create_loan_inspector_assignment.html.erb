@@ -24,7 +24,7 @@
         <tbody>
           <% @active_group_loans.each do |group_loan| %>
             <tr>
-              <td><%= link_to group_loan.name, new_loan_inspector_assignment_to_employee_url(group_loan) %></td>
+              <td><%= link_to group_loan.name, new_loan_inspector_assignment_to_employee_url(group_loan.id) %></td>
               <td><%= group_loan.get_commune %></td>
               <td><%= group_loan.members.count %></td>
               <td><%= group_loan.field_workers.count %></td>

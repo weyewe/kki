@@ -1,5 +1,5 @@
 <tr id="financial_education_attendance-<%= group_loan.id %>">
-  <td><%= link_to group_loan.name, mark_financial_education_attendance_url(group_loan) %></td>
+  <td><%= link_to group_loan.name, mark_financial_education_attendance_url(group_loan.id) %></td>
   <td><%= group_loan.get_commune %></td>
   <td><%= group_loan.members.count %></td>
   <td><%= group_loan.group_loan_memberships.where(:is_attending_financial_lecture => true).count %></td>

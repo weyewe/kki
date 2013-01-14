@@ -8,7 +8,7 @@
 	<% if group_loan.is_default_payment_resolution_proposed == false %>
 		<td> 
 	    <%# if group_loan.is_default_payment_resolution_approved == false %>
-	      <%= link_to "#{ t 'trigger.standard_resolution'}", standard_default_resolution_schema_url(group_loan) %>  
+	      <%= link_to "#{ t 'trigger.standard_resolution'}", standard_default_resolution_schema_url(group_loan.id) %>  
 	    <%# else %>
 	      <!-- "Standard" -->
 	    <%# end %>
@@ -16,17 +16,17 @@
 	  </td>
 	  <td> <%#= t 'trigger.custom_group_loan_default_resolution' %>
 
-			<%= link_to "#{ t 'trigger.custom_group_loan_default_resolution'}", custom_default_resolution_schema_url(group_loan) %>  
+			<%= link_to "#{ t 'trigger.custom_group_loan_default_resolution'}", custom_default_resolution_schema_url(group_loan.id) %>  
 
 		</td> <!-- Total default mamber -->
 	<% else %>
 		<td colspan='2'>
 			<% if  group_loan.is_custom_default_payment_resolution == true  %>
 				<%= link_to "#{ t 'trigger.custom_group_loan_default_resolution'}", 
-								custom_default_resolution_schema_url(group_loan) %>
+								custom_default_resolution_schema_url(group_loan.id) %>
 			<% else %>
 				<%= link_to "#{ t 'trigger.standard_resolution'}", 
-								standard_default_resolution_schema_url(group_loan) %>
+								standard_default_resolution_schema_url(group_loan.id) %>
 			<% end %>
 		</td>
 	

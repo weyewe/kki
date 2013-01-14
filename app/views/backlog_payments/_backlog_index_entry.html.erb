@@ -6,7 +6,7 @@
   <td><%= total_cleared_backlog_payments_for_member  %></td>
   <td>
     
-    <%= link_to "Pay Backlog", pay_backlog_for_group_loan_url(group_loan, member), 
+    <%= link_to "Pay Backlog", pay_backlog_for_group_loan_url(group_loan.id , member.id ), 
             :class => "btn" %>
     <!-- <button href="#" class="btn">Pay Backlog</button> -->
     

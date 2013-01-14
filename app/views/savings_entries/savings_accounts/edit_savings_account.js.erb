@@ -1,0 +1,20 @@
+$(document).ready(function(){
+	  
+ 
+	
+	<% new_form = escape_javascript(  render :partial => "savings_entries/savings_accounts/new_object_form", :locals => {
+    :new_object => @object , 
+		:url => update_savings_account_url(@object.id),
+		:amount => @amount 
+  })%>
+ 
+	// remove all form inside the shite
+	$("#editEntry .modal-body form").each(function(){
+		var $this = $(this);
+		$this.remove();
+	});
+	
+	$("#editEntry .modal-body").append('<%= new_form %>');
+	
+	jQuery('.prevent_double_submit').preventDoubleSubmit();
+});

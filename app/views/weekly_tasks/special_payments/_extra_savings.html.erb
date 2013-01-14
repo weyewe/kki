@@ -3,7 +3,7 @@
   <div class="span8">
     <h2> <%= t 'variable.extra_savings'%></h2><br />
 
-    <%= form_tag  create_only_extra_savings_payment_url(@weekly_task, @member) , 
+    <%= form_tag  create_only_extra_savings_payment_url(@weekly_task.id , @member.id ) , 
       :method => :post, :id => "form_only_extra_savings_payment", 
       :class => "prevent_double_submit"  do  %>
       <table cellpadding="0" cellspacing="0" border="0" 

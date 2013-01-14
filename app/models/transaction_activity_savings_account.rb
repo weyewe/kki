@@ -3,9 +3,7 @@ class TransactionActivity < ActiveRecord::Base
   
   def self.all_selectable_action_types
      result = []
-     
-     
-     
+      
      result << [ "Penambahan" , 
                       TRANSACTION_ACTION_TYPE[:inward]]  
                       
@@ -25,7 +23,6 @@ class TransactionActivity < ActiveRecord::Base
   def TransactionActivity.savings_account_transactions(member)
     TransactionActivity.where(
       :transaction_case =>  (SAVINGS_ACCOUNT_START..SAVINGS_ACCOUNT_END),
-      :is_approved => false  ,
       :member_id => member.id 
     ).order("created_at DESC")
   end
@@ -40,6 +37,39 @@ class TransactionActivity < ActiveRecord::Base
     return nil if self.is_approved 
     
     self.destroy
+  end
+  
+  def edit_savings_account_transaction_amount( employee, amount )
+    puts "testing the is_savings_account"
+    return nil if not  self.is_savings_account_transaction?
+    
+    puts "Testing whether it is cashier"
+    return nil if not employee.has_role?(:cashier, employee.get_active_job_attachment)
+    
+    puts "Testing whether it is approved"
+    return nil if self.is_approved
+    
+    member = Member.find_by_id self.member_id
+    
+    if self.transaction_action_type == TRANSACTION_ACTION_TYPE[:inward]
+      if amount < MIN_SAVINGS_ACCOUNT_AMOUNT
+        errors.add(:amount , "Jumlah yang dibayarkan harus lebih dari: #{MIN_SAVINGS_ACCOUNT_AMOUNT.to_i} " )
+        return self  
+      end
+      
+      puts "Gonna change, in INWARD"
+      self.total_transaction_amount = amount 
+    elsif self.transaction_action_type == TRANSACTION_ACTION_TYPE[:outward]
+      if amount > member.saving_book.total_savings_account 
+        errors.add(:amount , "Jumlah yang diambil tidak boleh lebih dari: #{member.saving_book.total_savings_account} " )
+        return self
+      end
+      
+      puts "NOT GONNA Change, in OUTWARD"
+      self.total_transaction_amount = amount
+    end
+    
+    self.save 
   end
 
 =begin

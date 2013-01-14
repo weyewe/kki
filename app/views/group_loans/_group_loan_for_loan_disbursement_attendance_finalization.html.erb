@@ -1,5 +1,5 @@
 <tr id="financial_education_attendance_finalization-<%= group_loan.id %>">
-  <td><%= link_to group_loan.name, finalize_loan_disbursement_attendance_url(group_loan) %></td>
+  <td><%= link_to group_loan.name, finalize_loan_disbursement_attendance_url(group_loan.id) %></td>
   <td><%= group_loan.get_commune %></td>
   <td><%= group_loan.group_loan_memberships_attendance_display_for_loan_disbursement.count %></td>
   

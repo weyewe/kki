@@ -1,0 +1,55 @@
+$(document).ready(function(){
+	// remove the spin
+	
+	var $modal = $("#editEntry");
+	var $form = $("form", $modal );
+	$form.hideLoading(); 
+	
+	// if update is successful
+		// remove the form 
+		// hide the modal 
+		// update the row entry 
+	// else
+		// replace the form with the faulty one 
+		// show all the error 
+	
+	
+		<% if   @has_no_errors  %> 
+			// clean the add product form
+			$form.remove(); 
+
+		 
+			<% new_entry = escape_javascript(  render :partial => "savings_entries/savings_accounts/entry", :locals => {
+		    :transaction_activity => @object  
+		  })%>
+
+			$("#entry-<%= @object.id %>").replaceWith('<%= new_entry %>') ;
+
+			$.msgbox("Berhasil update transaksi", 
+						{type: "info"});
+
+			
+			$modal.modal('hide'); 
+
+
+		<% elsif  not @has_no_errors %> 
+		 
+		
+			<% new_form = escape_javascript(  render :partial => "savings_entries/savings_accounts/new_object_form", :locals => {
+		    :new_object => @object , 
+				:url => update_savings_account_url(@member.id),
+				:amount => @amount 
+		  })%>
+		
+		
+			//replace the form, show the edit
+			$form.replaceWith("<%= new_form %>"); 
+
+			$.msgbox("Error dalam update transaksi.", 
+						{type: "error"});
+		<% end %>
+
+
+
+		jQuery('.prevent_double_submit').preventDoubleSubmit(); 
+});

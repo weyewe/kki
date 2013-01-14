@@ -15,15 +15,15 @@
 	
 				<% if not  unapproved_grace_period_payment.nil? %>
 					<%= link_to "#{t 'process.edit_payment'}",
-	        	edit_grace_period_payment_calculator_url(group_loan_membership), :class => "btn" %>
+	        	edit_grace_period_payment_calculator_url(group_loan_membership.id), :class => "btn" %>
 				<% end %>
 	
 	    <% elsif not  unapproved_grace_period_payment.nil?  %>
 	      <%= link_to "#{t 'process.edit_payment'}",
-	        edit_grace_period_payment_calculator_url(group_loan_membership), :class => "btn" %>
+	        edit_grace_period_payment_calculator_url(group_loan_membership.id), :class => "btn" %>
 	    <% elsif unapproved_grace_period_payment.nil?  %>
 				<%= link_to "#{t 'process.create_payment'}",
-		      grace_period_payment_calculator_url(group_loan_membership), :class => "btn" %>
+		      grace_period_payment_calculator_url(group_loan_membership.id), :class => "btn" %>
 			<% end %> 
     
     

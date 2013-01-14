@@ -2,7 +2,7 @@ $(document).ready(function(){
 	  
 		<% new_form = escape_javascript(  render :partial => "savings_entries/savings_accounts/new_object_form", :locals => {
 	    :new_object => @new_object , 
-			:url => create_savings_account_url(@member),
+			:url => create_savings_account_url(@member.id),
 			:amount => @amount 
 	  })%>
  

@@ -28,7 +28,7 @@
 
  
   
-      <%= form_for [@group_loan, @new_sub_group_loan]  ,:url => group_loan_sub_groups_url(@group_loan) , 
+      <%= form_for [@group_loan, @new_sub_group_loan]  ,:url => group_loan_sub_groups_url(@group_loan.id) , 
         :html => {:class => "form-horizontal"} do |f| %>
         <div class="control-group">
           <%= f.label :title, "#{t 'report_metric.sub_group'}" %>

@@ -77,7 +77,7 @@
             <% subdistrict = village.subdistrict %>
             <% saving_book = office_member.saving_book%>
             <tr>
-              <td><%= link_to office_member.name, input_value_for_cash_savings_withdrawal_url(office_member) %></td>
+              <td><%= link_to office_member.name, input_value_for_cash_savings_withdrawal_url(office_member.id) %></td>
               <td><%= office_member.id_card_no %></td>
               <td><%= subdistrict.name %></td>
               <td><%= village.name %></td>
