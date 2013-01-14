@@ -1,0 +1,140 @@
+
+<div class="span9 content">
+  <%= create_guide("#{t 'process.savings_withdrawal'}",  
+        "#{t 'guide.office'}: #{@office.name}"     ).html_safe %>
+  
+  <%#= create_breadcrumb(@breadcrumbs).html_safe %>
+
+  
+  <div class="row">
+    <div class="span6">
+    
+			
+			
+			<%= simple_form_for( TransactionActivity.new,  
+						:url => generate_savings_account_creation_form_summary_url ,
+			      :method => :post , 
+			      :html => {:class => " prevent_double_submit",
+			        :id => "search_member_form"}) do |f| %> 
+						<table class="table table-bordered table-striped table-highlight" >
+							<thead>
+								<tr>
+									<th style='text-align:center;'>Pilih Anggota</th>  
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td> 
+									  	<%= f.input :member_id, :input_html => { :class => 'search_customer', :id => "search_member_id" }  ,
+														:label => "Member" , :hint => "Leave empty if not registered", :as => :string  %> 
+									</td>
+
+
+								</tr> 
+							</tbody>
+						</table> 
+			<% end %>
+			 
+    </div>  <!-- end of span 8 -->
+
+
+    <div class="span5" id='summary_wrapper'> 
+    </div>
+      
+      
+      
+    
+  </div><!--/row-->
+   <hr />
+
+	<div class="row-fluid" id='new_object_button_wrapper'> 
+  </div>
+	<br />
+
+  <div class="row-fluid" id='data_list_wrapper'> 
+  </div>
+
+</div><!--/span-->
+
+
+
+<div class="modal fade hide" id="editEntry">
+  <div class="modal-header">
+    <h3>Edit Savings Account</h3>
+  </div>
+  <div class="modal-body"> 
+	<!-- content -->
+  </div>
+  <div class="modal-footer">
+    <!-- <a href="javascript:;" class="btn" data-dismiss="modal">Close</a> -->
+		<a  class="btn modal_closer"  >Close</a>
+  </div>
+</div>
+
+<div class="modal fade hide" id="newEntry">
+  <div class="modal-header">
+    <h3>New Savings Account</h3>
+  </div>
+  <div class="modal-body"> 
+	<!-- content -->
+  </div>
+  <div class="modal-footer">
+    <!-- <a href="javascript:;" class="btn" data-dismiss="modal">Close</a> -->
+		<a  class="btn modal_closer"  >Close</a>
+  </div>
+</div>
+
+
+<% content_for :additional_js do %> 
+  <%= javascript_include_tag "jquery.tokeninput" , "entry_creation"	%> 
+	<script type="text/javascript"> 
+	
+  $(document).ready(function() { 
+			
+			var $search_member_box = $("#search_member_id"); 
+			var $search_member_form = $("#search_member_form");
+			
+			
+			$search_member_box.tokenInput( '<%= search_member_for_savings_url %>' , {
+				propertyToSearch: "name",
+				tokenLimit: 1, 
+				onAdd: function (item){ 
+					$search_member_form.showLoading();
+
+					$.ajax({
+					      url: $search_member_form.attr("action"),
+					      type: "POST",
+					      data: $search_member_form.serialize(),
+					      dataType: 'script',
+					      success: function(response){ 
+					
+					      }
+					    });
+				} ,
+				onDelete: function(item){
+					// remove the history and the summary 
+					$("#savings_account_summary").remove();  
+					$("#tableview").remove();
+					$("#new_object_button").remove();
+				}
+			}); 
+  });
+
+  </script>
+<% end %>
+
+<% content_for :additional_css do %> 
+  <%= stylesheet_link_tag "token-input", "token-input-facebook" 	%> 
+<% end %>
+
+
+
+
+
+
+
+
+
+
+
+

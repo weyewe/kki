@@ -47,6 +47,9 @@ Debita46::Application.configure do
   
   config.assets.precompile += %w( datatables_mod.min.js datatables.min.js 
                         weekly_special_payment.js independent_payment.js
+                        jquery.tokeninput.js 
+                        token-input.css token-input-facebook.css
+                        entry_creation.js
   )
                             
                             

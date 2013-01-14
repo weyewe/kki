@@ -67,6 +67,10 @@ class SavingBook < ActiveRecord::Base
     saving_entry.save 
   end
   
+=begin
+  SAVINGS_ACCOUNT
+=end
+  
   def update_total_savings_account( saving_entry) 
     # ensure that this shite is indeed savings account 
     return nil if saving_entry.savings_case != SAVING_CASE[:savings_account] 
@@ -83,5 +87,89 @@ class SavingBook < ActiveRecord::Base
     self.save
     saving_entry.saving_book_id = self.id
     saving_entry.save
+  end
+  
+  # start date is the lower limit of interest-deposit. example : 15 of last month
+  # end date is the upper limit of interest deposit, example: 15 of this month
+=begin
+
+  check this out (graph). x axis == time
+                          y axis = amount of total savings account which 
+                                  monthly interest will be calculated
+
+
+          --------                  
+                                  -------------------  
+  --------                    
+                  ----------------  
+  t1  t2          t3              t4                t5                         
+  ================================== 
+=end
+  def self.generate_savings_account_interest(member, start_date, end_date, annual_interest_rate )
+    savings_account_array = []
+    current_total_savings_account = member.saving_book.total_savings_account
+    # setup base data to re-create the savings_account groph
+    end_period = end_date
+    start_period = start_date 
+    
+    # building the graph data point 
+  
+    SavingEntry.where(
+      :member_id => member.id , 
+      :is_interest_charged => false , 
+      :savings_case =>  SAVING_CASE[:savings_account],
+      :date => start_date..end_date 
+    ).order("created_at DESC").each do |saving_entry|
+      amount = BigDecimal('0')
+      end_period = ''
+      start_period = '' 
+      
+      if saving_entry.saving_action_type == SAVING_ACTION_TYPE[:debit]
+        current_total_savings_account -= saving_entry.amount
+      elsif saving_entry.saving_action_type == SAVING_ACTION_TYPE[:credit]
+        current_total_savings_account += saving_entry.amount
+      end
+      
+      if saving_entry.created_at.to_date > start_date
+        start_period = saving_entry.created_at.to_date
+      else
+        start_period = start_date
+      end
+      
+      savings_account_array << {
+        :amount => current_total_savings_account,
+        :start_date => start_period ,
+        :end_date => end_date
+      }
+      
+      # update the end date
+      if start_period > start_date 
+        end_period  = start_period
+      else
+        end_period = start_date 
+      end
+      
+      saving_entry.is_interest_charged = true
+      saving_entry.save 
+    end # end of building graph data point 
+    
+    # calculating the interest 
+    total_interest = BigDecimal("0")
+    total_days_in_period = end_date - start_date 
+    monthly_interest_rate = annual_interest_rate/12.to_f
+    pro_rated_days = period_duration/total_days_in_period.to_f
+    
+    savings_account_array.each do |interest_period|
+      period_duration = interest_period[:end_date] - interest_period[:start_date]
+      total_interest += interest_period[:amount]*
+                        ( 1 + monthly_interest_rate )*
+                        pro_rated_days
+    end
+    
+    # create interest entry 
+    
+    TransactionActivity.add_monthly_interest_savings_account(   member, total_interest ) 
+    
+    
   end
 end

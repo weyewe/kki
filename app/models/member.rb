@@ -232,7 +232,7 @@ class Member < ActiveRecord::Base
     self.saving_book.update_total_savings_account( saving_entry )
     return saving_entry
   end
- 
+  
   
   protected
   

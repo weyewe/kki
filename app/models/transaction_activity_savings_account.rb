@@ -4,8 +4,17 @@ class TransactionActivity < ActiveRecord::Base
   def TransactionActivity.has_unapproved_savings_account_transaction?(member)
     TransactionActivity.where(
       :transaction_case =>  (SAVINGS_ACCOUNT_START..SAVINGS_ACCOUNT_END),
-      :is_approved => false  
+      :is_approved => false  ,
+      :member_id => member.id 
     ).count != 0 
+  end
+  
+  def TransactionActivity.savings_account_transactions(member)
+    TransactionActivity.where(
+      :transaction_case =>  (SAVINGS_ACCOUNT_START..SAVINGS_ACCOUNT_END),
+      :is_approved => false  ,
+      :member_id => member.id 
+    ).order("created_at DESC")
   end
   
   def is_savings_account_transaction?
@@ -36,6 +45,7 @@ class TransactionActivity < ActiveRecord::Base
     new_hash[:creator_id] = employee.id 
     new_hash[:office_id] = employee.active_job_attachment.office.id
     new_hash[:member_id] = member.id 
+    new_hash[:loan_type] = LOAN_TYPE[:savings_account]
     new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward] 
     
     transaction_activity = TransactionActivity.create new_hash
@@ -84,6 +94,7 @@ class TransactionActivity < ActiveRecord::Base
     new_hash[:creator_id] = employee.id 
     new_hash[:office_id] = employee.active_job_attachment.office.id
     new_hash[:member_id] = member.id 
+    new_hash[:loan_type] = LOAN_TYPE[:savings_account]
     new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:outward] 
     
     transaction_activity = TransactionActivity.create new_hash
@@ -118,5 +129,42 @@ class TransactionActivity < ActiveRecord::Base
   
   # produce interest? => from the company to the members 
   
+=begin
+  MONTHLY INTEREST 
+=end
+  def TransactionActivity.add_monthly_interest_savings_account(   member, amount) 
+    
+    new_hash = {}
+    new_hash[:total_transaction_amount]  = BigDecimal("0") # no $$ changing hands
+    new_hash[:transaction_case] = TRANSACTION_CASE[:monthly_interest_savings_account]
+    new_hash[:creator_id] = nil #employee.id 
+    new_hash[:office_id] = nil #employee.active_job_attachment.office.id
+    new_hash[:member_id] = member.id 
+    new_hash[:loan_type] = LOAN_TYPE[:savings_account]
+    new_hash[:transaction_action_type] = TRANSACTION_ACTION_TYPE[:inward] 
+    
+    transaction_activity = TransactionActivity.create new_hash
+    
+    transaction_activity.confirm_monthly_interest_addition(amount)
+    
+    return transaction_activity
+  end
+  
+  def confirm_monthly_interest_addition(amount)
+    self.is_approved = true
+    self.save 
+    self.create_savings_account_monthly_interest(amount)
+  end
+  
+  def create_savings_account_monthly_interest(amount)
+    amount = self.total_transaction_amount 
+    transaction_entry = self.transaction_entries.create( 
+                      :transaction_entry_code =>  TRANSACTION_ENTRY_CODE[:monthly_interest_savings_account] , 
+                      :amount => amount   ,
+                      :transaction_entry_action_type => TRANSACTION_ENTRY_ACTION_TYPE[:inward]
+                      )
+         
+    member.add_savings_account(amount, SAVING_ENTRY_CODE[:monthly_interest_savings_account] , transaction_entry  )
+  end
   
 end

@@ -59,7 +59,29 @@ class MembersController < ApplicationController
       office = @office
       @members = Member.where{ (name =~ name_query) & {office_id => office.id} }
     end
-    add_breadcrumb "#{t 'process.select_group_loan'}", 'search_member_for_savings_withdrawal_url'
+    
+    respond_to do |f|
+      f.html do
+         add_breadcrumb "#{t 'process.select_group_loan'}", 'search_member_for_savings_withdrawal_url'
+      end
+      
+      f.js do 
+        @objects  = @members.map{|x| {:name => x.name, :id => x.id }}
+        render :json => @objects 
+      end
+    end
+   
+  end
+  
+  def search_member_for_savings
+    @office = current_user.active_job_attachment.office
+    @members = [] 
+    
+    name_query = '%' + params[:q] + '%'
+    office = @office
+    @members = Member.where{ (name =~ name_query) & {office_id => office.id} }.map{|x| {:name => x.name, :id => x.id }}
+
+    render :json => @members  
   end
   
   def input_value_for_cash_savings_withdrawal

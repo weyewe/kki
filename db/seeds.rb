@@ -285,7 +285,7 @@ end
 
 puts " member creation is done "
 group_loan = GroupLoan.create_group_loan_with_creator( {:name => "Group Loan 11",
-   :commune_id => commune }, branch_manager)
+   :commune_id => commune.id }, branch_manager)
    
 puts "Group loan is created"
 

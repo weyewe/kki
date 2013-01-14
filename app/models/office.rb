@@ -231,6 +231,15 @@ class Office < ActiveRecord::Base
     })
   end
   
+=begin
+  CREATING SAVINGS_ACCOUNT INTEREST 
+=end
+  def create_savings_account_interest
+    new_object = SavingsAccountInterest.new 
+    new_object.office_id  = self.id 
+    # new_object.
+  end
+  
   protected
   def create_cashflow_book
     # self.cashflow_book.create 

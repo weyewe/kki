@@ -1395,7 +1395,7 @@ class GroupLoan < ActiveRecord::Base
     TransactionActivity.where(
       :transaction_case => TRANSACTION_CASE[:group_loan_savings_disbursement], 
       :loan_type => LOAN_TYPE[:group_loan],
-      :loan_id => self.group_loan_id , 
+      :loan_id => self.id , 
     ).sum("total_transaction_amount")
   end
   

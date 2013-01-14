@@ -27,6 +27,18 @@ module ApplicationHelper
   
   
 
+=begin
+  DATE TIME UTILITY
+=end
+
+  def print_date(datetime)
+    if datetime.nil? 
+      return "N/A"
+    else
+      return "#{datetime.day}/#{datetime.month}/#{datetime.year}"
+    end
+  end
+  
   
 =begin
   Group Member management 
@@ -275,6 +287,11 @@ module ApplicationHelper
     if symbol == :savings
       return create_process_nav(SAVINGS_PROCESS_LIST, params )
     end
+    
+    if symbol == :savings_account
+      return create_process_nav(SAVINGS_ACCOUNT_PROCESS_LIST, params )
+    end
+    
     
     if symbol == :field_worker 
       return create_process_nav( FIELD_WORKER_PROCESS_LIST, params )
@@ -674,7 +691,7 @@ module ApplicationHelper
   }
   
   SAVINGS_PROCESS_LIST ={
-    :header_title => "Savings",
+    :header_title => "Tabungan Kumpulan",
     :processes => [
       {
         :title => "#{I18n.t 'process.savings_withdrawal'}",
@@ -690,6 +707,22 @@ module ApplicationHelper
           }
         ]
       }
+    ]
+  }
+  
+  SAVINGS_ACCOUNT_PROCESS_LIST ={
+    :header_title => "Tabungan Berbunga",
+    :processes => [
+      {
+        :title => "Deposit/Pengambilan",
+        :destination_link => "new_savings_account_deposit_url",
+        :conditions => [
+          {
+            :controller => 'savings_entries',
+            :action => 'new_savings_account_deposit'
+          } 
+        ]
+      } 
     ]
   }
   

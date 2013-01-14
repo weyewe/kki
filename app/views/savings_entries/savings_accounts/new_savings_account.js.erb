@@ -1,0 +1,11 @@
+$(document).ready(function(){
+	  
+		<% new_form = escape_javascript(  render :partial => "savings_entries/savings_accounts/new_object_form", :locals => {
+	    :new_object => @new_object , 
+			:url => materials_url 
+	  })%>
+ 
+	$("#newEntry .modal-body").append('<%= new_form %>');
+	
+	jQuery('.prevent_double_submit').preventDoubleSubmit();
+});

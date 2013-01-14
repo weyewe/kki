@@ -129,8 +129,9 @@ TRANSACTION_CASE = {
   :port_compulsory_savings_during_group_loan_closing => 600,
   :group_loan_savings_disbursement => 610, 
   :save_group_loan_disbursed_savings => 700,
-  :add_savings_account => 701,
-  :withdraw_savings_account => 702 
+  :add_savings_account => 701,  # deposit 
+  :withdraw_savings_account => 702 ,  # withdrawal 
+  :monthly_interest_savings_account => 703  # monthly interest, disbursed on 15th
   
 }
 
@@ -176,7 +177,8 @@ TRANSACTION_ENTRY_CODE = {
   # re-save the disbursed savings =>  
   :save_group_loan_disbursed_savings => 711,
   :add_savings_account => 712,
-  :withdraw_savings_account => 713
+  :withdraw_savings_account => 713,
+  :monthly_interest_savings_account => 714
   
 }
 
@@ -215,7 +217,8 @@ SAVING_ENTRY_CODE = {
   # and going out from SAVINGS_ACCOUNT
   :save_group_loan_disbursed_savings => 700 ,
   :add_savings_account => 701 ,
-  :withdraw_savings_account => 702
+  :withdraw_savings_account => 702,
+  :monthly_interest_savings_account => 703 
 }
  
 SAVING_CASE = {
@@ -247,7 +250,13 @@ BACKLOG_TYPE = {
 
 LOAN_TYPE = {
   :group_loan => 1 ,
-  :personal_loan => 100
+  :personal_loan => 100,
+  
+  # naming this constant as LOAN_TYPE is wrong.. however, the show must go on
+  #  the name TRANSACTION_ACTIVTY_TYPE fits better, nevertheless, not quite right 
+  # OR PRODUCT_TYPE => can be savings_account(normal), periodic_savings, mission_savings,
+  # personal_loan, and group_loan 
+  :savings_account => 200
 }
 
 
@@ -291,7 +300,7 @@ GRACE_PERIOD_PAYMENT_END =   666200  # max= 666 1112
 
 SAVINGS_ACCOUNT_START = 700  # add savings account 
 SAVINGS_ACCOUNT_END   = 750  # whatever 
-MIN_SAVINGS_ACCOUNT_AMOUNT = BigDecimal("100")
+MIN_SAVINGS_ACCOUNT_AMOUNT = BigDecimal("1000")
 
 =begin
   MEMBER PAYMENT HISTORY 
@@ -359,6 +368,7 @@ LOAN_PRODUCT = {
 
 
 LOCAL_TIME_ZONE = "Jakarta"
+INTEREST_DAY_OF_THE_MONTH = 15 
 # complete list, check here
 # ActiveSupport::TimeZone.all.map(&:name)
 

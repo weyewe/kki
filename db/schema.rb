@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130111091400) do
+ActiveRecord::Schema.define(:version => 20130114023958) do
 
   create_table "assignments", :force => true do |t|
     t.integer  "role_id"
@@ -324,9 +324,14 @@ ActiveRecord::Schema.define(:version => 20130111091400) do
     t.integer  "savings_case",                                        :default => 1
   end
 
-  create_table "savings_accounts", :force => true do |t|
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+  create_table "savings_account_interests", :force => true do |t|
+    t.integer  "office_id"
+    t.decimal  "total_interest_given", :precision => 11, :scale => 2, :default => 0.0
+    t.decimal  "annual_interest_rate", :precision => 5,  :scale => 2, :default => 0.0
+    t.boolean  "is_started",                                          :default => false
+    t.boolean  "is_finished",                                         :default => false
+    t.datetime "created_at",                                                             :null => false
+    t.datetime "updated_at",                                                             :null => false
   end
 
   create_table "sub_groups", :force => true do |t|

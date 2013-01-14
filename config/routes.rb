@@ -318,4 +318,14 @@ Debita46::Application.routes.draw do
   
   match 'transaction_activity/update_no_weekly_payment/:weekly_task_id/member/:member_id' => 'transaction_activities#update_no_weekly_payment', :as => :update_no_weekly_payment, :method => :post
    
+   
+  
+=begin
+  SAVINGS ACCOUNT
+=end 
+  match 'search_member_for_savings' => "members#search_member_for_savings", :as => :search_member_for_savings
+  match 'new_savings_account_deposit'   => 'savings_entries#new_savings_account_deposit' , :as => :new_savings_account_deposit
+  match 'generate_savings_account_creation_form_summary' => 'savings_entries#generate_savings_account_creation_form_summary', :as => :generate_savings_account_creation_form_summary, :method => :post 
+  match 'new_savings_account/:member_id'   => 'savings_entries#new_savings_account' , :as => :new_savings_account
+  match 'create_savings_account/:member_id'   => 'savings_entries#create_savings_account' , :as => :create_savings_account, :method => :post 
 end

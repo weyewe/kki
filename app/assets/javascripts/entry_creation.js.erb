@@ -1,0 +1,237 @@
+$(document).ready(function(){
+	
+	
+	$(".delete_entry").live("click", function(){
+		var yes_value = "Yes"; 
+		var cancel_value = 'false';
+		var $this = $(this); 
+		var $row = $this.parents("tr")
+		var entry_id = $row.attr("id").split('-')[1];  
+		var $form = $("#delete_entry_form_wrapper form"); 
+		var $identifier = $(".identifier", $row);
+
+		$.msgbox("Yakin untuk menghapus:" + $identifier.text() +  " ?", {
+		  type: "confirm",
+		  buttons : [
+		    {type: "submit", value: yes_value}, 
+		    {type: "cancel", value: "Cancel"}
+		  ]
+		}, function(result) { 
+			if( result == yes_value){ 
+
+				$("#object_to_destroy_id").attr("value", entry_id ); 
+				$row.spin("large", "black"); 
+
+		    $.ajax({
+		      url: $form.attr("action"),
+		      type: "POST",
+		      data: $form.serialize(),
+		      dataType: 'script',
+		      success: function(response){
+		        $form.clearForm();
+		      }
+		    }); 
+			}
+		});
+
+		return false;  
+	});
+	
+	// updating sales entry 
+	// what will happen?
+	//  1. show the modal, load for the edit form
+	// 	2. user edit the form, some magic happens in the server
+	// 	3. if it is successful, modal is closed. msgbox is allerted, update the row 
+	// 	4. if it is not successful, modal is not closed, showing the new form with error
+	
+	$('#editEntry, #newEntry').modal({
+		keyboard: false,
+		backdrop: 'static' ,
+		show: false 
+	});
+	
+	
+	$(".edit_entry").live("click", function(){ 
+		var $modal = $("#editEntry");
+		$modal.modal('show'); 
+		
+		$(".modal_closer", $modal ).click(function(){
+			$modal.modal('hide'); 
+			$("form", $modal).remove(); 
+		});
+		
+		
+		var get_form_url =  $(this).attr("href");
+		
+		// get the edit form 
+		$.ajax({
+			url: get_form_url,
+			type: "GET",
+			// data: $form.serialize(),
+			dataType: 'script',
+			success: function(response){ 
+				// it is live.. ajax-form class
+			}
+		}); 
+		
+		return false; 
+	});
+	
+	$(".new_entry").live("click", function(){ 
+		var $modal = $("#newEntry");
+		$modal.modal('show'); 
+		
+		$(".modal_closer", $modal ).click(function(){
+			$modal.modal('hide'); 
+			$("form", $modal).remove(); 
+		});
+		
+		
+		var get_form_url =  $(this).attr("href");
+		
+		// get the edit form 
+		$.ajax({
+			url: get_form_url,
+			type: "GET",
+			// data: $form.serialize(),
+			dataType: 'script',
+			success: function(response){ 
+				// it is live.. ajax-form class
+			}
+		}); 
+		
+		return false; 
+	});
+	
+	
+	
+	
+	
+	
+	$("#confirm").live('click', function(){  
+		var yes_value = "Yes"; 
+		var cancel_value = 'false';
+		
+		$.msgbox("Yakin untuk konfirmasi?"  , {
+		  type: "confirm",
+		  buttons : [
+		    {type: "submit", value: yes_value}, 
+		    {type: "cancel", value: "Cancel"}
+		  ]
+		}, function(result) { 
+			if( result == yes_value){ 
+
+				var $form_wrapper = $("#action_button");
+				if($form_wrapper.length == 0){
+					$form_wrapper = $("#actionbar");
+				}
+				$form_wrapper.spin("large", "black"); 
+				var $form = $("#confirm_order form");
+				var post_url = $form.attr('action');
+
+		    $.ajax({
+					url: post_url,
+					type: "POST",
+					data: $form.serialize(),
+					dataType: 'script',
+					success: function(response){ 
+						// it is live.. ajax-form class
+					}
+				});
+			}
+		}); 
+		return false; 
+	});
+	
+	$("#finalize").live('click', function(){  
+		var yes_value = "Yes"; 
+		var cancel_value = 'false';
+		
+		$.msgbox("Yakin untuk finalize?"  , {
+		  type: "confirm",
+		  buttons : [
+		    {type: "submit", value: yes_value}, 
+		    {type: "cancel", value: "Cancel"}
+		  ]
+		}, function(result) { 
+			if( result == yes_value){ 
+
+				var $form_wrapper = $("#actionbar");
+				$form_wrapper.spin("large", "black"); 
+				var $form = $("#finalize_order form");
+				var post_url = $form.attr('action');
+
+		    $.ajax({
+					url: post_url,
+					type: "POST",
+					data: $form.serialize(),
+					dataType: 'script',
+					success: function(response){ 
+						// it is live.. ajax-form class
+					}
+				});
+			}
+		}); 
+		return false; 
+	});
+	
+	$(".confirm_entry").live('click', function(){  
+		// console.log("clicked the confirm");
+		var yes_value = "Yes"; 
+		var cancel_value = 'false';
+		var $confirm = $(this);
+		// return false; 
+		
+		$.msgbox("Yakin untuk konfirmasi sales invoice?"  , {
+		  type: "confirm",
+		  buttons : [
+		    {type: "submit", value: yes_value}, 
+		    {type: "cancel", value: "Cancel"}
+		  ]
+		}, function(result) { 
+			if( result == yes_value){ 
+
+				var $form_wrapper = $confirm.parents("tr");
+				$form_wrapper.spin("large", "black"); 
+				var $form = $("#confirm_entry form"); 
+				var post_url = $confirm.attr('href');
+
+		    $.ajax({
+					url: post_url,
+					type: "POST",
+					data: $form.serialize(),
+					dataType: 'script',
+					success: function(response){ 
+						// it is live.. ajax-form class
+					}
+				});
+			}
+		}); 
+		return false; 
+	});
+	
+	
+	$("#delete").live('click', function(){  
+		var yes_value = "Yes"; 
+		var cancel_value = 'false';
+		
+		$.msgbox("Yakin untuk hapus Invoice?"  , {
+		  type: "confirm",
+		  buttons : [
+		    {type: "submit", value: yes_value}, 
+		    {type: "cancel", value: "Cancel"}
+		  ]
+		}, function(result) { 
+			if( result == yes_value){ 
+
+			 	var $form =  $("#delete_order form");
+				$form.trigger("submit");
+
+		   
+			}
+		}); 
+		return false; 
+	});
+	
+	
+});

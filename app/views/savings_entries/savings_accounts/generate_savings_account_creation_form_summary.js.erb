@@ -1,0 +1,52 @@
+$(document).ready(function(){
+	
+	$("#search_member_form").hideLoading(); 
+	// $("#search_member_form").show();
+	// replace the summary
+	
+	
+	// generate the add button 
+	<% summary = escape_javascript( render :partial => "savings_entries/savings_accounts/savings_account_summary",
+	 	:locals => {
+    	:member => @member,  
+  }) %> 
+
+	<%  new_object_button = escape_javascript( render :partial => "savings_entries/savings_accounts/new_object_button",
+	 	:locals => {
+    	:member => @member,  
+  })%>
+	
+	// replace the history 
+	<% history = escape_javascript( render :partial => "savings_entries/savings_accounts/savings_account_history",
+	 	:locals => {
+    	:transaction_activities => @transaction_activities
+  }) %>
+	
+	
+ 	var $savings_account_summary  = $("#savings_account_summary");
+	var $new_object_button        = $("#new_object_button");
+	var $savings_account_history  = $("#tableview");
+	 
+
+	if( $savings_account_summary.length == 0  ){
+		// console.log("savings account length is 0")
+		$("#summary_wrapper").append('<%=  summary %>');
+	}else{
+		$savings_account_summary.replaceWith('<%= summary %>');
+	}
+	// 
+	if( $new_object_button.length == 0 ){
+		$("#new_object_button_wrapper").append('<%=  new_object_button %>');
+	}
+	// 
+	
+	if( $savings_account_history.length == 0  ){
+		// console.log("history length is 0 ");
+		$("#data_list_wrapper").append('<%=  history %>');
+	}else{
+		$savings_account_history.replaceWith('<%= history %>');
+	}
+	
+	
+	
+});
