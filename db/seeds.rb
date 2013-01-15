@@ -461,5 +461,5 @@ puts "HAHAUEHEUAHUEHOAHUAEHRAE WE ARE DONE " if group_loan.is_closed?
 ################################
 
 
-group_loan.start_group_loan_savings_disbursement(cashier)
+# group_loan.start_group_loan_savings_disbursement(cashier)
 end 

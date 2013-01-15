@@ -1391,6 +1391,12 @@ class GroupLoan < ActiveRecord::Base
 =begin
   Specific for SAVINGS DISBURSEMENT
 =end
+  def total_to_be_disbursed_savings
+    member_id_list = self.preserved_active_group_loan_memberships.map{|x| x.member_id }
+    
+    SavingBook.where(:member_id => member_id_list).sum("total_extra_savings")
+  end
+
   def total_disbursed_savings
     TransactionActivity.where(
       :transaction_case => TRANSACTION_CASE[:group_loan_savings_disbursement], 
@@ -1498,9 +1504,9 @@ class GroupLoan < ActiveRecord::Base
       end
     
       # check whether it has the project assignment 
-      self.is_savings_disbursement_finalization_proposed = true
-      self.savings_disbursement_finalization_proposer_id = employee.id 
-      self.savings_disbursement_finalization_proposed_at = DateTime.now  
+      self.is_savings_disbursement_finalized = true
+      self.savings_disbursement_finalizer_id = employee.id 
+      self.savings_disbursement_finalized_at = DateTime.now  
       self.save 
     end
     

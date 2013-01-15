@@ -1,0 +1,27 @@
+$(document).ready(function(){
+	
+	<% new_row = escape_javascript(render :partial => "group_loans/finalize_savings_disbursement_entry" , 
+      :locals => {:group_loan => @group_loan}) %>
+
+
+
+  var header_text, body_text;
+  header_text = "Notice";
+
+	
+
+	$("#entry-<%= @group_loan.id %>").replaceWith("<%= new_row %>");
+	
+	
+  <% if @group_loan.is_savings_disbursement_started? %>
+    body_text = "Authorisasi Pengembalian Tabungan untuk kelompok <%= @group_loan.name %> sukses";
+  <% else %>
+    body_text = "Authorisasi Pengembalian Tabungan untuk kelompok <%= @group_loan.name %> gagal";
+  <% end %>
+  
+  
+  summonModal( header_text , 
+              body_text, 
+                "myModal");
+                
+});

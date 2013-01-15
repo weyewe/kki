@@ -737,32 +737,7 @@ class GroupLoansController < ApplicationController
     set_breadcrumb_for @group_loan, 'add_details_to_propose_savings_disbursement_finalization_url' + "(#{@group_loan.id})", 
                 "Lengkapi Pengembalian Tabungan"
   end
-  
-  # def execute_propose_custom_default_resolution
-  #   @group_loan = GroupLoan.find_by_id params[:group_loan_id]
-  #   @glm_payment_pair_list = [] 
-  #   @total_amount = BigDecimal('0')
-  #   params[:payment].each do |name, amount |
-  #     glm_id = name.split("_")[1].to_i
-  #     amount = BigDecimal(amount)
-  #     @glm_payment_pair_list << {
-  #      :glm_id =>  glm_id,
-  #      :amount => amount
-  #     }
-  #     @total_amount += amount 
-  #   end
-  #   
-  #   
-  #   @payment_params = params[:payment]
-  #   @group_loan.propose_custom_default_payment_execution(current_user, @glm_payment_pair_list)
-  #   
-  #   
-  #   #  to replace the form
-  #   @group_loan_membership_id = @group_loan.preserved_active_group_loan_memberships.map{|x| x.id } 
-  #   @default_payments = DefaultPayment.where(
-  #     :group_loan_membership_id => @group_loan_membership_id).order("group_loan_memberships.sub_group_id DESC, group_loan_memberships.created_at ASC").includes(:group_loan_membership)
-  #     
-  # end
+   
   
   def execute_propose_savings_disbursement_finalization
     @group_loan = GroupLoan.find_by_id params[:group_loan_id]
@@ -785,6 +760,20 @@ class GroupLoansController < ApplicationController
   def select_group_loan_for_savings_disbursement_finalization
     setup_group_loan_for_flushing_voluntary_savings
     add_breadcrumb "Finalisasi Pengembalian Tabungan", 'select_group_loan_for_savings_disbursement_finalization_url'
+  end
+  
+  def finalize_savings_disbursement
+    @group_loan = GroupLoan.find_by_id params[:entity_id]
+    @action_role = params[:action_role].to_i
+    @action_value = params[:action_value].to_i
+    
+    @group_loan.finalize_savings_disbursement( current_user ) 
+
+   
+    respond_to do |format|
+      format.html {  redirect_to root_url }
+      format.js 
+    end
   end
   
   

@@ -14,13 +14,18 @@
 		
 	</td>
 	<td>
-		
-		<% if group_loan.is_savings_disbursement_started %>
-    	Pending Finalisasi
+		<% if not group_loan.is_savings_disbursement_finalization_proposed %>
+			Pending Proposal
 		<% else %>
-			<a href="#" class="btn propose action true_check prevent_double_submit"
-	    id="start_group_loan_savings_disbursement-<%= group_loan.id %>"><%= t 'trigger.execute' %></a>
+			<% if group_loan.is_savings_disbursement_finalized %>
+	    	Selesai
+			<% else %>
+				<a href="#" class="btn propose action true_check prevent_double_submit"
+		    id="start_group_loan_savings_disbursement-<%= group_loan.id %>">Finalisasi</a>
+			<% end %>
 		<% end %>
+		
+		
 		
 		
 		</td> 

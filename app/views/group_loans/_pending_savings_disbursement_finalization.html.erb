@@ -1,10 +1,21 @@
 
 <tr id="entry-<%= group_loan.id %>">
   <td> 
-    <%= link_to group_loan.name , add_details_to_propose_savings_disbursement_finalization_url( group_loan.id )%>
+		<% if group_loan.is_savings_disbursement_started %>
+    	<%= link_to group_loan.name , 
+					add_details_to_propose_savings_disbursement_finalization_url( group_loan.id )%>
+		<% else %>
+			<%=  group_loan.name  %>
+		<% end %> 
   </td>
   <td><%= group_loan.get_commune %></td>
   <td><%= group_loan.preserved_active_group_loan_memberships.count %></td> 
-	<td><%= print_money( group_loan.total_disbursed_savings ) %></td>
+	<td>
+	 	<% if not group_loan.is_savings_disbursement_started %>
+			<%= print_money( group_loan.total_to_be_disbursed_savings ) %>
+		<% else %>
+			<%= print_money( group_loan.total_disbursed_savings ) %>
+		<% end %>
+	</td>
 	<td><%= print_money( group_loan.total_saved_disbursed_savings ) %></td>
 </tr>

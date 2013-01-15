@@ -209,8 +209,7 @@ class Office < ActiveRecord::Base
   
   def pending_savings_disbursement 
     self.group_loans.where(:is_started => true , 
-                    :is_closed => true, 
-                    :is_savings_disbursement_finalized => false   )
+                    :is_closed => true   ).order("created_at DESC")
   end
   
   def pending_savings_disbursement_finalization
