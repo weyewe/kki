@@ -1637,7 +1637,7 @@ class TransactionActivity < ActiveRecord::Base
   
   def TransactionActivity.resolve_independent_payment_transaction_case( cash, savings_withdrawal, extra_savings,
                           number_of_weeks, number_of_backlogs)
-                          
+                 #          888 10102 
     prependix= "888"
     content = "" 
     zero_value = BigDecimal("0")

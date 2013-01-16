@@ -29,6 +29,10 @@ class MemberPayment < ActiveRecord::Base
     
   end
   
+  def is_backlog_payment? 
+     (not transaction_activity_id.nil?) and (week_number.nil? )
+  end
+  
   def only_savings_independent_payment? 
      (has_paid == true ) && (only_extra_savings == true ) && 
      (week_number == nil) && (is_independent_weekly_payment == true )
