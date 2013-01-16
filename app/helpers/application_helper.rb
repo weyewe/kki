@@ -284,6 +284,10 @@ module ApplicationHelper
       return create_process_nav(CASHIER_PROCESS_LIST, params )
     end
     
+    if symbol == :history 
+      return create_process_nav(HISTORY_PROCESS_LIST, params )
+    end
+    
     if symbol == :savings
       return create_process_nav(SAVINGS_PROCESS_LIST, params )
     end
@@ -704,6 +708,30 @@ module ApplicationHelper
           {
             :controller => "members",
             :action => 'input_value_for_cash_savings_withdrawal'
+          }
+        ]
+      }
+    ]
+  }
+  
+  HISTORY_PROCESS_LIST ={
+    :header_title => "Sejarah Pembayaran",
+    :processes => [
+      {
+        :title => "Pinjaman Kumpulan",
+        :destination_link => "select_group_loan_to_view_payment_history_url",
+        :conditions => [
+          {
+            :controller => 'group_loans',
+            :action => 'select_group_loan_to_view_payment_history'
+          },
+          {
+            :controller => "weekly_tasks",
+            :action => 'select_week_to_view_payment_history'
+          },
+          {
+            :controller => "member_payments",
+            :action => 'group_loan_payment_histories'
           }
         ]
       }

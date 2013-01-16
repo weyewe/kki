@@ -1,0 +1,40 @@
+
+<% member = member_payment.member %>
+<% transaction_activity = member_payment.transaction_activity %>
+<tr id="independent_payment_entry-<%= member_payment.id %>">
+  <td><%= member.name  %></td>
+
+	<% if member_payment.no_payment? %>
+		<td>Tidak Bayar</td>
+		
+		
+		<td colspan='2'>
+			<% payment_in_the_previous_week =
+			 			member_payment.payment_in_the_previous_week(weekly_task ) %>
+			
+			<% if payment_in_the_previous_week.nil? %>
+				0 
+			<% else %> 
+				Dibayar di minggu <%=	payment_in_the_previous_week.week_number %> <br /> 
+			<% end %>
+		</td>
+		
+	<% else %>
+	
+		<td>
+				<% if member_payment.is_full_payment? %>
+					Pembayaran Penuh
+				<% elsif member_payment.only_savings_payment? %>
+					Hanya Tabungan 
+				<% elsif member_payment. no_payment?  %>
+				 Tidak Bayar
+				<% end %>
+		</td>
+		<td><%= print_money(transaction_activity.total_transaction_amount) %></td> 
+		<td><%= print_money( transaction_activity.savings_withdrawal_amount) %></td>  
+	<% end %>
+  
+
+ 
+  	
+</tr>

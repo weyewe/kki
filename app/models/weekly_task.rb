@@ -39,8 +39,23 @@ class WeeklyTask < ActiveRecord::Base
   
   def total_members_not_paying
   # thanks to squeel
-    self.member_payments.where( :has_paid => false ).count
+    # self.member_payments.where( :has_paid => false ,:is_independent_weekly_payment => false).count
+    self.member_payments.where{
+      (has_paid.eq false ) & 
+      (is_independent_weekly_payment.eq false ) & 
+      (transaction_activity_id.eq nil )
+      
+    }.count
   end
+  
+  def total_independent_payment
+    self.member_payments.where(:is_independent_weekly_payment => true, :has_paid => true  ).count 
+  end
+  
+  
+  
+    
+ 
   
 =begin
   FOr the weekly meeting

@@ -281,6 +281,12 @@ Debita46::Application.routes.draw do
   match 'reject_savings_disbursement_finalization_proposal' => 'group_loans#reject_savings_disbursement_finalization_proposal', :as => :reject_savings_disbursement_finalization_proposal, :method => :post
   
   
+=begin
+  PAYMENT HISTORY 
+=end
+  match 'select_group_loan_to_view_payment_history' => 'group_loans#select_group_loan_to_view_payment_history', :as => :select_group_loan_to_view_payment_history
+  match 'select_week_to_view_payment_history/:group_loan_id' => 'weekly_tasks#select_week_to_view_payment_history', :as => :select_week_to_view_payment_history
+  match 'group_loan_payment_histories/:weekly_task_id' => 'member_payments#group_loan_payment_histories', :as => :group_loan_payment_histories
   
 =begin
   SAVINGS WITHDRAWAL
@@ -288,6 +294,8 @@ Debita46::Application.routes.draw do
   match 'search_member_for_savings_withdrawal' => 'members#search_member_for_savings_withdrawal', :as => :search_member_for_savings_withdrawal
   match 'input_value_for_cash_savings_withdrawal/:member_id' => 'members#input_value_for_cash_savings_withdrawal', :as => :input_value_for_cash_savings_withdrawal
   match 'execute_transaction_for_cash_savings_withdrawal' => 'transaction_activities#execute_transaction_for_cash_savings_withdrawal', :as => :execute_transaction_for_cash_savings_withdrawal, :method => :post 
+
+
 =begin
   Transaction routes 
 =end

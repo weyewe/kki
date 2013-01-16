@@ -1,0 +1,11 @@
+<tr id="start_group_loan-<%= group_loan.id %>">
+  <td><%= link_to group_loan.name, select_week_to_view_payment_history_url(group_loan.id) %></td>
+  <td><%= group_loan.get_commune %></td>
+  <td><%= group_loan.members.count %></td>
+
+  
+  <td><%=  print_money( group_loan.aggregated_principal_amount ) %></td>
+  <td><%=  print_money( group_loan.aggregated_interest_amount ) %></td>
+  <td><%=  group_loan.aggregated_interest_rate_percentage.to_s + " %" %></td>
+ 
+</tr>

@@ -1,6 +1,7 @@
 class MemberPayment < ActiveRecord::Base
   belongs_to :weekly_task
   has_one :backlog_payment 
+  belongs_to :member 
   # there is no belongs_to :transaction_activity
   # because 1 transaction activity can have 1 member payment, or many.. 
   # remember, the member can make multiple payment 
@@ -58,6 +59,18 @@ class MemberPayment < ActiveRecord::Base
   
   
   
+  def payment_in_the_previous_week(weekly_task  ) 
+     
+    MemberPayment.where{
+      ( transaction_activity_id.not_eq nil ) & 
+      ( has_paid.eq false ) & 
+      ( week_number.eq weekly_task.week_number ) & 
+      ( member_id.eq self.member_id ) & 
+      (weekly_task_id.eq weekly_task.id)
+    }.first 
+  end
+  
+  # to check whether there is any payment 
   def MemberPayment.has_made_payment_for( weekly_task, week_number, member )
     # if it exists, can't be done.. has to be paid through backlog payment 
     MemberPayment.joins(:weekly_task).where(:week_number => week_number,

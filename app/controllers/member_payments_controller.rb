@@ -67,4 +67,26 @@ class MemberPaymentsController < ApplicationController
                 "#{t 'process.approve_independent_payment'}"
                 
   end
+  
+=begin
+  PAYMENT HISTORY 
+=end
+  def group_loan_payment_histories
+    @office = current_user.active_job_attachment.office
+    @weekly_task = WeeklyTask.find_by_id params[:weekly_task_id]
+    @group_loan = @weekly_task.group_loan
+    
+    @member_payments = @weekly_task.member_payments.order("member_id ASC, transaction_activity_id DESC")
+    
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_view_payment_history_url'
+    set_breadcrumb_for @group_loan, 'select_week_to_view_payment_history_url' + "(#{@group_loan.id})", 
+                "#{t 'process.select_week'}"
+                
+    
+    set_breadcrumb_for @weekly_task, 'group_loan_payment_histories_url' + "(#{@weekly_task.id})", 
+                "Sejarah Pembayaran"
+  end
+  
+  
+  
 end

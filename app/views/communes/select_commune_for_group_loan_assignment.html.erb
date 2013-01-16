@@ -22,7 +22,7 @@
           <% @communes_array_list.each do |commune_array| %>
             <% commune= Commune.find_by_id(commune_array[1])%>  
             <tr>
-              <td><%= link_to commune_array[0], list_members_in_commune_url(commune_array[1].id, @group_loan.id) %></td>
+              <td><%= link_to commune_array[0], list_members_in_commune_url(commune_array[1] , @group_loan.id) %></td>
               
               <td><%= commune.members.count %></td>
             </tr>

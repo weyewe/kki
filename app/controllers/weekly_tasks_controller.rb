@@ -208,6 +208,19 @@ class WeeklyTasksController < ApplicationController
     end
   end
   
+=begin
+  PAYMENT HISTORY 
+=end
+  def select_week_to_view_payment_history
+    setup_for_select_weekly_meeting
+    
+    
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_view_payment_history_url'
+    set_breadcrumb_for @group_loan, 'select_week_to_view_payment_history_url' + "(#{@group_loan.id})", 
+                "#{t 'process.select_week'}"
+    
+  end
+  
   protected
   def setup_for_select_weekly_meeting
     @office = current_user.active_job_attachment.office

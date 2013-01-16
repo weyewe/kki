@@ -10,6 +10,7 @@ class Member < ActiveRecord::Base
   has_many :backlog_payments
   
   has_many :member_payment_histories
+  has_many :member_payments 
 
   belongs_to :office 
   # belongs_to :commune

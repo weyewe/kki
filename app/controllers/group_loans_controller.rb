@@ -776,6 +776,16 @@ class GroupLoansController < ApplicationController
     end
   end
   
+=begin
+  MEMBER PAYMENT HISTORY
+=end
+  def select_group_loan_to_view_payment_history
+    @office = current_user.active_job_attachment.office
+    @group_loans = @office.group_loans.order("created_at DESC")
+    
+    add_breadcrumb "#{t 'process.select_group_loan'}", 'select_group_loan_to_view_payment_history_url'
+  end
+  
   
 
   

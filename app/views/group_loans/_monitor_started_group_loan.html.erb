@@ -2,7 +2,15 @@
 <tr id="start_group_loan-<%= group_loan.id %>">
   <td><%= link_to group_loan.name, new_group_loan_group_loan_subcription_url(group_loan.id) %></td>
   <td><%= group_loan.get_commune %></td>
-  <td><%= group_loan.preserved_active_group_loan_memberships.count %></td>
+
+  <td>
+		<% if group_loan.is_closed? %>
+			<%= group_loan.preserved_active_group_loan_memberships.count %>
+		<% else %>
+			<%= group_loan.active_group_loan_memberships.count %>
+		<% end %>
+		
+	</td>
 
   
   <td>
