@@ -40,32 +40,29 @@ class TransactionActivity < ActiveRecord::Base
   end
   
   def edit_savings_account_transaction_amount( employee, amount )
-    puts "testing the is_savings_account"
     return nil if not  self.is_savings_account_transaction?
     
-    puts "Testing whether it is cashier"
     return nil if not employee.has_role?(:cashier, employee.get_active_job_attachment)
     
-    puts "Testing whether it is approved"
     return nil if self.is_approved
     
     member = Member.find_by_id self.member_id
     
     if self.transaction_action_type == TRANSACTION_ACTION_TYPE[:inward]
-      if amount < MIN_SAVINGS_ACCOUNT_AMOUNT
-        errors.add(:amount , "Jumlah yang dibayarkan harus lebih dari: #{MIN_SAVINGS_ACCOUNT_AMOUNT.to_i} " )
+      if amount < MIN_SAVINGS_ACCOUNT_AMOUNT_DEPOSIT
+        errors.add(:amount , "Jumlah yang ditabung harus lebih dari: #{MIN_SAVINGS_ACCOUNT_AMOUNT_DEPOSIT.to_i} " )
         return self  
       end
       
-      puts "Gonna change, in INWARD"
       self.total_transaction_amount = amount 
     elsif self.transaction_action_type == TRANSACTION_ACTION_TYPE[:outward]
-      if amount > member.saving_book.total_savings_account 
-        errors.add(:amount , "Jumlah yang diambil tidak boleh lebih dari: #{member.saving_book.total_savings_account} " )
+      if  amount > member.saving_book.total_savings_account or amount < MIN_SAVINGS_ACCOUNT_AMOUNT_WITHDRAW
+        errors.add(:amount , "Jumlah yang diambil "+
+                                "tidak boleh kurang dari #{MIN_SAVINGS_ACCOUNT_AMOUNT_WITHDRAW} dan "+ 
+                                "tidak boleh lebih dari: #{member.saving_book.total_savings_account} " )
         return self
       end
       
-      puts "NOT GONNA Change, in OUTWARD"
       self.total_transaction_amount = amount
     end
     
@@ -79,7 +76,7 @@ class TransactionActivity < ActiveRecord::Base
   def TransactionActivity.add_savings_account( employee, member, amount)
     return nil if not employee.has_role?(:cashier, employee.get_active_job_attachment)
     return nil if TransactionActivity.has_unapproved_savings_account_transaction?(member)
-    return nil if amount < MIN_SAVINGS_ACCOUNT_AMOUNT
+    return nil if amount < MIN_SAVINGS_ACCOUNT_AMOUNT_DEPOSIT
     
     new_hash = {}
     new_hash[:total_transaction_amount]  = amount
@@ -125,10 +122,11 @@ class TransactionActivity < ActiveRecord::Base
 =end
   
   def TransactionActivity.withdraw_savings_account( employee, member, amount)
-    return nil if amount > member.saving_book.total_savings_account  
+    return nil if amount > member.saving_book.total_savings_account 
+    return nil if amount < MIN_SAVINGS_ACCOUNT_AMOUNT_WITHDRAW 
     return nil if not employee.has_role?(:cashier, employee.get_active_job_attachment)
     return nil if TransactionActivity.has_unapproved_savings_account_transaction?(member)
-    return nil if amount < MIN_SAVINGS_ACCOUNT_AMOUNT
+    
     
     new_hash = {}
     new_hash[:total_transaction_amount]  = amount

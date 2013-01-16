@@ -52,8 +52,8 @@ describe SavingBook do
     transaction_activity.should be_nil 
   end
   
-  it 'should not allow savings_account transaction if the nominal is less than 100* rupiah'  do
-    amount = MIN_SAVINGS_ACCOUNT_AMOUNT - BigDecimal('5')
+  it 'should not allow savings_account transaction if the nominal is less than 1000 rupiah'  do
+    amount = MIN_SAVINGS_ACCOUNT_AMOUNT_DEPOSIT - BigDecimal('5')
     transaction_activity = TransactionActivity.add_savings_account( @cashier, @first_member , amount)
     transaction_activity.should be_nil
   end

@@ -30,6 +30,17 @@ class MemberPaymentsController < ApplicationController
     @group_loan = @group_loan_membership.group_loan 
     @member = @group_loan_membership.member 
     @group_loan_product = @group_loan_membership.group_loan_product
+    @transaction_activity  =   @group_loan_membership.unapproved_independent_payment
+     
+    if @transaction_activity.nil? 
+      @member_payment = nil  
+    else
+      @member_payment = MemberPayment.find_by_transaction_activity_id @transaction_activity.id
+    end
+    
+    
+    
+    
     
     
     

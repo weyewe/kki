@@ -56,6 +56,12 @@ describe SavingBook do
     transaction_activity.should be_nil 
   end
   
+  it 'should not allowed to deduct below the smallest amount: 100 rupiah' do
+    withdrawal = MIN_SAVINGS_ACCOUNT_AMOUNT_WITHDRAW - BigDecimal('5')
+    transaction_activity = TransactionActivity.withdraw_savings_account( @cashier, @first_member,withdrawal )
+    transaction_activity.should be_nil
+  end
+  
   it 'should not allow savings_account transaction if there is unconfirmed savings_account' do
     transaction_activity = TransactionActivity.add_savings_account( @cashier, @first_member , BigDecimal('50000'))
     transaction_activity.should be_valid
